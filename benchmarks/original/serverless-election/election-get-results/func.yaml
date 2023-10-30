@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: election-get-results
+runtime: node
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/election-get-results:latest
+imageDigest: sha256:223d6ee986ad41b200c0455769e23ffd5bec525f94d78c4c90ff0127c1de314c
+created: 2023-10-10T14:56:42.988177953-05:00
+build:
+  builder: pack
+deploy:
+  namespace: default
+volumes:
+    - name: secret-volume
+      secret:
+        secretName: original-election
+      secret:
+        secretName: redis

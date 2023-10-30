@@ -1,0 +1,11 @@
+specVersion: 0.35.0
+name: election-get-results-partial
+runtime: node
+created: 2023-10-20T10:09:21.067803343-05:00
+volumes:
+    - name: secret-volume
+      secret:
+        secretName: partial-election
+      secret:
+        secretName: redis
+
