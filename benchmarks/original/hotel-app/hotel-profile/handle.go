@@ -19,16 +19,35 @@ import (
 	"github.com/bradfitz/gomemcache/memcache"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/reflection"
-
-	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/profile"
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
+type Image struct {
+	url string
+	default bool
+}
+
+type Address struct {
+	streetNumber string
+	streetName string
+	city string
+	state string
+	country string
+	postalCode string
+	lat float
+	lon float
+}
+
+type Hotel struct {
+	id string
+	name string
+	phoneNumber string
+	description string
+	address Address
+	images Image[]
+}
+
 // GetProfiles returns hotel profiles for requested IDs
-func GetProfiles(var req) (*pb.Result, error) {
+func GetProfiles(var req) (string, error) {
 	// session, err := mgo.Dial("mongodb-profile")
 	// if err != nil {
 	// 	panic(err)
@@ -38,8 +57,8 @@ func GetProfiles(var req) (*pb.Result, error) {
 
 	// fmt.Printf("In GetProfiles after setting c\n")
 
-	res := new(pb.Result)
-	hotels := make([]*pb.Hotel, 0)
+	res = []Hotel
+	hotels := make([]Hotel, 0)
 
 	// one hotel should only have one profile
 
@@ -53,7 +72,7 @@ func GetProfiles(var req) (*pb.Result, error) {
 			// fmt.Printf("memc hit\n")
 			// fmt.Println(profile_str)
 
-			hotel_prof := new(pb.Hotel)
+			hotel_prof := new(Hotel)
 			if err = json.Unmarshal(item.Value, hotel_prof); err != nil {
 				log.Warn(err)
 			}
@@ -65,7 +84,7 @@ func GetProfiles(var req) (*pb.Result, error) {
 			defer session.Close()
 			c := session.DB("profile-db").C("hotels")
 
-			hotel_prof := new(pb.Hotel)
+			hotel_prof := new(Hotel)
 			err := c.Find(bson.M{"id": i}).One(&hotel_prof)
 
 			if err != nil {
@@ -94,9 +113,9 @@ func GetProfiles(var req) (*pb.Result, error) {
 		}
 	}
 
-	res.Hotels = hotels
+	res = hotels
 	// fmt.Printf("In GetProfiles after getting resp\n")
-	return res, nil
+	return json.Marhsal(res), nil
 }
 
 // Handle an HTTP Request.

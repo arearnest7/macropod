@@ -17,12 +17,6 @@ import (
 	"github.com/hailocab/go-geoindex"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/reflection"
-
-	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/geo"
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 const (
@@ -85,22 +79,22 @@ func getNearbyPoints(lat, lon float64) []geoindex.Point {
 }
 
 // Nearby returns all hotels within a given distance.
-func Nearby(var req) (*pb.Result, error) {
+func Nearby(var req) (string, error) {
 	// fmt.Printf("In geo Nearby\n")
 
 	var (
 		points = getNearbyPoints(float64(req.Lat), float64(req.Lon))
-		res    = &pb.Result{}
+		res    = []string
 	)
 
 	// fmt.Printf("geo after getNearbyPoints, len = %d\n", len(points))
 
 	for _, p := range points {
 		// fmt.Printf("In geo Nearby return hotelId = %s\n", p.Id())
-		res.HotelIds = append(res.HotelIds, p.Id())
+		res = append(res, p.Id())
 	}
 
-	return res, nil
+	return json.Marshal(res), nil
 }
 
 // Handle an HTTP Request.

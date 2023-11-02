@@ -19,12 +19,6 @@ import (
 	"github.com/hailocab/go-geoindex"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/reflection"
-
-	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/recommendation"
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 type Hotel struct {
@@ -64,10 +58,10 @@ func loadRecommendations(session *mgo.Session) map[string]Hotel {
 }
 
 // GiveRecommendation returns recommendations within a given requirement.
-func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.Result, error) {
+func GetRecommendations(var req) (string, error) {
 	map[string]Hotel hotels = loadRecmmendations(MongoSession)
 
-	res := new(pb.Result)
+	res := make([]string, 0)
 	// fmt.Printf("GetRecommendations:\n")
 	// fmt.Printf("%+v\n", s.hotels)
 
@@ -96,7 +90,7 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 				Plon: hotel.HLon,
 			})) / 1000
 			if tmp == min {
-				res.HotelIds = append(res.HotelIds, hotel.HId)
+				res = append(res, hotel.HId)
 			}
 		}
 	} else if require == "rate" {
@@ -108,7 +102,7 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 		}
 		for _, hotel := range hotels {
 			if hotel.HRate == max {
-				res.HotelIds = append(res.HotelIds, hotel.HId)
+				res = append(res, hotel.HId)
 			}
 		}
 	} else if require == "price" {
@@ -120,7 +114,7 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 		}
 		for _, hotel := range hotels {
 			if hotel.HPrice == min {
-				res.HotelIds = append(res.HotelIds, hotel.HId)
+				res = append(res, hotel.HId)
 			}
 		}
 	} else {

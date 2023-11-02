@@ -20,17 +20,6 @@ import (
 
 	"github.com/bradfitz/gomemcache/memcache"
         "golang.org/x/net/context"
-        "google.golang.org/grpc"
-        "google.golang.org/grpc/credentials/insecure"
-        "google.golang.org/grpc/keepalive"
-        "google.golang.org/grpc/reflection"
-
-        geo "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/geo"
-        rate "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/rate"
-
-        pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/search"
-
-        tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 const (
@@ -44,7 +33,24 @@ type Point struct {
         Plon float64 `bson:"lon"`
 }
 
-type RatePlans []*pb.RatePlan
+type RoomType struct {
+        bookableRate double
+        totalRate double
+        totalRateInclusive double
+        code string
+        currency string
+        roomDescription string
+}
+
+type RatePlan struct {
+        hotelId string
+        code string
+        inDate string
+        outDate string
+        roomType RoomType
+}
+
+type RatePlans []*RatePlan
 
 type User struct {
         Username string `bson:"username" json:"username"`
@@ -71,6 +77,31 @@ type Hotel struct {
         HLon   float64       `bson:"lon"`
         HRate  float64       `bson:"rate"`
         HPrice float64       `bson:"price"`
+}
+
+type Image struct {
+        url string
+        default bool
+}
+
+type Address struct {
+        streetNumber string
+        streetName string
+        city string
+        state string
+        country string
+        postalCode string
+        lat float
+        lon float
+}
+
+type Hotel2 struct {
+        id string
+        name string
+        phoneNumber string
+        description string
+        address Address
+        images Image[]
 }
 
 func (r RatePlans) Len() int {
@@ -118,7 +149,7 @@ func loadRecommendations(session *mgo.Session) map[string]Hotel {
 }
 
 // GiveRecommendation returns recommendations within a given requirement.
-func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.Result, error) {
+func GetRecommendations(var req) (*pb.Result, error) {
         map[string]Hotel hotels = loadRecmmendations(MongoSession)
 
         res := new(pb.Result)
@@ -507,7 +538,7 @@ func CheckUser(var req) (*pb.Result, error) {
 }
 
 // GetProfiles returns hotel profiles for requested IDs
-func GetProfiles(var req) (*pb.Result, error) {
+func GetProfiles(var req) (string, error) {
         // session, err := mgo.Dial("mongodb-profile")
         // if err != nil {
         //      panic(err)
@@ -517,8 +548,8 @@ func GetProfiles(var req) (*pb.Result, error) {
 
         // fmt.Printf("In GetProfiles after setting c\n")
 
-        res := new(pb.Result)
-        hotels := make([]*pb.Hotel, 0)
+        res := new([]Hotel2)
+        hotels := make([]Hotel2, 0)
 
         // one hotel should only have one profile
 
@@ -532,7 +563,7 @@ func GetProfiles(var req) (*pb.Result, error) {
                         // fmt.Printf("memc hit\n")
                         // fmt.Println(profile_str)
 
-                        hotel_prof := new(pb.Hotel)
+                        hotel_prof := new(Hotel2)
                         if err = json.Unmarshal(item.Value, hotel_prof); err != nil {
                                 log.Warn(err)
                         }
@@ -544,7 +575,7 @@ func GetProfiles(var req) (*pb.Result, error) {
                         defer session.Close()
                         c := session.DB("profile-db").C("hotels")
 
-                        hotel_prof := new(pb.Hotel)
+                        hotel_prof := new(Hotel2)
                         err := c.Find(bson.M{"id": i}).One(&hotel_prof)
 
                         if err != nil {
@@ -573,14 +604,14 @@ func GetProfiles(var req) (*pb.Result, error) {
                 }
         }
 
-        res.Hotels = hotels
+        res = hotels
         // fmt.Printf("In GetProfiles after getting resp\n")
-        return res, nil
+        return json.Marshal(res), nil
 }
 
 // GetRates gets rates for hotels for specific date range.
-func GetRates(var req) (*pb.Result, error) {
-        res := new(pb.Result)
+func GetRates(var req) (string, error) {
+        res := []RatePlans
         // session, err := mgo.Dial("mongodb-rate")
         // if err != nil {
         //      panic(err)
@@ -603,7 +634,7 @@ func GetRates(var req) (*pb.Result, error) {
 
                         for _, rate_str := range rate_strs {
                                 if len(rate_str) != 0 {
-                                        rate_p := new(pb.RatePlan)
+                                        rate_p := new(RatePlan)
                                         if err = json.Unmarshal(item.Value, rate_p); err != nil {
                                                 log.Warn(err)
                                         }
@@ -651,9 +682,9 @@ func GetRates(var req) (*pb.Result, error) {
 
         // fmt.Printf("Rate Plans %+v\n", ratePlans)
         sort.Sort(ratePlans)
-        res.RatePlans = ratePlans
+        res = ratePlans
 
-        return res, nil
+        return json.Marshal(res), nil
 }
 
 // newGeoIndex returns a geo index with points loaded
@@ -700,28 +731,28 @@ func getNearbyPoints(lat, lon float64) []geoindex.Point {
 }
 
 // Nearby returns all hotels within a given distance.
-func Nearby(var req) (*pb.Result, error) {
+func Nearby(var req) (string, error) {
         // fmt.Printf("In geo Nearby\n")
 
         var (
                 points = getNearbyPoints(float64(req.Lat), float64(req.Lon))
-                res    = &pb.Result{}
+                res    = []string
         )
 
         // fmt.Printf("geo after getNearbyPoints, len = %d\n", len(points))
 
         for _, p := range points {
                 // fmt.Printf("In geo Nearby return hotelId = %s\n", p.Id())
-                res.HotelIds = append(res.HotelIds, p.Id())
+                res = append(res, p.Id())
         }
 
-        return res, nil
+        return json.Marshal(res), nil
 }
 
 
 
 // Nearby returns ids of nearby hotels ordered by ranking algo
-func SearchNearby(var req) (*pb.SearchResult, error) {
+func SearchNearby(var req) (string, error) {
         // find nearby hotels
         fmt.Printf("in Search Nearby\n")
 
@@ -758,13 +789,15 @@ func SearchNearby(var req) (*pb.SearchResult, error) {
         // * price (best discount?)
         // * reviews
 
-        // build the response
-        res := new(pb.SearchResult)
-        for _, ratePlan := range rates.RatePlans {
+	// build the response
+        res := make([]string, 0)
+        rate_p : make(RatePlans, 1)
+        json.Unmarshal(rates, &rate_p)
+        for _, ratePlan := range rate_p {
                 // fmt.Printf("get RatePlan HotelId = %s, Code = %s\n", ratePlan.HotelId, ratePlan.Code)
-                res.HotelIds = append(res.HotelIds, ratePlan.HotelId)
+                res = append(res, ratePlan.HotelId)
         }
-        return res, nil
+        return json.Marshal(res), nil
 }
 
 // Handle an HTTP Request.

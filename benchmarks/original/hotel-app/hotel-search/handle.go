@@ -13,21 +13,29 @@ import (
 	"time"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/reflection"
-
-	geo "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/geo"
-	rate "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/rate"
-
-	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/search"
-
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
+type RoomType struct {
+        bookableRate double
+        totalRate double
+        totalRateInclusive double
+        code string
+        currency string
+        roomDescription string
+}
+
+type RatePlan struct {
+        hotelId string
+        code string
+        inDate string
+        outDate string
+        roomType RoomType
+}
+
+type RatePlans []*RatePlan
+
 // Nearby returns ids of nearby hotels ordered by ranking algo
-func Nearby(var req) (*pb.SearchResult, error) {
+func Nearby(var req) (string, error) {
 	// find nearby hotels
 	fmt.Printf("in Search Nearby\n")
 
@@ -49,14 +57,14 @@ func Nearby(var req) (*pb.SearchResult, error) {
         }
 
 	// var ids []string
-	for _, hid := range nearby.HotelIds {
+	for _, hid := range json.Unmarshal(nearby) {
 		fmt.Printf("get Nearby hotelId = %s\n", hid)
 		// ids = append(ids, hid)
 	}
 
 	// find rates for hotels
 	r := rate.Request{
-		HotelIds: nearby.HotelIds,
+		HotelIds: json.Unmarshal(nearby),
 		// HotelIds: []string{"2"},
 		InDate:  req.InDate,
 		OutDate: req.OutDate,
@@ -81,12 +89,14 @@ func Nearby(var req) (*pb.SearchResult, error) {
 	// * reviews
 
 	// build the response
-	res := new(pb.SearchResult)
-	for _, ratePlan := range rates.RatePlans {
+	res := make([]string, 0)
+	rate_p : make(RatePlans, 1)
+	json.Unmarshal(rates, &rate_p)
+	for _, ratePlan := range rate_p {
 		// fmt.Printf("get RatePlan HotelId = %s, Code = %s\n", ratePlan.HotelId, ratePlan.Code)
-		res.HotelIds = append(res.HotelIds, ratePlan.HotelId)
+		res = append(res, ratePlan.HotelId)
 	}
-	return res, nil
+	return json.Marshal(res), nil
 }
 
 // Handle an HTTP Request.

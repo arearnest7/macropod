@@ -6,25 +6,16 @@ from __future__ import print_function
 import pickle
 import sys
 import os
-# adding python tracing and storage sources to the system path
-sys.path.insert(0, os.getcwd() + '/../proto/')
-sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
-sys.path.insert(0, os.getcwd() + '/../../../../utils/storage/python')
-import tracing
-import videoservice_pb2_grpc
-import videoservice_pb2
-import destination as XDTdst
-import source as XDTsrc
-import utils as XDTutil
 
 import cv2
-import grpc
 import tempfile
 import argparse
-import boto3
 import logging as log
 import socket
 import requests
+
+sys.path.insert(0, os.getcwd() + 'utils/tracing/python')
+import tracing
 
 from concurrent import futures
 

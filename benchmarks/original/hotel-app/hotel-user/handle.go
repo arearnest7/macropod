@@ -19,12 +19,6 @@ import (
 	"crypto/sha256"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/reflection"
-
-	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/user"
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 type User struct {
@@ -91,8 +85,8 @@ func lookUpDB(username string) (User, bool) {
 }
 
 // CheckUser returns whether the username and password are correct.
-func CheckUser(var req) (*pb.Result, error) {
-	res := new(pb.Result)
+func CheckUser(var req) (bool, error) {
+	res := new(bool)
 
 	fmt.Printf("CheckUser: %+v", req)
 
@@ -103,13 +97,13 @@ func CheckUser(var req) (*pb.Result, error) {
 
 	if use_cache {
 		password := lookupCache(req.Username)
-		res.Correct = pass == password
+		res = pass == password
 	} else {
 		user, _ := lookUpDB(req.Username)
-		res.Correct = pass == user.Password
+		res = pass == user.Password
 	}
 
-	fmt.Printf(" >> pass: %t\n", res.Correct)
+	fmt.Printf(" >> pass: %t\n", res)
 
 	return res, nil
 }

@@ -19,15 +19,26 @@ import (
 	"github.com/bradfitz/gomemcache/memcache"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/reflection"
-
-	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/rate"
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
-type RatePlans []*pb.RatePlan
+type RoomType struct {
+	bookableRate double
+	totalRate double
+	totalRateInclusive double
+	code string
+	currency string
+	roomDescription string
+}
+
+type RatePlan struct {
+	hotelId string
+	code string
+	inDate string
+	outDate string
+	roomType RoomType
+}
+
+type RatePlans []*RatePlan
 
 func (r RatePlans) Len() int {
 	return len(r)
@@ -42,8 +53,8 @@ func (r RatePlans) Less(i, j int) bool {
 }
 
 // GetRates gets rates for hotels for specific date range.
-func GetRates(var req) (*pb.Result, error) {
-	res := new(pb.Result)
+func GetRates(var req) (string, error) {
+	res = []RatePlans
 	// session, err := mgo.Dial("mongodb-rate")
 	// if err != nil {
 	// 	panic(err)
@@ -66,7 +77,7 @@ func GetRates(var req) (*pb.Result, error) {
 
 			for _, rate_str := range rate_strs {
 				if len(rate_str) != 0 {
-					rate_p := new(pb.RatePlan)
+					rate_p := new(RatePlan)
 					if err = json.Unmarshal(item.Value, rate_p); err != nil {
 						log.Warn(err)
 					}
@@ -114,9 +125,9 @@ func GetRates(var req) (*pb.Result, error) {
 
 	// fmt.Printf("Rate Plans %+v\n", ratePlans)
 	sort.Sort(ratePlans)
-	res.RatePlans = ratePlans
+	res = ratePlans
 
-	return res, nil
+	return json.Marshal(res), nil
 }
 
 // Handle an HTTP Request.

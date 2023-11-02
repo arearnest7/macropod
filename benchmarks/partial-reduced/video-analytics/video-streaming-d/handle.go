@@ -13,21 +13,8 @@ import (
 	"log"
 	"os/exec"
 
-	"google.golang.org/grpc/credentials/insecure"
-
 	ctrdlog "github.com/containerd/containerd/log"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-
-	pb_video "tests/video_analytics/proto"
-
-	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
-	"github.com/ease-lab/vhive-xdt/utils"
-	pb_helloworld "github.com/vhive-serverless/vSwarm/examples/protobuf/helloworld"
-
-	storage "github.com/vhive-serverless/vSwarm/utils/storage/go"
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 var (
@@ -41,16 +28,6 @@ const (
 	XDT    = "XDT"
 	S3     = "S3"
 )
-
-type server struct {
-	decoderAddr    string
-	decoderPort    int
-	transferType   string
-	config         utils.Config
-	XDTclient      *sdk.XDTclient
-	storageBackend storage.Storage
-	pb_helloworld.UnimplementedGreeterServer
-}
 
 func fetchSelfIP() string {
 	addrs, err := net.InterfaceAddrs()

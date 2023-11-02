@@ -19,12 +19,6 @@ import (
 	"github.com/bradfitz/gomemcache/memcache"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/reflection"
-
-	pb "github.com/vhive-serverless/vSwarm-proto/proto/hotel_reserv/reservation"
-	tracing "github.com/vhive-serverless/vSwarm/utils/tracing/go"
 )
 
 type Reservation struct {
@@ -41,10 +35,9 @@ type Number struct {
 }
 
 // CheckAvailability checks if given information is available
-func CheckAvailability(var req) (*pb.Result, error) {
+func CheckAvailability(var req) (string, error) {
 	log.Println("CheckAvailability")
-	res := new(pb.Result)
-	res.HotelId = make([]string, 0)
+	res := make([]string, 0)
 
 	// session, err := mgo.Dial("mongodb-reservation")
 	// if err != nil {
@@ -139,19 +132,18 @@ func CheckAvailability(var req) (*pb.Result, error) {
 			indate = outdate
 
 			if inDate.Equal(outDate) {
-				res.HotelId = append(res.HotelId, hotelId)
+				res = append(res, hotelId)
 			}
 		}
 	}
 
-	return res, nil
+	return json.Marshal(res), nil
 }
 
 // MakeReservation makes a reservation based on given information
-func MakeReservation(var req) (*pb.Result, error) {
+func MakeReservation(var req) (string, error) {
 	log.Println("MakeReservation")
-	res := new(pb.Result)
-	res.HotelId = make([]string, 0)
+	res := make([]string, 0)
 
 	// session, err := mgo.Dial("mongodb-reservation")
 	// if err != nil {
@@ -276,9 +268,9 @@ func MakeReservation(var req) (*pb.Result, error) {
 		indate = outdate
 	}
 
-	res.HotelId = append(res.HotelId, hotelId)
+	res = append(res, hotelId)
 
-	return res, nil
+	return json.Marshal(res), nil
 }
 
 // Handle an HTTP Request.
