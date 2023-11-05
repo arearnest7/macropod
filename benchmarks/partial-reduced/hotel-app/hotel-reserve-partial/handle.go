@@ -4,22 +4,36 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"strconv"
+	"os"
+	"encoding/json"
+	"io/ioutil"
+
+	"time"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	"net"
-
 	log "github.com/sirupsen/logrus"
 
-	"time"
-
 	"github.com/bradfitz/gomemcache/memcache"
-
-	"golang.org/x/net/context"
 )
+
+type RequestBody struct {
+        request string "json:\"request\""
+	requestType string "json:\"requestType\""
+        Lat float64 "json:\"Lat,omitempty\""
+        Lon float64 "json:\"Lon,omitempty\""
+        HotelId string "json:\"HotelId,omitempty\""
+        HotelIds []string "json:\"HotelIds,omitempty\""
+        RoomNumber int "json:\"RoomNumber,omitempty\""
+        CustomerName string "json:\"CustomerName,omitempty\""
+        Username string "json:\"Username,omitempty\""
+        Password string "json:\"Password,omitempty\""
+        Require string "json:\"Require,omitempty\""
+        InDate string "json:\"InDate,omitempty\""
+        OutDate string "json:\"OutDate,omitempty\""
+}
 
 type Reservation struct {
 	HotelId      string `bson:"hotelid"`
@@ -35,7 +49,7 @@ type Number struct {
 }
 
 // CheckAvailability checks if given information is available
-func CheckAvailability(var req) (string, error) {
+func CheckAvailability(req RequestBody) string {
 	log.Println("CheckAvailability")
 	res := make([]string, 0)
 
@@ -44,13 +58,15 @@ func CheckAvailability(var req) (string, error) {
 	// 	panic(err)
 	// }
 	// defer session.Close()
+	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
 	session := MongoSession.Copy()
 	defer session.Close()
 
 	c := session.DB("reservation-db").C("reservation")
 	c1 := session.DB("reservation-db").C("number")
 
-	for _, hotelId := range req.HotelId {
+	for _, hotelId := range req.HotelIds {
 		fmt.Printf("reservation check hotel %s\n", hotelId)
 		inDate, _ := time.Parse(
 			time.RFC3339,
@@ -90,7 +106,7 @@ func CheckAvailability(var req) (string, error) {
 				}
 
 				// update memcached
-				err = s.MemcClient.Set(&memcache.Item{Key: memc_key, Value: []byte(strconv.Itoa(count))})
+				err = MemcClient.Set(&memcache.Item{Key: memc_key, Value: []byte(strconv.Itoa(count))})
 				if err != nil {
 					log.Warn("MMC error: ", err)
 				}
@@ -102,7 +118,7 @@ func CheckAvailability(var req) (string, error) {
 			// check capacity
 			// check memc capacity
 			memc_cap_key := hotelId + "_cap"
-			item, err = s.MemcClient.Get(memc_cap_key)
+			item, err = MemcClient.Get(memc_cap_key)
 			hotel_cap := 0
 
 			if err == nil {
@@ -137,11 +153,12 @@ func CheckAvailability(var req) (string, error) {
 		}
 	}
 
-	return json.Marshal(res), nil
+	ret, _ := json.Marshal(res)
+        return string(ret)
 }
 
 // MakeReservation makes a reservation based on given information
-func MakeReservation(var req) (string, error) {
+func MakeReservation(req RequestBody) string {
 	log.Println("MakeReservation")
 	res := make([]string, 0)
 
@@ -150,6 +167,8 @@ func MakeReservation(var req) (string, error) {
 	// 	panic(err)
 	// }
 	// defer session.Close()
+	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
 	session := MongoSession.Copy()
 	defer session.Close()
 
@@ -163,7 +182,7 @@ func MakeReservation(var req) (string, error) {
 	outDate, _ := time.Parse(
 		time.RFC3339,
 		req.OutDate+"T12:00:00+00:00")
-	hotelId := req.HotelId[0]
+	hotelId := req.HotelId
 
 	indate := inDate.String()[0:10]
 
@@ -234,7 +253,8 @@ func MakeReservation(var req) (string, error) {
 
 		if count+int(req.RoomNumber) > hotel_cap {
 			fmt.Printf("Not enough space left\n")
-			return res, nil
+			ret, _ := json.Marshal(res)
+        		return string(ret)
 		}
 		indate = outdate
 	}
@@ -270,17 +290,21 @@ func MakeReservation(var req) (string, error) {
 
 	res = append(res, hotelId)
 
-	return json.Marshal(res), nil
+	ret, _ := json.Marshal(res)
+        return string(ret)
 }
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-        let ret = ""
-	if req.json.requestType == "check" {
-		ret := CheckAvailability(req.json)
-	}
-	else if req.json.requestType == "make" {
-		ret := MakeReservation(req.json)
+        ret := ""
+	body, _ := ioutil.ReadAll(req.Body)
+        var body_u *RequestBody
+        json.Unmarshal(body, &body_u)
+        defer req.Body.Close()
+	if body_u.requestType == "check" {
+		ret = CheckAvailability(*body_u)
+	} else if body_u.requestType == "make" {
+		ret = MakeReservation(*body_u)
 	}
 	fmt.Fprintf(res, ret) // echo to caller
 }

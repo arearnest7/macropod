@@ -1,10 +1,12 @@
 specVersion: 0.35.0
 name: hotel-reserve-partial
 runtime: go
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/hotel-reserve-partial:latest
 created: 2023-10-26T19:54:47.835967387-05:00
-volumes:
-    - name: secret-volume
-      secret:
-        secretName: partial-hotel
-      secret:
-        secretName: hotel-app
+run:
+  envs:
+  - name: HOTEL_APP_DATABASE
+    value: http://hotel-app-database.default.10.125.188.36.sslip.io
+  - name: HOTEL_APP_MEMCACHED
+    value: http://hotel-app-memcached.default.10.125.188.36.sslip.io

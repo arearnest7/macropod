@@ -4,26 +4,36 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"encoding/json"
+	"os"
+	"io/ioutil"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	"net"
-
 	log "github.com/sirupsen/logrus"
 
-	"time"
-
 	"github.com/bradfitz/gomemcache/memcache"
-
-	"golang.org/x/net/context"
 )
+
+type RequestBody struct {
+        request string "json:\"request\""
+        Lat float64 "json:\"Lat,omitempty\""
+        Lon float64 "json:\"Lon,omitempty\""
+        HotelId string "json:\"HotelId,omitempty\""
+        HotelIds []string "json:\"HotelIds,omitempty\""
+        RoomNumber int "json:\"RoomNumber,omitempty\""
+        CustomerName string "json:\"CustomerName,omitempty\""
+        Username string "json:\"Username,omitempty\""
+        Password string "json:\"Password,omitempty\""
+        Require string "json:\"Require,omitempty\""
+        InDate string "json:\"InDate,omitempty\""
+        OutDate string "json:\"OutDate,omitempty\""
+}
 
 type Image struct {
 	url string
-	default bool
+	Default bool
 }
 
 type Address struct {
@@ -33,8 +43,8 @@ type Address struct {
 	state string
 	country string
 	postalCode string
-	lat float
-	lon float
+	lat float64
+	lon float64
 }
 
 type Hotel struct {
@@ -43,11 +53,11 @@ type Hotel struct {
 	phoneNumber string
 	description string
 	address Address
-	images Image[]
+	images []Image
 }
 
 // GetProfiles returns hotel profiles for requested IDs
-func GetProfiles(var req) (string, error) {
+func GetProfiles(req RequestBody) string {
 	// session, err := mgo.Dial("mongodb-profile")
 	// if err != nil {
 	// 	panic(err)
@@ -57,8 +67,11 @@ func GetProfiles(var req) (string, error) {
 
 	// fmt.Printf("In GetProfiles after setting c\n")
 
-	res = []Hotel
+	res := make([]Hotel, 0)
 	hotels := make([]Hotel, 0)
+
+	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+	var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
 
 	// one hotel should only have one profile
 
@@ -76,7 +89,7 @@ func GetProfiles(var req) (string, error) {
 			if err = json.Unmarshal(item.Value, hotel_prof); err != nil {
 				log.Warn(err)
 			}
-			hotels = append(hotels, hotel_prof)
+			hotels = append(hotels, *hotel_prof)
 
 		} else if err == memcache.ErrCacheMiss {
 			// memcached miss, set up mongo connection
@@ -94,7 +107,7 @@ func GetProfiles(var req) (string, error) {
 			// for _, h := range hotels {
 			// 	res.Hotels = append(res.Hotels, h)
 			// }
-			hotels = append(hotels, hotel_prof)
+			hotels = append(hotels, *hotel_prof)
 
 			prof_json, err := json.Marshal(hotel_prof)
 			if err != nil {
@@ -115,10 +128,15 @@ func GetProfiles(var req) (string, error) {
 
 	res = hotels
 	// fmt.Printf("In GetProfiles after getting resp\n")
-	return json.Marhsal(res), nil
+	ret, _ := json.Marshal(res)
+	return string(ret)
 }
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-        fmt.Fprintf(res, GetProfiles(req.json)) // echo to caller
+        body, _ := ioutil.ReadAll(req.Body)
+        var body_u *RequestBody
+        json.Unmarshal(body, &body_u)
+        defer req.Body.Close()
+	fmt.Fprintf(res, GetProfiles(*body_u)) // echo to caller
 }

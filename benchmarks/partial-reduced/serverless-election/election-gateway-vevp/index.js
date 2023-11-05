@@ -19,16 +19,7 @@ const fs = require('fs')
 const redis = require('redis');
 const http = require('http');
 
-fs.readFile('/etc/secret-volume/redis-url', 'utf8', function(err, redis-url) {
-    if (err) throw err;
-    console.log(redis-url)
-});
-fs.readFile('/etc/secret-volume/election-get-results-partial', 'utf8', function(err, election-get-results-partial) {
-    if (err) throw err;
-    console.log(election-get-results-partial)
-});
-
-const client = redis.createClient({url: redis-url});
+const client = redis.createClient({url: process.env.REDIS_URL});
 
 const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID'
 , 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH'
@@ -72,8 +63,8 @@ const vote_enqueuer_handler = async (body) => {
 
 const handle = async (context, body) => {
         var opt = {
-                host: election-get-results-partial,
-                port: 80,
+                host: process.env.ELECTION_GET_RESULTS_PARTIAL,
+                port: 8080,
                 method: 'GET',
                 headers: {
                         'Content-Type': 'application/json',

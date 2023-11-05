@@ -4,22 +4,33 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"math"
+	"os"
+	"encoding/json"
+	"io/ioutil"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	"net"
-
 	log "github.com/sirupsen/logrus"
 
-	"time"
-
 	"github.com/hailocab/go-geoindex"
-
-	"golang.org/x/net/context"
 )
+
+type RequestBody struct {
+        request string "json:\"request\""
+        Lat float64 "json:\"Lat,omitempty\""
+        Lon float64 "json:\"Lon,omitempty\""
+        HotelId string "json:\"HotelId,omitempty\""
+        HotelIds []string "json:\"HotelIds,omitempty\""
+        RoomNumber int "json:\"RoomNumber,omitempty\""
+        CustomerName string "json:\"CustomerName,omitempty\""
+        Username string "json:\"Username,omitempty\""
+        Password string "json:\"Password,omitempty\""
+        Require string "json:\"Require,omitempty\""
+        InDate string "json:\"InDate,omitempty\""
+        OutDate string "json:\"OutDate,omitempty\""
+}
 
 type Hotel struct {
 	ID     bson.ObjectId `bson:"_id"`
@@ -58,8 +69,10 @@ func loadRecommendations(session *mgo.Session) map[string]Hotel {
 }
 
 // GiveRecommendation returns recommendations within a given requirement.
-func GetRecommendations(var req) (string, error) {
-	map[string]Hotel hotels = loadRecmmendations(MongoSession)
+func GetRecommendations(req RequestBody) string {
+	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+	var hotels map[string]Hotel
+	hotels = loadRecommendations(MongoSession)
 
 	res := make([]string, 0)
 	// fmt.Printf("GetRecommendations:\n")
@@ -121,10 +134,15 @@ func GetRecommendations(var req) (string, error) {
 		log.Println("Wrong parameter: ", require)
 	}
 
-	return res, nil
+	ret, _ := json.Marshal(res)
+        return string(ret)
 }
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-        fmt.Fprintf(res, GetRecommendations(req.json)) // echo to caller
+        body, _ := ioutil.ReadAll(req.Body)
+        var body_u *RequestBody
+        json.Unmarshal(body, &body_u)
+        defer req.Body.Close()
+	fmt.Fprintf(res, GetRecommendations(*body_u)) // echo to caller
 }

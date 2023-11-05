@@ -20,12 +20,7 @@ const fs = require('fs')
 const redis = require('redis');
 const http = require('http');
 
-fs.readFile('/etc/secret-volume/redis-url', 'utf8', function(err, redis-url) {
-    if (err) throw err;
-    console.log(redis-url)
-});
-
-const client = redis.createClient({url: redis-url});
+const client = redis.createClient({url: process.env.REDIS_URL});
 
 const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID'
 , 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH'
@@ -39,7 +34,8 @@ const vote_processor_handler = async (body) => {
 
         client.exists("election-results-" + state + "-" + candidate, function(err, reply) {
                 if (reply === 1) {
-                        var cnt = parseInt(client.get("election-results-" + state + "-" + candidate));                        cnt = cnt + 1;
+                        var cnt = parseInt(client.get("election-results-" + state + "-" + candidate));
+			cnt = cnt + 1;
                         client.set("election-results-" + state + "-" + candidate, cnt.toString());
                 }
                 else {

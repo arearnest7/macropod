@@ -18,19 +18,10 @@
 const fs = require('fs')
 const http = require("http");
 
-fs.readFile('/etc/secret-volume/election-get-results', 'utf8', function(err, election-get-results) {
-    if (err) throw err;
-    console.log(election-get-results)
-});
-fs.readFile('/etc/secret-volume/election-vote-enqueuer', 'utf8', function(err, election-vote-enqueuer) {
-    if (err) throw err;
-    console.log(election-vote-enqueuer)
-});
-
 const handle = async (context, body) => {
 	var opt = {
-		host: election-get-results,
-		port: 80,
+		host: process.env.ELECTION_GET_RESULTS,
+		port: 8080,
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -52,7 +43,7 @@ const handle = async (context, body) => {
 		return data;
 	}
 	else if (body['requestType'] == 'vote') {
-		opt['host'] = election-vote-enqueuer;
+		opt['host'] = process.env.ELECTION_VOTE_ENQUEUER;
 		let data = '';
                 http.get(opt, (res) => {
                         res.on('data', (chunk) => {

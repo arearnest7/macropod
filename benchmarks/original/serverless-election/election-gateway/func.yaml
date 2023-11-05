@@ -3,15 +3,15 @@ name: election-gateway
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-gateway:latest
-imageDigest: sha256:674cde13adca610769e6daaebbd9c772124cd1dc03120b9c84f50a4350125bb1
+imageDigest: sha256:32e5457e3c49ad6a4c1573c71535352d64d8eed058891ee3f9d816e3bf458e63
 created: 2023-10-10T14:56:35.552619558-05:00
 build:
   builder: pack
+run:
+  envs:
+  - name: ELECTION_GET_RESULTS
+    value: http://election-get-results.default.10.125.188.36.sslip.io
+  - name: ELECTION_VOTE_ENQUEUER
+    value: http://election-vote-enqueuer.default.10.125.188.36.sslip.io
 deploy:
   namespace: default
-volumes:
-    - name: secret-volume
-      secret:
-        secretName: original-election
-      secret:
-        secretName: redis

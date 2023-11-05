@@ -4,22 +4,38 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
+	"os"
+	"encoding/json"
+	"io/ioutil"
+	"strconv"
+
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-
-	"net"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	log "github.com/sirupsen/logrus"
 
-	"time"
-
 	"crypto/sha256"
-
-	"golang.org/x/net/context"
 )
+
+type RequestBody struct {
+        request string "json:\"request\""
+        requestType string "json:\"requestType\""
+        Lat float64 "json:\"Lat,omitempty\""
+        Lon float64 "json:\"Lon,omitempty\""
+        HotelId string "json:\"HotelId,omitempty\""
+        HotelIds []string "json:\"HotelIds,omitempty\""
+        RoomNumber int "json:\"RoomNumber,omitempty\""
+        CustomerName string "json:\"CustomerName,omitempty\""
+        Username string "json:\"Username,omitempty\""
+        Password string "json:\"Password,omitempty\""
+        Require string "json:\"Require,omitempty\""
+        InDate string "json:\"InDate,omitempty\""
+        OutDate string "json:\"OutDate,omitempty\""
+}
 
 type User struct {
 	Username string `bson:"username" json:"username"`
@@ -56,7 +72,11 @@ func loadUsers(client *mongo.Client) map[string]string {
 }
 
 func lookupCache(username string) string {
-	users_cached = loadUsers(MongoClient)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://" + os.Getenv("HOTEL_APP_DATABASE") + ":27017"))
+	if err != nil { return "" }
+	users_cached := loadUsers(MongoClient)
 	res, ok := users_cached[username]
 	if !ok {
 		log.Println("User does not exist: ", username)
@@ -68,6 +88,9 @@ func lookupCache(username string) string {
 func lookUpDB(username string) (User, bool) {
 	// session := s.MongoClient.Copy()
 	// defer session.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+        defer cancel()
+        MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://" + os.Getenv("HOTEL_APP_DATABASE") + ":27017"))
 	collection := MongoClient.Database("user-db").Collection("user")
 
 	// listAll(collection)
@@ -76,7 +99,7 @@ func lookUpDB(username string) (User, bool) {
 	var user User
 	filter := bson.D{primitive.E{Key: "username", Value: username}}
 	// filter := bson.M{{"username": username}}
-	err := collection.FindOne(context.Background(), filter).Decode(&user)
+	err = collection.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
 		log.Println("Failed get user: ", err)
 		return user, false
@@ -85,8 +108,8 @@ func lookUpDB(username string) (User, bool) {
 }
 
 // CheckUser returns whether the username and password are correct.
-func CheckUser(var req) (bool, error) {
-	res := new(bool)
+func CheckUser(req RequestBody) bool {
+	var res bool
 
 	fmt.Printf("CheckUser: %+v", req)
 
@@ -105,10 +128,14 @@ func CheckUser(var req) (bool, error) {
 
 	fmt.Printf(" >> pass: %t\n", res)
 
-	return res, nil
+        return res
 }
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-        fmt.Fprintf(res, CheckUser(req.json)) // echo to caller
+	body, _ := ioutil.ReadAll(req.Body)
+        var body_u *RequestBody
+        json.Unmarshal(body, &body_u)
+        defer req.Body.Close()
+        fmt.Fprintf(res, strconv.FormatBool(CheckUser(*body_u))) // echo to caller
 }

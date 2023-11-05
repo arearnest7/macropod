@@ -20,12 +20,7 @@ const fs = require('fs')
 const redis = require('redis');
 const http = require('http');
 
-fs.readFile('/etc/secret-volume/redis-url', 'utf8', function(err, redis-url) {
-    if (err) throw err;
-    console.log(redis-url)
-});
-
-const client = redis.createClient({url: redis-url});
+const client = redis.createClient({url: process.env.REDIS_URL});
 
 const handle = async (context, body) => {
 	client.set(body['id'], body);

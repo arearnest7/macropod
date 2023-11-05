@@ -4,23 +4,37 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"bytes"
 	"strings"
 	"encoding/json"
+	"io/ioutil"
         "sort"
         "gopkg.in/mgo.v2"
-        "gopkg.in/mgo.v2/bson"
-	"math"
-	"strconv"
+	"gopkg.in/mgo.v2/bson"
 
-	"net"
+	"github.com/hailocab/go-geoindex"
 
         log "github.com/sirupsen/logrus"
 
-        "time"
-
 	"github.com/bradfitz/gomemcache/memcache"
-        "golang.org/x/net/context"
 )
+
+type RequestBody struct {
+        request string "json:\"request\""
+        requestType string "json:\"requestType\""
+        Lat float64 "json:\"Lat,omitempty\""
+        Lon float64 "json:\"Lon,omitempty\""
+        HotelId string "json:\"HotelId,omitempty\""
+        HotelIds []string "json:\"HotelIds,omitempty\""
+        RoomNumber int "json:\"RoomNumber,omitempty\""
+        CustomerName string "json:\"CustomerName,omitempty\""
+        Username string "json:\"Username,omitempty\""
+        Password string "json:\"Password,omitempty\""
+        Require string "json:\"Require,omitempty\""
+        InDate string "json:\"InDate,omitempty\""
+        OutDate string "json:\"OutDate,omitempty\""
+}
 
 const (
         maxSearchRadius  = 10
@@ -34,9 +48,9 @@ type Point struct {
 }
 
 type RoomType struct {
-        bookableRate double
-        totalRate double
-        totalRateInclusive double
+        bookableRate float64
+        totalRate float64
+        totalRateInclusive float64
         code string
         currency string
         roomDescription string
@@ -52,9 +66,20 @@ type RatePlan struct {
 
 type RatePlans []*RatePlan
 
+type BodyGeo struct {
+        Lat float64
+        Lon float64
+}
+
+type Request struct {
+        HotelIds []string
+        InDate string
+        OutDate string
+}
+
 type User struct {
-        Username string `bson:"username" json:"username"`
-        Password string `bson:"password" json:"password"`
+        Username string `bson2:"username" json:"username"`
+        Password string `bson2:"password" json:"password"`
 }
 
 type Reservation struct {
@@ -81,7 +106,7 @@ type Hotel struct {
 
 type Image struct {
         url string
-        default bool
+        Default bool
 }
 
 type Address struct {
@@ -91,8 +116,8 @@ type Address struct {
         state string
         country string
         postalCode string
-        lat float
-        lon float
+        lat float64
+        lon float64
 }
 
 type Hotel2 struct {
@@ -101,7 +126,7 @@ type Hotel2 struct {
         phoneNumber string
         description string
         address Address
-        images Image[]
+        images []Image
 }
 
 func (r RatePlans) Len() int {
@@ -113,7 +138,7 @@ func (r RatePlans) Swap(i, j int) {
 }
 
 func (r RatePlans) Less(i, j int) bool {
-        return r[i].RoomType.TotalRate > r[j].RoomType.TotalRate
+        return r[i].roomType.totalRate > r[j].roomType.totalRate
 }
 
 // Implement Point interface
@@ -121,424 +146,8 @@ func (p *Point) Lat() float64 { return p.Plat }
 func (p *Point) Lon() float64 { return p.Plon }
 func (p *Point) Id() string   { return p.Pid }
 
-// loadRecommendations loads hotel recommendations from mongodb.
-func loadRecommendations(session *mgo.Session) map[string]Hotel {
-        // session, err := mgo.Dial("mongodb-recommendation")
-        // if err != nil {
-        //      panic(err)
-        // }
-        // defer session.Close()
-        s := session.Copy()
-        defer s.Close()
-
-        c := s.DB("recommendation-db").C("recommendation")
-
-        // unmarshal json profiles
-        var hotels []Hotel
-        err := c.Find(bson.M{}).All(&hotels)
-        if err != nil {
-                log.Println("Failed get hotels data: ", err)
-        }
-
-        profiles := make(map[string]Hotel)
-        for _, hotel := range hotels {
-                profiles[hotel.HId] = hotel
-        }
-
-        return profiles
-}
-
-// GiveRecommendation returns recommendations within a given requirement.
-func GetRecommendations(var req) (*pb.Result, error) {
-        map[string]Hotel hotels = loadRecmmendations(MongoSession)
-
-        res := new(pb.Result)
-        // fmt.Printf("GetRecommendations:\n")
-        // fmt.Printf("%+v\n", s.hotels)
-
-        require := req.Require
-        if require == "dis" {
-                p1 := &geoindex.GeoPoint{
-                        Pid:  "",
-                        Plat: req.Lat,
-                        Plon: req.Lon,
-                }
-                min := math.MaxFloat64
-                for _, hotel := range hotels {
-                        tmp := float64(geoindex.Distance(p1, &geoindex.GeoPoint{
-                                Pid:  "",
-                                Plat: hotel.HLat,
-                                Plon: hotel.HLon,
-                        })) / 1000
-                        if tmp < min {
-                                min = tmp
-                        }
-                }
-                for _, hotel := range hotels {
-                        tmp := float64(geoindex.Distance(p1, &geoindex.GeoPoint{
-                                Pid:  "",
-                                Plat: hotel.HLat,
-                                Plon: hotel.HLon,
-                        })) / 1000
-                        if tmp == min {
-                                res.HotelIds = append(res.HotelIds, hotel.HId)
-                        }
-                }
-        } else if require == "rate" {
-                max := 0.0
-                for _, hotel := range hotels {
-                        if hotel.HRate > max {
-                                max = hotel.HRate
-                        }
-                }
-                for _, hotel := range hotels {
-                        if hotel.HRate == max {
-                                res.HotelIds = append(res.HotelIds, hotel.HId)
-                        }
-		}
-        } else if require == "price" {
-                min := math.MaxFloat64
-                for _, hotel := range hotels {
-                        if hotel.HPrice < min {
-                                min = hotel.HPrice
-                        }
-                }
-                for _, hotel := range hotels {
-                        if hotel.HPrice == min {
-                                res.HotelIds = append(res.HotelIds, hotel.HId)
-                        }
-                }
-        } else {
-                log.Println("Wrong parameter: ", require)
-        }
-
-        return res, nil
-}
-
-// CheckAvailability checks if given information is available
-func CheckAvailability(var req) (*pb.Result, error) {
-        log.Println("CheckAvailability")
-        res := new(pb.Result)
-        res.HotelId = make([]string, 0)
-
-        // session, err := mgo.Dial("mongodb-reservation")
-        // if err != nil {
-        //      panic(err)
-        // }
-        // defer session.Close()
-        session := MongoSession.Copy()
-        defer session.Close()
-
-        c := session.DB("reservation-db").C("reservation")
-        c1 := session.DB("reservation-db").C("number")
-
-        for _, hotelId := range req.HotelId {
-                fmt.Printf("reservation check hotel %s\n", hotelId)
-                inDate, _ := time.Parse(
-                        time.RFC3339,
-                        req.InDate+"T12:00:00+00:00")
-
-                outDate, _ := time.Parse(
-                        time.RFC3339,
-                        req.OutDate+"T12:00:00+00:00")
-
-                indate := inDate.String()[0:10]
-
-                for inDate.Before(outDate) {
-                        // check reservations
-                        count := 0
-                        inDate = inDate.AddDate(0, 0, 1)
-                        fmt.Printf("reservation check date %s\n", inDate.String()[0:10])
-                        outdate := inDate.String()[0:10]
-
-                        // first check memc
-                        memc_key := hotelId + "_" + inDate.String()[0:10] + "_" + outdate
-                        item, err := MemcClient.Get(memc_key)
-
-                        if err == nil {
-                                // memcached hit
-                                count, _ = strconv.Atoi(string(item.Value))
-                                fmt.Printf("memcached hit %s = %d\n", memc_key, count)
-                        } else if err == memcache.ErrCacheMiss {
-                                // memcached miss
-                                reserve := make([]Reservation, 0)
-				err := c.Find(&bson.M{"hotelid": hotelId, "inDate": indate, "outDate">
-                                if err != nil {
-                                        panic(err)
-                                }
-                                for _, r := range reserve {
-                                        fmt.Printf("reservation check reservation number = %s\n", hot>                                        count += r.Number
-                                }
-
-                                // update memcached
-                                err = s.MemcClient.Set(&memcache.Item{Key: memc_key, Value: []byte(st>
-                                if err != nil {
-                                        log.Warn("MMC error: ", err)
-                                }
-                        } else {
-                                fmt.Printf("Memmcached error = %s\n", err)
-                                panic(err)
-                        }
-
-                        // check capacity
-                        // check memc capacity
-                        memc_cap_key := hotelId + "_cap"
-                        item, err = s.MemcClient.Get(memc_cap_key)
-                        hotel_cap := 0
-
-                        if err == nil {
-                                // memcached hit
-                                hotel_cap, _ = strconv.Atoi(string(item.Value))
-                                fmt.Printf("memcached hit %s = %d\n", memc_cap_key, hotel_cap)
-                        } else if err == memcache.ErrCacheMiss {
-                                var num Number
-                                err = c1.Find(&bson.M{"hotelid": hotelId}).One(&num)
-                                if err != nil {
-                                        panic(err)
-                                }
-                                hotel_cap = int(num.Number)
-                                // update memcached
-                                err = MemcClient.Set(&memcache.Item{Key: memc_cap_key, Value: []byte(>
-                                if err != nil {
-                                        log.Warn("MMC error: ", err)
-                                }
-                        } else {
-                                fmt.Printf("Memmcached error = %s\n", err)
-                                panic(err)
-                        }
-
-                        if count+int(req.RoomNumber) > hotel_cap {
-				break
-                        }
-                        indate = outdate
-
-                        if inDate.Equal(outDate) {
-                                res.HotelId = append(res.HotelId, hotelId)
-                        }
-                }
-        }
-
-        return res, nil
-}
-
-// MakeReservation makes a reservation based on given information
-func MakeReservation(var req) (*pb.Result, error) {
-        log.Println("MakeReservation")
-        res := new(pb.Result)
-        res.HotelId = make([]string, 0)
-
-        // session, err := mgo.Dial("mongodb-reservation")
-        // if err != nil {
-        //      panic(err)
-        // }
-        // defer session.Close()
-        session := MongoSession.Copy()
-        defer session.Close()
-
-        c := session.DB("reservation-db").C("reservation")
-        c1 := session.DB("reservation-db").C("number")
-
-        inDate, _ := time.Parse(
-                time.RFC3339,
-                req.InDate+"T12:00:00+00:00")
-
-        outDate, _ := time.Parse(
-                time.RFC3339,
-                req.OutDate+"T12:00:00+00:00")
-        hotelId := req.HotelId[0]
-
-        indate := inDate.String()[0:10]
-
-        memc_date_num_map := make(map[string]int)
-
-        for inDate.Before(outDate) {
-                // check reservations
-                count := 0
-                inDate = inDate.AddDate(0, 0, 1)
-                outdate := inDate.String()[0:10]
-
-                // first check memc
-                memc_key := hotelId + "_" + inDate.String()[0:10] + "_" + outdate
-                item, err := MemcClient.Get(memc_key)
-                if err == nil {
-                        // memcached hit
-                        count, _ = strconv.Atoi(string(item.Value))
-                        fmt.Printf("memcached hit %s = %d\n", memc_key, count)
-                        memc_date_num_map[memc_key] = count + int(req.RoomNumber)
-
-                } else if err == memcache.ErrCacheMiss {
-                        // memcached miss
-			fmt.Printf("memcached miss\n")
-                        reserve := make([]Reservation, 0)
-                        err := c.Find(&bson.M{"hotelid": hotelId, "inDate": indate, "outDate": outdat>
-                        if err != nil {
-                                panic(err)
-                        }
-
-                        for _, r := range reserve {
-                                count += r.Number
-                        }
-
-                        memc_date_num_map[memc_key] = count + int(req.RoomNumber)
-
-                } else {
-                        fmt.Printf("Memmcached error = %s\n", err)
-                        panic(err)
-                }
-
-                // check capacity
-                // check memc capacity
-                memc_cap_key := hotelId + "_cap"
-                item, err = MemcClient.Get(memc_cap_key)
-                hotel_cap := 0
-                if err == nil {
-                        // memcached hit
-                        hotel_cap, _ = strconv.Atoi(string(item.Value))
-                        fmt.Printf("memcached hit %s = %d\n", memc_cap_key, hotel_cap)
-                } else if err == memcache.ErrCacheMiss {
-                        // memcached miss
-                        var num Number
-                        err = c1.Find(&bson.M{"hotelid": hotelId}).One(&num)
-                        if err != nil {
-                                panic(err)
-                        }
-                        hotel_cap = int(num.Number)
-
-                        // write to memcache
-                        err = MemcClient.Set(&memcache.Item{Key: memc_cap_key, Value: []byte(strconv.>
-                        if err != nil {
-                                log.Warn("MMC error: ", err)
-                        }
-                } else {
-                        fmt.Printf("Memmcached error = %s\n", err)
-                        panic(err)
-                }
-
-                if count+int(req.RoomNumber) > hotel_cap {
-			fmt.Printf("Not enough space left\n")
-                        return res, nil
-                }
-                indate = outdate
-        }
-
-        // only update reservation number cache after check succeeds
-        for key, val := range memc_date_num_map {
-                err := MemcClient.Set(&memcache.Item{Key: key, Value: []byte(strconv.Itoa(val))})
-                if err != nil {
-                        log.Warn("MMC error: ", err)
-                }
-        }
-
-        inDate, _ = time.Parse(
-                time.RFC3339,
-                req.InDate+"T12:00:00+00:00")
-
-        indate = inDate.String()[0:10]
-
-        for inDate.Before(outDate) {
-                inDate = inDate.AddDate(0, 0, 1)
-                outdate := inDate.String()[0:10]
-                err := c.Insert(&Reservation{
-                        HotelId:      hotelId,
-                        CustomerName: req.CustomerName,
-                        InDate:       indate,
-                        OutDate:      outdate,
-                        Number:       int(req.RoomNumber)})
-                if err != nil {
-                        panic(err)
-                }
-                indate = outdate
-        }
-
-        res.HotelId = append(res.HotelId, hotelId)
-
-        return res, nil
-}
-
-// loadUsers loads hotel users from database
-func loadUsers(client *mongo.Client) map[string]string {
-
-        coll := client.Database("user-db").Collection("user")
-
-        filter := bson.D{}
-        // filter := bson.M{{"username": username}}
-        cursor, err := coll.Find(context.Background(), filter)
-        if err != nil {
-                log.Println("Failed get users data: ", err)
-        }
-
-        // Get a list of all returned documents and print them out.
-        // See the mongo.Cursor documentation for more examples of using cursors.
-        var users []User
-        if err = cursor.All(context.Background(), &users); err != nil {
-                log.Println("Failed get users data: ", err)
-        }
-
-        res := make(map[string]string)
-        for _, user := range users {
-                res[user.Username] = user.Password
-        }
-
-        fmt.Printf("Done load users\n")
-
-        return res
-}
-
-func lookupCache(username string) string {
-        users_cached = loadUsers(MongoClient)
-        res, ok := users_cached[username]
-        if !ok {
-                log.Println("User does not exist: ", username)
-        }
-        return res
-}
-
-//
-func lookUpDB(username string) (User, bool) {
-        // session := s.MongoClient.Copy()
-        // defer session.Close()
-        collection := MongoClient.Database("user-db").Collection("user")
-
-        // listAll(collection)
-
-        // unmarshal json profiles
-        var user User
-        filter := bson.D{primitive.E{Key: "username", Value: username}}
-        // filter := bson.M{{"username": username}}
-        err := collection.FindOne(context.Background(), filter).Decode(&user)
-        if err != nil {
-                log.Println("Failed get user: ", err)
-                return user, false
-        }
-        return user, true
-}
-
-// CheckUser returns whether the username and password are correct.
-func CheckUser(var req) (*pb.Result, error) {
-        res := new(pb.Result)
-
-        fmt.Printf("CheckUser: %+v", req)
-
-        sum := sha256.Sum256([]byte(req.Password))
-        pass := fmt.Sprintf("%x", sum)
-
-        use_cache := false
-
-        if use_cache {
-                password := lookupCache(req.Username)
-                res.Correct = pass == password
-        } else {
-                user, _ := lookUpDB(req.Username)
-                res.Correct = pass == user.Password
-        }
-
-        fmt.Printf(" >> pass: %t\n", res.Correct)
-
-        return res, nil
-}
-
 // GetProfiles returns hotel profiles for requested IDs
-func GetProfiles(var req) (string, error) {
+func GetProfiles(req RequestBody) string {
         // session, err := mgo.Dial("mongodb-profile")
         // if err != nil {
         //      panic(err)
@@ -548,10 +157,13 @@ func GetProfiles(var req) (string, error) {
 
         // fmt.Printf("In GetProfiles after setting c\n")
 
-        res := new([]Hotel2)
+        res := make([]Hotel2, 0)
         hotels := make([]Hotel2, 0)
 
-        // one hotel should only have one profile
+        MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
+
+	// one hotel should only have one profile
 
         for _, i := range req.HotelIds {
                 // first check memcached
@@ -567,7 +179,7 @@ func GetProfiles(var req) (string, error) {
                         if err = json.Unmarshal(item.Value, hotel_prof); err != nil {
                                 log.Warn(err)
                         }
-                        hotels = append(hotels, hotel_prof)
+                        hotels = append(hotels, *hotel_prof)
 
                 } else if err == memcache.ErrCacheMiss {
                         // memcached miss, set up mongo connection
@@ -585,7 +197,7 @@ func GetProfiles(var req) (string, error) {
                         // for _, h := range hotels {
 			//      res.Hotels = append(res.Hotels, h)
                         // }
-                        hotels = append(hotels, hotel_prof)
+                        hotels = append(hotels, *hotel_prof)
 
                         prof_json, err := json.Marshal(hotel_prof)
                         if err != nil {
@@ -606,19 +218,23 @@ func GetProfiles(var req) (string, error) {
 
         res = hotels
         // fmt.Printf("In GetProfiles after getting resp\n")
-        return json.Marshal(res), nil
+        ret, _ := json.Marshal(res)
+        return string(ret)
 }
 
 // GetRates gets rates for hotels for specific date range.
-func GetRates(var req) (string, error) {
-        res := []RatePlans
+func GetRates(req Request) string {
+        var res RatePlans
         // session, err := mgo.Dial("mongodb-rate")
         // if err != nil {
         //      panic(err)
         // }
         // defer session.Close()
 
-        ratePlans := make(RatePlans, 0)
+        var ratePlans RatePlans
+
+        MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
 
         // fmt.Printf("Hotel Ids: %+v\n", req.HotelIds)
 
@@ -684,7 +300,8 @@ func GetRates(var req) (string, error) {
         sort.Sort(ratePlans)
         res = ratePlans
 
-        return json.Marshal(res), nil
+        ret, _ := json.Marshal(res)
+        return string(ret)
 }
 
 // newGeoIndex returns a geo index with points loaded
@@ -720,7 +337,7 @@ func getNearbyPoints(lat, lon float64) []geoindex.Point {
                 Plon: lon,
         }
 
-        mgo.Session* MongoSession = new mgo.Session()
+        MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
         return newGeoIndex(MongoSession).KNearest(
                 center,
                 maxSearchResults,
@@ -731,12 +348,12 @@ func getNearbyPoints(lat, lon float64) []geoindex.Point {
 }
 
 // Nearby returns all hotels within a given distance.
-func Nearby(var req) (string, error) {
+func Nearby(req BodyGeo) string {
         // fmt.Printf("In geo Nearby\n")
 
         var (
-                points = getNearbyPoints(float64(req.Lat), float64(req.Lon))
-                res    = []string
+                points = getNearbyPoints(req.Lat, req.Lon)
+                res    = make([]string, 0)
         )
 
         // fmt.Printf("geo after getNearbyPoints, len = %d\n", len(points))
@@ -746,99 +363,94 @@ func Nearby(var req) (string, error) {
                 res = append(res, p.Id())
         }
 
-        return json.Marshal(res), nil
+        ret, _ := json.Marshal(res)
+        return string(ret)
 }
 
-
-
 // Nearby returns ids of nearby hotels ordered by ranking algo
-func SearchNearby(var req) (string, error) {
+func SearchNearby(req RequestBody) string {
         // find nearby hotels
         fmt.Printf("in Search Nearby\n")
 
         fmt.Printf("nearby lat = %f\n", req.Lat)
         fmt.Printf("nearby lon = %f\n", req.Lon)
 
-        nearby, err := Nearby({Lat: req.Lat, Lon: req.Lon})
-        if err != nil {
-                fmt.Printf("nearby error: %v", err)
-                return nil, err
-        }
+        payload := BodyGeo{Lat: req.Lat, Lon: req.Lon}
+	nearby := Nearby(payload)
+        //if err != nil {
+        //        fmt.Printf("nearby error: %v", err)
+        //        return ""
+        //}
 
         // var ids []string
-        for _, hid := range nearby.HotelIds {
+        var nearby_u []string
+        _ = json.Unmarshal([]byte(nearby), nearby_u)
+        for _, hid := range nearby_u {
                 fmt.Printf("get Nearby hotelId = %s\n", hid)
                 // ids = append(ids, hid)
         }
 
         // find rates for hotels
-        r := rate.Request{
-                HotelIds: nearby.HotelIds,
+        r := Request{
+                HotelIds: nearby_u,
                 // HotelIds: []string{"2"},
                 InDate:  req.InDate,
                 OutDate: req.OutDate,
         }
 
-        rates, err := GetRates(&r)
-        if err != nil {
-                fmt.Printf("rates error: %v", err)
-                return nil, err
-        }
+        rates := GetRates(r)
+        //if err != nil {
+        //        fmt.Printf("rates error: %v", err)
+        //        return ""
+        //}
         // TODO(hw): add simple ranking algo to order hotel ids:
 	// * geo distance
         // * price (best discount?)
         // * reviews
 
-	// build the response
+        // build the response
         res := make([]string, 0)
-        rate_p : make(RatePlans, 1)
-        json.Unmarshal(rates, &rate_p)
+        var rate_p RatePlans
+        json.Unmarshal([]byte(rates), &rate_p)
         for _, ratePlan := range rate_p {
                 // fmt.Printf("get RatePlan HotelId = %s, Code = %s\n", ratePlan.HotelId, ratePlan.Code)
-                res = append(res, ratePlan.HotelId)
+                res = append(res, ratePlan.hotelId)
         }
-        return json.Marshal(res), nil
+        ret, _ := json.Marshal(res)
+        return string(ret)
 }
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
 	ret := ""
-	requestUrl := ""
-	if req.json.request == "search" {
-		ret := SearchNearby(req.json)
-	}
-	else {
-		if req.json.request == "recommend" {
-                	contents, err := ioutil.ReadFile("/etc/secret-volume/hotel-recommend-partial")
-                	if err != nil {
-                        	log.Fatal(err)
-                	}
-                	hotel-recommend := string(contents)
-                	requestUrl := hotel-recommend
-        	}
-        	else if req.json.request == "reserve" {
-                	contents, err := ioutil.ReadFile("/etc/secret-volume/hotel-reserve-partial")
-                	if err != nil {
-                        	log.Fatal(err)
-                	}
-                	hotel-reserve := string(contents)
-                	requestUrl := hotel-reserve
-        	}
-        	else if req.json.request == "user" {
-                	contents, err := ioutil.ReadFile("/etc/secret-volume/hotel-user-partial")
-                	if err != nil {
-                        	log.Fatal(err)
-                	}
-                	hotel-user := string(contents)
-                	requestUrl := hotel-user
-        	}
+        body, _ := ioutil.ReadAll(req.Body)
+        var body_u *RequestBody
+        json.Unmarshal(body, &body_u)
+        defer req.Body.Close()
+        if body_u.request == "search" {
+                ret = SearchNearby(*body_u)
+        } else {
+		requestURL := ""
+                if body_u.request == "recommend" {
+                        requestURL = os.Getenv("HOTEL_RECOMMEND_PARTIAL") + ":8080"
+                } else if body_u.request == "reserve" {
+                        requestURL = os.Getenv("HOTEL_RESERVE_PARTIAL") + ":8080"
+                } else if body_u.request == "user" {
+                        requestURL = os.Getenv("HOTEL_USER_PARTIAL") + ":8080"
+                }
 
-        	req_url, err := http.NewRequest(http.MethodPost, requestURL, req.json)
+                body_m, err := json.Marshal(body_u)
+        	req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_m))
         	if err != nil {
                 	log.Fatal(err)
         	}
-        	ret, err := http.DefaultClient.Do(req_url)
-	}
-	fmt.Fprintf(res, ret) // echo to caller
+        	req_url.Header.Add("Content-Type", "application/json")
+        	client := &http.Client{}
+        	ret1, err := client.Do(req_url)
+        	retBody, err := ioutil.ReadAll(ret1.Body)
+        	ret_val, err := json.Marshal(retBody)
+		ret = string(ret_val)
+        }
+        fmt.Fprintf(res, ret) // echo to caller
 }
 

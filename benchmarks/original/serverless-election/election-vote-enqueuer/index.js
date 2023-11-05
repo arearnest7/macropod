@@ -20,16 +20,7 @@ const fs = require('fs')
 const redis = require('redis');
 const http = require('http');
 
-fs.readFile('/etc/secret-volume/election-vote-processor', 'utf8', function(err, election-vote-processor) {
-    if (err) throw err;
-    console.log(election-vote-processor)
-});
-fs.readFile('/etc/secret-volume/redis-url', 'utf8', function(err, redis-url) {
-    if (err) throw err;
-    console.log(redis-url)
-});
-
-const client = redis.createClient({url: redis-url});
+const client = redis.createClient({url: process.env.REDIS_URL});
 
 const handle = async (context, body) => {
 	client.exists("voter-" + body['id'] , function(err, reply) {
@@ -40,8 +31,8 @@ const handle = async (context, body) => {
 			}
 			else {
 				var opt = {
-                			host: process.env.VOTE_PROC,
-                			port: 80,
+                			host: process.env.ELECTION_VOTE_PROCESSOR,
+                			port: 8080,
                 			method: 'GET',
                 			headers: {
                         			'Content-Type': 'application/json',

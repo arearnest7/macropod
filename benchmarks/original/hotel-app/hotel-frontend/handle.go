@@ -4,51 +4,57 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
+	"os"
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+
+	log "github.com/sirupsen/logrus"
 )
+
+type RequestBody struct {
+        request string "json:\"request\""
+	requestType string "json:\"requestType\""
+        Lat float64 "json:\"Lat,omitempty\""
+        Lon float64 "json:\"Lon,omitempty\""
+        HotelId string "json:\"HotelId,omitempty\""
+        HotelIds []string "json:\"HotelIds,omitempty\""
+        RoomNumber int "json:\"RoomNumber,omitempty\""
+        CustomerName string "json:\"CustomerName,omitempty\""
+        Username string "json:\"Username,omitempty\""
+        Password string "json:\"Password,omitempty\""
+        Require string "json:\"Require,omitempty\""
+        InDate string "json:\"InDate,omitempty\""
+        OutDate string "json:\"OutDate,omitempty\""
+}
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-	ret := ""
-	requestUrl := ""
-	if req.json.request == "search" {
-		contents, err := ioutil.ReadFile("/etc/secret-volume/hotel-search")
-        	if err != nil {
-                	log.Fatal(err)
-        	}
-        	hotel-search := string(contents)
-		requestUrl := hotel-search
-	}
-	else if req.json.request == "recommend" {
-		contents, err := ioutil.ReadFile("/etc/secret-volume/hotel-recommend")
-                if err != nil {
-                        log.Fatal(err)
-                }
-                hotel-recommend := string(contents)
-                requestUrl := hotel-recommend
-	}
-	else if req.json.request == "reserve" {
-		contents, err := ioutil.ReadFile("/etc/secret-volume/hotel-reserve")
-                if err != nil {
-                        log.Fatal(err)
-                }
-                hotel-reserve := string(contents)
-                requestUrl := hotel-reserve
-	}
-	else if req.json.request == "user" {
-		contents, err := ioutil.ReadFile("/etc/secret-volume/hotel-user")
-                if err != nil {
-                        log.Fatal(err)
-                }
-                hotel-user := string(contents)
-                requestUrl := hotel-user
+	requestURL := ""
+	body, err := ioutil.ReadAll(req.Body)
+	var body_u *RequestBody
+	json.Unmarshal(body, &body_u)
+  	defer req.Body.Close()
+	if body_u.request == "search" {
+		requestURL = os.Getenv("HOTEL_SEARCH") + ":8080"
+	} else if body_u.request == "recommend" {
+                requestURL = os.Getenv("HOTEL_RECOMMEND") + ":8080"
+	} else if body_u.request == "reserve" {
+                requestURL = os.Getenv("HOTEL_RESERVE") + ":8080"
+	} else if body_u.request == "user" {
+                requestURL = os.Getenv("HOTEL_USER") + ":8080"
 	}
 
-	req_url, err := http.NewRequest(http.MethodPost, requestURL, req.json)
+	body_m, err := json.Marshal(body_u)
+	req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_m))
         if err != nil {
                 log.Fatal(err)
         }
-        ret, err := http.DefaultClient.Do(req_url)
-	fmt.Fprintf(res, ret) // echo to caller
+	req_url.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+        ret, err := client.Do(req_url)
+        retBody, err := ioutil.ReadAll(ret.Body)
+        ret_val, err := json.Marshal(retBody)
+	fmt.Fprintf(res, string(ret_val)) // echo to caller
 }
 

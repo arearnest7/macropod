@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: video-streaming-d
-runtime: go
-created: 2023-10-26T19:57:10.541372815-05:00
-volumes:
-    - name: secret-volume
-      secret:
-        secretName: partial-video
+runtime: python
+run:
+  envs:
+  - name: VIDEO_RECOG_PARTIAL
+    value: http://video-recog-partial.default.10.125.188.36.sslip.io
+created: 2023-11-05T16:52:48.093508325-06:00

@@ -9,22 +9,33 @@ import (
 	"sort"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
-	"net"
+	"os"
+	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
 
-	"time"
-
 	"github.com/bradfitz/gomemcache/memcache"
-
-	"golang.org/x/net/context"
 )
 
+type RequestBody struct {
+        request string "json:\"request\""
+        Lat float64 "json:\"Lat,omitempty\""
+        Lon float64 "json:\"Lon,omitempty\""
+        HotelId string "json:\"HotelId,omitempty\""
+        HotelIds []string "json:\"HotelIds,omitempty\""
+        RoomNumber int "json:\"RoomNumber,omitempty\""
+        CustomerName string "json:\"CustomerName,omitempty\""
+        Username string "json:\"Username,omitempty\""
+        Password string "json:\"Password,omitempty\""
+        Require string "json:\"Require,omitempty\""
+        InDate string "json:\"InDate,omitempty\""
+        OutDate string "json:\"OutDate,omitempty\""
+}
+
 type RoomType struct {
-	bookableRate double
-	totalRate double
-	totalRateInclusive double
+	bookableRate float64
+	totalRate float64
+	totalRateInclusive float64
 	code string
 	currency string
 	roomDescription string
@@ -49,19 +60,22 @@ func (r RatePlans) Swap(i, j int) {
 }
 
 func (r RatePlans) Less(i, j int) bool {
-	return r[i].RoomType.TotalRate > r[j].RoomType.TotalRate
+	return r[i].roomType.totalRate > r[j].roomType.totalRate
 }
 
 // GetRates gets rates for hotels for specific date range.
-func GetRates(var req) (string, error) {
-	res = []RatePlans
+func GetRates(req RequestBody) string {
+	var res RatePlans
 	// session, err := mgo.Dial("mongodb-rate")
 	// if err != nil {
 	// 	panic(err)
 	// }
 	// defer session.Close()
 
-	ratePlans := make(RatePlans, 0)
+	var ratePlans RatePlans
+
+	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
 
 	// fmt.Printf("Hotel Ids: %+v\n", req.HotelIds)
 
@@ -95,7 +109,7 @@ func GetRates(var req) (string, error) {
 
 			memc_str := ""
 
-			tmpRatePlans := make(RatePlans, 0)
+			var tmpRatePlans RatePlans
 
 			err = c.Find(&bson.M{"hotelid": hotelID}).All(&tmpRatePlans)
 			// fmt.Printf("Rate Plans %+v\n", tmpRatePlans)
@@ -127,10 +141,15 @@ func GetRates(var req) (string, error) {
 	sort.Sort(ratePlans)
 	res = ratePlans
 
-	return json.Marshal(res), nil
+	ret, _ := json.Marshal(res)
+	return string(ret)
 }
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-        fmt.Fprintf(res, GetRates(req.json)) // echo to caller
+        body, _ := ioutil.ReadAll(req.Body)
+        var body_u *RequestBody
+        json.Unmarshal(body, &body_u)
+        defer req.Body.Close()
+	fmt.Fprintf(res, GetRates(*body_u)) // echo to caller
 }

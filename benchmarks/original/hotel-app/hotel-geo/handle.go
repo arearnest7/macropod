@@ -4,20 +4,33 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"os"
+	"io/ioutil"
+	"encoding/json"
 
-	"net"
 
 	log "github.com/sirupsen/logrus"
 
-	"time"
-
 	"github.com/hailocab/go-geoindex"
-
-	"golang.org/x/net/context"
 )
+
+type RequestBody struct {
+        request string "json:\"request\""
+	requestType string "json:\"requestType\""
+        Lat float64 "json:\"Lat,omitempty\""
+        Lon float64 "json:\"Lon,omitempty\""
+        HotelId string "json:\"HotelId,omitempty\""
+        HotelIds []string "json:\"HotelIds,omitempty\""
+        RoomNumber int "json:\"RoomNumber,omitempty\""
+        CustomerName string "json:\"CustomerName,omitempty\""
+        Username string "json:\"Username,omitempty\""
+        Password string "json:\"Password,omitempty\""
+        Require string "json:\"Require,omitempty\""
+        InDate string "json:\"InDate,omitempty\""
+        OutDate string "json:\"OutDate,omitempty\""
+}
 
 const (
 	maxSearchRadius  = 10
@@ -68,7 +81,7 @@ func getNearbyPoints(lat, lon float64) []geoindex.Point {
 		Plon: lon,
 	}
 
-	mgo.Session* MongoSession = new mgo.Session()
+	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
 	return newGeoIndex(MongoSession).KNearest(
 		center,
 		maxSearchResults,
@@ -79,12 +92,12 @@ func getNearbyPoints(lat, lon float64) []geoindex.Point {
 }
 
 // Nearby returns all hotels within a given distance.
-func Nearby(var req) (string, error) {
+func Nearby(req RequestBody) string {
 	// fmt.Printf("In geo Nearby\n")
 
 	var (
 		points = getNearbyPoints(float64(req.Lat), float64(req.Lon))
-		res    = []string
+		res    = make([]string, 0)
 	)
 
 	// fmt.Printf("geo after getNearbyPoints, len = %d\n", len(points))
@@ -94,10 +107,15 @@ func Nearby(var req) (string, error) {
 		res = append(res, p.Id())
 	}
 
-	return json.Marshal(res), nil
+	ret, _ := json.Marshal(res)
+	return string(ret)
 }
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(res, Nearby(req.json)) // echo to caller
+	body, _ := ioutil.ReadAll(req.Body)
+        var body_u *RequestBody
+        json.Unmarshal(body, &body_u)
+        defer req.Body.Close()
+	fmt.Fprintf(res, Nearby(*body_u)) // echo to caller
 }

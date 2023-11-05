@@ -1,10 +1,17 @@
 specVersion: 0.35.0
 name: hotel-frontend
 runtime: go
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/hotel-frontend:latest
+imageDigest: sha256:6f80e57552a993824d836cae84147f8d72a07d3ef9fdaa9f3ed91e481ea0708c
 created: 2023-10-26T19:30:15.504368653-05:00
-volumes:
-    - name: secret-volume
-      secret:
-        secretName: original-hotel
-      secret:
-        secretName: hotel-app
+build:
+  builder: pack
+run:
+  envs:
+  - name: ELECTION_GET_RESULTS
+    value: http://election-get-results.default.10.125.188.36.sslip.io
+  - name: ELECTION_VOTE_ENQUEUER
+    value: http://election-vote-enqueuer.default.10.125.188.36.sslip.io
+deploy:
+  namespace: default

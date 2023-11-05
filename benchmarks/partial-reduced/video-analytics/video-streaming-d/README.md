@@ -1,20 +1,29 @@
-# Go HTTP Function
+# Python HTTP Function
 
-Welcome to your new Go Function! The boilerplate function code can be found in
-[`handle.go`](handle.go). This Function responds to HTTP requests.
+Welcome to your new Python function project! The boilerplate function
+code can be found in [`func.py`](./func.py). This function will respond
+to incoming HTTP GET and POST requests.
 
-## Development
+## Endpoints
 
-Develop new features by adding a test to [`handle_test.go`](handle_test.go) for
-each feature, and confirm it works with `go test`.
+Running this function will expose three endpoints.
 
-Update the running analog of the function using the `func` CLI or client
-library, and it can be invoked from your browser or from the command line:
+  * `/` The endpoint for your function.
+  * `/health/readiness` The endpoint for a readiness health check
+  * `/health/liveness` The endpoint for a liveness health check
+
+The health checks can be accessed in your browser at
+[http://localhost:8080/health/readiness]() and
+[http://localhost:8080/health/liveness]().
+
+You can use `func invoke` to send an HTTP request to the function endpoint.
+
+
+## Testing
+
+This function project includes a [unit test](./test_func.py). Update this
+as you add business logic to your function in order to test its behavior.
 
 ```console
-curl http://myfunction.example.com/
+python test_func.py
 ```
-
-For more, see [the complete documentation]('https://github.com/knative/func/tree/main/docs')
-
-

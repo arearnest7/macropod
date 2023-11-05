@@ -1,8 +1,15 @@
 specVersion: 0.35.0
 name: video-streaming
-runtime: go
-created: 2023-10-26T19:41:27.768895583-05:00
-volumes:
-    - name: secret-volume
-      secret:
-        secretName: original-video
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/video-streaming:latest
+imageDigest: sha256:d7064f5fa15cf250bb6989347ffaaba8486fc6c1e14a805e22c7d0cda5371bd5
+created: 2023-11-04T23:11:58.628724073-05:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: VIDEO_DECODER
+    value: http://video-decoder.default.10.125.188.36.sslip.io
+deploy:
+  namespace: default

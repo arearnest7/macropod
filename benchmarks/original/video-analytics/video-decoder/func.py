@@ -1,7 +1,7 @@
+from __future__ import print_function
 from parliament import Context
 from flask import Request
 import json
-from __future__ import print_function
 
 import pickle
 import sys
@@ -17,10 +17,7 @@ import requests
 sys.path.insert(0, os.getcwd() + 'utils/tracing/python')
 import tracing
 
-from concurrent import futures
-
-with open('/etc/secret-volume/video-recog', 'r') as f:
-    video-recog = f.read()
+from concurrent.futures import ThreadPoolExecutor
 
 def decode(bytes):
     temp = tempfile.NamedTemporaryFile(suffix=".mp4")
@@ -30,14 +27,14 @@ def decode(bytes):
     all_frames = []
     with tracing.Span("Decode frames"):
         vidcap = cv2.VideoCapture(temp.name)
-        for i in range(int(os.getenv('DecoderFrames', int(args.frames)))):
+        for i in range(int(6)):
             success,image = vidcap.read()
             all_frames.append(cv2.imencode('.jpg', image)[1].tobytes())
 
     return all_frames
 
 def Recognise(frame):
-    result = requests.get(url = video-recog + ":80", data = json.dumps(frame)).text
+    result = requests.get(url = os.environ['VIDEO_RECOG'] + ":8080", data = json.dumps(frame)).text
 
     return result
 
@@ -46,14 +43,13 @@ def processFrames(videoBytes):
     with tracing.Span("Recognise all frames"):
         all_result_futures = []
         # send all requests
-        decoderFrames = int(os.getenv('DecoderFrames', 6))
-        frames = frames[0:decoderFrames]
+        frames = frames[0:6]
         if os.getenv('CONCURRENT_RECOG', "false").lower() == "false":
             # concat all results
             for frame in frames:
                 all_result_futures.append(Recognise(frame))
         else:
-            ex = futures.ThreadPoolExecutor(max_workers=decoderFrames)
+            ex = ThreadPoolExecutor(max_workers=6)
             all_result_futures = ex.map(Recognise, frames)
         log.info("returning result of frame classification")
         results = ""

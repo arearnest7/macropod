@@ -1,10 +1,17 @@
 specVersion: 0.35.0
 name: hotel-profile
 runtime: go
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/hotel-profile:latest
+imageDigest: sha256:68345cdcc638cea739683405e24f3b229e0cf4502e2d05289be89fbc5529f799
 created: 2023-10-26T19:30:48.125063479-05:00
-volumes:
-    - name: secret-volume
-      secret:
-        secretName: original-hotel
-      secret:
-        secretName: hotel-app
+build:
+  builder: pack
+run:
+  envs:
+  - name: HOTEL_APP_DATABASE
+    value: http://hotel-app-database.default.10.125.188.36.sslip.io
+  - name: HOTEL_APP_MEMCACHED
+    value: http://hotel-app-memcached.default.10.125.188.36.sslip.io
+deploy:
+  namespace: default

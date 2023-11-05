@@ -10,14 +10,12 @@ import sys
 import os
 import pickle
 # adding python tracing and storage sources to the system path
-sys.path.insert(0, os.getcwd() + '/../../../../utils/tracing/python')
+sys.path.insert(0, os.getcwd() + 'utils/tracing/python')
 import tracing
 
 import io
 import argparse
 import logging as log
-
-from concurrent import futures
 
 # Load model
 model = models.squeezenet1_1(pretrained=True)
