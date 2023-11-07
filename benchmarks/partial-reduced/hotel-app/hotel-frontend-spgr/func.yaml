@@ -3,7 +3,10 @@ name: hotel-frontend-spgr
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-frontend-spgr:latest
+imageDigest: sha256:b8d0fe88ad29edf4ce4a2eea10b021fec1a4eca95fa1b5d2d800a24f68441c49
 created: 2023-10-26T19:54:28.29278899-05:00
+build:
+  builder: pack
 run:
   envs:
   - name: HOTEL_APP_DATABASE
@@ -16,3 +19,5 @@ run:
     value: http://hotel-reserve-partial.default.10.125.188.36.sslip.io
   - name: HOTEL_USER_PARTIAL
     value: http://hotel-user-partial.default.10.125.188.36.sslip.io
+deploy:
+  namespace: default

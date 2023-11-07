@@ -1,4 +1,11 @@
 specVersion: 0.35.0
 name: video-recog
 runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/video-recog:latest
+imageDigest: sha256:6950b61223486abca022c4bc505f3a635cfe388c1fc8dcd45109e167ed3d8f30
 created: 2023-10-26T19:41:13.284986551-05:00
+build:
+  builder: pack
+deploy:
+  namespace: default

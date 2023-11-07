@@ -3,7 +3,7 @@ name: hotel-full
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-full:latest
-imageDigest: sha256:aaa26c8fb0ceecad4e7545da59762a2b2ac40d32ebd1b9f27b90b0ff271d6375
+imageDigest: sha256:299ade1844f0a24db9546af2c06790e154c95ef91b9ed1e36b5c5b3d27c8db88
 created: 2023-10-26T19:42:55.573322776-05:00
 build:
   builder: pack

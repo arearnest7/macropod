@@ -3,10 +3,15 @@ name: hotel-recommend-partial
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-recommend-partial:latest
+imageDigest: sha256:758411b09c6f39bcbe0ad76ec556079cadbbd389ca9ef964f6f39a1f5778f30f
 created: 2023-10-26T19:54:40.164310055-05:00
+build:
+  builder: pack
 run:
   envs:
   - name: HOTEL_APP_DATABASE
     value: http://hotel-app-database.default.10.125.188.36.sslip.io
   - name: HOTEL_APP_MEMCACHED
     value: http://hotel-app-memcached.default.10.125.188.36.sslip.io
+deploy:
+  namespace: default
