@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: REDIS_URL
-    value: redis://10.125.188.36:6379
+    value: redis://10.125.189.107:6379
 deploy:
   namespace: default

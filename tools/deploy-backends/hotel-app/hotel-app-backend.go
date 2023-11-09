@@ -3,18 +3,26 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"context"
-	"crypto/sha256"
 
 	log "github.com/sirupsen/logrus"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
-	bson2 "go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+type HotelDB struct {
+	HId    string  `bson:"hotelid"`
+	HLat   float64 `bson:"lat"`
+	HLon   float64 `bson:"lon"`
+	HRate  float64 `bson:"rate"`
+	HPrice float64 `bson:"price"`
+}
+
+type Point struct {
+        Pid  string  `bson:"hotelid"`
+        Plat float64 `bson:"lat"`
+        Plon float64 `bson:"lon"`
+}
 
 type RoomType struct {
         bookableRate float64
@@ -49,6 +57,19 @@ type Address struct {
         lon float64
 }
 
+type Reservation struct {
+        HotelId      string `bson:"hotelid"`
+        CustomerName string `bson:"customername"`
+        InDate       string `bson:"indate"`
+        OutDate      string `bson:"outdate"`
+        Number       int    `bson:"number"`
+}
+
+type Number struct {
+        HotelId string `bson:"hotelid"`
+        Number  int    `bson:"numberofroom"`
+}
+
 type Hotel struct {
         id string
         name string
@@ -58,8 +79,13 @@ type Hotel struct {
         images []Image
 }
 
+type User struct {
+        Username string `bson:"username" json:"username"`
+        Password string `bson:"password" json:"password"`
+}
+
 func initializeDatabase()  {
-	url := "http://hotel-app-database.default.10.125.188.36.sslip.io"
+	url := "mongodb://192.168.10.18:27017"
 
 	// GEO
 	fmt.Printf("geo db ip addr = %s\n", url)
@@ -170,31 +196,31 @@ func initializeDatabase()  {
 	}
 	// defer session.Close()
 
-	c := session.DB("profile-db").C("hotels")
+	c = session.DB("profile-db").C("hotels")
 	// First we clear the collection to have always a new one
 	if err = c.DropCollection(); err != nil {
 		log.Print("DropCollection: ", err)
 	}
 
-	count, err := c.Find(&bson.M{"id": "1"}).Count()
+	count, err = c.Find(&bson.M{"id": "1"}).Count()
 	if err != nil {
 		log.Fatal(err)
 	}
 	if count == 0 {
 		err = c.Insert(&Hotel{
-			Id:          "1",
-			Name:        "Clift Hotel",
-			PhoneNumber: "(415) 775-4700",
-			Description: "A 6-minute walk from Union Square and 4 minutes from a Muni Metro station, this luxury hotel designed by Philippe Starck features an artsy furniture collection in the lobby, including work by Salvador Dali.",
-			Address: &pb.Address{
-				StreetNumber: "495",
-				StreetName:   "Geary St",
-				City:         "San Francisco",
-				State:        "CA",
-				Country:      "United States",
-				PostalCode:   "94102",
-				Lat:          37.7867,
-				Lon:          -122.4112}})
+			id:          "1",
+			name:        "Clift Hotel",
+			phoneNumber: "(415) 775-4700",
+			description: "A 6-minute walk from Union Square and 4 minutes from a Muni Metro station, this luxury hotel designed by Philippe Starck features an artsy furniture collection in the lobby, including work by Salvador Dali.",
+			address: Address{
+				streetNumber: "495",
+				streetName:   "Geary St",
+				city:         "San Francisco",
+				state:        "CA",
+				country:      "United States",
+				postalCode:   "94102",
+				lat:          37.7867,
+				lon:          -122.4112}})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -206,19 +232,19 @@ func initializeDatabase()  {
 	}
 	if count == 0 {
 		err = c.Insert(&Hotel{
-			Id:          "2",
-			Name:        "W San Francisco",
-			PhoneNumber: "(415) 777-5300",
-			Description: "Less than a block from the Yerba Buena Center for the Arts, this trendy hotel is a 12-minute walk from Union Square.",
-			Address: &pb.Address{
-				StreetNumber: "181",
-				StreetName:   "3rd St",
-				City:         "San Francisco",
-				State:        "CA",
-				Country:      "United States",
-				PostalCode:   "94103",
-				Lat:          37.7854,
-				Lon:          -122.4005}})
+			id:          "2",
+			name:        "W San Francisco",
+			phoneNumber: "(415) 777-5300",
+			description: "Less than a block from the Yerba Buena Center for the Arts, this trendy hotel is a 12-minute walk from Union Square.",
+			address: Address{
+				streetNumber: "181",
+				streetName:   "3rd St",
+				city:         "San Francisco",
+				state:        "CA",
+				country:      "United States",
+				postalCode:   "94103",
+				lat:          37.7854,
+				lon:          -122.4005}})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -230,19 +256,19 @@ func initializeDatabase()  {
 	}
 	if count == 0 {
 		err = c.Insert(&Hotel{
-			Id:          "3",
-			Name:        "Hotel Zetta",
-			PhoneNumber: "(415) 543-8555",
-			Description: "A 3-minute walk from the Powell Street cable-car turnaround and BART rail station, this hip hotel 9 minutes from Union Square combines high-tech lodging with artsy touches.",
-			Address: &pb.Address{
-				StreetNumber: "55",
-				StreetName:   "5th St",
-				City:         "San Francisco",
-				State:        "CA",
-				Country:      "United States",
-				PostalCode:   "94103",
-				Lat:          37.7834,
-				Lon:          -122.4071}})
+			id:          "3",
+			name:        "Hotel Zetta",
+			phoneNumber: "(415) 543-8555",
+			description: "A 3-minute walk from the Powell Street cable-car turnaround and BART rail station, this hip hotel 9 minutes from Union Square combines high-tech lodging with artsy touches.",
+			address: Address{
+				streetNumber: "55",
+				streetName:   "5th St",
+				city:         "San Francisco",
+				state:        "CA",
+				country:      "United States",
+				postalCode:   "94103",
+				lat:          37.7834,
+				lon:          -122.4071}})
 
 		if err != nil {
 			log.Fatal(err)
@@ -255,19 +281,19 @@ func initializeDatabase()  {
 	}
 	if count == 0 {
 		err = c.Insert(&Hotel{
-			Id:          "4",
-			Name:        "Hotel Vitale",
-			PhoneNumber: "(415) 278-3700",
-			Description: "This waterfront hotel with Bay Bridge views is 3 blocks from the Financial District and a 4-minute walk from the Ferry Building.",
-			Address: &pb.Address{
-				StreetNumber: "8",
-				StreetName:   "Mission St",
-				City:         "San Francisco",
-				State:        "CA",
-				Country:      "United States",
-				PostalCode:   "94105",
-				Lat:          37.7936,
-				Lon:          -122.3930}})
+			id:          "4",
+			name:        "Hotel Vitale",
+			phoneNumber: "(415) 278-3700",
+			description: "This waterfront hotel with Bay Bridge views is 3 blocks from the Financial District and a 4-minute walk from the Ferry Building.",
+			address: Address{
+				streetNumber: "8",
+				streetName:   "Mission St",
+				city:         "San Francisco",
+				state:        "CA",
+				country:      "United States",
+				postalCode:   "94105",
+				lat:          37.7936,
+				lon:          -122.3930}})
 
 		if err != nil {
 			log.Fatal(err)
@@ -280,19 +306,19 @@ func initializeDatabase()  {
 	}
 	if count == 0 {
 		err = c.Insert(&Hotel{
-			Id:          "5",
-			Name:        "Phoenix Hotel",
-			PhoneNumber: "(415) 776-1380",
-			Description: "Located in the Tenderloin neighborhood, a 10-minute walk from a BART rail station, this retro motor lodge has hosted many rock musicians and other celebrities since the 1950s. It’s a 4-minute walk from the historic Great American Music Hall nightclub.",
-			Address: &pb.Address{
-				StreetNumber: "601",
-				StreetName:   "Eddy St",
-				City:         "San Francisco",
-				State:        "CA",
-				Country:      "United States",
-				PostalCode:   "94109",
-				Lat:          37.7831,
-				Lon:          -122.4181}})
+			id:          "5",
+			name:        "Phoenix Hotel",
+			phoneNumber: "(415) 776-1380",
+			description: "Located in the Tenderloin neighborhood, a 10-minute walk from a BART rail station, this retro motor lodge has hosted many rock musicians and other celebrities since the 1950s. It’s a 4-minute walk from the historic Great American Music Hall nightclub.",
+			address: Address{
+				streetNumber: "601",
+				streetName:   "Eddy St",
+				city:         "San Francisco",
+				state:        "CA",
+				country:      "United States",
+				postalCode:   "94109",
+				lat:          37.7831,
+				lon:          -122.4181}})
 
 		if err != nil {
 			log.Fatal(err)
@@ -305,19 +331,19 @@ func initializeDatabase()  {
 	}
 	if count == 0 {
 		err = c.Insert(&Hotel{
-			Id:          "6",
-			Name:        "St. Regis San Francisco",
-			PhoneNumber: "(415) 284-4000",
-			Description: "St. Regis Museum Tower is a 42-story, 484 ft skyscraper in the South of Market district of San Francisco, California, adjacent to Yerba Buena Gardens, Moscone Center, PacBell Building and the San Francisco Museum of Modern Art.",
-			Address: &pb.Address{
-				StreetNumber: "125",
-				StreetName:   "3rd St",
-				City:         "San Francisco",
-				State:        "CA",
-				Country:      "United States",
-				PostalCode:   "94109",
-				Lat:          37.7863,
-				Lon:          -122.4015}})
+			id:          "6",
+			name:        "St. Regis San Francisco",
+			phoneNumber: "(415) 284-4000",
+			description: "St. Regis Museum Tower is a 42-story, 484 ft skyscraper in the South of Market district of San Francisco, California, adjacent to Yerba Buena Gardens, Moscone Center, PacBell Building and the San Francisco Museum of Modern Art.",
+			address: Address{
+				streetNumber: "125",
+				streetName:   "3rd St",
+				city:         "San Francisco",
+				state:        "CA",
+				country:      "United States",
+				postalCode:   "94109",
+				lat:          37.7863,
+				lon:          -122.4015}})
 
 		if err != nil {
 			log.Fatal(err)
@@ -332,23 +358,23 @@ func initializeDatabase()  {
 			log.Fatal(err)
 		}
 		phone_num := "(415) 284-40" + hotel_id
-		lat := 37.7835 + float32(i)/500.0*3
-		lon := -122.41 + float32(i)/500.0*4
+		lat := 37.7835 + float64(i)/500.0*3
+		lon := -122.41 + float64(i)/500.0*4
 		if count == 0 {
 			err = c.Insert(&Hotel{
-				Id:          hotel_id,
-				Name:        "St. Regis San Francisco",
-				PhoneNumber: phone_num,
-				Description: "St. Regis Museum Tower is a 42-story, 484 ft skyscraper in the South of Market district of San Francisco, California, adjacent to Yerba Buena Gardens, Moscone Center, PacBell Building and the San Francisco Museum of Modern Art.",
-				Address: &pb.Address{
-					StreetNumber: "125",
-					StreetName:   "3rd St",
-					City:         "San Francisco",
-					State:        "CA",
-					Country:      "United States",
-					PostalCode:   "94109",
-					Lat:          lat,
-					Lon:          lon}})
+				id:          hotel_id,
+				name:        "St. Regis San Francisco",
+				phoneNumber: phone_num,
+				description: "St. Regis Museum Tower is a 42-story, 484 ft skyscraper in the South of Market district of San Francisco, California, adjacent to Yerba Buena Gardens, Moscone Center, PacBell Building and the San Francisco Museum of Modern Art.",
+				address: Address{
+					streetNumber: "125",
+					streetName:   "3rd St",
+					city:         "San Francisco",
+					state:        "CA",
+					country:      "United States",
+					postalCode:   "94109",
+					lat:          lat,
+					lon:          lon}})
 
 			if err != nil {
 				log.Fatal(err)
@@ -368,12 +394,12 @@ func initializeDatabase()  {
 	}
 	// defer session.Close()
 
-	c := session.DB("rate-db").C("inventory")
+	c = session.DB("rate-db").C("inventory")
 	// First we clear the collection to have always a new one
 	if err = c.DropCollection(); err != nil {
 		log.Print("DropCollection: ", err)
 	}
-	count, err := c.Count()
+	count, err = c.Count()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -384,16 +410,16 @@ func initializeDatabase()  {
 	}
 
 	item := RatePlan{
-		HotelId: "1",
-		Code:    "RACK",
-		InDate:  "2015-04-09",
-		OutDate: "2015-04-10",
-		RoomType: &pb.RoomType{
-			BookableRate:       109.00,
-			Code:               "KNG",
-			RoomDescription:    "King sized bed",
-			TotalRate:          109.00,
-			TotalRateInclusive: 123.17,
+		hotelId: "1",
+		code:    "RACK",
+		inDate:  "2015-04-09",
+		outDate: "2015-04-10",
+		roomType: RoomType{
+			bookableRate:       109.00,
+			code:               "KNG",
+			roomDescription:    "King sized bed",
+			totalRate:          109.00,
+			totalRateInclusive: 123.17,
 		},
 	}
 
@@ -409,15 +435,15 @@ func initializeDatabase()  {
 		log.Fatal(err)
 	}
 
-	item.HotelId = "2"
-	item.Code = "RACK"
-	item.InDate = "2015-04-09"
-	item.OutDate = "2015-04-10"
-	item.RoomType.BookableRate = 139.00
-	item.RoomType.Code = "QN"
-	item.RoomType.RoomDescription = "Queen sized bed"
-	item.RoomType.TotalRate = 139.00
-	item.RoomType.TotalRateInclusive = 153.09
+	item.hotelId = "2"
+	item.code = "RACK"
+	item.inDate = "2015-04-09"
+	item.outDate = "2015-04-10"
+	item.roomType.bookableRate = 139.00
+	item.roomType.code = "QN"
+	item.roomType.roomDescription = "Queen sized bed"
+	item.roomType.totalRate = 139.00
+	item.roomType.totalRateInclusive = 153.09
 
 	if count == 0 {
 		err = c.Insert(&item)
@@ -431,15 +457,15 @@ func initializeDatabase()  {
 		log.Fatal(err)
 	}
 
-	item.HotelId = "3"
-	item.Code = "RACK"
-	item.InDate = "2015-04-09"
-	item.OutDate = "2015-04-10"
-	item.RoomType.BookableRate = 109.00
-	item.RoomType.Code = "KNG"
-	item.RoomType.RoomDescription = "King sized bed"
-	item.RoomType.TotalRate = 109.00
-	item.RoomType.TotalRateInclusive = 123.17
+	item.hotelId = "3"
+	item.code = "RACK"
+	item.inDate = "2015-04-09"
+	item.outDate = "2015-04-10"
+	item.roomType.bookableRate = 109.00
+	item.roomType.code = "KNG"
+	item.roomType.roomDescription = "King sized bed"
+	item.roomType.totalRate = 109.00
+	item.roomType.totalRateInclusive = 123.17
 
 	if count == 0 {
 		err = c.Insert(&item)
@@ -481,15 +507,15 @@ func initializeDatabase()  {
 
 			if count == 0 {
 
-				item.HotelId = hotel_id
-				item.Code = "RACK"
-				item.InDate = "2015-04-09"
-				item.OutDate = end_date
-				item.RoomType.BookableRate = rate
-				item.RoomType.Code = "KNG"
-				item.RoomType.RoomDescription = "King sized bed"
-				item.RoomType.TotalRate = rate
-				item.RoomType.TotalRateInclusive = rate_inc
+				item.hotelId = hotel_id
+				item.code = "RACK"
+				item.inDate = "2015-04-09"
+				item.outDate = end_date
+				item.roomType.bookableRate = rate
+				item.roomType.code = "KNG"
+				item.roomType.roomDescription = "King sized bed"
+				item.roomType.totalRate = rate
+				item.roomType.totalRateInclusive = rate_inc
 
 				err = c.Insert(&item)
 				if err != nil {
@@ -511,13 +537,13 @@ func initializeDatabase()  {
 	}
 	// defer session.Close()
 
-	c := session.DB("recommendation-db").C("recommendation")
+	c = session.DB("recommendation-db").C("recommendation")
 	// First we clear the collection to have always a new one
 	if err = c.DropCollection(); err != nil {
 		log.Print("DropCollection: ", err)
 	}
 
-	count, err := c.Find(&bson.M{"hotelid": "1"}).Count()
+	count, err = c.Find(&bson.M{"hotelid": "1"}).Count()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -586,14 +612,14 @@ func initializeDatabase()  {
 	// add up to 80 hotels
 	for i := 7; i <= 80; i++ {
 		hotel_id := strconv.Itoa(i)
-		_, err = c.Find(&bson.M{"hotelid": hotel_id}).Count()
+		_, err = c.Find(bson.M{"hotelid": hotel_id}).Count()
 		if err != nil {
 			log.Fatal(err)
 		}
 		lat := 37.7835 + float64(i)/500.0*3
 		lon := -122.41 + float64(i)/500.0*4
 
-		count, err = c.Find(&bson.M{"hotelid": hotel_id}).Count()
+		count, err = c.Find(bson.M{"hotelid": hotel_id}).Count()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -620,7 +646,7 @@ func initializeDatabase()  {
 		}
 
 		if count == 0 {
-			err = c.Insert(&HotelDB{hotel_id, lat, lon, rate, rate_inc})
+			err = c.Insert(HotelDB{hotel_id, lat, lon, rate, rate_inc})
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -640,13 +666,13 @@ func initializeDatabase()  {
 	}
 	// defer session.Close()
 
-	c := session.DB("reservation-db").C("reservation")
+	c = session.DB("reservation-db").C("reservation")
 	// First we clear the collection to have always a new one
 	if err = c.DropCollection(); err != nil {
 		log.Print("DropCollection: ", err)
 	}
 
-	count, err := c.Find(&bson.M{"hotelid": "4"}).Count()
+	count, err = c.Find(bson.M{"hotelid": "4"}).Count()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -658,67 +684,67 @@ func initializeDatabase()  {
 	}
 
 	c = session.DB("reservation-db").C("number")
-	count, err = c.Find(&bson.M{"hotelid": "1"}).Count()
+	count, err = c.Find(bson.M{"hotelid": "1"}).Count()
 	if err != nil {
 		log.Fatal(err)
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"1", 200})
+		err = c.Insert(Number{"1", 200})
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelid": "2"}).Count()
+	count, err = c.Find(bson.M{"hotelid": "2"}).Count()
 	if err != nil {
 		log.Fatal(err)
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"2", 10})
+		err = c.Insert(Number{"2", 10})
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelid": "3"}).Count()
+	count, err = c.Find(bson.M{"hotelid": "3"}).Count()
 	if err != nil {
 		log.Fatal(err)
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"3", 200})
+		err = c.Insert(Number{"3", 200})
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelid": "4"}).Count()
+	count, err = c.Find(bson.M{"hotelid": "4"}).Count()
 	if err != nil {
 		log.Fatal(err)
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"4", 200})
+		err = c.Insert(Number{"4", 200})
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelid": "5"}).Count()
+	count, err = c.Find(bson.M{"hotelid": "5"}).Count()
 	if err != nil {
 		log.Fatal(err)
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"5", 200})
+		err = c.Insert(Number{"5", 200})
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelid": "6"}).Count()
+	count, err = c.Find(bson.M{"hotelid": "6"}).Count()
 	if err != nil {
 		log.Fatal(err)
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"6", 200})
+		err = c.Insert(Number{"6", 200})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -726,7 +752,7 @@ func initializeDatabase()  {
 
 	for i := 7; i <= 80; i++ {
 		hotel_id := strconv.Itoa(i)
-		count, err = c.Find(&bson.M{"hotelid": hotel_id}).Count()
+		count, err = c.Find(bson.M{"hotelid": hotel_id}).Count()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -737,7 +763,7 @@ func initializeDatabase()  {
 			room_num = 250
 		}
 		if count == 0 {
-			err = c.Insert(&Number{hotel_id, room_num})
+			err = c.Insert(Number{hotel_id, room_num})
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -751,27 +777,23 @@ func initializeDatabase()  {
 
 	//USER
 	// Read the initial users
-	users := make([]User, 500)
-	users[0].Username = "hello"
-	users[0].Password = "hello"
+	//users := make([]User, 500)
+	//users[0].Username = "hello"
+	//users[0].Password = "hello"
 
 	// readJson(&users, *initdata)
 	// fmt.Println(users)
 
 	// Create users
-	for i := 1; i < len(users); i++ {
-		suffix := strconv.Itoa(i)
-		users[i].Username = "user_" + suffix
-		users[i].Password = "pass_" + suffix
-	}
+	//for i := 1; i < len(users); i++ {
+	//	suffix := strconv.Itoa(i)
+	//	users[i].Username = "user_" + suffix
+	//	users[i].Password = "pass_" + suffix
+	//}
 
 	// Insert in Database
-	coll := c.Database("user-db").Collection("user")
+	//coll := session.Database("user-db").Collection("user")
 	// Clear any existing data
-
-	if err := coll.Drop(ctx); err != nil {
-		log.Print("DropCollection: ", err)
-	}
 
 	// u := User{"Hello", "test"}
 	// res, err := coll.InsertOne(ctx, u)
@@ -782,19 +804,19 @@ func initializeDatabase()  {
 	// fmt.Println("Insert User in DB: ", u.Username, " ", u.Password, " ", pass)
 
 	// create the database records
-	elements := make([]interface{}, len(users))
-	for i := range users {
-		sum := sha256.Sum256([]byte(users[i].Password))
-		pass := fmt.Sprintf("%x", sum)
-		elements[i] = bson.M{"username": users[i].Username, "password": pass}
-	}
+	//elements := make([]interface{}, len(users))
+	//for i := range users {
+	//	sum := sha256.Sum256([]byte(users[i].Password))
+	//	pass := fmt.Sprintf("%x", sum)
+	//	elements[i] = bson.M{"username": users[i].Username, "password": pass}
+	//}
 
 	// Insert them into the data base
-	opts := options.InsertMany().SetOrdered(false)
-	_, err := coll.InsertMany(ctx, elements, opts)
-	if err != nil {
-		log.Fatal(err)
-	}
+	//opts := options.InsertMany().SetOrdered(false)
+	//_, err = coll.InsertMany(elements, opts)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 }
 
 func main() {

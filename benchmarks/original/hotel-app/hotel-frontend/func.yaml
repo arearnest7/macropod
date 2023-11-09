@@ -9,9 +9,13 @@ build:
   builder: pack
 run:
   envs:
-  - name: ELECTION_GET_RESULTS
-    value: http://election-get-results.default.10.125.188.36.sslip.io
-  - name: ELECTION_VOTE_ENQUEUER
-    value: http://election-vote-enqueuer.default.10.125.188.36.sslip.io
+  - name: HOTEL_SEARCH
+    value: http://hotel-search.default.10.125.188.36.sslip.io
+  - name: HOTEL_RECOMMEND
+    value: http://hotel-recommend.default.10.125.188.36.sslip.io
+  - name: HOTEL_RESERVE
+    value: http://hotel-reserve.default.10.125.188.36.sslip.io
+  - name: HOTEL_USER
+    value: http://hotel-user.default.10.125.188.36.sslip.io
 deploy:
   namespace: default

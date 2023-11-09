@@ -10,8 +10,8 @@ build:
 run:
   envs:
   - name: HOTEL_APP_DATABASE
-    value: http://hotel-app-database.default.10.125.188.36.sslip.io
+    value: mongodb://192.168.10.18:27017
   - name: HOTEL_APP_MEMCACHED
-    value: http://hotel-app-memcached.default.10.125.188.36.sslip.io
+    value: 10.168.10.3:11211
 deploy:
   namespace: default
