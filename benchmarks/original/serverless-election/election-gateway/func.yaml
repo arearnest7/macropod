@@ -10,8 +10,8 @@ build:
 run:
   envs:
   - name: ELECTION_GET_RESULTS
-    value: http://election-get-results.default.10.125.188.36.sslip.io
+    value: http://election-get-results.default.10.125.188.57.sslip.io
   - name: ELECTION_VOTE_ENQUEUER
-    value: http://election-vote-enqueuer.default.10.125.188.36.sslip.io
+    value: http://election-vote-enqueuer.default.10.125.188.57.sslip.io
 deploy:
   namespace: default

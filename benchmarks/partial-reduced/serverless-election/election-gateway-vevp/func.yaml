@@ -10,8 +10,8 @@ build:
 run:
   envs:
   - name: ELECTION_GET_RESULTS_PARTIAL
-    value: http://election-get-results-partial.default.10.125.188.36.sslip.io
+    value: http://election-get-results-partial.default.10.125.188.57.sslip.io
   - name: REDIS_URL
-    value: redis://10.125.189.107:6379
+    value: redis://10.125.188.57:6379
 deploy:
   namespace: default

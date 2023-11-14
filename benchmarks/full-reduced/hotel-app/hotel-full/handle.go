@@ -863,12 +863,18 @@ func SearchNearby(req RequestBody) string {
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-	ret := ""
+	/*ret := ""
         body, _ := ioutil.ReadAll(req.Body)
         var body_u *RequestBody
         json.Unmarshal(body, &body_u)
-        defer req.Body.Close()
-	if body_u.request == "search" {
+        defer req.Body.Close()*/
+        ret := ""
+        body, _ := ioutil.ReadAll(req.Body)
+        var body_u RequestBody
+        json.Unmarshal(body, &body_u)
+        ret1, _ := json.Marshal(body_u)
+        ret = string(ret1)
+	/*if body_u.request == "search" {
 		ret = SearchNearby(*body_u)
 	} else if body_u.request == "recommend" {
 		ret = GetRecommendations(*body_u)
@@ -880,7 +886,7 @@ func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
 		}
 	} else if body_u.request == "user" {
 		ret = strconv.FormatBool(CheckUser(*body_u))
-	}
+	}*/
 	fmt.Fprintf(res, ret) // echo to caller
 }
 

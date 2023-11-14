@@ -1,3 +1,3 @@
 #!/bin/bash
-sudo kn func delete election-full
+kn func delete election-full
 

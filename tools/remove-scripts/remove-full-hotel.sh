@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo kn func delete hotel-full
+kn func delete hotel-full

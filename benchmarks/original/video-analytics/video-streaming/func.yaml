@@ -3,13 +3,13 @@ name: video-streaming
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-streaming:latest
-imageDigest: sha256:35decc505463f8721736440e384673fac493b7b272473f499466e80b041f07c3
+imageDigest: sha256:92909108b0f6ae6ae259a3a7837497aa90f5ff40953969519b133ae6355900bd
 created: 2023-11-04T23:11:58.628724073-05:00
 build:
   builder: pack
 run:
   envs:
   - name: VIDEO_DECODER
-    value: http://video-decoder.default.10.125.188.36.sslip.io
+    value: http://video-decoder.default.10.125.188.57.sslip.io
 deploy:
   namespace: default

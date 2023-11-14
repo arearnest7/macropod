@@ -3,4 +3,3 @@ environs==9.3.2
 pycapnp==1.3.0
 opencv-python-headless
 requests
-tracing
