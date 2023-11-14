@@ -26,7 +26,7 @@ const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 
 , 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'U'];
 
 const vote_processor_handler = async (body) => {
-        client.set(body['id'], body);
+        client.set("voter-" + body['id'], body);
 
         var state = body['state'];
         var candidate = body['candidate'];
@@ -48,7 +48,7 @@ const vote_processor_handler = async (body) => {
 const vote_enqueuer_handler = async (body) => {
         client.exists("voter-" + body['id'] , function(err, reply) {
                 if (reply === 1) {
-                        const g_val = client.get(state_results[i]);
+                        const g_val = client.get("voter-" + body['id']);
                         if (g_val !== null) {
                                 return {"isBase64Encoded": false, "statusCode": 409, "body": {"success": false, "message": (body['id'] + "already submitted a vote.")}};
                         }

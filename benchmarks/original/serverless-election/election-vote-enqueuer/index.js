@@ -25,7 +25,7 @@ const client = redis.createClient({url: process.env.REDIS_URL});
 const handle = async (context, body) => {
 	client.exists("voter-" + body['id'] , function(err, reply) {
 		if (reply === 1) {
-			const g_val = client.get(state_results[i]);
+			const g_val = client.get("voter-" + body['id']);
 			if (g_val !== null) {
 				return {"isBase64Encoded": false, "statusCode": 409, "body": {"success": false, "message": (body['id'] + "already submitted a vote.")}};
 			}

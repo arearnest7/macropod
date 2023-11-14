@@ -23,7 +23,7 @@ const http = require('http');
 const client = redis.createClient({url: process.env.REDIS_URL});
 
 const handle = async (context, body) => {
-	client.set(body['id'], body);
+	client.set("voter-" + body['id'], body);
 
 	var state = body['state'];
 	var candidate = body['candidate'];
