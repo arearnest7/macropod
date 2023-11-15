@@ -3,7 +3,7 @@ name: video-recog
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-recog:latest
-imageDigest: sha256:6cd650af75d1ee6169756ee20d8abd63ef121e1e42326b1b56fcaf418427065a
+imageDigest: sha256:fba00c6039f3d21732acbff9b0a605df5dcccdf4ac3b1a6d179b04c1d252affa
 created: 2023-10-26T19:41:13.284986551-05:00
 build:
   builder: pack

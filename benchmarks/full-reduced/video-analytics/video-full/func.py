@@ -68,7 +68,7 @@ def infer(batch_t):
 def Recognise(request):
     # get the frame from s3 or inline
     frame = None
-    frame = base64.b64decode(request["frame"])
+    frame = base64.b64decode(request["frame"].encode())
 
     classification = infer(preprocessImage(frame))
     return classification
@@ -87,7 +87,7 @@ def decode(bytes):
     return all_frames
 
 def Recognise2(frame):
-    result = Recognise({"frame": str(base64.b64encode(frame))})
+    result = Recognise({"frame": base64.b64encode(frame).decode()})
 
     return result
 
@@ -106,7 +106,7 @@ def processFrames(videoBytes):
 
 def Decode(request):
     videoBytes = b''
-    videoBytes = base64.b64decode(request["video"])
+    videoBytes = base64.b64decode(request["video"].encode())
     results = processFrames(videoBytes)
     return results
 
@@ -115,7 +115,7 @@ def main(context: Context):
         videoFile = open("reference/video.mp4", "rb")
         videoFragment = videoFile.read()
         videoFile.close()
-        ret = Decode({"video": str(base64.b64encode(videoFragment))})
+        ret = Decode({"video": base64.b64encode(videoFragment).decode()})
         return ret, 200
     else:
         print("Empty request", flush=True)

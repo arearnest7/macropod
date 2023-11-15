@@ -63,7 +63,7 @@ def infer(batch_t):
 def Recognise(request):
     # get the frame from s3 or inline
     frame = None
-    frame = base64.b64decode(request["frame"].encode("utf-8"))
+    frame = base64.b64decode(request["frame"].encode())
 
     classification = infer(preprocessImage(frame))
     return classification

@@ -31,7 +31,7 @@ def decode(bytes):
     return all_frames
 
 def Recognise(frame):
-    result = requests.post(os.environ['VIDEO_RECOG_PARTIAL'] + ":80", json={"frame": base64.b64encode(frame).decode("utf-8")}).text
+    result = requests.post(os.environ['VIDEO_RECOG_PARTIAL'] + ":80", json={"frame": base64.b64encode(frame).decode()}).text
 
     return result
 
@@ -50,7 +50,7 @@ def processFrames(videoBytes):
 
 def Decode(request):
     videoBytes = b''
-    videoBytes = base64.b64decode(request["video"])
+    videoBytes = base64.b64decode(request["video"].encode())
     results = processFrames(videoBytes)
     return results
 
@@ -59,7 +59,7 @@ def main(context: Context):
         videoFile = open("reference/video.mp4", "rb")
         videoFragment = videoFile.read()
         videoFile.close()
-        ret = Decode({"video": base64.b64encode(videoFragment)})
+        ret = Decode({"video": base64.b64encode(videoFragment).decode()})
         return ret, 200
     else:
         print("Empty request", flush=True)

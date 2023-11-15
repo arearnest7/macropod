@@ -14,6 +14,7 @@ import io
 import argparse
 
 from concurrent import futures
+import base64
 
 # Load model
 model = models.squeezenet1_1(pretrained=True)
@@ -62,7 +63,7 @@ def infer(batch_t):
 def Recognise(request):
     # get the frame from s3 or inline
     frame = None
-    frame = base64.b64decode(request["frame"])
+    frame = base64.b64decode(request["frame"].encode())
 
     classification = infer(preprocessImage(frame))
     return classification

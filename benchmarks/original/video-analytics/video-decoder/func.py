@@ -12,6 +12,7 @@ import tempfile
 import argparse
 import socket
 import requests
+import base64
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -29,7 +30,7 @@ def decode(bytes):
     return all_frames
 
 def Recognise(frame):
-    result = requests.get(os.environ['VIDEO_RECOG'] + ":80", json={"frame": str(base64.b64encode(frame))}).text
+    result = requests.get(os.environ['VIDEO_RECOG'] + ":80", json={"frame": base64.b64encode(frame).decode()}).text
 
     return result
 
@@ -48,7 +49,7 @@ def processFrames(videoBytes):
 
 def Decode(request):
     videoBytes = b''
-    videoBytes = base64.b64decode(request["video"])
+    videoBytes = base64.b64decode(request["video"].encode())
     results = processFrames(videoBytes)
     return results
 

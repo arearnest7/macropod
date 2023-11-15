@@ -4,7 +4,7 @@ state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 
 candidates = ['John_Smith', 'Adam_Carter', 'Jane_Langley']
 
 def main():
-	r = redis.Redis(host='redis://10.125.188.57:6379', port=6379, decode_responses=True)
+	r = redis.Redis(host='10.125.189.107', port=6379, password='password1234')
 	for i in range(2000):
 		r.set("voter-" + str(i), "")
 main()
