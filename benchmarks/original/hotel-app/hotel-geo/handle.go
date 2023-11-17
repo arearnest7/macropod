@@ -17,19 +17,19 @@ import (
 )
 
 type RequestBody struct {
-        request string "json:\"request\""
-	requestType string "json:\"requestType\""
-        Lat float64 "json:\"Lat,omitempty\""
-        Lon float64 "json:\"Lon,omitempty\""
-        HotelId string "json:\"HotelId,omitempty\""
-        HotelIds []string "json:\"HotelIds,omitempty\""
-        RoomNumber int "json:\"RoomNumber,omitempty\""
-        CustomerName string "json:\"CustomerName,omitempty\""
-        Username string "json:\"Username,omitempty\""
-        Password string "json:\"Password,omitempty\""
-        Require string "json:\"Require,omitempty\""
-        InDate string "json:\"InDate,omitempty\""
-        OutDate string "json:\"OutDate,omitempty\""
+        Request string `json:"Request"`
+        RequestType string `json:"RequestType"`
+        Lat float64 `json:"Lat"`
+        Lon float64 `json:"Lon"`
+        HotelId string `json:"HotelId"`
+        HotelIds []string `json:"HotelIds"`
+        RoomNumber int `json:"RoomNumber"`
+        CustomerName string `json:"CustomerName"`
+        Username string `json:"Username"`
+        Password string `json:"Password"`
+        Require string `json:"Require"`
+        InDate string `json:"InDate"`
+        OutDate string `json:"OutDate"`
 }
 
 const (
@@ -55,7 +55,7 @@ func newGeoIndex(session *mgo.Session) *geoindex.ClusteringIndex {
 	defer s.Close()
 	c := s.DB("geo-db").C("geo")
 
-	var points []*Point
+	points := make([]*Point, 0)
 	err := c.Find(bson.M{}).All(&points)
 	if err != nil {
 		log.Println("Failed get geo data: ", err)
@@ -114,8 +114,8 @@ func Nearby(req RequestBody) string {
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
 	body, _ := ioutil.ReadAll(req.Body)
-        var body_u *RequestBody
+        body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
-	fmt.Fprintf(res, Nearby(*body_u)) // echo to caller
+	fmt.Fprintf(res, Nearby(body_u)) // echo to caller
 }

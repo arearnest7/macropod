@@ -16,66 +16,54 @@
  * See: https://github.com/knative/func/blob/main/docs/function-developers/nodejs.md#the-context-object
  */
 
-const fs = require('fs')
 const redis = require('redis');
-const http = require('http');
+const axios = require('axios');
 
-const client = redis.createClient({url: process.env.REDIS_URL});
+const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID'
 , 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH'
 , 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'U'];
 
 const vote_processor_handler = async (body) => {
-        client.set("voter-" + body['id'], body);
+        await client.set("voter-" + body['id'], JSON.stringify(body));
 
         var state = body['state'];
         var candidate = body['candidate'];
 
-        client.exists("election-results-" + state + "-" + candidate, function(err, reply) {
-                if (reply === 1) {
-                        var cnt = parseInt(client.get("election-results-" + state + "-" + candidate));
-			cnt = cnt + 1;
-                        client.set("election-results-" + state + "-" + candidate, cnt.toString());
-                }
-                else {
-                        client.set("election-results-" + state + "-" + candidate, "1");
-                }
-
-        });
+	reply = await client.exists("election-results-" + state + "-" + candidate);
+        if (reply == 1) {
+        	var cnt = parseInt(await client.get("election-results-" + state + "-" + candidate));
+		cnt = cnt + 1;
+		await client.set("election-results-" + state + "-" + candidate, cnt.toString());
+	}
+	else {
+		await client.set("election-results-" + state + "-" + candidate, "1");
+	}
         return "success";
 }
 
 const vote_enqueuer_handler = async (body) => {
-        client.exists("voter-" + body['id'] , function(err, reply) {
-                if (reply === 1) {
-                        const g_val = client.get("voter-" + body['id']);
-                        if (g_val !== null) {
-                                return {"isBase64Encoded": false, "statusCode": 409, "body": {"success": false, "message": (body['id'] + "already submitted a vote.")}};
-                        }
-                        else {
-                                let data = vote_processor_handler(body);
-                                return {"isBase64Encoded": false, "statusCode": 201, "body": {"success": true, "message": ("Vote " + body['id'] + " registered")}};
-                        }
-                }
-                return {"isBase64Encoded": false, "statusCode": 404, "body": {"success": false, "message": ("This voter id does not exist: " + body['id'])}};
-        });
+	reply = await client.exists("voter-" + body['id']);
+	if (reply == 1) {
+        	const g_val = await client.get("voter-" + body['id']);
+		if (g_val != "Not Voted") {
+			return {"isBase64Encoded": false, "statusCode": 409, "body": {"success": false, "message": (body['id'] + " already submitted a vote.")}};
+		} else {
+			let data = await vote_processor_handler(body);
+			return {"isBase64Encoded": false, "statusCode": 201, "body": {"success": true, "message": ("Vote " + body['id'] + " registered")}};
+		}
+	}
+	return {"isBase64Encoded": false, "statusCode": 404, "body": {"success": false, "message": ("This voter id does not exist: " + body['id'])}};
 }
 
 const get_results_handler = async (body) => {
         var results = [];
         for (var state in state_list) {
-                client.keys('election-results-' + state + '-*', function (err, state_results) {
-                        if (err) {
-                                return console.log(err);
-                        }
-                        for(var i = 0, len = keys.length; i < len; i++) {
-                                console.log(keys[i]);
-                        }
-                });
+                state_results = await client.keys('election-results-' + state + '-*');
                 var total_count = {"total": 0};
-                for (var i = 0; i < state_results; i++) {
-                        const cnt = await client.get(state_results[i]);
+                for (var i = 0; i < state_results.length; i++) {
+                        const cnt = await parseInt(client.get(state_results[i]));
                         total_count[state_results[i]] = cnt;
                         total_count["total"] += cnt;
                 }
@@ -105,6 +93,8 @@ const get_results_handler = async (body) => {
 }
 
 const handle = async (context, body) => {
+	client.on('error', err => console.log('Redis Client Error', err));
+	await client.connect();
         if (body['requestType'] ==  'get_results') {
                 let data = await get_results_handler(body);
                 return data;
@@ -118,3 +108,4 @@ const handle = async (context, body) => {
 
 // Export the function
 module.exports = { handle };
+

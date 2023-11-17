@@ -30,19 +30,19 @@ import (
 )
 
 type RequestBody struct {
-        request string "json:\"request\""
-        requestType string "json:\"requestType\""
-        Lat float64 "json:\"Lat,omitempty\""
-        Lon float64 "json:\"Lon,omitempty\""
-        HotelId string "json:\"HotelId,omitempty\""
-        HotelIds []string "json:\"HotelIds,omitempty\""
-        RoomNumber int "json:\"RoomNumber,omitempty\""
-        CustomerName string "json:\"CustomerName,omitempty\""
-        Username string "json:\"Username,omitempty\""
-        Password string "json:\"Password,omitempty\""
-        Require string "json:\"Require,omitempty\""
-        InDate string "json:\"InDate,omitempty\""
-        OutDate string "json:\"OutDate,omitempty\""
+        Request string `json:"Request"`
+	RequestType string `json:"RequestType"`
+        Lat float64 `json:"Lat"`
+        Lon float64 `json:"Lon"`
+        HotelId string `json:"HotelId"`
+        HotelIds []string `json:"HotelIds"`
+        RoomNumber int `json:"RoomNumber"`
+        CustomerName string `json:"CustomerName"`
+        Username string `json:"Username"`
+        Password string `json:"Password"`
+        Require string `json:"Require"`
+        InDate string `json:"InDate"`
+        OutDate string `json:"OutDate"`
 }
 
 const (
@@ -530,7 +530,7 @@ func loadUsers(client *mongo.Client) map[string]string {
 func lookupCache(username string) string {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
         defer cancel()
-        MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://" + os.Getenv("HOTEL_APP_DATABASE") + ":27017"))
+        MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
         if err != nil { return "" }
         users_cached := loadUsers(MongoClient)
         res, ok := users_cached[username]
@@ -546,7 +546,7 @@ func lookUpDB(username string) (User, bool) {
         // defer session.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
         defer cancel()
-        MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://" + os.Getenv("HOTEL_APP_DATABASE") + ":27017"))
+        MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
         collection := MongoClient.Database("user-db").Collection("user")
 
         // listAll(collection)
@@ -672,7 +672,7 @@ func GetRates(req Request) string {
         // }
         // defer session.Close()
 
-        var ratePlans RatePlans
+        ratePlans := make(RatePlans, 0)
 
         MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
         var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
@@ -747,12 +747,11 @@ func GetRates(req Request) string {
 
 // newGeoIndex returns a geo index with points loaded
 func newGeoIndex(session *mgo.Session) *geoindex.ClusteringIndex {
-
         s := session.Copy()
         defer s.Close()
         c := s.DB("geo-db").C("geo")
 
-        var points []*Point
+        points := make([]*Point, 0)
         err := c.Find(bson.M{}).All(&points)
         if err != nil {
                 log.Println("Failed get geo data: ", err)
@@ -791,7 +790,6 @@ func getNearbyPoints(lat, lon float64) []geoindex.Point {
 // Nearby returns all hotels within a given distance.
 func Nearby(req BodyGeo) string {
         // fmt.Printf("In geo Nearby\n")
-
         var (
                 points = getNearbyPoints(req.Lat, req.Lon)
                 res    = make([]string, 0)
@@ -824,8 +822,8 @@ func SearchNearby(req RequestBody) string {
         //}
 
         // var ids []string
-        var nearby_u []string
-        _ = json.Unmarshal([]byte(nearby), nearby_u)
+        nearby_u := make([]string, 0)
+        _ = json.Unmarshal([]byte(nearby), &nearby_u)
         for _, hid := range nearby_u {
                 fmt.Printf("get Nearby hotelId = %s\n", hid)
                 // ids = append(ids, hid)
@@ -863,30 +861,24 @@ func SearchNearby(req RequestBody) string {
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-	/*ret := ""
+	ret := ""
         body, _ := ioutil.ReadAll(req.Body)
-        var body_u *RequestBody
+	body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
-        defer req.Body.Close()*/
-        ret := ""
-        body, _ := ioutil.ReadAll(req.Body)
-        var body_u RequestBody
-        json.Unmarshal(body, &body_u)
-        ret1, _ := json.Marshal(body_u)
-        ret = string(ret1)
-	/*if body_u.request == "search" {
-		ret = SearchNearby(*body_u)
-	} else if body_u.request == "recommend" {
-		ret = GetRecommendations(*body_u)
-	} else if body_u.request == "reserve" {
-		if body_u.requestType == "check" {
-			ret = CheckAvailability(*body_u)
-		} else if body_u.requestType == "make" {
-			ret = MakeReservation(*body_u)
+        defer req.Body.Close()
+	if body_u.Request == "search" {
+		ret = SearchNearby(body_u)
+	} else if body_u.Request == "recommend" {
+		ret = GetRecommendations(body_u)
+	} else if body_u.Request == "reserve" {
+		if body_u.RequestType == "check" {
+			ret = CheckAvailability(body_u)
+		} else if body_u.RequestType == "make" {
+			ret = MakeReservation(body_u)
 		}
-	} else if body_u.request == "user" {
-		ret = strconv.FormatBool(CheckUser(*body_u))
-	}*/
+	} else if body_u.Request == "user" {
+		ret = strconv.FormatBool(CheckUser(body_u))
+	}
 	fmt.Fprintf(res, ret) // echo to caller
 }
 

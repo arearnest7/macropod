@@ -3,15 +3,15 @@ name: hotel-geo
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-geo:latest
-imageDigest: sha256:369a197ee1a0e4103ba487828857f0c660b0157610f5591e697a7f6328b1a0b3
+imageDigest: sha256:ea70814b4fdb0ea7a17fd9c4248a6e264844a04ef0acfd22c47bad099e35f6a5
 created: 2023-10-26T19:30:51.417314908-05:00
 build:
   builder: pack
 run:
   envs:
   - name: HOTEL_APP_DATABASE
-    value: mongodb://192.168.10.18:27017
+    value: mongodb://10.42.2.96:27017
   - name: HOTEL_APP_MEMCACHED
-    value: 10.168.10.3:11211
+    value: 10.42.4.93:11211
 deploy:
   namespace: default

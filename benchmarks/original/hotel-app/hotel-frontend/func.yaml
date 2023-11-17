@@ -3,19 +3,19 @@ name: hotel-frontend
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-frontend:latest
-imageDigest: sha256:25f757eb4639f85c1b9c1c1eac55e2ae60023b05a97d771a66d8ef930c3b53e0
+imageDigest: sha256:d479dab845ab88a6280929646642e69e55113cbd1c42512911a5f2f47296e76f
 created: 2023-10-26T19:30:15.504368653-05:00
 build:
   builder: pack
 run:
   envs:
   - name: HOTEL_SEARCH
-    value: http://hotel-search.default.10.125.188.57.sslip.io
+    value: http://hotel-search.default.10.125.189.107.sslip.io
   - name: HOTEL_RECOMMEND
-    value: http://hotel-recommend.default.10.125.188.57.sslip.io
+    value: http://hotel-recommend.default.10.125.189.107.sslip.io
   - name: HOTEL_RESERVE
-    value: http://hotel-reserve.default.10.125.188.57.sslip.io
+    value: http://hotel-reserve.default.10.125.189.107.sslip.io
   - name: HOTEL_USER
-    value: http://hotel-user.default.10.125.188.57.sslip.io
+    value: http://hotel-user.default.10.125.189.107.sslip.io
 deploy:
   namespace: default

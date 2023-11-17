@@ -16,30 +16,28 @@
  * See: https://github.com/knative/func/blob/main/docs/function-developers/nodejs.md#the-context-object
  */
 
-const fs = require('fs')
 const redis = require('redis');
-const http = require('http');
 
-const client = redis.createClient({url: process.env.REDIS_URL});
+const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const handle = async (context, body) => {
-	client.set("voter-" + body['id'], body);
+	client.on('error', err => console.log('Redis Client Error', err));
+        await client.connect();
+	await client.set("voter-" + body['id'], JSON.stringify(body));
 
 	var state = body['state'];
 	var candidate = body['candidate'];
 
-	client.exists("election-results-" + state + "-" + candidate, function(err, reply) {
-                if (reply === 1) {
-                	var cnt = parseInt(client.get("election-results-" + state + "-" + candidate));
-			cnt = cnt + 1;
-			client.set("election-results-" + state + "-" + candidate, cnt.toString());
-		}
-		else {
-			client.set("election-results-" + state + "-" + candidate, "1");
-		}
-
-	});
-	return "success";
+	reply = await client.exists("election-results-" + state + "-" + candidate);
+        if (reply == 1) {
+                var cnt = parseInt(await client.get("election-results-" + state + "-" + candidate));
+                cnt = cnt + 1;
+                await client.set("election-results-" + state + "-" + candidate, cnt.toString());
+        }
+        else {
+                await client.set("election-results-" + state + "-" + candidate, "1");
+        }
+        return "success";
 }
 
 // Export the function

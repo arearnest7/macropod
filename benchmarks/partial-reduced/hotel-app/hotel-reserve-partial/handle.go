@@ -20,19 +20,19 @@ import (
 )
 
 type RequestBody struct {
-        request string "json:\"request\""
-	requestType string "json:\"requestType\""
-        Lat float64 "json:\"Lat,omitempty\""
-        Lon float64 "json:\"Lon,omitempty\""
-        HotelId string "json:\"HotelId,omitempty\""
-        HotelIds []string "json:\"HotelIds,omitempty\""
-        RoomNumber int "json:\"RoomNumber,omitempty\""
-        CustomerName string "json:\"CustomerName,omitempty\""
-        Username string "json:\"Username,omitempty\""
-        Password string "json:\"Password,omitempty\""
-        Require string "json:\"Require,omitempty\""
-        InDate string "json:\"InDate,omitempty\""
-        OutDate string "json:\"OutDate,omitempty\""
+        Request string `json:"Request"`
+        RequestType string `json:"RequestType"`
+        Lat float64 `json:"Lat"`
+        Lon float64 `json:"Lon"`
+        HotelId string `json:"HotelId"`
+        HotelIds []string `json:"HotelIds"`
+        RoomNumber int `json:"RoomNumber"`
+        CustomerName string `json:"CustomerName"`
+        Username string `json:"Username"`
+        Password string `json:"Password"`
+        Require string `json:"Require"`
+        InDate string `json:"InDate"`
+        OutDate string `json:"OutDate"`
 }
 
 type Reservation struct {
@@ -298,13 +298,13 @@ func MakeReservation(req RequestBody) string {
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
         ret := ""
 	body, _ := ioutil.ReadAll(req.Body)
-        var body_u *RequestBody
+        body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
-	if body_u.requestType == "check" {
-		ret = CheckAvailability(*body_u)
-	} else if body_u.requestType == "make" {
-		ret = MakeReservation(*body_u)
+	if body_u.RequestType == "check" {
+		ret = CheckAvailability(body_u)
+	} else if body_u.RequestType == "make" {
+		ret = MakeReservation(body_u)
 	}
 	fmt.Fprintf(res, ret) // echo to caller
 }

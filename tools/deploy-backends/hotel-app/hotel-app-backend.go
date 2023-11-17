@@ -85,7 +85,7 @@ type User struct {
 }
 
 func initializeDatabase()  {
-	url := "mongodb://192.168.10.18:27017"
+	url := "mongodb://10.42.2.96:27017"
 
 	// GEO
 	fmt.Printf("geo db ip addr = %s\n", url)

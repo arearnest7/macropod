@@ -21,19 +21,19 @@ import (
 )
 
 type RequestBody struct {
-        request string "json:\"request\""
-        requestType string "json:\"requestType\""
-        Lat float64 "json:\"Lat,omitempty\""
-        Lon float64 "json:\"Lon,omitempty\""
-        HotelId string "json:\"HotelId,omitempty\""
-        HotelIds []string "json:\"HotelIds,omitempty\""
-        RoomNumber int "json:\"RoomNumber,omitempty\""
-        CustomerName string "json:\"CustomerName,omitempty\""
-        Username string "json:\"Username,omitempty\""
-        Password string "json:\"Password,omitempty\""
-        Require string "json:\"Require,omitempty\""
-        InDate string "json:\"InDate,omitempty\""
-        OutDate string "json:\"OutDate,omitempty\""
+        Request string `json:"Request"`
+        RequestType string `json:"RequestType"`
+        Lat float64 `json:"Lat"`
+        Lon float64 `json:"Lon"`
+        HotelId string `json:"HotelId"`
+        HotelIds []string `json:"HotelIds"`
+        RoomNumber int `json:"RoomNumber"`
+        CustomerName string `json:"CustomerName"`
+        Username string `json:"Username"`
+        Password string `json:"Password"`
+        Require string `json:"Require"`
+        InDate string `json:"InDate"`
+        OutDate string `json:"OutDate"`
 }
 
 const (
@@ -231,7 +231,7 @@ func GetRates(req Request) string {
         // }
         // defer session.Close()
 
-        var ratePlans RatePlans
+        ratePlans := make(RatePlans, 0)
 
         MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
         var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
@@ -311,7 +311,7 @@ func newGeoIndex(session *mgo.Session) *geoindex.ClusteringIndex {
         defer s.Close()
         c := s.DB("geo-db").C("geo")
 
-        var points []*Point
+        points := make([]*Point, 0)
         err := c.Find(bson.M{}).All(&points)
         if err != nil {
                 log.Println("Failed get geo data: ", err)
@@ -383,8 +383,8 @@ func SearchNearby(req RequestBody) string {
         //}
 
         // var ids []string
-        var nearby_u []string
-        _ = json.Unmarshal([]byte(nearby), nearby_u)
+        nearby_u := make([]string, 0)
+        _ = json.Unmarshal([]byte(nearby), &nearby_u)
         for _, hid := range nearby_u {
                 fmt.Printf("get Nearby hotelId = %s\n", hid)
                 // ids = append(ids, hid)
@@ -424,19 +424,19 @@ func SearchNearby(req RequestBody) string {
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
 	ret := ""
         body, _ := ioutil.ReadAll(req.Body)
-        var body_u *RequestBody
+        body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
-        if body_u.request == "search" {
-                ret = SearchNearby(*body_u)
+        if body_u.Request == "search" {
+                ret = SearchNearby(body_u)
         } else {
 		requestURL := ""
-                if body_u.request == "recommend" {
-                        requestURL = os.Getenv("HOTEL_RECOMMEND_PARTIAL") + ":8080"
-                } else if body_u.request == "reserve" {
-                        requestURL = os.Getenv("HOTEL_RESERVE_PARTIAL") + ":8080"
-                } else if body_u.request == "user" {
-                        requestURL = os.Getenv("HOTEL_USER_PARTIAL") + ":8080"
+                if body_u.Request == "recommend" {
+                        requestURL = os.Getenv("HOTEL_RECOMMEND_PARTIAL") + ":80"
+                } else if body_u.Request == "reserve" {
+                        requestURL = os.Getenv("HOTEL_RESERVE_PARTIAL") + ":80"
+                } else if body_u.Request == "user" {
+                        requestURL = os.Getenv("HOTEL_USER_PARTIAL") + ":80"
                 }
 
                 body_m, err := json.Marshal(body_u)

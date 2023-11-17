@@ -8,22 +8,22 @@ import (
 	"os"
 	"encoding/json"
 	"io/ioutil"
-	"strconv"
 )
 
 type RequestBody struct {
-        request string "json:\"request\""
-        Lat float64 "json:\"Lat,omitempty\""
-        Lon float64 "json:\"Lon,omitempty\""
-        HotelId string "json:\"HotelId,omitempty\""
-        HotelIds []string "json:\"HotelIds,omitempty\""
-        RoomNumber int "json:\"RoomNumber,omitempty\""
-        CustomerName string "json:\"CustomerName,omitempty\""
-        Username string "json:\"Username,omitempty\""
-        Password string "json:\"Password,omitempty\""
-        Require string "json:\"Require,omitempty\""
-        InDate string "json:\"InDate,omitempty\""
-        OutDate string "json:\"OutDate,omitempty\""
+        Request string `json:"Request"`
+        RequestType string `json:"RequestType"`
+        Lat float64 `json:"Lat"`
+        Lon float64 `json:"Lon"`
+        HotelId string `json:"HotelId"`
+        HotelIds []string `json:"HotelIds"`
+        RoomNumber int `json:"RoomNumber"`
+        CustomerName string `json:"CustomerName"`
+        Username string `json:"Username"`
+        Password string `json:"Password"`
+        Require string `json:"Require"`
+        InDate string `json:"InDate"`
+        OutDate string `json:"OutDate"`
 }
 
 type RoomType struct {
@@ -46,8 +46,8 @@ type RatePlan struct {
 type RatePlans []*RatePlan
 
 type BodyGeo struct {
-	Lat string
-	Lon string
+        Lat float64
+        Lon float64
 }
 
 type Request struct {
@@ -64,8 +64,8 @@ func Nearby(req RequestBody) string {
 	fmt.Printf("nearby lat = %f\n", req.Lat)
 	fmt.Printf("nearby lon = %f\n", req.Lon)
 
-	requestURL := os.Getenv("HOTEL_GEO") + ":8080"
-	payload := BodyGeo{Lat: strconv.FormatFloat(req.Lat, 'f', -1, 64), Lon: strconv.FormatFloat(req.Lon, 'f', -1, 64)}
+	requestURL := os.Getenv("HOTEL_GEO") + ":80"
+	payload := BodyGeo{Lat: req.Lat, Lon: req.Lon}
 	body_g, err := json.Marshal(payload)
         req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_g))
         req_url.Header.Add("Content-Type", "application/json")
@@ -78,8 +78,8 @@ func Nearby(req RequestBody) string {
 
 	// var ids []string
 	nearbyBody, err := ioutil.ReadAll(nearby.Body)
-	var nearby_u []string
-	err = json.Unmarshal(nearbyBody, nearby_u)
+	nearby_u := make([]string, 0)
+	err = json.Unmarshal(nearbyBody, &nearby_u)
 	for _, hid := range nearby_u {
 		fmt.Printf("get Nearby hotelId = %s\n", hid)
 		// ids = append(ids, hid)
@@ -95,7 +95,7 @@ func Nearby(req RequestBody) string {
 
 	body_r, err := json.Marshal(r)
 
-        requestURL2 := os.Getenv("HOTEL_RATE") + ":8080"
+        requestURL2 := os.Getenv("HOTEL_RATE") + ":80"
         req_url2, err := http.NewRequest(http.MethodPost, requestURL2, bytes.NewBuffer(body_r))
 	req_url2.Header.Add("Content-Type", "application/json")
         ratesRet, err := client.Do(req_url2)
@@ -124,8 +124,8 @@ func Nearby(req RequestBody) string {
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
         body, _ := ioutil.ReadAll(req.Body)
-        var body_u *RequestBody
+        body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
-	fmt.Fprintf(res, Nearby(*body_u)) // echo to caller
+	fmt.Fprintf(res, Nearby(body_u)) // echo to caller
 }

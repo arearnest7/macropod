@@ -16,45 +16,31 @@
  * See: https://github.com/knative/func/blob/main/docs/function-developers/nodejs.md#the-context-object
  */
 
-const fs = require('fs')
 const redis = require('redis');
-const http = require('http');
+const axios = require('axios');
 
-const client = redis.createClient({url: process.env.REDIS_URL});
+const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const handle = async (context, body) => {
-	client.exists("voter-" + body['id'] , function(err, reply) {
-		if (reply === 1) {
-			const g_val = client.get("voter-" + body['id']);
-			if (g_val !== null) {
-				return {"isBase64Encoded": false, "statusCode": 409, "body": {"success": false, "message": (body['id'] + "already submitted a vote.")}};
-			}
-			else {
-				var opt = {
-                			host: process.env.ELECTION_VOTE_PROCESSOR,
-                			port: 8080,
-                			method: 'GET',
-                			headers: {
-                        			'Content-Type': 'application/json',
-                        			'Content-Length': body
-                			}
-        			};
-				let data = '';
-                		http.get(opt, (res) => {
-                        		res.on('data', (chunk) => {
-                                		data += chunk;
-                        		});
-                        		res.on('end', () => {
-                                		console.log('Body', JSON.parse(data))
-                        		});
-                		}).on("error", (err) => {
-                        		console.log("Error: ", err)
-                		}).end();
-				return {"isBase64Encoded": false, "statusCode": 201, "body": {"success": true, "message": ("Vote " + body['id'] + " registered")}};
-			}
+	client.on('error', err => console.log('Redis Client Error', err));
+        await client.connect();
+	reply = await client.exists("voter-" + body['id']);
+	if (reply == 1) {
+		const g_val = await client.get("voter-" + body['id']);
+		if (g_val != "Not Voted") {
+			return {"isBase64Encoded": false, "statusCode": 409, "body": {"success": false, "message": (body['id'] + " already submitted a vote.")}};
 		}
-		return {"isBase64Encoded": false, "statusCode": 404, "body": {"success": false, "message": ("This voter id does not exist: " + body['id'])}};
-	});
+		else {
+			data = '';
+			newBody = body;
+			await axios.post(process.env.ELECTION_VOTE_PROCESSOR, newBody)
+				.then( (response) => {
+                                	data = response.data;
+				});
+			return {"isBase64Encoded": false, "statusCode": 201, "body": {"success": true, "message": ("Vote " + body['id'] + " registered")}};
+		}
+	}
+	return {"isBase64Encoded": false, "statusCode": 404, "body": {"success": false, "message": ("This voter id does not exist: " + body['id'])}};
 }
 
 // Export the function

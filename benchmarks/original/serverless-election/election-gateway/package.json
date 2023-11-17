@@ -12,6 +12,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
+    "axios": "^1.6.2",
     "faas-js-runtime": "^2.2.2"
   },
   "devDependencies": {

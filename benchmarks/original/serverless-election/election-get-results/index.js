@@ -16,28 +16,21 @@
  * See: https://github.com/knative/func/blob/main/docs/function-developers/nodejs.md#the-context-object
  */
 
-const fs = require('fs')
 const redis = require('redis');
-const http = require('http');
 
-const client = redis.createClient({url: process.env.REDIS_URL});
+const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'U'];
 
 const handle = async (context, body) => {
+	client.on('error', err => console.log('Redis Client Error', err));
+        await client.connect();
 	var results = [];
 	for (var state in state_list) {
-		client.keys('election-results-' + state + '-*', function (err, state_results) {
-    			if (err) {
-				return console.log(err);
-			}
-    			for(var i = 0, len = keys.length; i < len; i++) {
-        			console.log(keys[i]);
-  			}
-		});
+		state_results = await client.keys('election-results-' + state + '-*');
 		var total_count = {"total": 0};
-		for (var i = 0; i < state_results; i++) {
-			const cnt = await client.get(state_results[i]);
+		for (var i = 0; i < state_results.length; i++) {
+			const cnt = await parseInt(client.get(state_results[i]));
 			total_count[state_results[i]] = cnt;
 			total_count["total"] += cnt;
 		}

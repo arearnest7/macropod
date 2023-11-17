@@ -15,47 +15,24 @@
  * @param {string} context.httpVersion the HTTP protocol version
  * See: https://github.com/knative/func/blob/main/docs/function-developers/nodejs.md#the-context-object
  */
-const fs = require('fs')
-const http = require("http");
+const axios = require("axios");
 
 const handle = async (context, body) => {
-	var opt = {
-		host: process.env.ELECTION_GET_RESULTS,
-		port: 8080,
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-    			'Content-Length': body
-		}
-	};
 	if (body['requestType'] ==  'get_results') {
-		let data = '';
-		http.get(opt, (res) => {
-			res.on('data', (chunk) => {
-				data += chunk;
-			});
-			res.on('end', () => {
-				console.log('Body', JSON.parse(data))
-			});
-		}).on("error", (err) => {
-    			console.log("Error: ", err)
-		}).end();
+		var data = '';
+                await axios.post(process.env.ELECTION_GET_RESULTS, body)
+                        .then( (response) => {
+                                data = response.data;
+                        });
 		return data;
 	}
 	else if (body['requestType'] == 'vote') {
-		opt['host'] = process.env.ELECTION_VOTE_ENQUEUER;
-		let data = '';
-                http.get(opt, (res) => {
-                        res.on('data', (chunk) => {
-                                data += chunk;
-                        });
-                        res.on('end', () => {
-                                console.log('Body', JSON.parse(data))
-                        });
-                }).on("error", (err) => {
-                        console.log("Error: ", err)
-                }).end();
-                return data;
+		var data = '';
+		await axios.post(process.env.ELECTION_VOTE_ENQUEUER, body)
+			.then( (response) => {
+				data = response.data;
+			});
+		return data;
 	}
 	return 'invalid request type';
 }

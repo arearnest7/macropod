@@ -3,15 +3,15 @@ name: hotel-rate
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-rate:latest
-imageDigest: sha256:3a848cb086710ef244ebb53f22538bc78753c67c5bc41f2ca3da29e369ffb31a
+imageDigest: sha256:2b220ea3923dd1c49cd7b3e712ef5f9f3d23516daba3c977e81b6001fffce69d
 created: 2023-10-26T19:30:55.730644786-05:00
 build:
   builder: pack
 run:
   envs:
   - name: HOTEL_APP_DATABASE
-    value: mongodb://192.168.10.18:27017
+    value: mongodb://10.42.2.96:27017
   - name: HOTEL_APP_MEMCACHED
-    value: 10.168.10.3:11211
+    value: 10.42.4.93:11211
 deploy:
   namespace: default

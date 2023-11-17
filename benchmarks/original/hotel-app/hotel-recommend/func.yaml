@@ -3,15 +3,15 @@ name: hotel-recommend
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-recommend:latest
-imageDigest: sha256:17330111d7ad4cdf9f8e351bb6604ed579c02d3d9752a746f72bd31ab6b14f26
-created: 2023-10-26T19:30:33.475054179-05:00
+imageDigest: sha256:e00fc19f4c2e82bf20e3d09ba525938088c9d5e41f570c442ee718265afba052
+created: 2023-10-26T19:54:40.164310055-05:00
 build:
   builder: pack
 run:
   envs:
   - name: HOTEL_APP_DATABASE
-    value: mongodb://192.168.10.18:27017
+    value: mongodb://10.42.2.96:27017
   - name: HOTEL_APP_MEMCACHED
-    value: 10.168.10.3:11211
+    value: 10.42.4.93:11211
 deploy:
   namespace: default
