@@ -1,7 +1,1 @@
-{
-	"Request": "search",
-	"Lat": 37.7781,
-	"Lon": -122.4118,
-	"InDate": "2015-04-09",
-	"OutDate": "2015-04-10"
-}
+{"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}

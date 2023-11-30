@@ -1,4 +1,4 @@
 #!/bin/bash
 BUILD=${1:-false}
 PUSH=${2:-false}
-sudo kn func deploy --build=$BUILD --push=$PUSH --path ../../benchmarks/full-reduced/video-analytics/video-full
+kn func deploy --build=$BUILD --push=$PUSH --path ../../benchmarks/full-reduced/video-analytics/video-full

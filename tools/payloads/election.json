@@ -1,6 +1,1 @@
-{
-	"requestType": "vote",
-	"id": "1234",
-	"state": "TX",
-	"candidate": "John_Smith"
-}
+{"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}
