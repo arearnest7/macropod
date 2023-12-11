@@ -1,0 +1,19 @@
+specVersion: 0.35.0
+name: election-gateway-vevp-wob
+runtime: node
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/election-gateway-vevp-wob:latest
+imageDigest: sha256:46112f09c81157cd41a5c9425ef17fe57d9ed509e581e23cf929fee8bdd168d2
+created: 2023-10-20T10:09:34.92768829-05:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: ELECTION_GET_RESULTS_PARTIAL
+    value: http://election-get-results-partial-wob.default.10.125.189.107.sslip.io
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+deploy:
+  namespace: default

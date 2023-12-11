@@ -1,0 +1,19 @@
+specVersion: 0.35.0
+name: sentiment-product-result-wob
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/sentiment-product-result-wob:latest
+imageDigest: sha256:dc21dad08dc508a7286e8e66079a084e983e1478e5aa63289d6ddab63f892a6b
+created: 2023-12-03T21:00:25.612050207-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: SENTIMENT_DB
+    value: http://sentiment-db-wob.default.10.125.189.107.sslip.io
+  - name: SENTIMENT_SNS
+    value: http://sentiment-sns-wob.default.10.125.189.107.sslip.io
+  - name: SENTIMENT_SFAIL
+    value: http://sentiment-sfail-wob.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

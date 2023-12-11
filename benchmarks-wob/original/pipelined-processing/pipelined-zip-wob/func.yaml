@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: pipelined-zip-wob
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/pipelined-zip-wob:latest
+imageDigest: sha256:3b60f2adf5127cb6c90da2c6432d57fad30830b831db06ac8fe19cdd576705b7
+created: 2023-12-03T20:55:20.453042627-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+deploy:
+  namespace: default

@@ -1,0 +1,15 @@
+specVersion: 0.35.0
+name: sentiment-main
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/sentiment-main:latest
+imageDigest: sha256:80471730e3f43796b17ed9382aee734fd1344da0379744d9d6fd0f7089648fdd
+created: 2023-12-03T21:00:08.460071908-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: SENTIMENT_READ_CSV
+    value: http://sentiment-read-csv.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

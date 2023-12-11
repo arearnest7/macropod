@@ -1,0 +1,11 @@
+specVersion: 0.35.0
+name: sentiment-sfail-wob
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/sentiment-sfail-wob:latest
+imageDigest: sha256:0a135a9d10c5cdebdd4a80db491b46fe2cd0b3199edf4f3633dbf109b112fb57
+created: 2023-12-03T21:00:55.27390088-06:00
+build:
+  builder: pack
+deploy:
+  namespace: default

@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: feature-extractor-partial
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/feature-extractor-partial:latest
+imageDigest: sha256:df91be203711ef073a06ede76796ed7ed9f3822786b585c924ead221f4fe19e9
+created: 2023-12-03T21:18:28.69304073-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: 10.125.189.107
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+deploy:
+  namespace: default

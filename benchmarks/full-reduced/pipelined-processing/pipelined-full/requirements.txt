@@ -1,0 +1,4 @@
+parliament-functions==0.1.0
+requests
+cryptography
+redis

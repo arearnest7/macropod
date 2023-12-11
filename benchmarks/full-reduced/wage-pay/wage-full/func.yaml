@@ -1,0 +1,19 @@
+specVersion: 0.35.0
+name: wage-full
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/wage-full:latest
+imageDigest: sha256:64b58f24179aad7ee0682821edbf3d9e993520f3712010e3a6deac4c1dac8da8
+created: 2023-12-03T21:08:48.450495924-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: 10.125.189.107
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+  - name: WAGE_FULL
+    value: http://wage-full.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

@@ -1,0 +1,19 @@
+specVersion: 0.35.0
+name: wage-validator-fw
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/wage-validator-fw:latest
+imageDigest: sha256:c59c0e7ebad75ce3f38580936226d2b08db01671eb6c1f811976f8f1a8535fcd
+created: 2023-12-03T21:32:43.759166982-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: 10.125.189.107
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+  - name: WAGE_STATS_PARTIAL
+    value: http://wage-stats-partial.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

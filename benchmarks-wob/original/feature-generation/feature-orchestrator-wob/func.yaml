@@ -1,0 +1,21 @@
+specVersion: 0.35.0
+name: feature-orchestrator-wob
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/feature-orchestrator-wob:latest
+imageDigest: sha256:1d839e90f0f971e6ee34de699c0dacf5baed71e1d5b643b2e458acca69e40173
+created: 2023-12-03T20:51:02.770828406-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+  - name: FEATURE_EXTRACTOR
+    value: http://feature-extractor-wob.default.10.125.189.107.sslip.io
+  - name: FEATURE_WAIT
+    value: http://feature-wait-wob.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

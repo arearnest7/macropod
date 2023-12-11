@@ -1,0 +1,19 @@
+specVersion: 0.35.0
+name: wage-full-wob
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/wage-full-wob:latest
+imageDigest: sha256:482aa874035b329290cf2764d5370d8f0d2744689570ba5453b614ac0152f40d
+created: 2023-12-03T21:08:48.450495924-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+  - name: WAGE_FULL
+    value: http://wage-full-wob.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

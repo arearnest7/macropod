@@ -1,0 +1,1 @@
+{"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}

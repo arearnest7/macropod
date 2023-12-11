@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: pipelined-encrypt-partial-wob
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/pipelined-encrypt-partial-wob:latest
+imageDigest: sha256:9cd2bb3dffe776fc9ad6460402b94c8dc3878c2b1a898005bc8d91c910e67144
+created: 2023-12-03T21:21:47.577703094-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+deploy:
+  namespace: default

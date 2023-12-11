@@ -1,0 +1,19 @@
+specVersion: 0.35.0
+name: sentiment-product-or-service
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/sentiment-product-or-service:latest
+imageDigest: sha256:4a8194c055ba47ec273cc04428463d55a4eacefe07569eb55e39e9c75f19cf95
+created: 2023-12-03T21:00:18.001527034-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: SENTIMENT_PRODUCT_SENTIMENT
+    value: http://sentiment-product-sentiment.default.10.125.189.107.sslip.io
+  - name: SENTIMENT_SERVICE_SENTIMENT
+    value: http://sentiment-service-sentiment.default.10.125.189.107.sslip.io
+  - name: SENTIMENT_CFAIL
+    value: http://sentiment-cfail.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

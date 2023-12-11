@@ -1,0 +1,15 @@
+specVersion: 0.35.0
+name: sentiment-service-sentiment-srs-wob
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/sentiment-service-sentiment-srs-wob:latest
+imageDigest: sha256:399b65b09197404be3a9e2e21bd0dedb049bb25052b522658807d17e61ae0a8e
+created: 2023-12-03T21:30:00.866902725-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: SENTIMENT_DB_S
+    value: http://sentiment-db-s-wob.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

@@ -3,7 +3,7 @@ name: video-streaming
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-streaming:latest
-imageDigest: sha256:5ce60ff47492765c179160b2258c0ff6c8588af0c904951dc39a442ab07a9fd8
+imageDigest: sha256:884167d4355d442ee5daf222bccb03274721a54d2208cf8bb6da12bba85e8d11
 created: 2023-11-04T23:11:58.628724073-05:00
 build:
   builder: pack

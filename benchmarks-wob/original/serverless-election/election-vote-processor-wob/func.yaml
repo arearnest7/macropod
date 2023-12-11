@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: election-vote-processor-wob
+runtime: node
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/election-vote-processor-wob:latest
+imageDigest: sha256:ba6d38ae9e1a1367536a5b5e555eb71363fa8a90ee6769a32268cd1e38a92daa
+created: 2023-10-10T14:57:02.060343933-05:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+deploy:
+  namespace: default
