@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: hotel-profile-wob
+runtime: go
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/hotel-profile-wob:latest
+imageDigest: sha256:599adb4129e87b50f6619e4254a2adb63d34ed74496760a1b99884fbec36d963
+created: 2023-10-26T19:30:48.125063479-05:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: HOTEL_APP_DATABASE
+    value: mongodb://10.42.2.96:27017
+  - name: HOTEL_APP_MEMCACHED
+    value: 10.42.4.93:11211
+deploy:
+  namespace: default
