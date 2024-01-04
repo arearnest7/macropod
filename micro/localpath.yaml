@@ -1,0 +1,48 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: micro-rpc-a-b
+  namespace: default
+spec:
+  template:
+    spec:
+      config:
+        autoscaler:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - sys-dev-vm-2
+        controller:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - sys-dev-vm-2
+        webhook:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - sys-dev-vm-2
+      containers:
+        - name: micro-rpc-a-b
+          image: docker.io/arearnest7/micro-rpc-a-b:latest
+          env:
+            - name: LEN_A
+              value: "10"
+            - name: LEN_B
+              value: "10"
+
