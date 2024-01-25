@@ -36,13 +36,13 @@ func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
 	json.Unmarshal(body, &body_u)
   	defer req.Body.Close()
 	if body_u.Request == "search" {
-		requestURL = os.Getenv("HOTEL_SEARCH") + ":80"
+		requestURL = os.Getenv("HOTEL_SEARCH")
 	} else if body_u.Request == "recommend" {
-                requestURL = os.Getenv("HOTEL_RECOMMEND") + ":80"
+                requestURL = os.Getenv("HOTEL_RECOMMEND")
 	} else if body_u.Request == "reserve" {
-                requestURL = os.Getenv("HOTEL_RESERVE") + ":80"
+                requestURL = os.Getenv("HOTEL_RESERVE")
 	} else if body_u.Request == "user" {
-                requestURL = os.Getenv("HOTEL_USER") + ":80"
+                requestURL = os.Getenv("HOTEL_USER")
 	}
 
 	body_m, err := json.Marshal(body_u)

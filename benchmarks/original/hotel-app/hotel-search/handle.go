@@ -64,7 +64,7 @@ func Nearby(req RequestBody) string {
 	fmt.Printf("nearby lat = %f\n", req.Lat)
 	fmt.Printf("nearby lon = %f\n", req.Lon)
 
-	requestURL := os.Getenv("HOTEL_GEO") + ":80"
+	requestURL := os.Getenv("HOTEL_GEO")
 	payload := BodyGeo{Lat: req.Lat, Lon: req.Lon}
 	body_g, err := json.Marshal(payload)
         req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_g))
@@ -95,7 +95,7 @@ func Nearby(req RequestBody) string {
 
 	body_r, err := json.Marshal(r)
 
-        requestURL2 := os.Getenv("HOTEL_RATE") + ":80"
+        requestURL2 := os.Getenv("HOTEL_RATE")
         req_url2, err := http.NewRequest(http.MethodPost, requestURL2, bytes.NewBuffer(body_r))
 	req_url2.Header.Add("Content-Type", "application/json")
         ratesRet, err := client.Do(req_url2)
