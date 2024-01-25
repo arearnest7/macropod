@@ -83,7 +83,7 @@ def stats_handler(req):
 def write_raw_handler(req):
     params = req
     #redisClient.set("raw-" + str(params["id"]), json.dumps(req))
-    response = requests.get(url=os.environ["WAGE_FULL"] + ":80", json={})
+    response = requests.get(url=os.environ["WAGE_FULL"], json={})
     return response.text
 
 def format_handler(req):

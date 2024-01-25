@@ -432,11 +432,11 @@ func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
         } else {
 		requestURL := ""
                 if body_u.Request == "recommend" {
-                        requestURL = os.Getenv("HOTEL_RECOMMEND_PARTIAL") + ":80"
+                        requestURL = os.Getenv("HOTEL_RECOMMEND_PARTIAL")
                 } else if body_u.Request == "reserve" {
-                        requestURL = os.Getenv("HOTEL_RESERVE_PARTIAL") + ":80"
+                        requestURL = os.Getenv("HOTEL_RESERVE_PARTIAL")
                 } else if body_u.Request == "user" {
-                        requestURL = os.Getenv("HOTEL_USER_PARTIAL") + ":80"
+                        requestURL = os.Getenv("HOTEL_USER_PARTIAL")
                 }
 
                 body_m, err := json.Marshal(body_u)
