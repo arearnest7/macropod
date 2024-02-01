@@ -21,7 +21,7 @@ const axios = require('axios');
 
 //const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
-const handle = async (context, body) => {
+const function_handler = async (body) => {
 	//client.on('error', err => console.log('Redis Client Error', err));
         //await client.connect();
 	reply = 1; //await client.exists("voter-" + body['id']);
@@ -44,5 +44,5 @@ const handle = async (context, body) => {
 }
 
 // Export the function
-module.exports = { handle };
+module.exports = { function_handler };
 

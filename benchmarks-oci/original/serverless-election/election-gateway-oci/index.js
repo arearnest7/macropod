@@ -17,7 +17,7 @@
  */
 const axios = require("axios");
 
-const handle = async (context, body) => {
+const function_handler = async (body) => {
 	if (body['requestType'] ==  'get_results') {
 		var data = '';
                 await axios.post(process.env.ELECTION_GET_RESULTS, body)
@@ -38,4 +38,4 @@ const handle = async (context, body) => {
 }
 
 // Export the function
-module.exports = { handle };
+module.exports = { function_handler };
