@@ -56,7 +56,7 @@ const function_handler = async (body) => {
     		},
     		"body": results
 	};
-	return response;
+	return JSON.stringify(response);
 }
 
 // Export the function

@@ -28,7 +28,7 @@ const function_handler = async (body) => {
 	if (reply == 1) {
 		const g_val = "Not Voted"; //await client.get("voter-" + body['id']);
 		if (g_val != "Not Voted") {
-			return {"isBase64Encoded": false, "statusCode": 409, "body": {"success": false, "message": (body['id'] + " already submitted a vote.")}};
+			return body['id'] + " already submitted a vote.";
 		}
 		else {
 			data = '';
@@ -37,10 +37,10 @@ const function_handler = async (body) => {
 				.then( (response) => {
                                 	data = response.data;
 				});
-			return {"isBase64Encoded": false, "statusCode": 201, "body": {"success": true, "message": ("Vote " + body['id'] + " registered")}};
+			return "Vote " + body['id'] + " registered";
 		}
 	}
-	return {"isBase64Encoded": false, "statusCode": 404, "body": {"success": false, "message": ("This voter id does not exist: " + body['id'])}};
+	return "This voter id does not exist: " + body['id'];
 }
 
 // Export the function

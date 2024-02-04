@@ -7,6 +7,10 @@ app.get('/', (req, res) => {
   res.send(index.function_handler(req))
 })
 
+app.post('/', (req, res) => {
+  res.send(index.function_handler(req))
+})
+
 app.listen(port, () => {
   console.log('function started...')
 })
