@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package function;
+
+message RequestBody {
+    bytes body = 1;
+    string workflow_id = 2;
+}
+
+message ResponseBody {
+    string reply = 1;
+    int32 code = 2;
+}
+
+service gRPCFunction {
+    rpc gRPCFunctionHandler(RequestBody) returns (ResponseBody);
+}
