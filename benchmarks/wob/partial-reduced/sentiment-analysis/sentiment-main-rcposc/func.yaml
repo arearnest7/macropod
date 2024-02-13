@@ -1,0 +1,21 @@
+specVersion: 0.35.0
+name: sentiment-main-rcposc
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/sentiment-main-rcposc:wob
+imageDigest: sha256:bd20d7801adae0ad3c348995624305264cb00211e36b9e257fab1bd4fffba8f4
+created: 2023-12-03T21:27:22.752749433-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+  - name: SENTIMENT_PRODUCT_SENTIMENT_PRS
+    value: http://sentiment-product-sentiment-prs.default.10.125.189.107.sslip.io
+  - name: SENTIMENT_SERVICE_SENTIMENT_SRS
+    value: http://sentiment-service-sentiment-srs.default.10.125.189.107.sslio.io
+deploy:
+  namespace: default

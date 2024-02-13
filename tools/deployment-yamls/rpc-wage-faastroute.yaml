@@ -1,0 +1,299 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wage-validator
+spec:
+  selector:
+    app: wage-validator
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wage-format
+spec:
+  selector:
+    app: wage-format
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wage-write-raw
+spec:
+  selector:
+    app: wage-write-raw
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.3
+apiVersion: v1
+kind: Service
+metadata:
+  name: wage-stats
+spec:
+  selector:
+    app: wage-stats
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.4
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wage-avg
+spec:
+  selector:
+    app: wage-avg
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wage-sum
+spec:
+  selector:
+    app: wage-sum
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.6
+apiVersion: v1
+kind: Service
+metadata:
+  name: wage-merit
+spec:
+  selector:
+    app: wage-merit
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.7
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wage-write-merit
+spec:
+  selector:
+    app: wage-write-merit
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.8
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wage-validator
+spec:
+  selector:
+    matchLabels:
+      app: wage-validator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wage-validator
+    spec:
+      containers:
+      - name: wage-validator
+        image: arearnest7/wage-validator:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: WAGE_FORMAT
+            value: http://10.43.190.2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wage-format
+spec:
+  selector:
+    matchLabels:
+      app: wage-format
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wage-format
+    spec:
+      containers:
+      - name: wage-format
+        image: arearnest7/wage-format:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: WAGE_WRITE_RAW
+            value: http://10.43.190.3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wage-write-raw
+spec:
+  selector:
+    matchLabels:
+      app: wage-write-raw
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wage-write-raw
+    spec:
+      containers:
+      - name: wage-write-raw
+        image: arearnest7/wage-write-raw:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: WAGE_STATS
+            value: http://10.43.190.4
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wage-stats
+spec:
+  selector:
+    matchLabels:
+      app: wage-stats
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wage-stats
+    spec:
+      containers:
+      - name: wage-stats
+        image: arearnest7/wage-stats:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: WAGE_AVG
+            value: http://10.43.190.5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wage-avg
+spec:
+  selector:
+    matchLabels:
+      app: wage-avg
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wage-avg
+    spec:
+      containers:
+      - name: wage-avg
+        image: arearnest7/wage-avg:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: WAGE_SUM
+            value: http://10.43.190.6
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wage-sum
+spec:
+  selector:
+    matchLabels:
+      app: wage-sum
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wage-sum
+    spec:
+      containers:
+      - name: wage-sum
+        image: arearnest7/wage-sum:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: WAGE_MERIT
+            value: http://10.43.190.7
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wage-merit
+spec:
+  selector:
+    matchLabels:
+      app: wage-merit
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wage-merit
+    spec:
+      containers:
+      - name: wage-merit
+        image: arearnest7/wage-merit:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: WAGE_WRITE_MERIT
+            value: http://10.43.190.8
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wage-write-merit
+spec:
+  selector:
+    matchLabels:
+      app: wage-write-merit
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wage-write-merit
+    spec:
+      containers:
+      - name: wage-write-merit
+        image: arearnest7/wage-write-merit:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"

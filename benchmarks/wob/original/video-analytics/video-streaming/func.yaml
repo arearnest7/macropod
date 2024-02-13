@@ -1,0 +1,15 @@
+specVersion: 0.35.0
+name: video-streaming
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/video-streaming:wob
+imageDigest: sha256:65ad1dd1e59046e5e4605960445b1ef558a9a4a3ce1368c64d4e772c4a197118
+created: 2023-11-04T23:11:58.628724073-05:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: VIDEO_DECODER
+    value: http://video-decoder.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: micro-rpc-a-b
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/micro-rpc-a-b:kn
+imageDigest: sha256:9e44cf1e9b512f7afbc63d48f2ea3b092938e131874fbd1d182ab0332e36ff0e
+created: 2023-12-21T15:23:28.091437588-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: LEN_A
+    value: "10"
+  - name: LEN_B
+    value: "10"
+deploy:
+  namespace: default

@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: election-full
+runtime: node
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/election-full:wob
+imageDigest: sha256:80a6bf3c90b5ac4a1e5ea28062646b6da6c285f58f43e1171c9cdc7938e25d82
+created: 2023-10-20T09:54:18.57851076-05:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+deploy:
+  namespace: default

@@ -1,0 +1,19 @@
+specVersion: 0.35.0
+name: wage-stats
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/wage-stats:wob
+imageDigest: sha256:1af0b29c9810f76807f3956734c95f11729fc2ca820e319bf9fa53fbab9dd193
+created: 2023-12-03T21:04:43.68529525-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+  - name: WAGE_SUM
+    value: http://wage-sum.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

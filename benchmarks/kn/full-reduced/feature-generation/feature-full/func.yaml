@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: feature-full
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/feature-full:kn
+imageDigest: sha256:ff68566b9e6227af63371a98e792b7621e26b5adc7572cb80e9882c52b067032
+created: 2023-12-03T21:07:14.996832312-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: 10.125.189.107
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+deploy:
+  namespace: default

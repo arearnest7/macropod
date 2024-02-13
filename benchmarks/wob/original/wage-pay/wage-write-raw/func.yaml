@@ -1,0 +1,19 @@
+specVersion: 0.35.0
+name: wage-write-raw
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/wage-write-raw:wob
+imageDigest: sha256:b5b4521a6087cc16ae44d5251cff727cf62dce801266444fe503bd9c3e617d7d
+created: 2023-12-03T21:05:04.943050344-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: redis://10.125.189.107:6379
+  - name: REDIS_PASSWORD
+    value: redispassword1234
+  - name: WAGE_STATS
+    value: http://wage-stats.default.10.125.189.107.sslip.io
+deploy:
+  namespace: default

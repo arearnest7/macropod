@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: hotel-user-partial
+runtime: go
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/hotel-user-partial:wob
+imageDigest: sha256:58f3b7b8ffc399c5363025774be1180fd61f84aade2285fa16ae50dc7c8954fe
+created: 2023-10-26T19:54:52.836777088-05:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: HOTEL_APP_DATABASE
+    value: mongodb://10.42.2.96:27017
+  - name: HOTEL_APP_MEMCACHED
+    value: 10.42.4.93:11211
+deploy:
+  namespace: default
