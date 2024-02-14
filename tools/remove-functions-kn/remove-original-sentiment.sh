@@ -1,14 +1,13 @@
 #!/bin/bash
-PATH=${1:-kn}
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-cfail
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-db
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-main
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-product-or-service
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-product-result
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-product-sentiment
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-read-csv
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-service-result
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-service-sentiment
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-sfail
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/sentiment-sns
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-cfail
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-db
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-main
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-product-or-service
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-product-result
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-product-sentiment
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-read-csv
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-service-result
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-service-sentiment
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-sfail
+kn func delete -p ../../benchmarks/$1/original/sentiment-analysis/sentiment-sns
 

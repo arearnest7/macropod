@@ -3,7 +3,7 @@ name: feature-extractor
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-extractor:wob
-imageDigest: sha256:ace501b1683e33bc33d968d5d02a2cd41415a3f98ae7fb5a4294fa88309af259
+imageDigest: sha256:947d4ee396ca3ee0d55e8653ac7b7dfc6b84e512d6926ab67330f516e59fadd8
 created: 2023-12-03T20:50:55.155063848-06:00
 build:
   builder: pack

@@ -1,6 +1,5 @@
 #!/bin/bash
-PATH=${1:-kn}
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/hotel-frontend-spgr
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/hotel-recommend-partial
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/hotel-reserve-partial
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/hotel-user-partial
+kn func delete -p ../../benchmarks/$1/partial-reduced/hotel-app/hotel-frontend-spgr
+kn func delete -p ../../benchmarks/$1/partial-reduced/hotel-app/hotel-recommend-partial
+kn func delete -p ../../benchmarks/$1/partial-reduced/hotel-app/hotel-reserve-partial
+kn func delete -p ../../benchmarks/$1/partial-reduced/hotel-app/hotel-user-partial

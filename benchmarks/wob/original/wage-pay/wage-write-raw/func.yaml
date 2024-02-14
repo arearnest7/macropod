@@ -3,7 +3,7 @@ name: wage-write-raw
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-write-raw:wob
-imageDigest: sha256:b5b4521a6087cc16ae44d5251cff727cf62dce801266444fe503bd9c3e617d7d
+imageDigest: sha256:2c9e21eef9c82d146ea3f0efe80fe13049403b59cc16aa3c2e9c6087f8c9f031
 created: 2023-12-03T21:05:04.943050344-06:00
 build:
   builder: pack

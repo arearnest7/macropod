@@ -1,7 +1,6 @@
 #!/bin/bash
-PATH=${1:-kn}
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/pipelined-checksum-partial
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/pipelined-encrypt-partial
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/pipelined-main-partial
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/pipelined-zip-partial
+kn func delete -p ../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-checksum-partial
+kn func delete -p ../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-encrypt-partial
+kn func delete -p ../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-main-partial
+kn func delete -p ../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-zip-partial
 

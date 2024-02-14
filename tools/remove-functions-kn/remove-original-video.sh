@@ -1,5 +1,4 @@
 #!/bin/bash
-PATH=${1:-kn}
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/video-streaming
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/video-decoder
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/video-recog
+kn func delete -p ../../benchmarks/$1/original/video-analytics/video-streaming
+kn func delete -p ../../benchmarks/$1/original/video-analytics/video-decoder
+kn func delete -p ../../benchmarks/$1/original/video-analytics/video-recog

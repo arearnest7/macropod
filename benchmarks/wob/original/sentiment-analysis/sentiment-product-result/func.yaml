@@ -3,7 +3,7 @@ name: sentiment-product-result
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-product-result:wob
-imageDigest: sha256:dc21dad08dc508a7286e8e66079a084e983e1478e5aa63289d6ddab63f892a6b
+imageDigest: sha256:93f5fc8372b4ffb4b9f6f28f927e39d0a1a5d2b6d4239b7f408a55c0dc1aed16
 created: 2023-12-03T21:00:25.612050207-06:00
 build:
   builder: pack

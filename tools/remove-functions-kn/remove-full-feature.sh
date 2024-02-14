@@ -1,4 +1,3 @@
 #!/bin/bash
-PATH=${1:-kn}
-kn func delete -p ../../benchmarks/$PATH/full-reduced/serverless-election/feature-full
+kn func delete -p ../../benchmarks/$1/full-reduced/feature-generation/feature-full
 

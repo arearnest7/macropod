@@ -3,7 +3,7 @@ name: hotel-frontend-spgr
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-frontend-spgr:kn
-imageDigest: sha256:adeaff1d67cea8676ebad77435e000b706023888a067320ab07dd5f2d8c21f7c
+imageDigest: sha256:c9cb94870700aa6d4fbe336005d99b27eaceffaba1b90f03d9c6f9aa2ecdbadf
 created: 2023-10-26T19:54:28.29278899-05:00
 build:
   builder: pack

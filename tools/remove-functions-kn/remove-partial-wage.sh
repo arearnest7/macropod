@@ -1,6 +1,4 @@
 #!/bin/bash
-PATH=${1:-kn}
-kn func delete -f ../../benchmarks/$PATH/full-reduced/serverless-election/wage-stats-partial
-kn func delete -f ../../benchmarks/$PATH/full-reduced/serverless-election/wage-sum-amw
-kn func delete -f ../../benchmarks/$PATH/full-reduced/serverless-election/wage-validator-fw
-
+kn func delete -p ../../benchmarks/$1/partial-reduced/wage-pay/wage-stats-partial
+kn func delete -p ../../benchmarks/$1/partial-reduced/wage-pay/wage-sum-amw
+kn func delete -p ../../benchmarks/$1/partial-reduced/wage-pay/wage-validator-fw

@@ -3,7 +3,7 @@ name: sentiment-sns
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-sns:wob
-imageDigest: sha256:c88a95116b143b39dab66d68871035c02fce766bb1884d38d1df885f70de2423
+imageDigest: sha256:4483db89ba859bbbe0b28745f66e24769ed9e868090ecf5987c6875f589da573
 created: 2023-12-03T21:01:12.622271734-06:00
 build:
   builder: pack

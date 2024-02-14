@@ -3,7 +3,7 @@ name: wage-format
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-format:kn
-imageDigest: sha256:2fb3e0e4f58ad13023b3fb3e5ef01905d51accd2bb5b12ce035ad798085c7721
+imageDigest: sha256:d4bef4cf528ab4de17c4ece25d1b36bf1a9d4328396a98b49615e732b4a44cb5
 created: 2023-12-03T21:04:34.098716872-06:00
 build:
   builder: pack

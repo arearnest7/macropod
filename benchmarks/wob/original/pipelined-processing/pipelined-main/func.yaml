@@ -3,7 +3,7 @@ name: pipelined-main
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-main:wob
-imageDigest: sha256:c2bee52a623a6ffafc0d037f4e5ec68a21fe2a95005bea04d54c97ef45a63fd2
+imageDigest: sha256:4371a12b389d2ae1205afc9525459bbf268883d1aac76c7e1cd4ab7334c882fc
 created: 2023-12-03T20:55:16.752067379-06:00
 build:
   builder: pack
