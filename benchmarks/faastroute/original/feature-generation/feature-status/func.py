@@ -9,8 +9,8 @@ import json
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def function_handler(context):
-    if context["is_json"]:
-        params = context["request"]
+    if context["request_type"] == "GRPC":
+        params = json.loads(context["request"])
         num_of_file = int(params['num_of_file'])
         bucket = params['input_bucket']
         all_keys = []
@@ -20,9 +20,10 @@ def function_handler(context):
         print("Number of File : " + str(len(all_keys)))
 
         if num_of_file == len(all_keys):
-            return requests.get(url=os.environ["FEATURE_REDUCER"], json=params).text, 200
+            return RPC(os.environ["FEATURE_REDUCER"], json.dumps(params), context["workflow_id"])[0], 200
         else:
-            return requests.get(url=os.environ["FEATURE_WAIT"], json=params).text, 200
+            return RPC(os.environ["FEATURE_WAIT"], json.dumps(params), context["workflow_id"])[0], 200
     else:
         print("Empty request", flush=True)
         return "{}", 200
+

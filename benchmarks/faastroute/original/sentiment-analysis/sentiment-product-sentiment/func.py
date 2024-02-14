@@ -6,8 +6,8 @@ import json
 import random
 
 def function_handler(context):
-    if context["is_json"]:
-        event = context["request"]
+    if context["request_type"] == "GRPC":
+        event = json.loads(context["request"])
 
         feedback = event['feedback']
         response = {"polarity": -0.66}
@@ -17,15 +17,15 @@ def function_handler(context):
             sentiment = "NEGATIVE"
         else:
             sentiment = "NEUTRAL"
-        response = requests.get(url=os.environ["SENTIMENT_PRODUCT_RESULT"], json={
+        response = RPC(os.environ["SENTIMENT_PRODUCT_RESULT"], [json.dumps({
             'sentiment': sentiment,
             'reviewType': event['reviewType'],
             'reviewID': event['reviewID'],
             'customerID': event['customerID'],
             'productID': event['productID'],
             'feedback': event['feedback']
-        })
-        return response.text, 200
+        })], context["workflow_id"])[0]
+        return response, 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

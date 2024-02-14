@@ -10,8 +10,8 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def function_handler(context):
-    if context["is_json"]:
-        event = context["request"]
+    if context["request_type"] == "GRPC":
+        event = json.loads(context["request"])
 
         bucket_name = event['bucket_name']
         file_key = event['file_key']
@@ -21,8 +21,8 @@ def function_handler(context):
         lines = response.split('\n')
 
         for row in csv.DictReader(lines):
-            response = requests.get(url=os.environ["SENTIMENT_PRODUCT_OR_SERVICE"], json=row)
-        return response.text, 200
+            response = RPC(os.environ["SENTIMENT_PRODUCT_OR_SERVICE"], [json.dumps(row)], context["workflow_id"])[0]
+        return response, 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

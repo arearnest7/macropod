@@ -8,7 +8,7 @@ import os
 ROLES = ['staff', 'teamleader', 'manager']
 
 def function_handler(context):
-    if context["is_json"]:
+    if context["request_type"] != "GRPC":
         event = context["request"]
         for param in ['id', 'name', 'role', 'base', 'merit', 'operator']:
             if param in ['name', 'role']:
@@ -26,8 +26,8 @@ def function_handler(context):
                     return "fail: illegal params: " + str(event[param]) + " not between 1 and 8 inclusively", 200
             else:
                 return "fail: missing param: " + param, 200
-        response = requests.get(url=os.environ["WAGE_FORMAT"], json=event)
-        return response.text, 200
+        response = RPC(os.environ["WAGE_FORMAT"], [json.dumps(event)], context["workflow_id"])[0]
+        return response, 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

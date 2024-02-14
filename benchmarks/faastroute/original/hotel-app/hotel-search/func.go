@@ -2,7 +2,6 @@ package function
 
 import (
 	"fmt"
-	"net/http"
 	"bytes"
 	"os"
 	"encoding/json"
@@ -66,14 +65,15 @@ func Nearby(req RequestBody) string {
 	requestURL := os.Getenv("HOTEL_GEO")
 	payload := BodyGeo{Lat: req.Lat, Lon: req.Lon}
 	body_g, err := json.Marshal(payload)
-        req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_g))
-        req_url.Header.Add("Content-Type", "application/json")
-	client := &http.Client{}
-	nearby, err := client.Do(req_url)
-	if err != nil {
-                fmt.Printf("nearby error: %v", err)
-                return ""
-        }
+        //req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_g))
+        //req_url.Header.Add("Content-Type", "application/json")
+	//client := &http.Client{}
+	//nearby, err := client.Do(req_url)
+	//if err != nil {
+        //        fmt.Printf("nearby error: %v", err)
+        //        return ""
+        //}
+        nearby := RPC(requestURL, []string{body_g}, context["workflow_id"])[0]
 
 	// var ids []string
 	nearbyBody, err := ioutil.ReadAll(nearby.Body)
@@ -95,14 +95,15 @@ func Nearby(req RequestBody) string {
 	body_r, err := json.Marshal(r)
 
         requestURL2 := os.Getenv("HOTEL_RATE")
-        req_url2, err := http.NewRequest(http.MethodPost, requestURL2, bytes.NewBuffer(body_r))
-	req_url2.Header.Add("Content-Type", "application/json")
-        ratesRet, err := client.Do(req_url2)
-	if err != nil {
-                fmt.Printf("rates error: %v", err)
-                return ""
-        }
-	rates, err := ioutil.ReadAll(ratesRet.Body)
+        //req_url2, err := http.NewRequest(http.MethodPost, requestURL2, bytes.NewBuffer(body_r))
+	//req_url2.Header.Add("Content-Type", "application/json")
+        //ratesRet, err := client.Do(req_url2)
+	//if err != nil {
+        //        fmt.Printf("rates error: %v", err)
+        //        return ""
+        //}
+        ratesRet := RPC(requestURL2, []string{body_r}, context["workflow_id"])[0]
+	rates, err := ioutil.ReadAll(ratesRet)
 	// TODO(hw): add simple ranking algo to order hotel ids:
 	// * geo distance
 	// * price (best discount?)
@@ -121,9 +122,9 @@ func Nearby(req RequestBody) string {
 }
 
 func function_handler(context Context) (string, int) {
-        body, _ := ioutil.ReadAll(req.Body)
+        //body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal(body, &body_u)
-        defer req.Body.Close()
-	fmt.Fprintf(res, Nearby(body_u)) // echo to caller
+        json.Unmarshal(context["request"], &body_u)
+        //defer req.Body.Close()
+	return Nearby(body_u), 200
 }

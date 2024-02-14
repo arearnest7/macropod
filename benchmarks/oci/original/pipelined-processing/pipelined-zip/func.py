@@ -10,7 +10,7 @@ import random
 
 def function_handler(context):
     if context["is_json"]:
-        event = context["request"]
+        event = context["request"]["event"]
         data = open("checksumed-" + event[0], 'rb').read()
         with open("/tmp/" + event[0], "wb") as f:
             f.write(data)

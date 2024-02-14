@@ -12,7 +12,7 @@ import random
 
 def main(context: Context):
     if 'request' in context.keys():
-        event = context.request.json
+        event = context.request.json["event"]
         data = open("checksumed-" + event[0], 'rb').read()
         with open("/tmp/" + event[0], "wb") as f:
             f.write(data)

@@ -29,7 +29,7 @@ def decode(bytes):
     return all_frames
 
 def Recognise(frame):
-    result = requests.get(os.environ['VIDEO_RECOG'], json={"frame": base64.b64encode(frame).decode()}).text
+    result = RPC(os.environ['VIDEO_RECOG'], [frame.decode()], context["workflow_id"])[0]
 
     return result
 
@@ -48,12 +48,12 @@ def processFrames(videoBytes):
 
 def Decode(request):
     videoBytes = b''
-    videoBytes = base64.b64decode(request["video"].encode())
+    videoBytes = base64.b64decode(request.encode())
     results = processFrames(videoBytes)
     return results
 
 def function_handler(context):
-    if context["is_json"]:
+    if context["request_type"] == "GRPC":
         ret = Decode(context["request"])
         return ret, 200
     else:

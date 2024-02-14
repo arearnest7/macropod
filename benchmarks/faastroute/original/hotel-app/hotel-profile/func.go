@@ -2,7 +2,6 @@ package function
 
 import (
 	"fmt"
-	"net/http"
 	"encoding/json"
 	"os"
 	"io/ioutil"
@@ -137,9 +136,9 @@ func GetProfiles(req RequestBody) string {
 }
 
 func function_handler(context Context) (string, int) {
-        body, _ := ioutil.ReadAll(req.Body)
+        //body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal(body, &body_u)
-        defer req.Body.Close()
-	fmt.Fprintf(res, GetProfiles(body_u)) // echo to caller
+        json.Unmarshal(context["request"], &body_u)
+        //defer req.Body.Close()
+	return GetProfiles(body_u), 200
 }

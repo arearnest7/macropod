@@ -10,8 +10,8 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def function_handler(context):
-    if context["is_json"]:
-        event = context["request"]["event"]
+    if context["request_type"] == "GRPC":
+        event = json.loads(context["request"])
         data = open("original-" + event[0], 'rb').read()
         md5 = hashlib.md5(data).hexdigest()
         if event[1] == md5:

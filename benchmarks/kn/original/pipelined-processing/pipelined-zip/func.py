@@ -12,7 +12,7 @@ redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['RED
 
 def main(context: Context):
     if 'request' in context.keys():
-        event = context.request.json
+        event = context.request.json["event"]
         data = redisClient.get("checksumed-" + event[0])
         with open("/tmp/" + event[0], "wb") as f:
             f.write(data)

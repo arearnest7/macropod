@@ -9,8 +9,8 @@ TAX = 0.0387
 ROLES = ['staff', 'teamleader', 'manager']
 
 def function_handler(context):
-    if context["is_json"]:
-        params = context["request"]
+    if context["request_type"] == "GRPC":
+        params = json.loads(context["request"])
         meritp = {'staff': 0, 'teamleader': 0, 'manager': 0}
         for role in ROLES:
             num = params['total']['statistics'][role+'-number']
@@ -19,8 +19,8 @@ def function_handler(context):
                 merit = params['merit']['statistics'][role]
                 meritp[role] = merit / base
         params['statistics']['average-merit-percent'] = meritp
-        response = requests.get(url=os.environ["WAGE_WRITE_MERIT"], json={'id': params['id'], 'statistics': params['statistics'], 'operator' : params['operator']})
-        return response.text, 200
+        response = RPC(os.environ["WAGE_WRITE_MERIT"], [json.dumps({'id': params['id'], 'statistics': params['statistics'], 'operator' : params['operator']})], context["workflow_id"])[0]
+        return response, 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

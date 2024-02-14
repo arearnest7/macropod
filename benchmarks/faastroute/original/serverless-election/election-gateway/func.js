@@ -1,24 +1,16 @@
 const require('./rpc')
-const axios = require("axios");
 
 const function_handler = async (context) => {
-	if (body['requestType'] ==  'get_results') {
-		var data = '';
-                await axios.post(process.env.ELECTION_GET_RESULTS, body)
-                        .then( (response) => {
-                                data = response.data;
-                        });
-		return data;
+	if (context["request_type"] != "GRPC") {
+		var body = context["request"];
+		if (body['requestType'] ==  'get_results') {
+			return rpc.RPC(process.env.ELECTION_GET_RESULTS, [body], context["workflow_id"])[0], 200;
+		}
+		else if (body['requestType'] == 'vote') {
+			return rpc.RPC(process.env.ELECTION_VOTE_ENQUEUER, [body], context["workflow_id"])[0], 200;
+		}
+		return 'invalid request type', 200;
 	}
-	else if (body['requestType'] == 'vote') {
-		var data = '';
-		await axios.post(process.env.ELECTION_VOTE_ENQUEUER, body)
-			.then( (response) => {
-				data = response.data;
-			});
-		return data;
-	}
-	return 'invalid request type';
 }
 
 // Export the function

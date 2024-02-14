@@ -9,8 +9,8 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def function_handler(context):
-    if context["is_json"]:
-        params = context["request"]
+    if context["request_type"] == "GRPC":
+        params = json.loads(context["request"])
 
         #redisClient.set("merit-" + str(params["id"]), json.dumps(params))
 

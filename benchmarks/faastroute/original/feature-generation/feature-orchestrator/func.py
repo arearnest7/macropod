@@ -11,10 +11,10 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def invoke_lambda(bucket, dest, key):
-    requests.post(url=os.environ["FEATURE_EXTRACTOR"], json={"input_bucket": bucket, "key": key, "dest": dest})
+    RPC(os.environ["FEATURE_EXTRACTOR"], [str({"input_bucket": bucket, "key": key, "dest": dest})], context["workflow_id"])
 
 def function_handler(context):
-    if context["is_json"]:
+    if context["request_type"] != "GRPC":
         params = context["request"]
         bucket = params['bucket']
         dest = str(random.randint(0, 10000000)) + "-" + bucket
@@ -30,7 +30,7 @@ def function_handler(context):
         pool.close()
         pool.join()
 
-        return requests.post(url=os.environ["FEATURE_WAIT"], json={"num_of_file": str(len(all_keys)), "input_bucket": dest}).text, 200
+        return RPC(os.environ["FEATURE_WAIT"], [str({"num_of_file": str(len(all_keys)), "input_bucket": dest})], context["workflow_id"])[0], 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

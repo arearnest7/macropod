@@ -31,15 +31,15 @@ const function_handler = async (context) => {
 			"results": state_results_final
 		});
 	}
-	var response = {
-		"isBase64Encoded": false,
-    		"statusCode": 200,
-    		"headers": {
-      			"Access-Control-Allow-Origin": "*"
-    		},
-    		"body": results
-	};
-	return JSON.stringify(response);
+	//var response = {
+	//	"isBase64Encoded": false,
+    	//	"statusCode": 200,
+    	//	"headers": {
+      	//		"Access-Control-Allow-Origin": "*"
+    	//	},
+    	//	"body": results
+	//};
+	return results, 200;
 }
 
 // Export the function

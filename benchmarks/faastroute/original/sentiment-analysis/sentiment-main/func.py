@@ -9,7 +9,7 @@ import os
 pp = pprint.PrettyPrinter(indent=4)
 
 def function_handler(context):
-    if context["is_json"]:
+    if context["request_type"] != "GRPC":
         event = context["request"]
 
         try:
@@ -24,9 +24,9 @@ def function_handler(context):
                 'bucket_name': bucket_name,
                 'file_key': file_key
             }
-        response = requests.get(url=os.environ["SENTIMENT_READ_CSV"], json=input)
+        response = RPC(os.environ["SENTIMENT_READ_CSV"], [json.dumps(input)], context["workflow_id"])[0]
 
-        return response.text, 200
+        return response, 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

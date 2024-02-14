@@ -6,17 +6,17 @@ import random
 import os
 
 def function_handler(context):
-    if context["is_json"]:
-        event = context["request"]
+    if context["request_type"] == "GRPC":
+        event = json.loads(context["request"])
         results = ""
         if event["sentiment"] == "POSITIVE" or event["sentiment"] == "NEUTRAL":
-            results = requests.get(url=os.environ["SENTIMENT_DB"], json=event)
+            results = RPC(os.environ["SENTIMENT_DB"], [context["request"]], context["workflow_id"])[0]
         elif event["sentiment"] == "NEGATIVE":
-            results = requests.get(url=os.environ["SENTIMENT_SNS"], json=event)
+            results = RPC(os.environ["SENTIMENT_SNS"], [context["request"]], context["workflow_id"])[0]
         else:
-            results = requests.get(url=os.environ["SENTIMENT_SFAIL"], json=event)
+            results = RPC(os.environ["SENTIMENT_SFAIL"], [context["request"]], context["workflow_id"])[0]
 
-        return results.text, 200
+        return results, 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

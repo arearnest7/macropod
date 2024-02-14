@@ -2,7 +2,6 @@ package function
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"encoding/json"
 	"io/ioutil"
@@ -317,14 +316,14 @@ func MakeReservation(req RequestBody) string {
 
 func function_handler(context Context) (string, int) {
         ret := ""
-	body, _ := ioutil.ReadAll(req.Body)
+	//body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal(body, &body_u)
-        defer req.Body.Close()
+        json.Unmarshal(context["request"], &body_u)
+        //defer req.Body.Close()
 	if body_u.RequestType == "check" {
 		ret = CheckAvailability(body_u)
 	} else if body_u.RequestType == "make" {
 		ret = MakeReservation(body_u)
 	}
-	fmt.Fprintf(res, ret) // echo to caller
+	return ret, 200
 }

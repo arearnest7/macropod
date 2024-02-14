@@ -2,7 +2,6 @@ package function
 
 import (
 	"fmt"
-	"net/http"
 	"encoding/json"
 	"sort"
 	"os"
@@ -147,9 +146,9 @@ func GetRates(req RequestBody) string {
 }
 
 func function_handler(context Context) (string, int) {
-        body, _ := ioutil.ReadAll(req.Body)
+        //body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal(body, &body_u)
-        defer req.Body.Close()
-	fmt.Fprintf(res, GetRates(body_u)) // echo to caller
+        json.Unmarshal(context["request"], &body_u)
+        //defer req.Body.Close()
+	return GetRates(body_u), 200
 }

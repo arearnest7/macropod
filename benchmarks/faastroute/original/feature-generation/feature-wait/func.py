@@ -7,10 +7,10 @@ import json
 import os
 
 def function_handler(context):
-    if context["is_json"]:
+    if context["request_type"] == "GRPC":
         time.sleep(12)
-        response = requests.get(url=os.environ["FEATURE_STATUS"], json=context["request"])
-        return response.text, 200
+        response = RPC(os.environ["FEATURE_STATUS"], [context["request"]], context["workflow_id"])[0]
+        return response, 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

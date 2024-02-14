@@ -2,7 +2,6 @@ package function
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"bytes"
 	"encoding/json"
@@ -29,10 +28,10 @@ type RequestBody struct {
 
 func function_handler(context Context) (string, int) {
 	requestURL := ""
-	body, err := ioutil.ReadAll(req.Body)
+	//body, err := ioutil.ReadAll(req.Body)
 	body_u := RequestBody{}
-	json.Unmarshal(body, &body_u)
-  	defer req.Body.Close()
+	json.Unmarshal(context["request"], &body_u)
+  	//defer req.Body.Close()
 	if body_u.Request == "search" {
 		requestURL = os.Getenv("HOTEL_SEARCH")
 	} else if body_u.Request == "recommend" {
@@ -44,15 +43,16 @@ func function_handler(context Context) (string, int) {
 	}
 
 	body_m, err := json.Marshal(body_u)
-	req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_m))
-        if err != nil {
-                log.Fatal(err)
-        }
-	req_url.Header.Add("Content-Type", "application/json")
-	client := &http.Client{}
-        ret, err := client.Do(req_url)
-        retBody, err := ioutil.ReadAll(ret.Body)
-        ret_val, err := json.Marshal(retBody)
-	fmt.Fprintf(res, string(ret_val)) // echo to caller
+	//req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_m))
+        //if err != nil {
+        //        log.Fatal(err)
+        //}
+	//req_url.Header.Add("Content-Type", "application/json")
+	//client := &http.Client{}
+        //ret, err := client.Do(req_url)
+        //retBody, err := ioutil.ReadAll(ret.Body)
+        //ret_val, err := json.Marshal(retBody)
+        ret_val = RPC(requestURL, []string{body_m}, context["workflow_id"])[0]
+        return ret_val, 200
 }
 
