@@ -318,7 +318,7 @@ func function_handler(context Context) (string, int) {
         ret := ""
 	//body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal(context["request"], &body_u)
+        json.Unmarshal([]byte(context.request), &body_u)
         //defer req.Body.Close()
 	if body_u.RequestType == "check" {
 		ret = CheckAvailability(body_u)

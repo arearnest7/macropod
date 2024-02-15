@@ -1,7 +1,6 @@
 package function
 
 import (
-	"fmt"
 	"math"
 	"os"
 	"encoding/json"
@@ -140,7 +139,7 @@ func GetRecommendations(req RequestBody) string {
 func function_handler(context Context) (string, int) {
         //body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal(context["request"], &body_u)
+        json.Unmarshal([]byte(context.request), &body_u)
         //defer req.Body.Close()
 	return GetRecommendations(body_u), 200
 }

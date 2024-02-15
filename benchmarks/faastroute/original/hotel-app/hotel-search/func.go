@@ -2,10 +2,8 @@ package function
 
 import (
 	"fmt"
-	"bytes"
 	"os"
 	"encoding/json"
-	"io/ioutil"
 )
 
 type RequestBody struct {
@@ -55,7 +53,7 @@ type Request struct {
 }
 
 // Nearby returns ids of nearby hotels ordered by ranking algo
-func Nearby(req RequestBody) string {
+func Nearby(req RequestBody, context Context) string {
 	// find nearby hotels
 	fmt.Printf("in Search Nearby\n")
 
@@ -64,7 +62,7 @@ func Nearby(req RequestBody) string {
 
 	requestURL := os.Getenv("HOTEL_GEO")
 	payload := BodyGeo{Lat: req.Lat, Lon: req.Lon}
-	body_g, err := json.Marshal(payload)
+	body_g, _ := json.Marshal(payload)
         //req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_g))
         //req_url.Header.Add("Content-Type", "application/json")
 	//client := &http.Client{}
@@ -73,12 +71,12 @@ func Nearby(req RequestBody) string {
         //        fmt.Printf("nearby error: %v", err)
         //        return ""
         //}
-        nearby := RPC(requestURL, []string{body_g}, context["workflow_id"])[0]
+        nearby := RPC(requestURL, []string{string(body_g)}, context.workflow_id)[0]
 
 	// var ids []string
-	nearbyBody, err := ioutil.ReadAll(nearby.Body)
+	//nearbyBody, err := ioutil.ReadAll(nearby.Body)
 	nearby_u := make([]string, 0)
-	err = json.Unmarshal(nearbyBody, &nearby_u)
+	json.Unmarshal([]byte(nearby), &nearby_u)
 	for _, hid := range nearby_u {
 		fmt.Printf("get Nearby hotelId = %s\n", hid)
 		// ids = append(ids, hid)
@@ -92,7 +90,7 @@ func Nearby(req RequestBody) string {
 		OutDate: req.OutDate,
 	}
 
-	body_r, err := json.Marshal(r)
+	body_r, _ := json.Marshal(r)
 
         requestURL2 := os.Getenv("HOTEL_RATE")
         //req_url2, err := http.NewRequest(http.MethodPost, requestURL2, bytes.NewBuffer(body_r))
@@ -102,8 +100,8 @@ func Nearby(req RequestBody) string {
         //        fmt.Printf("rates error: %v", err)
         //        return ""
         //}
-        ratesRet := RPC(requestURL2, []string{body_r}, context["workflow_id"])[0]
-	rates, err := ioutil.ReadAll(ratesRet)
+        ratesRet := RPC(requestURL2, []string{string(body_r)}, context.workflow_id)[0]
+	//rates, _ := ioutil.ReadAll(ratesRet)
 	// TODO(hw): add simple ranking algo to order hotel ids:
 	// * geo distance
 	// * price (best discount?)
@@ -112,7 +110,7 @@ func Nearby(req RequestBody) string {
 	// build the response
 	res := make([]string, 0)
 	var rate_p RatePlans
-	json.Unmarshal(rates, &rate_p)
+	json.Unmarshal([]byte(ratesRet), &rate_p)
 	for _, ratePlan := range rate_p {
 		// fmt.Printf("get RatePlan HotelId = %s, Code = %s\n", ratePlan.HotelId, ratePlan.Code)
 		res = append(res, ratePlan.hotelId)
@@ -124,7 +122,7 @@ func Nearby(req RequestBody) string {
 func function_handler(context Context) (string, int) {
         //body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal(context["request"], &body_u)
+        json.Unmarshal([]byte(context.request), &body_u)
         //defer req.Body.Close()
-	return Nearby(body_u), 200
+	return Nearby(body_u, context), 200
 }

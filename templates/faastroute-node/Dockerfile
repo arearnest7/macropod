@@ -1,5 +1,5 @@
-FROM node:current-alpine
+FROM node:latest
 WORKDIR /app
 COPY . .
-RUN npm install express @grpc/grpc-js redis moment
+RUN npm install -g express @grpc/grpc-js redis moment
 CMD [ "node", "app.js" ]

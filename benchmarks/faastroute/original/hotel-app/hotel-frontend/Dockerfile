@@ -1,6 +1,6 @@
 FROM arearnest7/faastroute-go:latest
-RUN mkdir /app
-COPY . /app
 WORKDIR /app
+COPY . .
+RUN go mod tidy
 RUN go build -o main .
 CMD ["/app/main"]

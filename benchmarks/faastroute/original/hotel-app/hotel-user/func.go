@@ -3,7 +3,6 @@ package function
 import (
 	"fmt"
 	"encoding/json"
-	"io/ioutil"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -124,7 +123,7 @@ func CheckUser(req RequestBody) bool {
 func function_handler(context Context) (string, int) {
 	//body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal(context["request"], &body_u)
+        json.Unmarshal([]byte(context.request), &body_u)
         //defer req.Body.Close()
         return strconv.FormatBool(CheckUser(body_u)), 200
 }

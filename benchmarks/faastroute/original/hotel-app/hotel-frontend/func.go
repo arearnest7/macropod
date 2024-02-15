@@ -1,13 +1,8 @@
 package function
 
 import (
-	"fmt"
 	"os"
-	"bytes"
 	"encoding/json"
-	"io/ioutil"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type RequestBody struct {
@@ -30,7 +25,7 @@ func function_handler(context Context) (string, int) {
 	requestURL := ""
 	//body, err := ioutil.ReadAll(req.Body)
 	body_u := RequestBody{}
-	json.Unmarshal(context["request"], &body_u)
+	json.Unmarshal([]byte(context.request), &body_u)
   	//defer req.Body.Close()
 	if body_u.Request == "search" {
 		requestURL = os.Getenv("HOTEL_SEARCH")
@@ -42,7 +37,7 @@ func function_handler(context Context) (string, int) {
                 requestURL = os.Getenv("HOTEL_USER")
 	}
 
-	body_m, err := json.Marshal(body_u)
+	body_m, _ := json.Marshal(body_u)
 	//req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_m))
         //if err != nil {
         //        log.Fatal(err)
@@ -52,7 +47,7 @@ func function_handler(context Context) (string, int) {
         //ret, err := client.Do(req_url)
         //retBody, err := ioutil.ReadAll(ret.Body)
         //ret_val, err := json.Marshal(retBody)
-        ret_val = RPC(requestURL, []string{body_m}, context["workflow_id"])[0]
+        ret_val := RPC(requestURL, []string{string(body_m)}, context.workflow_id)[0]
         return ret_val, 200
 }
 

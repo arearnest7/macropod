@@ -20,7 +20,7 @@ const function_handler = async (context) => {
         //else {
         //        await client.set("election-results-" + state + "-" + candidate, "1");
         //}
-        return "success";
+        return ["success", 200];
 }
 
 // Export the function

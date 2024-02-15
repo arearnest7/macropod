@@ -39,7 +39,7 @@ const function_handler = async (context) => {
     	//	},
     	//	"body": results
 	//};
-	return results, 200;
+	return [results.toString(), 200];
 }
 
 // Export the function
