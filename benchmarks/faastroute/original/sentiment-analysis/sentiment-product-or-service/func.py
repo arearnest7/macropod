@@ -11,11 +11,11 @@ def function_handler(context):
 
         results = ""
         if event["reviewType"] == "Product":
-            results = RPC(os.environ["SENTIMENT_PRODUCT_SENTIMENT"], [context["request"]], context["workflow_id"])[0]
+            results = RPC(context, os.environ["SENTIMENT_PRODUCT_SENTIMENT"], [context["request"]])[0]
         elif event["reviewType"] == "Service":
-            results = RPC(os.environ["SENTIMENT_SERVICE_SENTIMENT"], [context["request"]], context["workflow_id"])[0]
+            results = RPC(context, os.environ["SENTIMENT_SERVICE_SENTIMENT"], [context["request"]])[0]
         else:
-            results = RPC(os.environ["SENTIMENT_CFAIL"], [context["request"]], context["workflow_id"])[0]
+            results = RPC(context, os.environ["SENTIMENT_CFAIL"], [context["request"]])[0]
         return results, 200
     else:
         print("Empty request", flush=True)

@@ -14,17 +14,18 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tapp.proto\x12\x08\x66unction\"0\n\x0bRequestBody\x12\x0c\n\x04\x62ody\x18\x01 \x01(\x0c\x12\x13\n\x0bworkflow_id\x18\x02 \x01(\t\"+\n\x0cResponseBody\x12\r\n\x05reply\x18\x01 \x01(\t\x12\x0c\n\x04\x63ode\x18\x02 \x01(\x05\x32T\n\x0cgRPCFunction\x12\x44\n\x13gRPCFunctionHandler\x12\x15.function.RequestBody\x1a\x16.function.ResponseBodyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tapp.proto\x12\x08\x66unction\"\xaa\x01\n\x0bRequestBody\x12\x11\n\x04\x64\x61ta\x18\x01 \x01(\x0cH\x00\x88\x01\x01\x12\x13\n\x0bworkflow_id\x18\x02 \x01(\t\x12\r\n\x05\x64\x65pth\x18\x03 \x01(\x05\x12\r\n\x05width\x18\x04 \x01(\x05\x12\x19\n\x0crequest_type\x18\x05 \x01(\tH\x01\x88\x01\x01\x12\x14\n\x07pv_path\x18\x06 \x01(\tH\x02\x88\x01\x01\x42\x07\n\x05_dataB\x0f\n\r_request_typeB\n\n\x08_pv_path\"\\\n\x0cResponseBody\x12\x12\n\x05reply\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x0c\n\x04\x63ode\x18\x02 \x01(\x05\x12\x14\n\x07pv_path\x18\x03 \x01(\tH\x01\x88\x01\x01\x42\x08\n\x06_replyB\n\n\x08_pv_path2T\n\x0cgRPCFunction\x12\x44\n\x13gRPCFunctionHandler\x12\x15.function.RequestBody\x1a\x16.function.ResponseBodyB\nZ\x08./app_pbb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'app_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
-  DESCRIPTOR._options = None
-  _globals['_REQUESTBODY']._serialized_start=23
-  _globals['_REQUESTBODY']._serialized_end=71
-  _globals['_RESPONSEBODY']._serialized_start=73
-  _globals['_RESPONSEBODY']._serialized_end=116
-  _globals['_GRPCFUNCTION']._serialized_start=118
-  _globals['_GRPCFUNCTION']._serialized_end=202
+  _globals['DESCRIPTOR']._options = None
+  _globals['DESCRIPTOR']._serialized_options = b'Z\010./app_pb'
+  _globals['_REQUESTBODY']._serialized_start=24
+  _globals['_REQUESTBODY']._serialized_end=194
+  _globals['_RESPONSEBODY']._serialized_start=196
+  _globals['_RESPONSEBODY']._serialized_end=288
+  _globals['_GRPCFUNCTION']._serialized_start=290
+  _globals['_GRPCFUNCTION']._serialized_end=374
 # @@protoc_insertion_point(module_scope)

@@ -1,4 +1,4 @@
-package function
+package main
 
 import (
     "net/http"
@@ -11,17 +11,12 @@ import (
     "github.com/redis/go-redis/v9"
     "strconv"
     "io/ioutil"
+    "github.com/go-mmap/mmap"
     "google.golang.org/grpc"
 
-    pb "function/app_pb"
+    pb "app/app_pb"
+    function "app/function"
 )
-
-type Context struct {
-    request string
-    workflow_id string
-    request_type string
-    is_json bool
-}
 
 type server struct {
     pb.UnimplementedGRPCFunctionServer
@@ -31,8 +26,7 @@ func HTTPFunctionHandler(res http.ResponseWriter, req *http.Request) {
     logging_name, logging := os.LookupEnv("LOGGING_NAME")
     redisClient := redis.NewClient(&redis.Options{})
     c := context.Background()
-    b, _ := ioutil.ReadAll(req.Body)
-    body := string(b)
+    body, _ := ioutil.ReadAll(req.Body)
     if logging {
         logging_url := os.Getenv("LOGGING_URL")
         logging_password := os.Getenv("LOGGING_PASSWORD")
@@ -42,24 +36,29 @@ func HTTPFunctionHandler(res http.ResponseWriter, req *http.Request) {
             DB: 0,
         })
     }
+    request_type := "gg"
+    _, pv := os.LookupEnv("APP_PV")
+    if pv {
+        request_type = "gm"
+    }
     if req.Header.Get("Content-Type") == "application/json" {
         workflow_id := strconv.Itoa(rand.Intn(10000000))
         if logging {
-            redisClient.Append(c, logging_name, "EXECUTION_HTTP_JSON_START," + workflow_id + ",NA,1," + time.Now().String() + "\n")
+            redisClient.Append(c, logging_name, time.Now().String() + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "0" + "\n")
         }
-        reply, _ := function_handler(Context{request: body, workflow_id: workflow_id, request_type: "HTTP", is_json: true})
+        reply, _ := function.FunctionHandler(function.Context{Request: body, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: request_type, InvokeType: "HTTP", IsJson: true})
         if logging {
-            redisClient.Append(c, logging_name, "EXECUTION_HTTP_JSON_END," + workflow_id + ",NA,1," + time.Now().String() + "\n")
+            redisClient.Append(c, logging_name, time.Now().String() + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "1" + "\n")
         }
         fmt.Fprintf(res, reply)
     } else {
         workflow_id := strconv.Itoa(rand.Intn(10000000))
         if logging {
-            redisClient.Append(c, logging_name, "EXECUTION_HTTP_TEXT_START," + workflow_id + ",NA,1," + time.Now().String() + "\n")
+            redisClient.Append(c, logging_name, time.Now().String() + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "2" + "\n")
         }
-        reply, _ := function_handler(Context{request: body, workflow_id: workflow_id, request_type: "HTTP", is_json: false})
+        reply, _ := function.FunctionHandler(function.Context{Request: body, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: request_type, InvokeType: "HTTP", IsJson: false})
         if logging {
-            redisClient.Append(c, logging_name, "EXECUTION_HTTP_TEXT_END," + workflow_id + ",NA,1," + time.Now().String() + "\n")
+            redisClient.Append(c, logging_name, time.Now().String() + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "3" + "\n")
         }
         fmt.Fprintf(res, reply)
     }
@@ -77,13 +76,47 @@ func (s *server) GRPCFunctionHandler(ctx context.Context, in *pb.RequestBody) (*
             Password: logging_password,
             DB: 0,
         })
-        redisClient.Append(c, logging_name, "EXECUTION_GRPC_START," + in.GetWorkflowId() + ",NA,1," + time.Now().String() + "\n")
+        redisClient.Append(c, logging_name, time.Now().String() + "," + in.GetWorkflowId() + "," + strconv.Itoa(int(in.GetDepth())) + "," + strconv.Itoa(int(in.GetWidth())) + "," + in.GetRequestType() + "," + "8" + "\n")
     }
-    reply, code := function_handler(Context{request: string(in.GetBody()), workflow_id: in.GetWorkflowId(), request_type: "GRPC", is_json: false})
+    app_pv, _ := os.LookupEnv("APP_PV")
+    res := pb.ResponseBody{Code: int32(500)}
+    if in.GetRequestType() == "" || in.GetRequestType() == "gg" {
+        reply, code := function.FunctionHandler(function.Context{Request: in.GetData(), WorkflowId: in.GetWorkflowId(), Depth: int(in.GetDepth()), Width: int(in.GetWidth()), RequestType: in.GetRequestType(), InvokeType: "GRPC", IsJson: false})
+        res.Reply = &reply
+        res.Code = int32(code)
+    } else if in.GetRequestType() == "mg" {
+        f, _ := mmap.Open(app_pv + "/" + in.GetPvPath())
+        req := make([]byte, f.Len())
+        f.ReadAt(req, 0)
+        f.Close()
+        reply, code := function.FunctionHandler(function.Context{Request: req, WorkflowId: in.GetWorkflowId(), Depth: int(in.GetDepth()), Width: int(in.GetWidth()), RequestType: in.GetRequestType(), InvokeType: "GRPC", IsJson: false})
+        res.Reply = &reply
+        res.Code = int32(code)
+    } else if in.GetRequestType() == "gm" {
+        payload, code := function.FunctionHandler(function.Context{Request: in.GetData(), WorkflowId: in.GetWorkflowId(), Depth: int(in.GetDepth()), Width: int(in.GetWidth()), RequestType: in.GetRequestType(), InvokeType: "GRPC", IsJson: false})
+        pv_path := in.GetWorkflowId() + "_" + strconv.Itoa(int(in.GetDepth())) + "_" + strconv.Itoa(int(in.GetWidth())) + "_" + strconv.Itoa(rand.Intn(10000000))
+        os.WriteFile(app_pv + "/" + pv_path, []byte(payload), 777)
+        reply := ""
+        res.Reply = &reply
+        res.Code = int32(code)
+        res.PvPath = &pv_path
+    } else if in.GetRequestType() == "mm" {
+        f, _ := mmap.Open(app_pv + "/" + in.GetPvPath())
+        req := make([]byte, f.Len())
+        f.ReadAt(req, 0)
+        f.Close()
+        payload, code := function.FunctionHandler(function.Context{Request: req, WorkflowId: in.GetWorkflowId(), Depth: int(in.GetDepth()), Width: int(in.GetWidth()), RequestType: in.GetRequestType(), InvokeType: "GRPC", IsJson: false})
+        pv_path := in.GetWorkflowId() + "_" + strconv.Itoa(int(in.GetDepth())) + "_" + strconv.Itoa(int(in.GetWidth())) + "_" + strconv.Itoa(rand.Intn(10000000))
+        os.WriteFile(app_pv + "/" + pv_path, []byte(payload), 777)
+        reply := ""
+        res.Reply = &reply
+        res.Code = int32(code)
+        res.PvPath = &pv_path
+    }
     if logging {
-        redisClient.Append(c, logging_name, "EXECUTION_GRPC_END," + in.GetWorkflowId() + ",NA,1," + time.Now().String() + "\n")
+        redisClient.Append(c, logging_name, time.Now().String() + "," + in.GetWorkflowId() + "," + strconv.Itoa(int(in.GetDepth())) + "," + strconv.Itoa(int(in.GetWidth())) + "," + in.GetRequestType() + "," + "9" + "\n")
     }
-    return &pb.ResponseBody{Reply: reply, Code: int32(code)}, nil
+    return &res, nil
 }
 
 func main() {
@@ -92,8 +125,9 @@ func main() {
         http.HandleFunc("/", HTTPFunctionHandler)
         http.ListenAndServe(":" + os.Getenv("FUNC_PORT"), nil)
     } else if service_type == "GRPC" {
-        l, _ := net.Listen("tcp", fmt.Sprintf(":%d", os.Getenv("FUNC_PORT")))
-        s := grpc.NewServer()
+        port, _ := strconv.Atoi(os.Getenv("FUNC_PORT"))
+        l, _ := net.Listen("tcp", fmt.Sprintf(":%d", port))
+        s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))
         pb.RegisterGRPCFunctionServer(s, &server{})
         s.Serve(l)
     }

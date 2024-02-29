@@ -1,11 +1,13 @@
-const require('./rpc')
+const rpc = require('./rpc')
 
-const function_handler = async (context) => {
-	if (context["request_type"] != "GRPC") {
-		return rpc.RPC(process.env.TEST, ["TEST"], context["workflow_id"]).toString(), 200
+const FunctionHandler = (context) => {
+	const payloads = new Array();
+	payloads.push("a".repeat(100));
+	if (context.RequestType != "GRPC") {
+		return ["[" + rpc.RPC(context, process.env.TEST, payloads).toString() + "]", 200];
 	}
-	return context["request"], 200
+	return [context.Request.toString(), 200];
 }
 
 // Export the function
-module.exports = { function_handler };
+module.exports = { FunctionHandler };

@@ -10,8 +10,8 @@ import random
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-def invoke_lambda(bucket, dest, key):
-    RPC(os.environ["FEATURE_EXTRACTOR"], [str({"input_bucket": bucket, "key": key, "dest": dest})], context["workflow_id"])
+def invoke_lambda(bucket, dest, key, context):
+    RPC(context, os.environ["FEATURE_EXTRACTOR"], [str({"input_bucket": bucket, "key": key, "dest": dest})])
 
 def function_handler(context):
     if context["request_type"] != "GRPC":
@@ -26,11 +26,11 @@ def function_handler(context):
         print("File : " + str(all_keys))
 
         pool = ThreadPool(len(all_keys))
-        pool.map(partial(invoke_lambda, bucket, dest), all_keys)
+        pool.map(partial(invoke_lambda, bucket, dest, context), all_keys)
         pool.close()
         pool.join()
 
-        return RPC(os.environ["FEATURE_WAIT"], [str({"num_of_file": str(len(all_keys)), "input_bucket": dest})], context["workflow_id"])[0], 200
+        return RPC(context, os.environ["FEATURE_WAIT"], [str({"num_of_file": str(len(all_keys)), "input_bucket": dest})])[0], 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

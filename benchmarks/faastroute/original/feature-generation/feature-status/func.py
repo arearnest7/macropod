@@ -20,9 +20,9 @@ def function_handler(context):
         print("Number of File : " + str(len(all_keys)))
 
         if num_of_file == len(all_keys):
-            return RPC(os.environ["FEATURE_REDUCER"], json.dumps(params), context["workflow_id"])[0], 200
+            return RPC(context, os.environ["FEATURE_REDUCER"], [json.dumps(params)])[0], 200
         else:
-            return RPC(os.environ["FEATURE_WAIT"], json.dumps(params), context["workflow_id"])[0], 200
+            return RPC(context, os.environ["FEATURE_WAIT"], [json.dumps(params)])[0], 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

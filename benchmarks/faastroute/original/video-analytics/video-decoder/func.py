@@ -28,8 +28,8 @@ def decode(bytes):
 
     return all_frames
 
-def Recognise(frame):
-    result = RPC(os.environ['VIDEO_RECOG'], [frame.decode()], context["workflow_id"])[0]
+def Recognise(frame, context):
+    result = RPC(context, os.environ['VIDEO_RECOG'], [frame.decode()])[0]
 
     return result
 
@@ -39,7 +39,7 @@ def processFrames(videoBytes):
     # send all requests
     frames = frames[0:6]
     ex = ThreadPoolExecutor(max_workers=6)
-    all_result_futures = ex.map(Recognise, frames)
+    all_result_futures = ex.map(Recognise, frames, context)
     results = ""
     for result in all_result_futures:
         results = results + result + ","

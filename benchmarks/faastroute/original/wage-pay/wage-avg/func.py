@@ -21,7 +21,7 @@ def function_handler(context):
                 realpay[role] = (1-TAX) * (base + merit) / num
         params['statistics']['average-realpay'] = realpay
 
-        response = RPC(os.environ["WAGE_MERIT"], [json.dumps(params)], context["workflow_id"])[0]
+        response = RPC(context, os.environ["WAGE_MERIT"], [json.dumps(params)])[0]
         return response, 200
     else:
         print("Empty request", flush=True)

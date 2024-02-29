@@ -26,7 +26,7 @@ def function_handler(context):
                     return "fail: illegal params: " + str(event[param]) + " not between 1 and 8 inclusively", 200
             else:
                 return "fail: missing param: " + param, 200
-        response = RPC(os.environ["WAGE_FORMAT"], [json.dumps(event)], context["workflow_id"])[0]
+        response = RPC(context, os.environ["WAGE_FORMAT"], [json.dumps(event)])[0]
         return response, 200
     else:
         print("Empty request", flush=True)

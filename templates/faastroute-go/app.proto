@@ -1,15 +1,21 @@
 syntax = "proto3";
 
 package function;
+option go_package = "./app_pb";
 
 message RequestBody {
-    bytes body = 1;
+    optional bytes data = 1;
     string workflow_id = 2;
+    int32 depth = 3;
+    int32 width = 4;
+    optional string request_type = 5;
+    optional string pv_path = 6;
 }
 
 message ResponseBody {
-    string reply = 1;
+    optional string reply = 1;
     int32 code = 2;
+    optional string pv_path = 3;
 }
 
 service gRPCFunction {

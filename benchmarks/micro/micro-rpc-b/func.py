@@ -4,4 +4,4 @@ import json
 import os
 
 def main(context: Context):
-    return "a" * int(os.environ["LEN"]), 200
+    return b'a' * int(os.environ["LEN"]), 200

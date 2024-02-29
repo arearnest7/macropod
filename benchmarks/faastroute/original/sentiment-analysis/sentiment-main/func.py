@@ -24,7 +24,7 @@ def function_handler(context):
                 'bucket_name': bucket_name,
                 'file_key': file_key
             }
-        response = RPC(os.environ["SENTIMENT_READ_CSV"], [json.dumps(input)], context["workflow_id"])[0]
+        response = RPC(context, os.environ["SENTIMENT_READ_CSV"], [json.dumps(input)])[0]
 
         return response, 200
     else:

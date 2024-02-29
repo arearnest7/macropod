@@ -17,14 +17,14 @@ def function_handler(context):
             sentiment = "NEGATIVE"
         else:
             sentiment = "NEUTRAL"
-        response = RPC(os.environ["SENTIMENT_PRODUCT_RESULT"], [json.dumps({
+        response = RPC(context, os.environ["SENTIMENT_PRODUCT_RESULT"], [json.dumps({
             'sentiment': sentiment,
             'reviewType': event['reviewType'],
             'reviewID': event['reviewID'],
             'customerID': event['customerID'],
             'productID': event['productID'],
             'feedback': event['feedback']
-        })], context["workflow_id"])[0]
+        })])[0]
         return response, 200
     else:
         print("Empty request", flush=True)

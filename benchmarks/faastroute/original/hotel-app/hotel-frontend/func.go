@@ -47,7 +47,7 @@ func function_handler(context Context) (string, int) {
         //ret, err := client.Do(req_url)
         //retBody, err := ioutil.ReadAll(ret.Body)
         //ret_val, err := json.Marshal(retBody)
-        ret_val := RPC(requestURL, []string{string(body_m)}, context.workflow_id)[0]
+        ret_val := RPC(context, requestURL, []string{string(body_m)})[0]
         return ret_val, 200
 }
 

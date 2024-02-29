@@ -30,7 +30,7 @@ def function_handler(context):
         with ThreadPoolExecutor(max_workers=len(manifest)) as executor:
             for obj in manifest:
                 if obj != "raw/":
-                    fs.append(executor.submit(RPC, os.environ["WAGE_SUM"], json.dumps({'total': total, 'base': base, 'merit': merit, 'operator': obj}), context["workflow_id"]))
+                    fs.append(executor.submit(RPC, context, os.environ["WAGE_SUM"], json.dumps({'total': total, 'base': base, 'merit': merit, 'operator': obj})))
         results = [f[0] for f in fs]
         return "processed batch at " + str(time.time()), 200
     else:

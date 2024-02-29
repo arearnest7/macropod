@@ -19,7 +19,7 @@ def function_handler(context):
                 merit = params['merit']['statistics'][role]
                 meritp[role] = merit / base
         params['statistics']['average-merit-percent'] = meritp
-        response = RPC(os.environ["WAGE_WRITE_MERIT"], [json.dumps({'id': params['id'], 'statistics': params['statistics'], 'operator' : params['operator']})], context["workflow_id"])[0]
+        response = RPC(context, os.environ["WAGE_WRITE_MERIT"], [json.dumps({'id': params['id'], 'statistics': params['statistics'], 'operator' : params['operator']})])[0]
         return response, 200
     else:
         print("Empty request", flush=True)

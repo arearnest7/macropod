@@ -21,7 +21,7 @@ def function_handler(context):
         lines = response.split('\n')
 
         for row in csv.DictReader(lines):
-            response = RPC(os.environ["SENTIMENT_PRODUCT_OR_SERVICE"], [json.dumps(row)], context["workflow_id"])[0]
+            response = RPC(context, os.environ["SENTIMENT_PRODUCT_OR_SERVICE"], [json.dumps(row)])[0]
         return response, 200
     else:
         print("Empty request", flush=True)

@@ -20,7 +20,7 @@ def function_handler(context):
         realpay = (1-TAX) * (params['base'] + params['merit'])
         params['realpay'] = realpay
 
-        response = RPC(os.environ["WAGE_WRITE_RAW"], [json.dumps(params)], context["workflow_id"])[0]
+        response = RPC(context, os.environ["WAGE_WRITE_RAW"], [json.dumps(params)])[0]
         return response, 200
     else:
         print("Empty request", flush=True)

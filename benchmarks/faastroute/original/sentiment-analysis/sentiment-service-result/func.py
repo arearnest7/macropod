@@ -10,11 +10,11 @@ def function_handler(context):
         event = json.loads(context["request"])
         results = ""
         if event["sentiment"] == "POSITIVE" or event["sentiment"] == "NEUTRAL":
-            results = RPC(os.environ["SENTIMENT_DB"], [context["request"]], context["workflow_id"])[0]
+            results = RPC(context, os.environ["SENTIMENT_DB"], [context["request"]])[0]
         elif event["sentiment"] == "NEGATIVE":
-            results = RPC(os.environ["SENTIMENT_SNS"], [context["request"]], context["workflow_id"])[0]
+            results = RPC(context, os.environ["SENTIMENT_SNS"], [context["request"]])[0]
         else:
-            results = RPC(os.environ["SENTIMENT_SFAIL"], [context["request"]], context["workflow_id"])[0]
+            results = RPC(context, os.environ["SENTIMENT_SFAIL"], [context["request"]])[0]
 
         return results, 200
     else:

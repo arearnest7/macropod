@@ -14,14 +14,14 @@ def function_handler(context):
         #    event['reviewType'], int(event['productID']), int(event['customerID']), event['feedback'])
         #})
 
-        response = RPC(os.environ["SENTIMENT_DB"], [json.dumps({
+        response = RPC(context, os.environ["SENTIMENT_DB"], [json.dumps({
             'sentiment': event['sentiment'],
             'reviewType': event['reviewType'],
             'reviewID': event['reviewID'],
             'customerID': event['customerID'],
             'productID': event['productID'],
             'feedback': event['feedback']
-        })], context["workflow_id"])
+        })])
         return response, 200
     else:
         print("Empty request", flush=True)

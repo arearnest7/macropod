@@ -18,7 +18,7 @@ def function_handler(context):
         stats = {'total': params['total']['statistics']['total'] }
         params['statistics'] = stats
 
-        response = RPC(os.environ["WAGE_AVG"], [json.dumps(params)], context["workflow_id"])[0]
+        response = RPC(context, os.environ["WAGE_AVG"], [json.dumps(params)])[0]
         return response, 200
     else:
         print("Empty request", flush=True)

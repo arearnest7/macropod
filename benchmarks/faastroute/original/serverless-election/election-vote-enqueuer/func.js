@@ -16,7 +16,7 @@ const function_handler = async (context) => {
 		else {
 			data = '';
 			newBody = body;
-			rpc.RPC(process.env.ELECTION_VOTE_PROCESSOR, [newBody], context["workflow_id"])
+			rpc.RPC(context, process.env.ELECTION_VOTE_PROCESSOR, [newBody])
 			return ["Vote " + body['id'] + " registered", 200];
 		}
 	}

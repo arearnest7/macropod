@@ -1,5 +1,5 @@
 FROM node:latest
 WORKDIR /app
 COPY . .
-RUN npm install -g express @grpc/grpc-js redis moment
+RUN npm install express @grpc/grpc-js @grpc/proto-loader redis moment google-protobuf
 CMD [ "node", "app.js" ]

@@ -24,16 +24,16 @@ def function_handler(context):
     fs = []
     with ThreadPoolExecutor(max_workers=3) as executor:
         if to_checksum:
-            fs.append(executor.submit(RPC, os.environ["PIPELINED_CHECKSUM"], [to_checksum], context["workflow_id"]))
+            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_CHECKSUM"], [to_checksum]))
         if to_zip:
-            fs.append(executor.submit(RPC, os.environ["PIPELINED_ZIP"], [to_zip], context["workflow_id"]))
+            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ZIP"], [to_zip]))
         if to_encrypt:
-            fs.append(executor.submit(RPC, os.environ["PIPELINED_ENCRYPT"], [to_encrypt], context["workflow_id"]))
+            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ENCRYPT"], [to_encrypt]))
     results = [f.result().text for f in fs]
     if to_checksum or to_zip:
         if to_checksum and "success" not in results[0]:
             to_checksum = []
-        response = RPC(os.environ["PIPELINED_MAIN"], [json.dumps{"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip}], context["workflow_id"])
+        response = RPC(context, os.environ["PIPELINED_MAIN"], [json.dumps{"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip}])
         return response, 200
     return "success", 200
     #else:
