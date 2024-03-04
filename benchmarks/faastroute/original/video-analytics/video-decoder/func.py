@@ -29,7 +29,7 @@ def decode(bytes):
     return all_frames
 
 def Recognise(frame, context):
-    result = RPC(context, os.environ['VIDEO_RECOG'], [frame.decode()])[0]
+    result = RPC(context, os.environ['VIDEO_RECOG'], [frame])[0]
 
     return result
 
@@ -48,13 +48,13 @@ def processFrames(videoBytes):
 
 def Decode(request):
     videoBytes = b''
-    videoBytes = base64.b64decode(request.encode())
+    videoBytes = request
     results = processFrames(videoBytes)
     return results
 
 def function_handler(context):
-    if context["request_type"] == "GRPC":
-        ret = Decode(context["request"])
+    if context["InvokeType"] == "GRPC":
+        ret = Decode(context["Request"])
         return ret, 200
     else:
         print("Empty request", flush=True)

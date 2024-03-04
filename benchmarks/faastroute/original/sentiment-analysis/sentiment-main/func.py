@@ -9,8 +9,8 @@ import os
 pp = pprint.PrettyPrinter(indent=4)
 
 def function_handler(context):
-    if context["request_type"] != "GRPC":
-        event = context["request"]
+    if context["InvokeType"] != "GRPC":
+        event = context["Request"]
 
         try:
             pp
@@ -24,7 +24,7 @@ def function_handler(context):
                 'bucket_name': bucket_name,
                 'file_key': file_key
             }
-        response = RPC(context, os.environ["SENTIMENT_READ_CSV"], [json.dumps(input)])[0]
+        response = RPC(context, os.environ["SENTIMENT_READ_CSV"], [json.dumps(input).encode()])[0]
 
         return response, 200
     else:

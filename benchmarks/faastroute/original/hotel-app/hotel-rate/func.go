@@ -145,10 +145,10 @@ func GetRates(req RequestBody) string {
 	return string(ret)
 }
 
-func function_handler(context Context) (string, int) {
+func FunctionHandler(context Context) (string, int) {
         //body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal([]byte(context.request), &body_u)
+        json.Unmarshal([]byte(context.Request), &body_u)
         //defer req.Body.Close()
 	return GetRates(body_u), 200
 }

@@ -8,8 +8,8 @@ import os
 ROLES = ['staff', 'teamleader', 'manager']
 
 def function_handler(context):
-    if context["request_type"] != "GRPC":
-        event = context["request"]
+    if context["InvokeType"] != "GRPC":
+        event = context["Request"]
         for param in ['id', 'name', 'role', 'base', 'merit', 'operator']:
             if param in ['name', 'role']:
                 if not isinstance(event[param], str):
@@ -26,7 +26,7 @@ def function_handler(context):
                     return "fail: illegal params: " + str(event[param]) + " not between 1 and 8 inclusively", 200
             else:
                 return "fail: missing param: " + param, 200
-        response = RPC(context, os.environ["WAGE_FORMAT"], [json.dumps(event)])[0]
+        response = RPC(context, os.environ["WAGE_FORMAT"], [json.dumps(event).encode()])[0]
         return response, 200
     else:
         print("Empty request", flush=True)

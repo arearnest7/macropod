@@ -5,7 +5,7 @@ const redis = require('redis');
 
 const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'U'];
 
-const function_handler = async (context) => {
+async function FunctionHandler(context) {
 	//client.on('error', err => console.log('Redis Client Error', err));
         //await client.connect();
 	var results = [];
@@ -43,4 +43,4 @@ const function_handler = async (context) => {
 }
 
 // Export the function
-module.exports = { function_handler };
+module.exports = { FunctionHandler };

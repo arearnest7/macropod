@@ -21,11 +21,11 @@ type RequestBody struct {
         OutDate string `json:"OutDate"`
 }
 
-func function_handler(context Context) (string, int) {
+func FunctionHandler(context Context) (string, int) {
 	requestURL := ""
 	//body, err := ioutil.ReadAll(req.Body)
 	body_u := RequestBody{}
-	json.Unmarshal([]byte(context.request), &body_u)
+	json.Unmarshal([]byte(context.Request), &body_u)
   	//defer req.Body.Close()
 	if body_u.Request == "search" {
 		requestURL = os.Getenv("HOTEL_SEARCH")
@@ -47,7 +47,7 @@ func function_handler(context Context) (string, int) {
         //ret, err := client.Do(req_url)
         //retBody, err := ioutil.ReadAll(ret.Body)
         //ret_val, err := json.Marshal(retBody)
-        ret_val := RPC(context, requestURL, []string{string(body_m)})[0]
+        ret_val := RPC(context, requestURL, [][]byte{body_m})[0]
         return ret_val, 200
 }
 

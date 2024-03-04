@@ -3,11 +3,11 @@ const redis = require('redis');
 
 //const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
-const function_handler = async (context) => {
+async function FunctionHandler(context) {
 	//client.on('error', err => console.log('Redis Client Error', err));
         //await client.connect();
 	//await client.set("voter-" + body['id'], JSON.stringify(body));
-	var body = JSON.parse(context["request"]);
+	var body = JSON.parse(context.Request);
 	var state = body['state'];
 	var candidate = body['candidate'];
 
@@ -24,4 +24,4 @@ const function_handler = async (context) => {
 }
 
 // Export the function
-module.exports = { function_handler };
+module.exports = { FunctionHandler };

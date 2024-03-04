@@ -6,15 +6,15 @@ import random
 import os
 
 def function_handler(context):
-    if context["request_type"] == "GRPC":
-        event = json.loads(context["request"])
+    if context["InvokeType"] == "GRPC":
+        event = json.loads(context["Request"])
         results = ""
         if event["sentiment"] == "POSITIVE" or event["sentiment"] == "NEUTRAL":
-            results = RPC(context, os.environ["SENTIMENT_DB"], [context["request"]])[0]
+            results = RPC(context, os.environ["SENTIMENT_DB"], [context["Request"]])[0]
         elif event["sentiment"] == "NEGATIVE":
-            results = RPC(context, os.environ["SENTIMENT_SNS"], [context["request"]])[0]
+            results = RPC(context, os.environ["SENTIMENT_SNS"], [context["Request"]])[0]
         else:
-            results = RPC(context, os.environ["SENTIMENT_SFAIL"], [context["request"]])[0]
+            results = RPC(context, os.environ["SENTIMENT_SFAIL"], [context["Request"]])[0]
 
         return results, 200
     else:

@@ -7,9 +7,9 @@ import json
 import os
 
 def function_handler(context):
-    if context["request_type"] == "GRPC":
+    if context["InvokeType"] == "GRPC":
         time.sleep(12)
-        response = RPC(context, os.environ["FEATURE_STATUS"], [context["request"]])[0]
+        response = RPC(context, os.environ["FEATURE_STATUS"], [context["Request"]])[0]
         return response, 200
     else:
         print("Empty request", flush=True)

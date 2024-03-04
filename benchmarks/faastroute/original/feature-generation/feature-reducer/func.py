@@ -9,8 +9,8 @@ import json
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def function_handler(context):
-    if context["request_type"] == "GRPC":
-        params = json.loads(context["request"])
+    if context["InvokeType"] == "GRPC":
+        params = json.loads(context["Request"])
         bucket = params['input_bucket']
 
         result = []

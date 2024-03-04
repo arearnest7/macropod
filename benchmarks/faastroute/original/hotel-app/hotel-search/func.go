@@ -71,7 +71,7 @@ func Nearby(req RequestBody, context Context) string {
         //        fmt.Printf("nearby error: %v", err)
         //        return ""
         //}
-        nearby := RPC(context, requestURL, []string{string(body_g)})[0]
+        nearby := RPC(context, requestURL, [][]byte{body_g})[0]
 
 	// var ids []string
 	//nearbyBody, err := ioutil.ReadAll(nearby.Body)
@@ -100,7 +100,7 @@ func Nearby(req RequestBody, context Context) string {
         //        fmt.Printf("rates error: %v", err)
         //        return ""
         //}
-        ratesRet := RPC(context, requestURL2, []string{string(body_r)})[0]
+        ratesRet := RPC(context, requestURL2, [][]byte{body_r})[0]
 	//rates, _ := ioutil.ReadAll(ratesRet)
 	// TODO(hw): add simple ranking algo to order hotel ids:
 	// * geo distance
@@ -119,10 +119,10 @@ func Nearby(req RequestBody, context Context) string {
         return string(ret)
 }
 
-func function_handler(context Context) (string, int) {
+func FunctionHandler(context Context) (string, int) {
         //body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
-        json.Unmarshal([]byte(context.request), &body_u)
+        json.Unmarshal([]byte(context.Request), &body_u)
         //defer req.Body.Close()
 	return Nearby(body_u, context), 200
 }

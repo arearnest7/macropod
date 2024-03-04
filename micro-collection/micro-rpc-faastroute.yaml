@@ -26,14 +26,14 @@ spec:
         app: micro-rpc-faastroute
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: earnest-vm-2
       volumes:
       - name: faastroute-pv
         emptyDir:
           medium: Memory
       containers:
       - name: micro-rpc-a
-        image: arearnest7/micro-rpc-a:faastroute
+        image: arearnest7/micro-rpc-a:faastroute-v1.2
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -53,9 +53,9 @@ spec:
           - name: DEST
             value: "localhost:5001"
           - name: LEN
-            value: "1000000"
+            value: "50000000"
       - name: micro-rpc-b
-        image: arearnest7/micro-rpc-b:faastroute
+        image: arearnest7/micro-rpc-b:faastroute-v1.2
         ports:
         - containerPort: 5001
         volumeMounts:
@@ -71,4 +71,4 @@ spec:
           - name: APP_PV
             value: "/faastroute-pv"
           - name: LEN
-            value: "1000000"
+            value: "50000000"

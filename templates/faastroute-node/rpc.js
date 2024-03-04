@@ -12,12 +12,20 @@ var packageDefinition = protoLoader.loadSync(
   });
 var gRPCFunction = grpc.loadPackageDefinition(packageDefinition).function;
 
-const RPC = (context, dest, payloads) => {
+function invoke(dest, request) {
+	return new Promise((resolve, reject) => {
+		var stub = new gRPCFunction.gRPCFunction(dest, grpc.credentials.createInsecure());
+		stub.gRPCFunctionHandler(request, async function(err, response) {
+			resolve(response);
+		});
+	});
+}
+
+async function RPC(context, dest, payloads) {
 	if ("LOGGING_NAME" in process.env) {
 		const client = redis.createClient({url: process.env.LOGGING_URL, password: process.env.LOGGING_PASSWORD});
-        	client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "10" + "\n");
+        	await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "10" + "\n");
 	}
-	var stub = new gRPCFunction.gRPCFunction(dest, grpc.credentials.createInsecure());
 	var tl = new Array();
 	var pv_paths = new Array();
 	var request_type = "gg";
@@ -38,7 +46,7 @@ const RPC = (context, dest, payloads) => {
 		}
 	}
 	var i = 0;
-	payloads.forEach(function(payload) {
+	for (let payload of payloads) {
 		if (request_type == "gg" || request_type == "gm") {
 			var request = {
 				data: payload,
@@ -47,10 +55,8 @@ const RPC = (context, dest, payloads) => {
 				width: i,
 				request_type: request_type
 			};
-			stub.gRPCFunctionHandler(request, function(err, response) {
-				console.log(response.reply);
-				tl.push(response);
-			});
+			let t = await invoke(dest, request);
+			tl.push(t);
 		} else {
 			var pv_path = context.WorkflowId + "_" + context.Depth.toString() + "_" + context.Width.toString() + "_" + Math.floor(Math.random() * 10000000).toString();
 			pv_paths.push(pv_path);
@@ -62,37 +68,34 @@ const RPC = (context, dest, payloads) => {
                         	request_type: request_type,
 				pv_path: pv_path
 			};
-                        stub.gRPCFunctionHandler(request, function(err, response) {
-                                tl.push(response);
-                        });
+                        let t = await invoke(dest, request);
+                        tl.push(t);
 		}
 		i += 1;
-	});
-	return [tl.length.toString()];
-	/*var results = new Array();
-	i = 0;
+	}
+	var results = new Array();
 	if (!("RPC_DEST_PV" in process.env)) {
-		tl.forEach(function(t) {
-			results[i] = t.reply;
-			i += 1;
-		});
+		for (let t of tl) {
+			console.log(t.reply);
+			var reply = t.reply;
+			results.push(reply);
+		}
 	} else {
-		tl.forEach(function(t) {
+		for (let t of tl) {
 			var reply = fs.readFileSync(process.env.RPC_DEST_PV + "/" + t.pv_path);
 			fs.rmSync(process.env.RPC_DEST_PV + "/" + t.pv_path);
-			results[i] = reply;
-			i += 1;
-		});
+			results.push(reply);
+		}
 	}
 	if ("RPC_PV" in process.env) {
-		pv_paths.forEach(function(pv_path) {
+		for (let pv_path of pv_paths) {
 			fs.rmSync(process.env.RPC_PV + "/" + pv_path);
-		});
+		}
 	}
 	if ("LOGGING_NAME" in process.env) {
-                client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "11" + "\n");
+                await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "11" + "\n");
         }
-	return results;*/
+	return results;
 }
 
 // Export the function

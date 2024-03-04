@@ -33,23 +33,18 @@ def RPC(context, dest, payloads):
                     with open(os.environ["RPC_PV"] + "/" + pv_path, "wb") as f:
                         f.write(payload)
                     tl.append(executor.submit(stub.gRPCFunctionHandler, pb.RequestBody(workflow_id=context["WorkflowId"], depth=(context["Depth"] + 1), width=i, request_type=request_type, pv_path=pv_path)))
-        print(len(tl))
         results = []
         if "RPC_DEST_PV" not in os.environ:
             results = [t.result().reply for t in tl]
         else:
             for t in tl:
-                print(t.result().code)
-                print(t.result().reply)
-                print(t.result().pv_path)
                 reply = b''
-                with open(os.environ["RPC_DEST_PV"] + "/" + t.result().pv_path, "rb") as f:
+                with open(os.environ["RPC_DEST_PV"] + "/" + t.result().pv_path, "r") as f:
                     mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
                     reply = mm.read()
                     mm.close()
-                print(reply)
                 os.remove(os.environ["RPC_DEST_PV"] + "/" + t.result().pv_path)
-                results.append(reply.decode())
+                results.append(reply)
         if "RPC_PV" in os.environ:
             for pv_path in pv_paths:
                 os.remove(os.environ["RPC_PV"] + "/" + pv_path)

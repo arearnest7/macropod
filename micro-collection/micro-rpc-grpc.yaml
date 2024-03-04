@@ -39,7 +39,7 @@ spec:
         app: micro-rpc-a
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: earnest-vm-2
       volumes:
       - name: faastroute-pv
         emptyDir:
@@ -62,7 +62,7 @@ spec:
           - name: DEST
             value: "10.43.190.2:80"
           - name: LEN
-            value: "1000000"
+            value: "50000000"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -79,7 +79,7 @@ spec:
         app: micro-rpc-b
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: earnest-vm-4
       volumes:
       - name: faastroute-pv
         emptyDir:
@@ -100,4 +100,4 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: LEN
-            value: "1000000"
+            value: "50000000"

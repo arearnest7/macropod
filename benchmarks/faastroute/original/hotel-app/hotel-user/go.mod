@@ -1,6 +1,6 @@
-module function
+module app
 
-go 1.19
+go 1.22
 
 require github.com/sirupsen/logrus v1.9.0
 

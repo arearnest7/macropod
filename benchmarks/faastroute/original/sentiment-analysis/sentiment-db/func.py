@@ -9,8 +9,8 @@ from urllib.parse import quote_plus
 import random
 
 def function_handler(context):
-    if context["request_type"] == "GRPC":
-        event = json.loads(context["request"])
+    if context["InvokeType"] == "GRPC":
+        event = json.loads(context["Request"])
 
 	#client = MongoClient(host=os.environ["MONGO_HOST"])
         #db = client['sentiment']

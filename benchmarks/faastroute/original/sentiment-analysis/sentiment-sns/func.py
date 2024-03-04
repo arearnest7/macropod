@@ -6,8 +6,8 @@ import random
 import os
 
 def function_handler(context):
-    if context["request_type"] == "GRPC":
-        event = json.loads(context["request"])
+    if context["InvokeType"] == "GRPC":
+        event = json.loads(context["Request"])
         #response = requests.get(url = 'http://' + OF_Gateway_IP + ':' + OF_Gateway_Port + '/function/sha>
         #    "Subject": 'Negative Review Received',
         #    "Message": 'Review (ID = %i) of %s (ID = %i) received with negative results from sentiment a>
@@ -21,7 +21,7 @@ def function_handler(context):
             'customerID': event['customerID'],
             'productID': event['productID'],
             'feedback': event['feedback']
-        })])
+        }).encode()])
         return response, 200
     else:
         print("Empty request", flush=True)

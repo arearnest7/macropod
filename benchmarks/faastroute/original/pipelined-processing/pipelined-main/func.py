@@ -9,7 +9,7 @@ import random
 
 def function_handler(context):
     #if context["request_type"] != "GRPC":
-    body = json.loads(context["request"])
+    body = json.loads(context["Request"])
     if body["manifest"]:
         to_checksum = body["manifest"][0]
     else:
@@ -24,16 +24,16 @@ def function_handler(context):
     fs = []
     with ThreadPoolExecutor(max_workers=3) as executor:
         if to_checksum:
-            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_CHECKSUM"], [to_checksum]))
+            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_CHECKSUM"], [json.dumps(to_checksum).encode()]))
         if to_zip:
-            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ZIP"], [to_zip]))
+            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ZIP"], [json.dumps(to_zip).encode()]))
         if to_encrypt:
-            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ENCRYPT"], [to_encrypt]))
+            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ENCRYPT"], [json.dumps(to_encrypt).encode()]))
     results = [f.result().text for f in fs]
     if to_checksum or to_zip:
         if to_checksum and "success" not in results[0]:
             to_checksum = []
-        response = RPC(context, os.environ["PIPELINED_MAIN"], [json.dumps{"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip}])
+        response = RPC(context, os.environ["PIPELINED_MAIN"], [json.dumps({"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip}).encode()])
         return response, 200
     return "success", 200
     #else:

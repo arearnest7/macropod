@@ -62,14 +62,14 @@ def infer(batch_t):
 def Recognise(request):
     # get the frame from s3 or inline
     frame = None
-    frame = base64.b64decode(request.encode())
+    frame = request
 
     classification = infer(preprocessImage(frame))
     return classification
 
 def function_handler(context):
-    if context["request_type"] == "GRPC":
-        ret = Recognise(context["request"])
+    if context["InvokeType"] == "GRPC":
+        ret = Recognise(context["Request"])
         return ret, 200
     else:
         print("Empty request", flush=True)

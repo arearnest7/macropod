@@ -26,7 +26,7 @@ spec:
         app: micro-rpc-pod
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: earnest-vm-2
       volumes:
       - name: faastroute-pv
         emptyDir:
@@ -49,7 +49,7 @@ spec:
           - name: DEST
             value: "localhost:5001"
           - name: LEN
-            value: "1000000"
+            value: "50000000"
       - name: micro-rpc-b
         image: arearnest7/micro-rpc-b:faastroute
         ports:
@@ -65,4 +65,4 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: LEN
-            value: "1000000"
+            value: "50000000"
