@@ -1,0 +1,442 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-main
+spec:
+  selector:
+    app: sentiment-main
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-read-csv
+spec:
+  selector:
+    app: sentiment-read-csv
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-product-or-service
+spec:
+  selector:
+    app: sentiment-product-or-service
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.3
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-cfail
+spec:
+  selector:
+    app: sentiment-cfail
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.4
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-product-sentiment
+spec:
+  selector:
+    app: sentiment-product-sentiment
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-product-result
+spec:
+  selector:
+    app: sentiment-product-result
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.6
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-sfail
+spec:
+  selector:
+    app: sentiment-sfail
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.7
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-sns
+spec:
+  selector:
+    app: sentiment-sns
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.8
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-db
+spec:
+  selector:
+    app: sentiment-db
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.9
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-service-sentiment
+spec:
+  selector:
+    app: sentiment-service-sentiment
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-service-result
+spec:
+  selector:
+    app: sentiment-service-result
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.11
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-main
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-main
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-main
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-2
+      containers:
+      - name: sentiment-main
+        image: arearnest7/sentiment-main:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: SENTIMENT_READ_CSV
+            value: http://10.43.190.2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-read-csv
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-read-csv
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-read-csv
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-3
+      containers:
+      - name: sentiment-read-csv
+        image: arearnest7/sentiment-read-csv:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: SENTIMENT_PRODUCT_OR_SERVICE
+            value: http://10.43.190.3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-product-or-service
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-product-or-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-product-or-service
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-4
+      containers:
+      - name: sentiment-product-or-service
+        image: arearnest7/sentiment-product-or-service:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: SENTIMENT_CFAIL
+            value: http://10.43.190.4
+          - name: SENTIMENT_PRODUCT_SENTIMENT
+            value: http://10.43.190.5
+          - name: SENTIMENT_SERVICE_SENTIMENT
+            value: http://10.43.190.10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-cfail
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-cfail
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-cfail
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-5
+      containers:
+      - name: sentiment-cfail
+        image: arearnest7/sentiment-cfail:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-product-sentiment
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-product-sentiment
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-product-sentiment
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-2
+      containers:
+      - name: sentiment-product-sentiment
+        image: arearnest7/sentiment-product-sentiment:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: SENTIMENT_PRODUCT_RESULT
+            value: http://10.43.190.6
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-product-result
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-product-result
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-product-result
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-3
+      containers:
+      - name: sentiment-product-result
+        image: arearnest7/sentiment-product-result:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: SENTIMENT_SFAIL
+            value: http://10.43.190.7
+          - name: SENTIMENT_SNS
+            value: http://10.43.190.8
+          - name: SENTIMENT_DB
+            value: http://10.43.190.9
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-sfail
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-sfail
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-sfail
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-4
+      containers:
+      - name: sentiment-sfail
+        image: arearnest7/sentiment-sfail:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-sns
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-sns
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-sns
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-5
+      containers:
+      - name: sentiment-sns
+        image: arearnest7/sentiment-sns:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: SENTIMENT_DB
+            value: http://10.43.190.9
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-db
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-db
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-2
+      containers:
+      - name: sentiment-db
+        image: arearnest7/sentiment-db:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-service-sentiment
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-service-sentiment
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-service-sentiment
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-3
+      containers:
+      - name: sentiment-service-sentiment
+        image: arearnest7/sentiment-service-sentiment:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: SENTIMENT_SERVICE_RESULT
+            value: http://10.43.190.11
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-service-result
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-service-result
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-service-result
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-4
+      containers:
+      - name: sentiment-service-result
+        image: arearnest7/sentiment-service-result:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: SENTIMENT_SFAIL
+            value: http://10.43.190.7
+          - name: SENTIMENT_SNS
+            value: http://10.43.190.8
+          - name: SENTIMENT_DB
+            value: http://10.43.190.9

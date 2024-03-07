@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: election-single-pod
+spec:
+  selector:
+    app: election-single-pod
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: election-single-pod
+spec:
+  selector:
+    matchLabels:
+      app: election-single-pod
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: election-single-pod
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-2
+      containers:
+      - name: election-gateway
+        image: arearnest7/election-gateway:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: SERVICE_TYPE
+            value: "HTTP"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5000"
+          - name: ELECTION_GET_RESULTS
+            value: http://localhost:5001
+          - name: ELECTION_VOTE_ENQUEUER
+            value: http://localhost:5002
+      - name: election-get-results
+        image: arearnest7/election-get-results:faastroute
+        ports:
+        - containerPort: 5001
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5001"
+      - name: election-vote-enqueuer
+        image: arearnest7/election-vote-enqueuer:faastroute
+        ports:
+        - containerPort: 5002
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5002"
+          - name: ELECTION_VOTE_PROCESSOR
+            value: http://localhost:5003
+      - name: election-vote-processor
+        image: arearnest7/election-vote-processor:faastroute
+        ports:
+        - containerPort: 5003
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5003"

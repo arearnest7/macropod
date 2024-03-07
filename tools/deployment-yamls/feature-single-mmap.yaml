@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: feature-single-pod
+spec:
+  selector:
+    app: feature-single-pod
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feature-single-pod
+spec:
+  selector:
+    matchLabels:
+      app: feature-single-pod
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: feature-single-pod
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-2
+      volumes:
+      - name: faastroute-pv
+        emptyDir:
+          medium: Memory
+      containers:
+      - name: feature-orchestrator
+        image: arearnest7/feature-orchestrator:faastroute
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: faastroute-pv
+          mountPath: /faastroute-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "HTTP"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5000"
+          - name: RPC_PV
+            value: "/faastroute-pv"
+          - name: RPC_DEST_PV
+            value: "/faastroute-pv"
+          - name: FEATURE_EXTRACTOR
+            value: http://localhost:5001
+          - name: FEATURE_WAIT
+            value: http://localhost:5002
+      - name: feature-extractor
+        image: arearnest7/feature-extractor:faastroute
+        ports:
+        - containerPort: 5001
+        volumeMounts:
+        - name: faastroute-pv
+          mountPath: /faastroute-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5001"
+          - name: APP_PV
+            value: "/faastroute-pv"
+      - name: feature-wait
+        image: arearnest7/feature-wait:faastroute
+        ports:
+        - containerPort: 5002
+        volumeMounts:
+        - name: faastroute-pv
+          mountPath: /faastroute-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5002"
+          - name: RPC_PV
+            value: "/faastroute-pv"
+          - name: RPC_DEST_PV
+            value: "/faastroute-pv"
+          - name: APP_PV
+            value: "/faastroute-pv"
+          - name: FEATURE_STATUS
+            value: http://localhost:5003
+      - name: feature-status
+        image: arearnest7/feature-status:faastroute
+        ports:
+        - containerPort: 5003
+        volumeMounts:
+        - name: faastroute-pv
+          mountPath: /faastroute-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5003"
+          - name: RPC_PV
+            value: "/faastroute-pv"
+          - name: RPC_DEST_PV
+            value: "/faastroute-pv"
+          - name: APP_PV
+            value: "/faastroute-pv"
+          - name: FEATURE_WAIT
+            value: http://localhost:5002
+          - name: FEATURE_REDUCER
+            value: http://localhost:5004
+      - name: feature-reducer
+        image: arearnest7/feature-reducer:faastroute
+        ports:
+        - containerPort: 5004
+        volumeMounts:
+        - name: faastroute-pv
+          mountPath: /faastroute-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5004"
+          - name: APP_PV
+            value: "/faastroute-pv"

@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelined-single-pod
+spec:
+  selector:
+    app: pipelined-single-pod
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pipelined-single-pod
+spec:
+  selector:
+    matchLabels:
+      app: pipelined-single-pod
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pipelined-single-pod
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-2
+      volumes:
+      - name: faastroute-pv
+        emptyDir:
+          medium: Memory
+      containers:
+      - name: pipelined-main
+        image: arearnest7/pipelined-main:faastroute
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: faastroute-pv
+          mountPath: /faastroute-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "HTTP"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5000"
+          - name: RPC_PV
+            value: "/faastroute-pv"
+          - name: RPC_DEST_PV
+            value: "/faastroute-pv"
+          - name: APP_PV
+            value: "/faastroute-pv"
+          - name: PIPELINED_MAIN
+            value: http://localhost:5000
+          - name: PIPELINED_CHECKSUM
+            value: http://localhost:5001
+          - name: PIPELINED_ZIP
+            value: http://localhost:5002
+          - name: PIPELINED_ENCRYPT
+            value: http://localhost:5003
+      - name: pipelined-checksum
+        image: arearnest7/pipelined-checksum:faastroute
+        ports:
+        - containerPort: 5001
+        volumeMounts:
+        - name: faastroute-pv
+          mountPath: /faastroute-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5001"
+          - name: APP_PV
+            value: "/faastroute-pv"
+      - name: pipelined-zip
+        image: arearnest7/pipelined-zip:faastroute
+        ports:
+        - containerPort: 5002
+        volumeMounts:
+        - name: faastroute-pv
+          mountPath: /faastroute-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5002"
+      - name: pipelined-encrypt
+        image: arearnest7/pipelined-encrypt:faastroute
+        ports:
+        - containerPort: 5003
+        volumeMounts:
+        - name: faastroute-pv
+          mountPath: /faastroute-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5003"

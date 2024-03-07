@@ -1,0 +1,179 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-single-pod
+spec:
+  selector:
+    app: sentiment-single-pod
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-single-pod
+spec:
+  selector:
+    matchLabels:
+      app: sentiment-single-pod
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-single-pod
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-2
+      containers:
+      - name: sentiment-main
+        image: arearnest7/sentiment-main:faastroute
+        ports:
+        - containerPort: 5000
+        env:
+          - name: SERVICE_TYPE
+            value: "HTTP"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5000"
+          - name: SENTIMENT_READ_CSV
+            value: http://localhost:5001
+      - name: sentiment-read-csv
+        image: arearnest7/sentiment-read-csv:faastroute
+        ports:
+        - containerPort: 5001
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5001"
+          - name: SENTIMENT_PRODUCT_OR_SERVICE
+            value: http://localhost:5002
+      - name: sentiment-product-or-service
+        image: arearnest7/sentiment-product-or-service:faastroute
+        ports:
+        - containerPort: 5002
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5002"
+          - name: SENTIMENT_CFAIL
+            value: http://localhost:5003
+          - name: SENTIMENT_PRODUCT_SENTIMENT
+            value: http://localhost:5004
+          - name: SENTIMENT_SERVICE_SENTIMENT
+            value: http://localhost:5009
+      - name: sentiment-cfail
+        image: arearnest7/sentiment-cfail:faastroute
+        ports:
+        - containerPort: 5003
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5003"
+      - name: sentiment-product-sentiment
+        image: arearnest7/sentiment-product-sentiment:faastroute
+        ports:
+        - containerPort: 5004
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5004"
+          - name: SENTIMENT_PRODUCT_RESULT
+            value: http://localhost:5005
+      - name: sentiment-product-result
+        image: arearnest7/sentiment-product-result:faastroute
+        ports:
+        - containerPort: 5005
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5005"
+          - name: SENTIMENT_SFAIL
+            value: http://localhost:5006
+          - name: SENTIMENT_SNS
+            value: http://localhost:5007
+          - name: SENTIMENT_DB
+            value: http://localhost:5008
+      - name: sentiment-sfail
+        image: arearnest7/sentiment-sfail:faastroute
+        ports:
+        - containerPort: 5006
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5006"
+      - name: sentiment-sns
+        image: arearnest7/sentiment-sns:faastroute
+        ports:
+        - containerPort: 5007
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5007"
+          - name: SENTIMENT_DB
+            value: http://localhost:5008
+      - name: sentiment-db
+        image: arearnest7/sentiment-db:faastroute
+        ports:
+        - containerPort: 5008
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5008"
+      - name: sentiment-service-sentiment
+        image: arearnest7/sentiment-service-sentiment:faastroute
+        ports:
+        - containerPort: 5009
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5009"
+          - name: SENTIMENT_SERVICE_RESULT
+            value: http://localhost:5010
+      - name: sentiment-service-result
+        image: arearnest7/sentiment-service-result:faastroute
+        ports:
+        - containerPort: 5010
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5010"
+          - name: SENTIMENT_SFAIL
+            value: http://localhost:5006
+          - name: SENTIMENT_SNS
+            value: http://localhost:5007
+          - name: SENTIMENT_DB
+            value: http://localhost:5008

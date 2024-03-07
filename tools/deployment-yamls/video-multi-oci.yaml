@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-streaming
+spec:
+  selector:
+    app: video-streaming
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-decoder
+spec:
+  selector:
+    app: video-decoder
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-recog
+spec:
+  selector:
+    app: video-recog
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+  clusterIP: 10.43.190.3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-streaming
+spec:
+  selector:
+    matchLabels:
+      app: video-streaming
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: video-streaming
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-2
+      containers:
+      - name: video-streaming
+        image: arearnest7/video-streaming:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: VIDEO_DECODER
+            value: http://10.43.190.2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-decoder
+spec:
+  selector:
+    matchLabels:
+      app: video-decoder
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: video-decoder
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-3
+      containers:
+      - name: video-decoder
+        image: arearnest7/video-decoder:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
+          - name: VIDEO_RECOG
+            value: http://10.43.190.3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-recog
+spec:
+  selector:
+    matchLabels:
+      app: video-recog
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: video-recog
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: earnest-vm-4
+      containers:
+      - name: video-recog
+        image: arearnest7/video-recog:oci
+        ports:
+        - containerPort: 5000
+        env:
+          - name: PORT
+            value: "5000"
