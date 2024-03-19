@@ -28,17 +28,17 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: earnest-vm-2
       volumes:
-      - name: faastroute-pv
+      - name: macropod-pv
         emptyDir:
           medium: Memory
       containers:
       - name: pipelined-main
-        image: arearnest7/pipelined-main:faastroute
+        image: arearnest7/pipelined-main:macropod
         ports:
         - containerPort: 5000
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "HTTP"
@@ -47,11 +47,11 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: PIPELINED_MAIN
             value: http://localhost:5000
           - name: PIPELINED_CHECKSUM
@@ -61,12 +61,12 @@ spec:
           - name: PIPELINED_ENCRYPT
             value: http://localhost:5003
       - name: pipelined-checksum
-        image: arearnest7/pipelined-checksum:faastroute
+        image: arearnest7/pipelined-checksum:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -75,14 +75,14 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
       - name: pipelined-zip
-        image: arearnest7/pipelined-zip:faastroute
+        image: arearnest7/pipelined-zip:macropod
         ports:
         - containerPort: 5002
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -91,12 +91,12 @@ spec:
           - name: FUNC_PORT
             value: "5002"
       - name: pipelined-encrypt
-        image: arearnest7/pipelined-encrypt:faastroute
+        image: arearnest7/pipelined-encrypt:macropod
         ports:
         - containerPort: 5003
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"

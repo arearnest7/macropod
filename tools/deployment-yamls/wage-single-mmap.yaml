@@ -28,17 +28,17 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: earnest-vm-2
       volumes:
-      - name: faastroute-pv
+      - name: macropod-pv
         emptyDir:
           medium: Memory
       containers:
       - name: wage-validator
-        image: arearnest7/wage-validator:faastroute
+        image: arearnest7/wage-validator:macropod
         ports:
         - containerPort: 5000
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "HTTP"
@@ -47,18 +47,18 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: WAGE_FORMAT
             value: http://localhost:5001
       - name: wage-format
-        image: arearnest7/wage-format:faastroute
+        image: arearnest7/wage-format:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -67,20 +67,20 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: WAGE_WRITE_RAW
             value: http://localhost:5002
       - name: wage-write-raw
-        image: arearnest7/wage-write-raw:faastroute
+        image: arearnest7/wage-write-raw:macropod
         ports:
         - containerPort: 5002
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -89,20 +89,20 @@ spec:
           - name: FUNC_PORT
             value: "5002"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: WAGE_STATS
             value: http://localhost:5003
       - name: wage-stats
-        image: arearnest7/wage-stats:faastroute
+        image: arearnest7/wage-stats:macropod
         ports:
         - containerPort: 5003
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -111,20 +111,20 @@ spec:
           - name: FUNC_PORT
             value: "5003"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: WAGE_AVG
             value: http://localhost:5004
       - name: wage-avg
-        image: arearnest7/wage-avg:faastroute
+        image: arearnest7/wage-avg:macropod
         ports:
         - containerPort: 5004
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -133,20 +133,20 @@ spec:
           - name: FUNC_PORT
             value: "5004"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: WAGE_SUM
             value: http://localhost:5005
       - name: wage-sum
-        image: arearnest7/wage-sum:faastroute
+        image: arearnest7/wage-sum:macropod
         ports:
         - containerPort: 5005
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -155,20 +155,20 @@ spec:
           - name: FUNC_PORT
             value: "5005"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: WAGE_MERIT
             value: http://localhost:5006
       - name: wage-merit
-        image: arearnest7/wage-merit:faastroute
+        image: arearnest7/wage-merit:macropod
         ports:
         - containerPort: 5006
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -177,20 +177,20 @@ spec:
           - name: FUNC_PORT
             value: "5006"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: WAGE_WRITE_MERIT
             value: http://localhost:5007
       - name: wage-write-merit
-        image: arearnest7/wage-write-merit:faastroute
+        image: arearnest7/wage-write-merit:macropod
         ports:
         - containerPort: 5007
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -199,4 +199,4 @@ spec:
           - name: FUNC_PORT
             value: "5007"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"

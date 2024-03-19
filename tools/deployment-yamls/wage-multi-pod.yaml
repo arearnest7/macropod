@@ -118,7 +118,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: wage-validator
-        image: arearnest7/wage-validator:faastroute
+        image: arearnest7/wage-validator:macropod
         ports:
         - containerPort: 5000
         env:
@@ -149,7 +149,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-3
       containers:
       - name: wage-format
-        image: arearnest7/wage-format:faastroute
+        image: arearnest7/wage-format:macropod
         ports:
         - containerPort: 5000
         env:
@@ -180,7 +180,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-4
       containers:
       - name: wage-write-raw
-        image: arearnest7/wage-write-raw:faastroute
+        image: arearnest7/wage-write-raw:macropod
         ports:
         - containerPort: 5000
         env:
@@ -211,7 +211,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-5
       containers:
       - name: wage-stats
-        image: arearnest7/wage-stats:faastroute
+        image: arearnest7/wage-stats:macropod
         ports:
         - containerPort: 5000
         env:
@@ -242,7 +242,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: wage-avg
-        image: arearnest7/wage-avg:faastroute
+        image: arearnest7/wage-avg:macropod
         ports:
         - containerPort: 5000
         env:
@@ -273,7 +273,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-3
       containers:
       - name: wage-sum
-        image: arearnest7/wage-sum:faastroute
+        image: arearnest7/wage-sum:macropod
         ports:
         - containerPort: 5000
         env:
@@ -304,7 +304,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-4
       containers:
       - name: wage-merit
-        image: arearnest7/wage-merit:faastroute
+        image: arearnest7/wage-merit:macropod
         ports:
         - containerPort: 5000
         env:
@@ -335,7 +335,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-5
       containers:
       - name: wage-write-merit
-        image: arearnest7/wage-write-merit:faastroute
+        image: arearnest7/wage-write-merit:macropod
         ports:
         - containerPort: 5000
         env:

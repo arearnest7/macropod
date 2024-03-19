@@ -28,17 +28,17 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: earnest-vm-2
       volumes:
-      - name: faastroute-pv
+      - name: macropod-pv
         emptyDir:
           medium: Memory
       containers:
       - name: sentiment-main
-        image: arearnest7/sentiment-main:faastroute
+        image: arearnest7/sentiment-main:macropod
         ports:
         - containerPort: 5000
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "HTTP"
@@ -47,18 +47,18 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: SENTIMENT_READ_CSV
             value: http://localhost:5001
       - name: sentiment-read-csv
-        image: arearnest7/sentiment-read-csv:faastroute
+        image: arearnest7/sentiment-read-csv:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -67,20 +67,20 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: SENTIMENT_PRODUCT_OR_SERVICE
             value: http://localhost:5002
       - name: sentiment-product-or-service
-        image: arearnest7/sentiment-product-or-service:faastroute
+        image: arearnest7/sentiment-product-or-service:macropod
         ports:
         - containerPort: 5002
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -89,11 +89,11 @@ spec:
           - name: FUNC_PORT
             value: "5002"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: SENTIMENT_CFAIL
             value: http://localhost:5003
           - name: SENTIMENT_PRODUCT_SENTIMENT
@@ -101,12 +101,12 @@ spec:
           - name: SENTIMENT_SERVICE_SENTIMENT
             value: http://localhost:5009
       - name: sentiment-cfail
-        image: arearnest7/sentiment-cfail:faastroute
+        image: arearnest7/sentiment-cfail:macropod
         ports:
         - containerPort: 5003
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -115,14 +115,14 @@ spec:
           - name: FUNC_PORT
             value: "5003"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
       - name: sentiment-product-sentiment
-        image: arearnest7/sentiment-product-sentiment:faastroute
+        image: arearnest7/sentiment-product-sentiment:macropod
         ports:
         - containerPort: 5004
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -131,20 +131,20 @@ spec:
           - name: FUNC_PORT
             value: "5004"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: SENTIMENT_PRODUCT_RESULT
             value: http://localhost:5005
       - name: sentiment-product-result
-        image: arearnest7/sentiment-product-result:faastroute
+        image: arearnest7/sentiment-product-result:macropod
         ports:
         - containerPort: 5005
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -153,11 +153,11 @@ spec:
           - name: FUNC_PORT
             value: "5005"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: SENTIMENT_SFAIL
             value: http://localhost:5006
           - name: SENTIMENT_SNS
@@ -165,12 +165,12 @@ spec:
           - name: SENTIMENT_DB
             value: http://localhost:5008
       - name: sentiment-sfail
-        image: arearnest7/sentiment-sfail:faastroute
+        image: arearnest7/sentiment-sfail:macropod
         ports:
         - containerPort: 5006
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -179,14 +179,14 @@ spec:
           - name: FUNC_PORT
             value: "5006"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
       - name: sentiment-sns
-        image: arearnest7/sentiment-sns:faastroute
+        image: arearnest7/sentiment-sns:macropod
         ports:
         - containerPort: 5007
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -195,20 +195,20 @@ spec:
           - name: FUNC_PORT
             value: "5007"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: SENTIMENT_DB
             value: http://localhost:5008
       - name: sentiment-db
-        image: arearnest7/sentiment-db:faastroute
+        image: arearnest7/sentiment-db:macropod
         ports:
         - containerPort: 5008
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -217,14 +217,14 @@ spec:
           - name: FUNC_PORT
             value: "5008"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
       - name: sentiment-service-sentiment
-        image: arearnest7/sentiment-service-sentiment:faastroute
+        image: arearnest7/sentiment-service-sentiment:macropod
         ports:
         - containerPort: 5009
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -233,20 +233,20 @@ spec:
           - name: FUNC_PORT
             value: "5009"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: SENTIMENT_SERVICE_RESULT
             value: http://localhost:5010
       - name: sentiment-service-result
-        image: arearnest7/sentiment-service-result:faastroute
+        image: arearnest7/sentiment-service-result:macropod
         ports:
         - containerPort: 5010
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -255,11 +255,11 @@ spec:
           - name: FUNC_PORT
             value: "5010"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: SENTIMENT_SFAIL
             value: http://localhost:5006
           - name: SENTIMENT_SNS

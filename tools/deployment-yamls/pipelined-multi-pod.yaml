@@ -68,7 +68,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: pipelined-main
-        image: arearnest7/pipelined-main:faastroute
+        image: arearnest7/pipelined-main:macropod
         ports:
         - containerPort: 5000
         env:
@@ -105,7 +105,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-3
       containers:
       - name: pipelined-checksum
-        image: arearnest7/pipelined-checksum:faastroute
+        image: arearnest7/pipelined-checksum:macropod
         ports:
         - containerPort: 5000
         env:
@@ -134,7 +134,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-4
       containers:
       - name: pipelined-zip
-        image: arearnest7/pipelined-zip:faastroute
+        image: arearnest7/pipelined-zip:macropod
         ports:
         - containerPort: 5000
         env:
@@ -163,7 +163,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-5
       containers:
       - name: pipelined-encrypt
-        image: arearnest7/pipelined-encrypt:faastroute
+        image: arearnest7/pipelined-encrypt:macropod
         ports:
         - containerPort: 5000
         env:

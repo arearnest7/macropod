@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: wage-validator
-        image: arearnest7/wage-validator:faastroute
+        image: arearnest7/wage-validator:macropod
         ports:
         - containerPort: 5000
         env:
@@ -42,7 +42,7 @@ spec:
           - name: WAGE_FORMAT
             value: http://localhost:5001
       - name: wage-format
-        image: arearnest7/wage-format:faastroute
+        image: arearnest7/wage-format:macropod
         ports:
         - containerPort: 5001
         env:
@@ -55,7 +55,7 @@ spec:
           - name: WAGE_WRITE_RAW
             value: http://localhost:5002
       - name: wage-write-raw
-        image: arearnest7/wage-write-raw:faastroute
+        image: arearnest7/wage-write-raw:macropod
         ports:
         - containerPort: 5002
         env:
@@ -68,7 +68,7 @@ spec:
           - name: WAGE_STATS
             value: http://localhost:5003
       - name: wage-stats
-        image: arearnest7/wage-stats:faastroute
+        image: arearnest7/wage-stats:macropod
         ports:
         - containerPort: 5003
         env:
@@ -81,7 +81,7 @@ spec:
           - name: WAGE_AVG
             value: http://localhost:5004
       - name: wage-avg
-        image: arearnest7/wage-avg:faastroute
+        image: arearnest7/wage-avg:macropod
         ports:
         - containerPort: 5004
         env:
@@ -94,7 +94,7 @@ spec:
           - name: WAGE_SUM
             value: http://localhost:5005
       - name: wage-sum
-        image: arearnest7/wage-sum:faastroute
+        image: arearnest7/wage-sum:macropod
         ports:
         - containerPort: 5005
         env:
@@ -107,7 +107,7 @@ spec:
           - name: WAGE_MERIT
             value: http://localhost:5006
       - name: wage-merit
-        image: arearnest7/wage-merit:faastroute
+        image: arearnest7/wage-merit:macropod
         ports:
         - containerPort: 5006
         env:
@@ -120,7 +120,7 @@ spec:
           - name: WAGE_WRITE_MERIT
             value: http://localhost:5007
       - name: wage-write-merit
-        image: arearnest7/wage-write-merit:faastroute
+        image: arearnest7/wage-write-merit:macropod
         ports:
         - containerPort: 5007
         env:

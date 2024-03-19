@@ -28,17 +28,17 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: earnest-vm-2
       volumes:
-      - name: faastroute-pv
+      - name: macropod-pv
         emptyDir:
           medium: Memory
       containers:
       - name: election-gateway
-        image: arearnest7/election-gateway:faastroute
+        image: arearnest7/election-gateway:macropod
         ports:
         - containerPort: 5000
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "HTTP"
@@ -47,20 +47,20 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: ELECTION_GET_RESULTS
             value: http://localhost:5001
           - name: ELECTION_VOTE_ENQUEUER
             value: http://localhost:5002
       - name: election-get-results
-        image: arearnest7/election-get-results:faastroute
+        image: arearnest7/election-get-results:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -69,14 +69,14 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
       - name: election-vote-enqueuer
-        image: arearnest7/election-vote-enqueuer:faastroute
+        image: arearnest7/election-vote-enqueuer:macropod
         ports:
         - containerPort: 5002
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -85,20 +85,20 @@ spec:
           - name: FUNC_PORT
             value: "5002"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: ELECTION_VOTE_PROCESSOR
             value: http://localhost:5003
       - name: election-vote-processor
-        image: arearnest7/election-vote-processor:faastroute
+        image: arearnest7/election-vote-processor:macropod
         ports:
         - containerPort: 5003
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -107,4 +107,4 @@ spec:
           - name: FUNC_PORT
             value: "5003"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"

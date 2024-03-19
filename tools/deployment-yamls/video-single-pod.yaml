@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: video-streaming
-        image: arearnest7/video-streaming:faastroute
+        image: arearnest7/video-streaming:macropod
         ports:
         - containerPort: 5000
         env:
@@ -42,7 +42,7 @@ spec:
           - name: VIDEO_DECODER
             value: http://localhost:5001
       - name: video-decoder
-        image: arearnest7/video-decoder:faastroute
+        image: arearnest7/video-decoder:macropod
         ports:
         - containerPort: 5001
         env:
@@ -55,7 +55,7 @@ spec:
           - name: VIDEO_RECOG
             value: http://localhost:5002
       - name: video-recog
-        image: arearnest7/video-recog:faastroute
+        image: arearnest7/video-recog:macropod
         ports:
         - containerPort: 5002
         env:

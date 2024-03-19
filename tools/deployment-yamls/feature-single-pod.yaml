@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: feature-orchestrator
-        image: arearnest7/feature-orchestrator:faastroute
+        image: arearnest7/feature-orchestrator:macropod
         ports:
         - containerPort: 5000
         env:
@@ -44,7 +44,7 @@ spec:
           - name: FEATURE_WAIT
             value: http://localhost:5002
       - name: feature-extractor
-        image: arearnest7/feature-extractor:faastroute
+        image: arearnest7/feature-extractor:macropod
         ports:
         - containerPort: 5001
         env:
@@ -55,7 +55,7 @@ spec:
           - name: FUNC_PORT
             value: "5001"
       - name: feature-wait
-        image: arearnest7/feature-wait:faastroute
+        image: arearnest7/feature-wait:macropod
         ports:
         - containerPort: 5002
         env:
@@ -68,7 +68,7 @@ spec:
           - name: FEATURE_STATUS
             value: http://localhost:5003
       - name: feature-status
-        image: arearnest7/feature-status:faastroute
+        image: arearnest7/feature-status:macropod
         ports:
         - containerPort: 5003
         env:
@@ -83,7 +83,7 @@ spec:
           - name: FEATURE_REDUCER
             value: http://localhost:5004
       - name: feature-reducer
-        image: arearnest7/feature-reducer:faastroute
+        image: arearnest7/feature-reducer:macropod
         ports:
         - containerPort: 5004
         env:

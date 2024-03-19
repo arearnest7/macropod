@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: micro-rpc-faastroute
+  name: micro-rpc-macropod
 spec:
   selector:
-    app: micro-rpc-faastroute
+    app: micro-rpc-macropod
   ports:
   - port: 80
     targetPort: 5000
@@ -14,31 +14,31 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: micro-rpc-faastroute
+  name: micro-rpc-macropod
 spec:
   selector:
     matchLabels:
-      app: micro-rpc-faastroute
+      app: micro-rpc-macropod
   replicas: 1
   template:
     metadata:
       labels:
-        app: micro-rpc-faastroute
+        app: micro-rpc-macropod
     spec:
       nodeSelector:
         kubernetes.io/hostname: earnest-vm-2
       volumes:
-      - name: faastroute-pv
+      - name: macropod-pv
         emptyDir:
           medium: Memory
       containers:
       - name: micro-rpc-a
-        image: arearnest7/micro-rpc-a:faastroute-v1.2
+        image: arearnest7/micro-rpc-a:macropod-v1.2
         ports:
         - containerPort: 5000
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "HTTP"
@@ -47,20 +47,20 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: DEST
             value: "localhost:5001"
           - name: LEN
             value: "1000000"
       - name: micro-rpc-b
-        image: arearnest7/micro-rpc-b:faastroute-v1.2
+        image: arearnest7/micro-rpc-b:macropod-v1.2
         ports:
         - containerPort: 5001
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -69,6 +69,6 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: LEN
             value: "1000000"

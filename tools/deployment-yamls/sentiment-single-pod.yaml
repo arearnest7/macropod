@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: sentiment-main
-        image: arearnest7/sentiment-main:faastroute
+        image: arearnest7/sentiment-main:macropod
         ports:
         - containerPort: 5000
         env:
@@ -42,7 +42,7 @@ spec:
           - name: SENTIMENT_READ_CSV
             value: http://localhost:5001
       - name: sentiment-read-csv
-        image: arearnest7/sentiment-read-csv:faastroute
+        image: arearnest7/sentiment-read-csv:macropod
         ports:
         - containerPort: 5001
         env:
@@ -55,7 +55,7 @@ spec:
           - name: SENTIMENT_PRODUCT_OR_SERVICE
             value: http://localhost:5002
       - name: sentiment-product-or-service
-        image: arearnest7/sentiment-product-or-service:faastroute
+        image: arearnest7/sentiment-product-or-service:macropod
         ports:
         - containerPort: 5002
         env:
@@ -72,7 +72,7 @@ spec:
           - name: SENTIMENT_SERVICE_SENTIMENT
             value: http://localhost:5009
       - name: sentiment-cfail
-        image: arearnest7/sentiment-cfail:faastroute
+        image: arearnest7/sentiment-cfail:macropod
         ports:
         - containerPort: 5003
         env:
@@ -83,7 +83,7 @@ spec:
           - name: FUNC_PORT
             value: "5003"
       - name: sentiment-product-sentiment
-        image: arearnest7/sentiment-product-sentiment:faastroute
+        image: arearnest7/sentiment-product-sentiment:macropod
         ports:
         - containerPort: 5004
         env:
@@ -96,7 +96,7 @@ spec:
           - name: SENTIMENT_PRODUCT_RESULT
             value: http://localhost:5005
       - name: sentiment-product-result
-        image: arearnest7/sentiment-product-result:faastroute
+        image: arearnest7/sentiment-product-result:macropod
         ports:
         - containerPort: 5005
         env:
@@ -113,7 +113,7 @@ spec:
           - name: SENTIMENT_DB
             value: http://localhost:5008
       - name: sentiment-sfail
-        image: arearnest7/sentiment-sfail:faastroute
+        image: arearnest7/sentiment-sfail:macropod
         ports:
         - containerPort: 5006
         env:
@@ -124,7 +124,7 @@ spec:
           - name: FUNC_PORT
             value: "5006"
       - name: sentiment-sns
-        image: arearnest7/sentiment-sns:faastroute
+        image: arearnest7/sentiment-sns:macropod
         ports:
         - containerPort: 5007
         env:
@@ -137,7 +137,7 @@ spec:
           - name: SENTIMENT_DB
             value: http://localhost:5008
       - name: sentiment-db
-        image: arearnest7/sentiment-db:faastroute
+        image: arearnest7/sentiment-db:macropod
         ports:
         - containerPort: 5008
         env:
@@ -148,7 +148,7 @@ spec:
           - name: FUNC_PORT
             value: "5008"
       - name: sentiment-service-sentiment
-        image: arearnest7/sentiment-service-sentiment:faastroute
+        image: arearnest7/sentiment-service-sentiment:macropod
         ports:
         - containerPort: 5009
         env:
@@ -161,7 +161,7 @@ spec:
           - name: SENTIMENT_SERVICE_RESULT
             value: http://localhost:5010
       - name: sentiment-service-result
-        image: arearnest7/sentiment-service-result:faastroute
+        image: arearnest7/sentiment-service-result:macropod
         ports:
         - containerPort: 5010
         env:

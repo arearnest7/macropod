@@ -28,17 +28,17 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: earnest-vm-2
       volumes:
-      - name: faastroute-pv
+      - name: macropod-pv
         emptyDir:
           medium: Memory
       containers:
       - name: feature-orchestrator
-        image: arearnest7/feature-orchestrator:faastroute
+        image: arearnest7/feature-orchestrator:macropod
         ports:
         - containerPort: 5000
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "HTTP"
@@ -47,20 +47,20 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: FEATURE_EXTRACTOR
             value: http://localhost:5001
           - name: FEATURE_WAIT
             value: http://localhost:5002
       - name: feature-extractor
-        image: arearnest7/feature-extractor:faastroute
+        image: arearnest7/feature-extractor:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -69,14 +69,14 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
       - name: feature-wait
-        image: arearnest7/feature-wait:faastroute
+        image: arearnest7/feature-wait:macropod
         ports:
         - containerPort: 5002
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -85,20 +85,20 @@ spec:
           - name: FUNC_PORT
             value: "5002"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: FEATURE_STATUS
             value: http://localhost:5003
       - name: feature-status
-        image: arearnest7/feature-status:faastroute
+        image: arearnest7/feature-status:macropod
         ports:
         - containerPort: 5003
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -107,22 +107,22 @@ spec:
           - name: FUNC_PORT
             value: "5003"
           - name: RPC_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: FEATURE_WAIT
             value: http://localhost:5002
           - name: FEATURE_REDUCER
             value: http://localhost:5004
       - name: feature-reducer
-        image: arearnest7/feature-reducer:faastroute
+        image: arearnest7/feature-reducer:macropod
         ports:
         - containerPort: 5004
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -131,4 +131,4 @@ spec:
           - name: FUNC_PORT
             value: "5004"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"

@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: election-gateway
-        image: arearnest7/election-gateway:faastroute
+        image: arearnest7/election-gateway:macropod
         ports:
         - containerPort: 5000
         env:
@@ -44,7 +44,7 @@ spec:
           - name: ELECTION_VOTE_ENQUEUER
             value: http://localhost:5002
       - name: election-get-results
-        image: arearnest7/election-get-results:faastroute
+        image: arearnest7/election-get-results:macropod
         ports:
         - containerPort: 5001
         env:
@@ -55,7 +55,7 @@ spec:
           - name: FUNC_PORT
             value: "5001"
       - name: election-vote-enqueuer
-        image: arearnest7/election-vote-enqueuer:faastroute
+        image: arearnest7/election-vote-enqueuer:macropod
         ports:
         - containerPort: 5002
         env:
@@ -68,7 +68,7 @@ spec:
           - name: ELECTION_VOTE_PROCESSOR
             value: http://localhost:5003
       - name: election-vote-processor
-        image: arearnest7/election-vote-processor:faastroute
+        image: arearnest7/election-vote-processor:macropod
         ports:
         - containerPort: 5003
         env:

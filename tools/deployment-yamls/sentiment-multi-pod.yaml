@@ -156,7 +156,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: sentiment-main
-        image: arearnest7/sentiment-main:faastroute
+        image: arearnest7/sentiment-main:macropod
         ports:
         - containerPort: 5000
         env:
@@ -187,7 +187,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-3
       containers:
       - name: sentiment-read-csv
-        image: arearnest7/sentiment-read-csv:faastroute
+        image: arearnest7/sentiment-read-csv:macropod
         ports:
         - containerPort: 5000
         env:
@@ -218,7 +218,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-4
       containers:
       - name: sentiment-product-or-service
-        image: arearnest7/sentiment-product-or-service:faastroute
+        image: arearnest7/sentiment-product-or-service:macropod
         ports:
         - containerPort: 5000
         env:
@@ -253,7 +253,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-5
       containers:
       - name: sentiment-cfail
-        image: arearnest7/sentiment-cfail:faastroute
+        image: arearnest7/sentiment-cfail:macropod
         ports:
         - containerPort: 5000
         env:
@@ -282,7 +282,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: sentiment-product-sentiment
-        image: arearnest7/sentiment-product-sentiment:faastroute
+        image: arearnest7/sentiment-product-sentiment:macropod
         ports:
         - containerPort: 5000
         env:
@@ -313,7 +313,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-3
       containers:
       - name: sentiment-product-result
-        image: arearnest7/sentiment-product-result:faastroute
+        image: arearnest7/sentiment-product-result:macropod
         ports:
         - containerPort: 5000
         env:
@@ -348,7 +348,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-4
       containers:
       - name: sentiment-sfail
-        image: arearnest7/sentiment-sfail:faastroute
+        image: arearnest7/sentiment-sfail:macropod
         ports:
         - containerPort: 5000
         env:
@@ -377,7 +377,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-5
       containers:
       - name: sentiment-sns
-        image: arearnest7/sentiment-sns:faastroute
+        image: arearnest7/sentiment-sns:macropod
         ports:
         - containerPort: 5000
         env:
@@ -408,7 +408,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: sentiment-db
-        image: arearnest7/sentiment-db:faastroute
+        image: arearnest7/sentiment-db:macropod
         ports:
         - containerPort: 5000
         env:
@@ -437,7 +437,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-3
       containers:
       - name: sentiment-service-sentiment
-        image: arearnest7/sentiment-service-sentiment:faastroute
+        image: arearnest7/sentiment-service-sentiment:macropod
         ports:
         - containerPort: 5000
         env:
@@ -468,7 +468,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-4
       containers:
       - name: sentiment-service-result
-        image: arearnest7/sentiment-service-result:faastroute
+        image: arearnest7/sentiment-service-result:macropod
         ports:
         - containerPort: 5000
         env:

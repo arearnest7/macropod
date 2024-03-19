@@ -120,7 +120,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: hotel-frontend
-        image: arearnest7/hotel-frontend:faastroute
+        image: arearnest7/hotel-frontend:macropod
         ports:
         - containerPort: 5000
         env:
@@ -157,7 +157,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-3
       containers:
       - name: hotel-search
-        image: arearnest7/hotel-search:faastroute
+        image: arearnest7/hotel-search:macropod
         ports:
         - containerPort: 5000
         env:
@@ -190,7 +190,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-4
       containers:
       - name: hotel-recommend
-        image: arearnest7/hotel-recommend:faastroute
+        image: arearnest7/hotel-recommend:macropod
         ports:
         - containerPort: 5000
         env:
@@ -219,7 +219,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-5
       containers:
       - name: hotel-reserve
-        image: arearnest7/hotel-reserve:faastroute
+        image: arearnest7/hotel-reserve:macropod
         ports:
         - containerPort: 5000
         env:
@@ -248,7 +248,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-2
       containers:
       - name: hotel-user
-        image: arearnest7/hotel-user:faastroute
+        image: arearnest7/hotel-user:macropod
         ports:
         - containerPort: 5000
         env:
@@ -277,7 +277,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-3
       containers:
       - name: hotel-geo
-        image: arearnest7/hotel-geo:faastroute
+        image: arearnest7/hotel-geo:macropod
         ports:
         - containerPort: 5000
         env:
@@ -306,7 +306,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-4
       containers:
       - name: hotel-profile
-        image: arearnest7/hotel-profile:faastroute
+        image: arearnest7/hotel-profile:macropod
         ports:
         - containerPort: 5000
         env:
@@ -335,7 +335,7 @@ spec:
         kubernetes.io/hostname: earnest-vm-5
       containers:
       - name: hotel-rate
-        image: arearnest7/hotel-rate:faastroute
+        image: arearnest7/hotel-rate:macropod
         ports:
         - containerPort: 5000
         env:
