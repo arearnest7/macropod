@@ -1,6 +1,7 @@
 from parliament import Context
 from flask import Request
 import base64
+import datetime
 import redis
 import pandas as pd
 import time
@@ -12,6 +13,9 @@ import json
 
 cleanup_re = re.compile('[^a-z]+')
 
+if "LOGGING_NAME" in os.environ:
+    loggingClient = redis.Redis(host=os.environ['LOGGING_URL'], password=os.environ['LOGGING_PASSWORD'])
+
 def cleanup(sentence):
     sentence = sentence.lower()
     sentence = cleanup_re.sub(' ', sentence).strip()
@@ -19,6 +23,8 @@ def cleanup(sentence):
 
 def main(context: Context):
     if 'request' in context.keys():
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
         params = context.request.json
         bucket = params['input_bucket']
         key = params['key']
@@ -43,6 +49,8 @@ def main(context: Context):
 
         write_key = params['key'].split('.')[0] + ".txt"
         #redisClient.set(dest + "-" + write_key, feature)
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
         return str(latency), 200
     else:
         print("Empty request", flush=True)

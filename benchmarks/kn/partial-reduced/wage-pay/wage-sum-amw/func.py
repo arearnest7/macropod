@@ -5,6 +5,7 @@ import requests
 import json
 import os
 import sys
+import datetime
 import redis
 import random
 
@@ -12,6 +13,9 @@ TAX = 0.0387
 ROLES = ['staff', 'teamleader', 'manager']
 
 redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+
+if "LOGGING_NAME" in os.environ:
+    loggingClient = redis.Redis(host=os.environ['LOGGING_URL'], password=os.environ['LOGGING_PASSWORD'])
 
 def write_merit_handler(req):
     params = req
@@ -47,6 +51,8 @@ def wage_avg_handler(req):
 
 def main(context: Context):
     if 'request' in context.keys():
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
         params = context.request.json
         temp = json.loads(redisClient.get(params["operator"]))
         params["operator"] = temp["operator"]
@@ -54,6 +60,8 @@ def main(context: Context):
         stats = {'total': params['total']['statistics']['total'] }
         params['statistics'] = stats
 
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
         return wage_avg_handler(params), 200
     else:
         print("Empty request", flush=True)

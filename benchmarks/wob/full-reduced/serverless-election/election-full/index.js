@@ -18,8 +18,13 @@
 
 const redis = require('redis');
 const axios = require('axios');
+const moment = require('moment');
 
 //const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
+
+if ("LOGGING_NAME" in process.env) {
+        const loggingClient = redis.createClient({url: process.env.LOGGING_URL, password: process.env.LOGGING_PASSWORD});
+}
 
 const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID'
 , 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH'
@@ -93,6 +98,9 @@ const get_results_handler = async (body) => {
 }
 
 const handle = async (context, body) => {
+	if ("LOGGING_NAME" in process.env) {
+                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n");
+        }
 	//client.on('error', err => console.log('Redis Client Error', err));
 	//await client.connect();
         if (body['requestType'] ==  'get_results') {
@@ -103,7 +111,10 @@ const handle = async (context, body) => {
                 let data = await vote_enqueuer_handler(body);
 		return data;
         }
-        return 'invalid request type';
+        if ("LOGGING_NAME" in process.env) {
+                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n");
+        }
+	return 'invalid request type';
 }
 
 // Export the function

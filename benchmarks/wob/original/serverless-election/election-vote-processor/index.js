@@ -17,10 +17,18 @@
  */
 
 const redis = require('redis');
+const moment = require('moment');
 
 //const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
+if ("LOGGING_NAME" in process.env) {
+        const loggingClient = redis.createClient({url: process.env.LOGGING_URL, password: process.env.LOGGING_PASSWORD});
+}
+
 const handle = async (context, body) => {
+	if ("LOGGING_NAME" in process.env) {
+                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n");
+        }
 	//client.on('error', err => console.log('Redis Client Error', err));
         //await client.connect();
 	//await client.set("voter-" + body['id'], JSON.stringify(body));
@@ -37,6 +45,9 @@ const handle = async (context, body) => {
         //else {
         //        await client.set("election-results-" + state + "-" + candidate, "1");
         //}
+	if ("LOGGING_NAME" in process.env) {
+                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n");
+        }
         return "success";
 }
 

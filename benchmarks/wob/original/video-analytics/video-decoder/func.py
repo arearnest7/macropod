@@ -15,6 +15,11 @@ import requests
 import base64
 
 from concurrent.futures import ThreadPoolExecutor
+import datetime
+import redis
+
+if "LOGGING_NAME" in os.environ:
+    loggingClient = redis.Redis(host=os.environ['LOGGING_URL'], password=os.environ['LOGGING_PASSWORD'])
 
 def decode(bytes):
     temp = tempfile.NamedTemporaryFile(suffix=".mp4")
@@ -30,7 +35,11 @@ def decode(bytes):
     return all_frames
 
 def Recognise(frame):
+    if "LOGGING_NAME" in os.environ:
+        loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "2" + "\n")
     result = requests.get(os.environ['VIDEO_RECOG'], json={"frame": base64.b64encode(frame).decode()}).text
+    if "LOGGING_NAME" in os.environ:
+        loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "3" + "\n")
 
     return result
 
@@ -55,7 +64,11 @@ def Decode(request):
 
 def main(context: Context):
     if 'request' in context.keys():
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
         ret = Decode(context.request.json)
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
         return ret, 200
     else:
         print("Empty request", flush=True)

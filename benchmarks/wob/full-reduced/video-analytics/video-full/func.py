@@ -21,6 +21,12 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 import base64
 
+import datetime
+import redis
+
+if "LOGGING_NAME" in os.environ:
+    loggingClient = redis.Redis(host=os.environ['LOGGING_URL'], password=os.environ['LOGGING_PASSWORD'])
+
 # Load model
 model = models.squeezenet1_1(pretrained=True)
 
@@ -112,10 +118,14 @@ def Decode(request):
 
 def main(context: Context):
     if 'request' in context.keys():
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
         videoFile = open("reference/video.mp4", "rb")
         videoFragment = videoFile.read()
         videoFile.close()
         ret = Decode({"video": base64.b64encode(videoFragment).decode()})
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
         return ret, 200
     else:
         print("Empty request", flush=True)

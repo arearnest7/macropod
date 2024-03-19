@@ -16,24 +16,48 @@
  * See: https://github.com/knative/func/blob/main/docs/function-developers/nodejs.md#the-context-object
  */
 const axios = require("axios");
+const axios = require('axios');
+const moment = require('moment');
+
+if ("LOGGING_NAME" in process.env) {
+        const loggingClient = redis.createClient({url: process.env.LOGGING_URL, password: process.env.LOGGING_PASSWORD});
+}
 
 const handle = async (context, body) => {
+	if ("LOGGING_NAME" in process.env) {
+                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n");
+        }
 	if (body['requestType'] ==  'get_results') {
 		var data = '';
+		if ("LOGGING_NAME" in process.env) {
+                	await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n");
+        	}
                 await axios.post(process.env.ELECTION_GET_RESULTS, body)
                         .then( (response) => {
                                 data = response.data;
                         });
+		if ("LOGGING_NAME" in process.env) {
+                	await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "2" + "\n");
+        	}
 		return data;
 	}
 	else if (body['requestType'] == 'vote') {
 		var data = '';
+		if ("LOGGING_NAME" in process.env) {
+                	await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "3" + "\n");
+        	}
 		await axios.post(process.env.ELECTION_VOTE_ENQUEUER, body)
 			.then( (response) => {
 				data = response.data;
 			});
+		if ("LOGGING_NAME" in process.env) {
+                	await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "4" + "\n");
+        	}
 		return data;
 	}
+	if ("LOGGING_NAME" in process.env) {
+                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "5" + "\n");
+        }
 	return 'invalid request type';
 }
 

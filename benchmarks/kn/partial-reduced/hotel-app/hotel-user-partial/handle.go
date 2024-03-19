@@ -18,6 +18,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"time"
+        "github.com/redis/go-redis/v9"
+
 	"crypto/sha256"
 )
 
@@ -133,9 +136,26 @@ func CheckUser(req RequestBody) bool {
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
+	logging_name, logging := os.LookupEnv("LOGGING_NAME")
+        redisClient := redis.NewClient(&redis.Options{})
+        c := context.Background()
+        body, _ := ioutil.ReadAll(req.Body)
+        if logging {
+                logging_url := os.Getenv("LOGGING_URL")
+                logging_password := os.Getenv("LOGGING_PASSWORD")
+                redisClient = redis.NewClient(&redis.Options{
+                        Addr: logging_url,
+                        Password: logging_password,
+                        DB: 0,
+                })
+        }
+        if logging {
+                redisClient.Append(c, logging_name, time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
+        }
 	body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
-        fmt.Fprintf(res, strconv.FormatBool(CheckUser(body_u))) // echo to caller
+	ret := strconv.FormatBool(CheckUser(body_u))
+        fmt.Fprintf(res, ret) // echo to caller
 }

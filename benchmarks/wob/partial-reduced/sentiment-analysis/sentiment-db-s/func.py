@@ -8,6 +8,11 @@ import sys
 from pymongo import MongoClient
 from urllib.parse import quote_plus
 import random
+import datetime
+import redis
+
+if "LOGGING_NAME" in os.environ:
+    loggingClient = redis.Redis(host=os.environ['LOGGING_URL'], password=os.environ['LOGGING_PASSWORD'])
 
 def db_handler(req):
     event = req
@@ -56,6 +61,8 @@ def sns_handler(req):
 
 def main(context: Context):
     if 'request' in context.keys():
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
         event = context.request.json
         results = ""
         if event["sentiment"] == "POSITIVE" or event["sentiment"] == "NEUTRAL":
@@ -63,6 +70,8 @@ def main(context: Context):
         elif event["sentiment"] == "NEGATIVE":
             results = sns_handler(event)
 
+        if "LOGGING_NAME" in os.environ:
+            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
         return results, 200
     else:
         print("Empty request", flush=True)
