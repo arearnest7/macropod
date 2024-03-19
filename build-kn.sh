@@ -91,7 +91,7 @@ sudo docker volume prune -f
 ./tools/remove-functions-kn/remove-partial-sentiment.sh wob
 ./tools/deploy-functions-kn/deploy-partial-video.sh wob true true
 ./tools/remove-functions-kn/remove-partial-video.sh wob
-./tools/deploy-functions-kn/deploy-partial-wage.sh wbo true true
+./tools/deploy-functions-kn/deploy-partial-wage.sh wob true true
 ./tools/remove-functions-kn/remove-partial-wage.sh wob
 sudo docker system prune -a -f
 sudo docker volume prune -f
