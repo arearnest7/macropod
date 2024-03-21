@@ -3,7 +3,7 @@ name: pipelined-zip
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-zip:wob
-imageDigest: sha256:ecc6bafe3e1bfee2b0a0ff20d1343ad51f0ea6d15de4634fa925532e6a67efe4
+imageDigest: sha256:b048e92d18bdc6098efe3382597e512a3d0349338aa0dd923439d1b4f71253a8
 created: 2023-12-03T20:55:20.453042627-06:00
 build:
   builder: pack

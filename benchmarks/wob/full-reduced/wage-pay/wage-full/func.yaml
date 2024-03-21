@@ -3,7 +3,7 @@ name: wage-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-full:wob
-imageDigest: sha256:5ffd49ed36f017e5f730c74392c9188d2247a85e9b2a1ca300038de1e371a85e
+imageDigest: sha256:c7b8f09ad102cdfdf7043be4da22a9f91fd3bc23264207c1a23fa4558acff6a1
 created: 2023-12-03T21:08:48.450495924-06:00
 build:
   builder: pack

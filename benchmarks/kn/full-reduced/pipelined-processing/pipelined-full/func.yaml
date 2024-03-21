@@ -3,7 +3,7 @@ name: pipelined-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-full:kn
-imageDigest: sha256:08811bcec7d3fad274d7949a7c569322da641128547f28166f41f73bdecda1ed
+imageDigest: sha256:3a6b2c1ac1ab97a706ec13d5e10c6e65772b388a59ece55be7207d284a740db3
 created: 2023-12-03T21:07:35.930126142-06:00
 build:
   builder: pack

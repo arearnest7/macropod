@@ -129,7 +129,6 @@ func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
 	logging_name, logging := os.LookupEnv("LOGGING_NAME")
         redisClient := redis.NewClient(&redis.Options{})
         c := context.Background()
-        body, _ := ioutil.ReadAll(req.Body)
         if logging {
                 logging_url := os.Getenv("LOGGING_URL")
                 logging_password := os.Getenv("LOGGING_PASSWORD")

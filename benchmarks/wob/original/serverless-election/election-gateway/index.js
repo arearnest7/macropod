@@ -16,7 +16,6 @@
  * See: https://github.com/knative/func/blob/main/docs/function-developers/nodejs.md#the-context-object
  */
 const axios = require("axios");
-const axios = require('axios');
 const moment = require('moment');
 
 if ("LOGGING_NAME" in process.env) {

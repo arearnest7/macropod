@@ -3,7 +3,7 @@ name: video-recog-partial
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-recog-partial:wob
-imageDigest: sha256:473db7f6862ea894b98bfd8dbb6b14905c06b4bb2f794c687d2a5b293e3a887c
+imageDigest: sha256:c85f49c9257d370082cf0c36f90600a901fda6989f9dbeb0119574d3944de5b0
 created: 2023-10-26T19:57:23.290722971-05:00
 build:
   builder: pack
