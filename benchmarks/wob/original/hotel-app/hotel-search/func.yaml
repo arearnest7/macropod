@@ -3,7 +3,7 @@ name: hotel-search
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-search:wob
-imageDigest: sha256:2590625ca34e8adf31c11d3ddac066f6a158a4c8c17b751b525d5f1689577c13
+imageDigest: sha256:ee32dd6dcd89c6bae1a62a19ab9059f64e4a62a46c587a08e4305b4e34cda9a0
 created: 2023-10-26T19:30:27.307416579-05:00
 build:
   builder: pack

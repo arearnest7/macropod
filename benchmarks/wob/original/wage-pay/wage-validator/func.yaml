@@ -3,7 +3,7 @@ name: wage-validator
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-validator:wob
-imageDigest: sha256:0ca4c70d0d7857ce2a817e08063d4127e227eab4ff4adfc6b76ce1996b3c73fa
+imageDigest: sha256:132792c7f47af8aac0e432d0fd6b38e656befcd559d9469a9ec5130caa594ba4
 created: 2023-12-03T21:04:49.823948907-06:00
 build:
   builder: pack
