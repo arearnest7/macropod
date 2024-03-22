@@ -10,12 +10,12 @@ build:
 run:
   envs:
   - name: HOTEL_SEARCH
-    value: http://hotel-search.default.10.125.189.107.sslip.io
+    value: http://hotel-search.default.localhost.sslip.io
   - name: HOTEL_RECOMMEND
-    value: http://hotel-recommend.default.10.125.189.107.sslip.io
+    value: http://hotel-recommend.default.localhost.sslip.io
   - name: HOTEL_RESERVE
-    value: http://hotel-reserve.default.10.125.189.107.sslip.io
+    value: http://hotel-reserve.default.localhost.sslip.io
   - name: HOTEL_USER
-    value: http://hotel-user.default.10.125.189.107.sslip.io
+    value: http://hotel-user.default.localhost.sslip.io
 deploy:
   namespace: default

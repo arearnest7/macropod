@@ -3,8 +3,12 @@ sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
 sudo apt install docker.io
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik" sh -
+sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+sudo chmod 644 ~/.kube/config
 sudo cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
+echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> ~/.profile
 sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-crds.yaml
 sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-core.yaml
 sudo k3s kubectl apply -l knative.dev/crd-install=true -f https://github.com/knative/net-istio/releases/download/knative-v1.12.0/istio.yaml

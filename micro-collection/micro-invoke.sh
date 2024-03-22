@@ -1,6 +1,8 @@
 #!/bin/bash
 DEST=${1:-1MB}
 SIZE=${2:-1000000}
+HOST=${3:-localhost}
+LOGGING_HOST=${4:-localhost}
 sed -i "s/1000000/$SIZE/g" ../benchmarks/micro/micro-rpc-a/func.yaml
 sed -i "s/1000000/$SIZE/g" ../benchmarks/micro/micro-rpc-b/func.yaml
 sed -i "s/1000000/$SIZE/g" ../benchmarks/micro/micro-rpc-a-b/func.yaml
@@ -10,13 +12,13 @@ sed -i "s/1000000/$SIZE/g" micro-rpc-single-mmap.yaml
 kn func deploy --build=false --push=false --path ../benchmarks/micro/micro-rpc-a
 kn func deploy --build=false --push=false --path ../benchmarks/micro/micro-rpc-b
 sleep 1000s
-hey -n 10000 -c 1 -t 30 -o csv http://micro-rpc-a.default.10.125.189.107.sslip.io >> micro-rpc-kn-original-$DEST.csv
+hey -n 10000 -c 1 -t 30 -o csv http://micro-rpc-a.default.$HOST.sslip.io >> micro-rpc-kn-original-$DEST.csv
 kn func delete micro-rpc-a
 kn func delete micro-rpc-b
 sleep 1000s
 kn func deploy --build=false --push=false --path ../benchmarks/micro/micro-rpc-a-b
 sleep 1000s
-hey -n 10000 -c 1 -t 30 -o csv http://micro-rpc-a-b.default.10.125.189.107.sslip.io >> micro-rpc-kn-full-$DEST.csv
+hey -n 10000 -c 1 -t 30 -o csv http://micro-rpc-a-b.default.$HOST.sslip.io >> micro-rpc-kn-full-$DEST.csv
 kn func delete micro-rpc-a-b
 sleep 1000s
 kubectl apply -f micro-rpc-multi-pod.yaml

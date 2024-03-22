@@ -10,7 +10,7 @@ build:
 run:
   envs:
   - name: DEST
-    value: http://micro-rpc-b.default.10.125.189.107.sslip.io
+    value: http://micro-rpc-b.default.localhost.sslip.io
   - name: LEN
     value: "1000000"
 deploy:

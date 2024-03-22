@@ -10,10 +10,10 @@ build:
 run:
   envs:
   - name: ELECTION_VOTE_PROCESSOR
-    value: http://election-vote-processor.default.10.125.189.107.sslip.io
+    value: http://election-vote-processor.default.localhost.sslip.io
   - name: REDIS_URL
     value: redis://10.125.189.107:6379
   - name: REDIS_PASSWORD
-    value: redispassword1234
+    value: password
 deploy:
   namespace: default

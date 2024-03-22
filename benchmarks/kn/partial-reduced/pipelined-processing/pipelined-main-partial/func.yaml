@@ -10,10 +10,10 @@ build:
 run:
   envs:
   - name: PIPELINED_CHECKSUM_PARTIAL
-    value: http://pipelined-checksum-partial.default.10.125.189.107.sslip.io
+    value: http://pipelined-checksum-partial.default.localhost.sslip.io
   - name: PIPELINED_ZIP_PARTIAL
-    value: http://pipelined-zip-partial.default.10.125.189.107.sslip.io
+    value: http://pipelined-zip-partial.default.localhost.sslip.io
   - name: PIPELINED_ENCRYPT_PARTIAL
-    value: http://pipelined-encrypt-partial.default.10.125.189.107.sslip.io
+    value: http://pipelined-encrypt-partial.default.localhost.sslip.io
 deploy:
   namespace: default

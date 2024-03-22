@@ -10,10 +10,10 @@ build:
 run:
   envs:
   - name: SENTIMENT_DB
-    value: http://sentiment-db.default.10.125.189.107.sslip.io
+    value: http://sentiment-db.default.localhost.sslip.io
   - name: SENTIMENT_SNS
-    value: http://sentiment-sns.default.10.125.189.107.sslip.io
+    value: http://sentiment-sns.default.localhost.sslip.io
   - name: SENTIMENT_SFAIL
-    value: http://sentiment-sfail.default.10.125.189.107.sslip.io
+    value: http://sentiment-sfail.default.localhost.sslip.io
 deploy:
   namespace: default

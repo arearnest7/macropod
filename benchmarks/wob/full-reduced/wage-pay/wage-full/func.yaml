@@ -12,8 +12,8 @@ run:
   - name: REDIS_URL
     value: redis://10.125.189.107:6379
   - name: REDIS_PASSWORD
-    value: redispassword1234
+    value: password
   - name: WAGE_FULL
-    value: http://wage-full.default.10.125.189.107.sslip.io
+    value: http://wage-full.default.localhost.sslip.io
 deploy:
   namespace: default

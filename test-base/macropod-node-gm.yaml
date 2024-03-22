@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: faastroute-node
+  name: macropod-node
 spec:
   selector:
-    app: faastroute-node
+    app: macropod-node
   ports:
   - port: 80
     targetPort: 5000
@@ -14,31 +14,31 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: faastroute-node
+  name: macropod-node
 spec:
   selector:
     matchLabels:
-      app: faastroute-node
+      app: macropod-node
   replicas: 1
   template:
     metadata:
       labels:
-        app: faastroute-node
+        app: macropod-node
     spec:
       nodeSelector:
         kubernetes.io/hostname: earnest-vm-3
       volumes:
-      - name: faastroute-pv
+      - name: macropod-pv
         emptyDir:
           medium: Memory
       containers:
-      - name: faastroute-node-1
-        image: arearnest7/faastroute-node:latest
+      - name: macropod-node-1
+        image: arearnest7/macropod-node:latest
         ports:
         - containerPort: 5000
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "HTTP"
@@ -47,16 +47,16 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: RPC_DEST_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: TEST
             value: "localhost:5001"
-      - name: faastroute-node-2
-        image: arearnest7/faastroute-node:latest
+      - name: macropod-node-2
+        image: arearnest7/macropod-node:latest
         ports:
         - containerPort: 5001
         volumeMounts:
-        - name: faastroute-pv
-          mountPath: /faastroute-pv
+        - name: macropod-pv
+          mountPath: /macropod-pv
         env:
           - name: SERVICE_TYPE
             value: "GRPC"
@@ -65,6 +65,6 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: APP_PV
-            value: "/faastroute-pv"
+            value: "/macropod-pv"
           - name: TEST
             value: "localhost:5001"

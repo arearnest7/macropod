@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: WAGE_WRITE_MERIT
-    value: http://wage-write-merit.default.10.125.189.107.sslip.io
+    value: http://wage-write-merit.default.localhost.sslip.io
 deploy:
   namespace: default

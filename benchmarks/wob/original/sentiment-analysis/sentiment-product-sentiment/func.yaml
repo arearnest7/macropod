@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: SENTIMENT_PRODUCT_RESULT
-    value: http://sentiment-product-result.default.10.125.189.107.sslip.io
+    value: http://sentiment-product-result.default.localhost.sslip.io
 deploy:
   namespace: default

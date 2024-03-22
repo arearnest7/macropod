@@ -10,8 +10,8 @@ build:
 run:
   envs:
   - name: HOTEL_GEO
-    value: http://hotel-geo.default.10.125.189.107.sslip.io
+    value: http://hotel-geo.default.localhost.sslip.io
   - name: HOTEL_RATE
-    value: http://hotel-rate.default.10.125.189.107.sslip.io
+    value: http://hotel-rate.default.localhost.sslip.io
 deploy:
   namespace: default

@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: VIDEO_RECOG_PARTIAL
-    value: http://video-recog-partial.default.10.125.189.107.sslip.io
+    value: http://video-recog-partial.default.localhost.sslip.io
 deploy:
   namespace: default

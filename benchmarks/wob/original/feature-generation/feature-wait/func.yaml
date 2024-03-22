@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: FEATURE_STATUS
-    value: http://feature-status.default.10.125.189.107.sslip.io
+    value: http://feature-status.default.localhost.sslip.io
 deploy:
   namespace: default

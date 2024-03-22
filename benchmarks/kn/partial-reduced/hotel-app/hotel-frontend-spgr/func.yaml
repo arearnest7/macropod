@@ -14,10 +14,10 @@ run:
   - name: HOTEL_APP_MEMCACHED
     value: 10.42.4.93:11211
   - name: HOTEL_RECOMMEND_PARTIAL
-    value: http://hotel-recommend-partial.default.10.125.189.107.sslip.io
+    value: http://hotel-recommend-partial.default.localhost.sslip.io
   - name: HOTEL_RESERVE_PARTIAL
-    value: http://hotel-reserve-partial.default.10.125.189.107.sslip.io
+    value: http://hotel-reserve-partial.default.localhost.sslip.io
   - name: HOTEL_USER_PARTIAL
-    value: http://hotel-user-partial.default.10.125.189.107.sslip.io
+    value: http://hotel-user-partial.default.localhost.sslip.io
 deploy:
   namespace: default

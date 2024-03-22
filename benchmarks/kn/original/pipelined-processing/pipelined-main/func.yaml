@@ -10,12 +10,12 @@ build:
 run:
   envs:
   - name: PIPELINED_CHECKSUM
-    value: http://pipelined-checksum.default.10.125.189.107.sslip.io
+    value: http://pipelined-checksum.default.localhost.sslip.io
   - name: PIPELINED_ZIP
-    value: http://pipelined-zip.default.10.125.189.107.sslip.io
+    value: http://pipelined-zip.default.localhost.sslip.io
   - name: PIPELINED_ENCRYPT
-    value: http://pipelined-encrypt.default.10.125.189.107.sslip.io
+    value: http://pipelined-encrypt.default.localhost.sslip.io
   - name: PIPELINED_MAIN
-    value: http://pipelined-main.default.10.125.189.107.sslip.io
+    value: http://pipelined-main.default.localhost.sslip.io
 deploy:
   namespace: default

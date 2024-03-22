@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: WAGE_WRITE_RAW
-    value: http://wage-write-raw.default.10.125.189.107.sslip.io
+    value: http://wage-write-raw.default.localhost.sslip.io
 deploy:
   namespace: default

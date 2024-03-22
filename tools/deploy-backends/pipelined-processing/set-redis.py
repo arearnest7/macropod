@@ -6,7 +6,7 @@ import sys
 import redis
 
 def main():
-    r = redis.Redis(host='10.125.189.107', port=6379, password='redispassword1234')
+    r = redis.Redis(host=sys.argv[1], port=6379, password=sys.argv[2])
 
     video = ["min_0.mp4", "min_0909.mp4", "min_1.mp4", "min_2.mp4", "min_3.mp4", "min_4.mp4", "min_5.mp4"]
     for v in video:

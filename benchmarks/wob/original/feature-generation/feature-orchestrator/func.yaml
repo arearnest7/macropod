@@ -12,10 +12,10 @@ run:
   - name: REDIS_URL
     value: redis://10.125.189.107:6379
   - name: REDIS_PASSWORD
-    value: redispassword1234
+    value: password
   - name: FEATURE_EXTRACTOR
-    value: http://feature-extractor.default.10.125.189.107.sslip.io
+    value: http://feature-extractor.default.localhost.sslip.io
   - name: FEATURE_WAIT
-    value: http://feature-wait.default.10.125.189.107.sslip.io
+    value: http://feature-wait.default.localhost.sslip.io
 deploy:
   namespace: default
