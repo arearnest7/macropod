@@ -3,15 +3,21 @@ name: pipelined-encrypt-partial
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-encrypt-partial:wob
-imageDigest: sha256:28adda4aa96a13007767579ca833a0c0579b81041de04f75b704349d46abd29b
+imageDigest: sha256:8a4a13af77506144ad89c042e92383155eab4cce549870b85e11d64617fbbc09
 created: 2023-12-03T21:21:47.577703094-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://10.125.189.107:6379
+    value: redis://127.0.0.1
   - name: REDIS_PASSWORD
+    value: password
+  - name: LOGGING_NAME
+    value: pipelined-encrypt-partial
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
     value: password
 deploy:
   namespace: default

@@ -67,6 +67,12 @@ spec:
             value: "5000"
           - name: VIDEO_DECODER
             value: http://10.43.190.2
+          - name: LOGGING_NAME
+            value: video-streaming
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -98,6 +104,12 @@ spec:
             value: "5000"
           - name: VIDEO_RECOG
             value: http://10.43.190.3
+          - name: LOGGING_NAME
+            value: video-decoder
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -127,3 +139,9 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5000"
+          - name: LOGGING_NAME
+            value: video-recog
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

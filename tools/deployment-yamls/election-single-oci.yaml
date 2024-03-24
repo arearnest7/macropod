@@ -36,9 +36,15 @@ spec:
           - name: PORT
             value: "5000"
           - name: ELECTION_GET_RESULTS
-            value: http://localhost:5001
+            value: redis://127.0.0.1:5001
           - name: ELECTION_VOTE_ENQUEUER
-            value: http://localhost:5002
+            value: redis://127.0.0.1:5002
+          - name: LOGGING_NAME
+            value: election-gateway
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: election-get-results
         image: arearnest7/election-get-results:oci
         ports:
@@ -46,6 +52,12 @@ spec:
         env:
           - name: PORT
             value: "5001"
+          - name: LOGGING_NAME
+            value: election-get-results
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: election-vote-enqueuer
         image: arearnest7/election-vote-enqueuer:oci
         ports:
@@ -54,7 +66,13 @@ spec:
           - name: PORT
             value: "5002"
           - name: ELECTION_VOTE_PROCESSOR
-            value: http://localhost:5003
+            value: redis://127.0.0.1:5003
+          - name: LOGGING_NAME
+            value: election-vote-enqueuer
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: election-vote-processor
         image: arearnest7/election-vote-processor:oci
         ports:
@@ -62,3 +80,9 @@ spec:
         env:
           - name: PORT
             value: "5003"
+          - name: LOGGING_NAME
+            value: election-vote-processor
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

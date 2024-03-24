@@ -3,9 +3,17 @@ name: video-recog
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-recog:wob
-imageDigest: sha256:644a529526190def15ff9831854146b993a5f15f9bdca7c37ded5c2a8561cbf1
+imageDigest: sha256:808e6e75b3d0bfcc128fcf5883189428065517e7e73666bf1a945b55ef7fc4a1
 created: 2023-10-26T19:41:13.284986551-05:00
 build:
   builder: pack
+run:
+  envs:
+  - name: LOGGING_NAME
+    value: video-recog
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

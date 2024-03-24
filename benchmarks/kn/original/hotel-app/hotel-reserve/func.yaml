@@ -3,7 +3,7 @@ name: hotel-reserve
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-reserve:kn
-imageDigest: sha256:aede5138b0873d5a9c49e596c84090d6aade97b7654f3dac24ac01694027745e
+imageDigest: sha256:592670b2d5a5dd4cbb79fee89ab144099515f9a2dce7eb838bc6df0ef780dcca
 created: 2023-10-26T19:54:47.835967387-05:00
 build:
   builder: pack
@@ -13,5 +13,11 @@ run:
     value: mongodb://10.42.2.96:27017
   - name: HOTEL_APP_MEMCACHED
     value: 10.42.4.93:11211
+  - name: LOGGING_NAME
+    value: hotel-reserve
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

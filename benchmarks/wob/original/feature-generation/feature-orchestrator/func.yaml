@@ -3,19 +3,25 @@ name: feature-orchestrator
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-orchestrator:wob
-imageDigest: sha256:bae01ae94eef5e3f83cf071f9f98d5e4a8fefd30813a3d0807e126b680cb89d9
+imageDigest: sha256:ecc751cf66556fdfc7f3cf7fb5de43a1d43bf92827a40fa6838fdf55fa52f92c
 created: 2023-12-03T20:51:02.770828406-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://10.125.189.107:6379
+    value: redis://127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: FEATURE_EXTRACTOR
-    value: http://feature-extractor.default.localhost.sslip.io
+    value: http://feature-extractor.default.127.0.0.1.sslip.io
   - name: FEATURE_WAIT
-    value: http://feature-wait.default.localhost.sslip.io
+    value: http://feature-wait.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: feature-orchestrator
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

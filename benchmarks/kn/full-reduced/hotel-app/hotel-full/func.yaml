@@ -3,7 +3,7 @@ name: hotel-full
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-full:kn
-imageDigest: sha256:eb74d79b37463144d807b0a49c040c0739cb303d70e160dee75f81322ed3b103
+imageDigest: sha256:a1358bb8269559a92dcde11b40342d342a2180334e3681f79bc8fce6c4e45b41
 created: 2023-10-26T19:42:55.573322776-05:00
 build:
   builder: pack
@@ -13,5 +13,11 @@ run:
     value: mongodb://10.42.2.96:27017
   - name: HOTEL_APP_MEMCACHED
     value: 10.42.4.93:11211
+  - name: LOGGING_NAME
+    value: hotel-full
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

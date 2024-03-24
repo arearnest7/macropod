@@ -3,13 +3,19 @@ name: video-decoder
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-decoder:kn
-imageDigest: sha256:2b31f91d643c7a3eb674c35e4a297fd06f30297510be4e226f4014b6aa26b496
+imageDigest: sha256:7bddc9d1a98197c8726dbadcb23abe7b2292f35c3cee2f440cd6a565124655ba
 created: 2023-10-26T19:40:26.563671274-05:00
 build:
   builder: pack
 run:
   envs:
   - name: VIDEO_RECOG
-    value: http://video-recog.default.localhost.sslip.io
+    value: http://video-recog.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: video-decoder
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

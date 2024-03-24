@@ -10,8 +10,14 @@ build:
 run:
   envs:
   - name: ELECTION_GET_RESULTS
-    value: http://election-get-results.default.localhost.sslip.io
+    value: http://election-get-results.default.127.0.0.1.sslip.io
   - name: ELECTION_VOTE_ENQUEUER
-    value: http://election-vote-enqueuer.default.localhost.sslip.io
+    value: http://election-vote-enqueuer.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: election-gateway
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

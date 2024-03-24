@@ -47,7 +47,13 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: TEST
-            value: "localhost:5001"
+            value: "127.0.0.1:5001"
+          - name: LOGGING_NAME
+            value: macropod-go-1
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: macropod-go-2
         image: arearnest7/macropod-go:latest
         ports:
@@ -63,4 +69,10 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: TEST
-            value: "localhost:5001"
+            value: "127.0.0.1:5001"
+          - name: LOGGING_NAME
+            value: macropod-go-2
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

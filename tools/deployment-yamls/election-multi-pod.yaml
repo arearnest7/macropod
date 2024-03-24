@@ -82,6 +82,12 @@ spec:
             value: http://10.43.190.2
           - name: ELECTION_VOTE_ENQUEUER
             value: http://10.43.190.3
+          - name: LOGGING_NAME
+            value: election-gateway
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -111,6 +117,12 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5000"
+          - name: LOGGING_NAME
+            value: election-get-results
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -142,6 +154,12 @@ spec:
             value: "5000"
           - name: ELECTION_VOTE_PROCESSOR
             value: http://10.43.190.4
+          - name: LOGGING_NAME
+            value: election-vote-enqueuer
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -171,3 +189,9 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5000"
+          - name: LOGGING_NAME
+            value: election-vote-processor
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

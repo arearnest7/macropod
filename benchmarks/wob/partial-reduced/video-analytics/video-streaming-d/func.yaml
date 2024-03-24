@@ -3,13 +3,19 @@ name: video-streaming-d
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-streaming-d:wob
-imageDigest: sha256:b8a95956b0fa13ce832b84649075ddd49bc7a6b53c094e7f1d5939569e38dd3e
+imageDigest: sha256:f0eaeaf278b339a12765f917ef043feace2a7cbc1c6204881b2c84bc47694d0a
 created: 2023-11-05T16:52:48.093508325-06:00
 build:
   builder: pack
 run:
   envs:
   - name: VIDEO_RECOG_PARTIAL
-    value: http://video-recog-partial.default.localhost.sslip.io
+    value: http://video-recog-partial.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: video-streaming-d
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

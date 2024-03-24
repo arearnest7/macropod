@@ -47,9 +47,15 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: DEST
-            value: "localhost:5001"
+            value: "127.0.0.1:5001"
           - name: LEN
             value: "1000000"
+          - name: LOGGING_NAME
+            value: micro-rpc-a
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: micro-rpc-b
         image: arearnest7/micro-rpc-b:macropod
         ports:
@@ -66,3 +72,9 @@ spec:
             value: "10"
           - name: LEN
             value: "1000000"
+          - name: LOGGING_NAME
+            value: micro-rpc-b
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

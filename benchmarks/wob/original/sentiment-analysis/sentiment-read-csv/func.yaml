@@ -3,17 +3,23 @@ name: sentiment-read-csv
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-read-csv:wob
-imageDigest: sha256:c83680eb235c64e1d84fafa79682d78c96b08b5ecc8afe99167a9f57feb74293
+imageDigest: sha256:1511d23102ad65939194365de9411d93bc4ea8030e1fc90304a993210c5bc0cc
 created: 2023-12-03T21:00:37.907039642-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://10.125.189.107:6379
+    value: redis://127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: SENTIMENT_PRODUCT_OR_SERVICE
-    value: http://sentiment-product-or-service.default.localhost.sslip.io
+    value: http://sentiment-product-or-service.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: sentiment-read-csv
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

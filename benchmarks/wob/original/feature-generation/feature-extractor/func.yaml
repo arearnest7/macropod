@@ -3,15 +3,21 @@ name: feature-extractor
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-extractor:wob
-imageDigest: sha256:f85a53f6d7bac74101f67e935cfb076ed90edf52cfcda3578e945f97b2626ebd
+imageDigest: sha256:2ad6bcd9d0c4055d92ee87dadbf2030bd2e2fe4b06754681287ac2fe96b5f5e8
 created: 2023-12-03T20:50:55.155063848-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://10.125.189.107:6379
+    value: redis://127.0.0.1
   - name: REDIS_PASSWORD
+    value: password
+  - name: LOGGING_NAME
+    value: feature-extractor
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
     value: password
 deploy:
   namespace: default

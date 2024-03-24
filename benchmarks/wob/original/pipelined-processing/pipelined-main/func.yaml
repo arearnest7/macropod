@@ -3,19 +3,25 @@ name: pipelined-main
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-main:wob
-imageDigest: sha256:018501cec6c82b842c6abbff8f8155ffee9cd230324a6d52e952cee9eeedbb2b
+imageDigest: sha256:3b2282180b94afb0e251cb138147cbec1e5ccf1abd35de763020e6c60ea0f39f
 created: 2023-12-03T20:55:16.752067379-06:00
 build:
   builder: pack
 run:
   envs:
   - name: PIPELINED_CHECKSUM
-    value: http://pipelined-checksum.default.localhost.sslip.io
+    value: http://pipelined-checksum.default.127.0.0.1.sslip.io
   - name: PIPELINED_ZIP
-    value: http://pipelined-zip.default.localhost.sslip.io
+    value: http://pipelined-zip.default.127.0.0.1.sslip.io
   - name: PIPELINED_ENCRYPT
-    value: http://pipelined-encrypt.default.localhost.sslip.io
+    value: http://pipelined-encrypt.default.127.0.0.1.sslip.io
   - name: PIPELINED_MAIN
-    value: http://pipelined-main.default.localhost.sslip.io
+    value: http://pipelined-main.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: pipelined-main
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

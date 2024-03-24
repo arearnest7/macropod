@@ -3,9 +3,17 @@ name: sentiment-cfail
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-cfail:wob
-imageDigest: sha256:6a269b2f5239968deb7e72c43dfbdef37ee1b1f16a279d5f3f336672836379f6
+imageDigest: sha256:e3e61c36781243f0382776c2ce58a6d621707cfdb62548f231edbe4980797598
 created: 2023-12-03T20:59:59.650656944-06:00
 build:
   builder: pack
+run:
+  envs:
+  - name: LOGGING_NAME
+    value: sentiment-cfail
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

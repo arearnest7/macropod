@@ -3,15 +3,21 @@ name: feature-reducer
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-reducer:wob
-imageDigest: sha256:a7b9d40e2ff999f632049a13fa0047d0666b850741b7e56c0fbff40e9b530a5f
+imageDigest: sha256:2ddac1213495c861c889a725f9342d19060c7dac83afe62ebb8ce4d84b868c0d
 created: 2023-12-03T20:51:07.694206765-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://10.125.189.107:6379
+    value: redis://127.0.0.1
   - name: REDIS_PASSWORD
+    value: password
+  - name: LOGGING_NAME
+    value: feature-reducer
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
     value: password
 deploy:
   namespace: default

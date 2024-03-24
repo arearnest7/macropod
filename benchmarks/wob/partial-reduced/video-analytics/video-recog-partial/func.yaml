@@ -3,9 +3,17 @@ name: video-recog-partial
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-recog-partial:wob
-imageDigest: sha256:c85f49c9257d370082cf0c36f90600a901fda6989f9dbeb0119574d3944de5b0
+imageDigest: sha256:de1143ea98310a73b5f55ab566fdf897698588fcdc0305737dc1f0359957b167
 created: 2023-10-26T19:57:23.290722971-05:00
 build:
   builder: pack
+run:
+  envs:
+  - name: LOGGING_NAME
+    value: video-recog-partial
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

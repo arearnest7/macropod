@@ -3,13 +3,19 @@ name: sentiment-service-sentiment-srs
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-service-sentiment-srs:wob
-imageDigest: sha256:c2d7d3dfb58a0a99bd6d810ed16702c34725f1574792d08e299f0f637aeff7fd
+imageDigest: sha256:10097369e6ce7d9c0f38461d3ea5317336f801cae2ffc9d4f7924bf1d2ff8376
 created: 2023-12-03T21:30:00.866902725-06:00
 build:
   builder: pack
 run:
   envs:
   - name: SENTIMENT_DB_S
-    value: http://sentiment-db-s.default.localhost.sslip.io
+    value: http://sentiment-db-s.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: sentiment-service-sentiment-srs
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

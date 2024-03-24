@@ -3,13 +3,19 @@ name: sentiment-main
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-main:kn
-imageDigest: sha256:7cc91460695ca861fa1c4884ceb287eb867d523a2f1539896eb1f6ee9c092b22
+imageDigest: sha256:cc79a36a58aec86c18a3458a412d3aca827208da12eed73740470db665c486b9
 created: 2023-12-03T21:00:08.460071908-06:00
 build:
   builder: pack
 run:
   envs:
   - name: SENTIMENT_READ_CSV
-    value: http://sentiment-read-csv.default.localhost.sslip.io
+    value: http://sentiment-read-csv.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: sentiment-main
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

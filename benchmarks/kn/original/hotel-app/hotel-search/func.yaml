@@ -3,15 +3,21 @@ name: hotel-search
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-search:kn
-imageDigest: sha256:d378d57d60bf29d4408b4b21efc18d8bc6ef6fa0cd75480283ac09d209e94ec7
+imageDigest: sha256:69266146d9af80ce579a4fb3d3eb57d6acc7e64ac54b81630df498496a409033
 created: 2023-10-26T19:30:27.307416579-05:00
 build:
   builder: pack
 run:
   envs:
   - name: HOTEL_GEO
-    value: http://hotel-geo.default.localhost.sslip.io
+    value: http://hotel-geo.default.127.0.0.1.sslip.io
   - name: HOTEL_RATE
-    value: http://hotel-rate.default.localhost.sslip.io
+    value: http://hotel-rate.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: hotel-search
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

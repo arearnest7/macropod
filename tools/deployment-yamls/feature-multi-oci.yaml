@@ -91,6 +91,12 @@ spec:
             value: http://10.43.190.2
           - name: FEATURE_WAIT
             value: http://10.43.190.3
+          - name: LOGGING_NAME
+            value: feature-orchestrator
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -116,6 +122,12 @@ spec:
         env:
           - name: PORT
             value: "5000"
+          - name: LOGGING_NAME
+            value: feature-extractor
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -143,6 +155,12 @@ spec:
             value: "5000"
           - name: FEATURE_STATUS
             value: http://10.43.190.4
+          - name: LOGGING_NAME
+            value: feature-wait
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -172,6 +190,12 @@ spec:
             value: http://10.43.190.3
           - name: FEATURE_REDUCER
             value: http://10.43.190.5
+          - name: LOGGING_NAME
+            value: feature-status
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -197,3 +221,9 @@ spec:
         env:
           - name: PORT
             value: "5000"
+          - name: LOGGING_NAME
+            value: feature-reducer
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

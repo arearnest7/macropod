@@ -3,17 +3,23 @@ name: pipelined-main-partial
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-main-partial:wob
-imageDigest: sha256:88d9256557b3fa7cb377ae72d0c09be1c25555a45a9609bdf9757021061b5ff0
+imageDigest: sha256:713b539b3c12952e4a953e7b4f53fe3b56cfd557e1eb323bf8611a7fbc6fa729
 created: 2023-12-03T21:21:53.008269067-06:00
 build:
   builder: pack
 run:
   envs:
   - name: PIPELINED_CHECKSUM_PARTIAL
-    value: http://pipelined-checksum-partial.default.localhost.sslip.io
+    value: http://pipelined-checksum-partial.default.127.0.0.1.sslip.io
   - name: PIPELINED_ZIP_PARTIAL
-    value: http://pipelined-zip-partial.default.localhost.sslip.io
+    value: http://pipelined-zip-partial.default.127.0.0.1.sslip.io
   - name: PIPELINED_ENCRYPT_PARTIAL
-    value: http://pipelined-encrypt-partial.default.localhost.sslip.io
+    value: http://pipelined-encrypt-partial.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: pipelined-main-partial
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

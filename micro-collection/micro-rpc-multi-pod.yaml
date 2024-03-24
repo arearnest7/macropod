@@ -63,6 +63,12 @@ spec:
             value: "10.43.190.2:80"
           - name: LEN
             value: "1000000"
+          - name: LOGGING_NAME
+            value: micro-rpc-a
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -101,3 +107,9 @@ spec:
             value: "10"
           - name: LEN
             value: "1000000"
+          - name: LOGGING_NAME
+            value: micro-rpc-b
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

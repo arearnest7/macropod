@@ -74,6 +74,12 @@ spec:
         env:
           - name: PORT
             value: "5000"
+          - name: LOGGING_NAME
+            value: pipelined-main
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
           - name: PIPELINED_MAIN
             value: http://10.43.190.1
           - name: PIPELINED_CHECKSUM
@@ -107,6 +113,12 @@ spec:
         env:
           - name: PORT
             value: "5000"
+          - name: LOGGING_NAME
+            value: pipelined-checksum
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -132,6 +144,12 @@ spec:
         env:
           - name: PORT
             value: "5000"
+          - name: LOGGING_NAME
+            value: pipelined-zip
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -157,3 +175,9 @@ spec:
         env:
           - name: PORT
             value: "5000"
+          - name: LOGGING_NAME
+            value: pipelined-encrypt
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

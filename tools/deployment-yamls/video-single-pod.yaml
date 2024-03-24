@@ -40,7 +40,13 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: VIDEO_DECODER
-            value: http://localhost:5001
+            value: redis://127.0.0.1:5001
+          - name: LOGGING_NAME
+            value: video-streaming
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: video-decoder
         image: arearnest7/video-decoder:macropod
         ports:
@@ -53,7 +59,13 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: VIDEO_RECOG
-            value: http://localhost:5002
+            value: redis://127.0.0.1:5002
+          - name: LOGGING_NAME
+            value: video-decoder
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: video-recog
         image: arearnest7/video-recog:macropod
         ports:
@@ -65,3 +77,9 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5002"
+          - name: LOGGING_NAME
+            value: video-recog
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

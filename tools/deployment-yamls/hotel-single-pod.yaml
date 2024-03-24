@@ -40,13 +40,19 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: HOTEL_SEARCH
-            value: http://localhost:5001
+            value: redis://127.0.0.1:5001
           - name: HOTEL_RECOMMEND
-            value: http://localhost:5002
+            value: redis://127.0.0.1:5002
           - name: HOTEL_RESERVE
-            value: http://localhost:5003
+            value: redis://127.0.0.1:5003
           - name: HOTEL_USER
-            value: http://localhost:5004
+            value: redis://127.0.0.1:5004
+          - name: LOGGING_NAME
+            value: hotel-frontend
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: hotel-search
         image: arearnest7/hotel-search:macropod
         ports:
@@ -59,9 +65,15 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: HOTEL_GEO
-            value: http://localhost:5005
+            value: redis://127.0.0.1:5005
           - name: HOTEL_RATE
-            value: http://localhost:5007
+            value: redis://127.0.0.1:5007
+          - name: LOGGING_NAME
+            value: hotel-search
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: hotel-recommend
         image: arearnest7/hotel-recommend:macropod
         ports:
@@ -73,6 +85,12 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5002"
+          - name: LOGGING_NAME
+            value: hotel-recommend
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: hotel-reserve
         image: arearnest7/hotel-reserve:macropod
         ports:
@@ -84,6 +102,12 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5003"
+          - name: LOGGING_NAME
+            value: hotel-reserve
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: hotel-user
         image: arearnest7/hotel-user:macropod
         ports:
@@ -95,6 +119,12 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5004"
+          - name: LOGGING_NAME
+            value: hotel-user
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: hotel-geo
         image: arearnest7/hotel-geo:macropod
         ports:
@@ -106,6 +136,12 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5005"
+          - name: LOGGING_NAME
+            value: hotel-geo
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: hotel-profile
         image: arearnest7/hotel-profile:macropod
         ports:
@@ -117,6 +153,12 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5006"
+          - name: LOGGING_NAME
+            value: hotel-profile
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: hotel-rate
         image: arearnest7/hotel-rate:macropod
         ports:
@@ -128,3 +170,9 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5007"
+          - name: LOGGING_NAME
+            value: hotel-rate
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

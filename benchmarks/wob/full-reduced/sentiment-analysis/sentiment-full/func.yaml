@@ -3,15 +3,21 @@ name: sentiment-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-full:wob
-imageDigest: sha256:c02c54f6a659fa3a06a90fdf50045844d26a4bfa9960b9f1922f99a180a62fd3
+imageDigest: sha256:b73b91e8f305b041eb9f23d69847bcdb7bb650c1420cddcd737d37410fb906e9
 created: 2023-12-03T21:08:33.226898249-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://10.125.189.107:6379
+    value: redis://127.0.0.1
   - name: REDIS_PASSWORD
+    value: password
+  - name: LOGGING_NAME
+    value: sentiment-full
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
     value: password
 deploy:
   namespace: default

@@ -53,13 +53,19 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: PIPELINED_MAIN
-            value: http://localhost:5000
+            value: redis://127.0.0.1:5000
           - name: PIPELINED_CHECKSUM
-            value: http://localhost:5001
+            value: redis://127.0.0.1:5001
           - name: PIPELINED_ZIP
-            value: http://localhost:5002
+            value: redis://127.0.0.1:5002
           - name: PIPELINED_ENCRYPT
-            value: http://localhost:5003
+            value: redis://127.0.0.1:5003
+          - name: LOGGING_NAME
+            value: pipelined-main
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: pipelined-checksum
         image: arearnest7/pipelined-checksum:macropod
         ports:
@@ -76,6 +82,12 @@ spec:
             value: "5001"
           - name: APP_PV
             value: "/macropod-pv"
+          - name: LOGGING_NAME
+            value: pipelined-checksum
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: pipelined-zip
         image: arearnest7/pipelined-zip:macropod
         ports:
@@ -90,6 +102,12 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5002"
+          - name: LOGGING_NAME
+            value: pipelined-zip
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password
       - name: pipelined-encrypt
         image: arearnest7/pipelined-encrypt:macropod
         ports:
@@ -104,3 +122,9 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5003"
+          - name: LOGGING_NAME
+            value: pipelined-encrypt
+          - name: LOGGING_URL
+            value: redis://127.0.0.1
+          - name: LOGGING_PASSWORD
+            value: password

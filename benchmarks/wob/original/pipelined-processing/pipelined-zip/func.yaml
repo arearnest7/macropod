@@ -3,15 +3,21 @@ name: pipelined-zip
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-zip:wob
-imageDigest: sha256:f71976c5612c736a8e2d9f5b01add3b6e23105259c400a5b415aaf2e82c0c95d
+imageDigest: sha256:43fd995f4ec0c1b7cfcdb346e03602fc53aa53d3fd961abfd927040165002362
 created: 2023-12-03T20:55:20.453042627-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://10.125.189.107:6379
+    value: redis://127.0.0.1
   - name: REDIS_PASSWORD
+    value: password
+  - name: LOGGING_NAME
+    value: pipelined-zip
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
     value: password
 deploy:
   namespace: default

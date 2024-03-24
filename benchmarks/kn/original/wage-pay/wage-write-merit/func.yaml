@@ -3,15 +3,21 @@ name: wage-write-merit
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-write-merit:kn
-imageDigest: sha256:e9c3b1eeaf724ce048d7c41533f91217de610aa22f918d43db147ccf99b6769d
+imageDigest: sha256:1b499ab0e1083b847fbdcd4522612693a9d22522bf77ca9377e6b041988aa578
 created: 2023-12-03T21:05:01.566151977-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: localhost
+    value: redis://127.0.0.1
   - name: REDIS_PASSWORD
+    value: password
+  - name: LOGGING_NAME
+    value: wage-write-merit
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
     value: password
 deploy:
   namespace: default

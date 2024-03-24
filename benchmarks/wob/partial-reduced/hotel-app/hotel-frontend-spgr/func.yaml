@@ -3,7 +3,7 @@ name: hotel-frontend-spgr
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-frontend-spgr:wob
-imageDigest: sha256:d6b3de6b74cdb673d59f326670694cbfeef5fe50413026cd4b96eb64d3b3847c
+imageDigest: sha256:e829618157575f77e60ecb2b30c2f44772f118f842bb424febec1de08635ffdd
 created: 2023-10-26T19:54:28.29278899-05:00
 build:
   builder: pack
@@ -14,10 +14,16 @@ run:
   - name: HOTEL_APP_MEMCACHED
     value: 10.42.4.93:11211
   - name: HOTEL_RECOMMEND_PARTIAL
-    value: http://hotel-recommend-partial.default.localhost.sslip.io
+    value: http://hotel-recommend-partial.default.127.0.0.1.sslip.io
   - name: HOTEL_RESERVE_PARTIAL
-    value: http://hotel-reserve-partial.default.localhost.sslip.io
+    value: http://hotel-reserve-partial.default.127.0.0.1.sslip.io
   - name: HOTEL_USER_PARTIAL
-    value: http://hotel-user-partial.default.localhost.sslip.io
+    value: http://hotel-user-partial.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: hotel-frontend-spgr
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default

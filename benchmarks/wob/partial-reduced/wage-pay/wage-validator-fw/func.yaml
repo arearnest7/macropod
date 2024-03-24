@@ -3,17 +3,23 @@ name: wage-validator-fw
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-validator-fw:wob
-imageDigest: sha256:417160fa45cb2c1e303993bda78da92eda7f5ee1167c0faee35005ee1c8b85c2
+imageDigest: sha256:8ebb72f8c4195cd7805fc1565e33a3806b124a953621668e730c6be317dc9a93
 created: 2023-12-03T21:32:43.759166982-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://10.125.189.107:6379
+    value: redis://127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: WAGE_STATS_PARTIAL
-    value: http://wage-stats-partial.default.localhost.sslip.io
+    value: http://wage-stats-partial.default.127.0.0.1.sslip.io
+  - name: LOGGING_NAME
+    value: wage-validator-fw
+  - name: LOGGING_URL
+    value: redis://127.0.0.1
+  - name: LOGGING_PASSWORD
+    value: password
 deploy:
   namespace: default
