@@ -40,11 +40,11 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: SENTIMENT_READ_CSV
-            value: redis://127.0.0.1:5001
+            value: 127.0.0.1:5001
           - name: LOGGING_NAME
             value: sentiment-main
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-read-csv
@@ -59,11 +59,11 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: SENTIMENT_PRODUCT_OR_SERVICE
-            value: redis://127.0.0.1:5002
+            value: 127.0.0.1:5002
           - name: LOGGING_NAME
             value: sentiment-read-csv
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-product-or-service
@@ -78,15 +78,15 @@ spec:
           - name: FUNC_PORT
             value: "5002"
           - name: SENTIMENT_CFAIL
-            value: redis://127.0.0.1:5003
+            value: 127.0.0.1:5003
           - name: SENTIMENT_PRODUCT_SENTIMENT
-            value: redis://127.0.0.1:5004
+            value: 127.0.0.1:5004
           - name: SENTIMENT_SERVICE_SENTIMENT
-            value: redis://127.0.0.1:5009
+            value: 127.0.0.1:5009
           - name: LOGGING_NAME
             value: sentiment-product-or-service
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-cfail
@@ -102,8 +102,8 @@ spec:
             value: "5003"
           - name: LOGGING_NAME
             value: sentiment-cfail
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-product-sentiment
@@ -118,11 +118,11 @@ spec:
           - name: FUNC_PORT
             value: "5004"
           - name: SENTIMENT_PRODUCT_RESULT
-            value: redis://127.0.0.1:5005
+            value: 127.0.0.1:5005
           - name: LOGGING_NAME
             value: sentiment-product-sentiment
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-product-result
@@ -137,15 +137,15 @@ spec:
           - name: FUNC_PORT
             value: "5005"
           - name: SENTIMENT_SFAIL
-            value: redis://127.0.0.1:5006
+            value: 127.0.0.1:5006
           - name: SENTIMENT_SNS
-            value: redis://127.0.0.1:5007
+            value: 127.0.0.1:5007
           - name: SENTIMENT_DB
-            value: redis://127.0.0.1:5008
+            value: 127.0.0.1:5008
           - name: LOGGING_NAME
             value: sentiment-product-result
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-sfail
@@ -161,8 +161,8 @@ spec:
             value: "5006"
           - name: LOGGING_NAME
             value: sentiment-sfail
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-sns
@@ -177,11 +177,11 @@ spec:
           - name: FUNC_PORT
             value: "5007"
           - name: SENTIMENT_DB
-            value: redis://127.0.0.1:5008
+            value: 127.0.0.1:5008
           - name: LOGGING_NAME
             value: sentiment-sns
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-db
@@ -197,8 +197,8 @@ spec:
             value: "5008"
           - name: LOGGING_NAME
             value: sentiment-db
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-service-sentiment
@@ -213,11 +213,11 @@ spec:
           - name: FUNC_PORT
             value: "5009"
           - name: SENTIMENT_SERVICE_RESULT
-            value: redis://127.0.0.1:5010
+            value: 127.0.0.1:5010
           - name: LOGGING_NAME
             value: sentiment-service-sentiment
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: sentiment-service-result
@@ -232,14 +232,14 @@ spec:
           - name: FUNC_PORT
             value: "5010"
           - name: SENTIMENT_SFAIL
-            value: redis://127.0.0.1:5006
+            value: 127.0.0.1:5006
           - name: SENTIMENT_SNS
-            value: redis://127.0.0.1:5007
+            value: 127.0.0.1:5007
           - name: SENTIMENT_DB
-            value: redis://127.0.0.1:5008
+            value: 127.0.0.1:5008
           - name: LOGGING_NAME
             value: sentiment-service-result
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

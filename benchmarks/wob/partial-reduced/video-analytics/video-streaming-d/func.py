@@ -20,7 +20,7 @@ import datetime
 import redis
 
 if "LOGGING_NAME" in os.environ:
-    loggingClient = redis.Redis(host=os.environ['LOGGING_URL'], password=os.environ['LOGGING_PASSWORD'])
+    loggingClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 def decode(bytes):
     temp = tempfile.NamedTemporaryFile(suffix=".mp4")

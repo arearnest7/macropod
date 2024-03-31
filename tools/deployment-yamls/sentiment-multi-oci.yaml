@@ -166,8 +166,8 @@ spec:
             value: http://10.43.190.2
           - name: LOGGING_NAME
             value: sentiment-main
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -199,8 +199,8 @@ spec:
             value: http://10.43.190.3
           - name: LOGGING_NAME
             value: sentiment-read-csv
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -236,8 +236,8 @@ spec:
             value: http://10.43.190.10
           - name: LOGGING_NAME
             value: sentiment-product-or-service
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -267,8 +267,8 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: sentiment-cfail
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -300,8 +300,8 @@ spec:
             value: http://10.43.190.6
           - name: LOGGING_NAME
             value: sentiment-product-sentiment
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -337,8 +337,8 @@ spec:
             value: http://10.43.190.9
           - name: LOGGING_NAME
             value: sentiment-product-result
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -368,8 +368,8 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: sentiment-sfail
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -401,8 +401,8 @@ spec:
             value: http://10.43.190.9
           - name: LOGGING_NAME
             value: sentiment-sns
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -432,8 +432,8 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: sentiment-db
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -465,8 +465,8 @@ spec:
             value: http://10.43.190.11
           - name: LOGGING_NAME
             value: sentiment-service-sentiment
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -502,7 +502,7 @@ spec:
             value: http://10.43.190.9
           - name: LOGGING_NAME
             value: sentiment-service-result
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

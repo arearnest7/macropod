@@ -40,11 +40,11 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: WAGE_FORMAT
-            value: redis://127.0.0.1:5001
+            value: 127.0.0.1:5001
           - name: LOGGING_NAME
             value: wage-validator
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: wage-format
@@ -59,11 +59,11 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: WAGE_WRITE_RAW
-            value: redis://127.0.0.1:5002
+            value: 127.0.0.1:5002
           - name: LOGGING_NAME
             value: wage-format
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: wage-write-raw
@@ -78,11 +78,11 @@ spec:
           - name: FUNC_PORT
             value: "5002"
           - name: WAGE_STATS
-            value: redis://127.0.0.1:5003
+            value: 127.0.0.1:5003
           - name: LOGGING_NAME
             value: wage-write-raw
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: wage-stats
@@ -97,11 +97,11 @@ spec:
           - name: FUNC_PORT
             value: "5003"
           - name: WAGE_AVG
-            value: redis://127.0.0.1:5004
+            value: 127.0.0.1:5004
           - name: LOGGING_NAME
             value: wage-stats
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: wage-avg
@@ -116,11 +116,11 @@ spec:
           - name: FUNC_PORT
             value: "5004"
           - name: WAGE_SUM
-            value: redis://127.0.0.1:5005
+            value: 127.0.0.1:5005
           - name: LOGGING_NAME
             value: wage-avg
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: wage-sum
@@ -135,11 +135,11 @@ spec:
           - name: FUNC_PORT
             value: "5005"
           - name: WAGE_MERIT
-            value: redis://127.0.0.1:5006
+            value: 127.0.0.1:5006
           - name: LOGGING_NAME
             value: wage-sum
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: wage-merit
@@ -154,11 +154,11 @@ spec:
           - name: FUNC_PORT
             value: "5006"
           - name: WAGE_WRITE_MERIT
-            value: redis://127.0.0.1:5007
+            value: 127.0.0.1:5007
           - name: LOGGING_NAME
             value: wage-merit
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: wage-write-merit
@@ -174,7 +174,7 @@ spec:
             value: "5007"
           - name: LOGGING_NAME
             value: wage-write-merit
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

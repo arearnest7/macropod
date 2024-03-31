@@ -3,7 +3,7 @@ name: hotel-frontend
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-frontend:wob
-imageDigest: sha256:fd77d60d6d28f867b318474664d0bbb78b0bad89838bcfc1ef3ae8672c9142c0
+imageDigest: sha256:89e6fd15315d27bb977db8118d531622403700a5489060c938c72771b6433a51
 created: 2023-10-26T19:30:15.504368653-05:00
 build:
   builder: pack
@@ -19,8 +19,8 @@ run:
     value: http://hotel-user.default.127.0.0.1.sslip.io
   - name: LOGGING_NAME
     value: hotel-frontend
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

@@ -19,10 +19,12 @@ const redis = require('redis');
 const axios = require('axios');
 const moment = require('moment');
 
-const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
+const client = redis.createClient({url: 'redis://' + process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
+
+var loggingClient = redis.createClient();
 
 if ("LOGGING_NAME" in process.env) {
-        const loggingClient = redis.createClient({url: process.env.LOGGING_URL, password: process.env.LOGGING_PASSWORD});
+        loggingClient = redis.createClient({url: 'redis://' + process.env.LOGGING_IP, password: process.env.LOGGING_PASSWORD});
 }
 
 const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID'

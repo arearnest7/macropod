@@ -65,8 +65,8 @@ spec:
             value: "1000000"
           - name: LOGGING_NAME
             value: micro-rpc-a
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -109,7 +109,7 @@ spec:
             value: "1000000"
           - name: LOGGING_NAME
             value: micro-rpc-b
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

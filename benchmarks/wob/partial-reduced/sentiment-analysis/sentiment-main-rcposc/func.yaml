@@ -3,14 +3,14 @@ name: sentiment-main-rcposc
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-main-rcposc:wob
-imageDigest: sha256:d1807129a6958d13edc562c5575677ddcd4fd4a92275afe8e4bd92f71aaa4227
+imageDigest: sha256:7df502c0e6e2e52d0ca7e8e8cbff0c08e487112a4658a21ad306f9fab6035b9f
 created: 2023-12-03T21:27:22.752749433-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://127.0.0.1
+    value: 127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: SENTIMENT_PRODUCT_SENTIMENT_PRS
@@ -19,8 +19,8 @@ run:
     value: http://sentiment-service-sentiment-srs.default.127.0.0.1.sslio.io
   - name: LOGGING_NAME
     value: sentiment-main-rcposc
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

@@ -3,7 +3,7 @@ name: feature-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-full:wob
-imageDigest: sha256:bb1b1760696ea5fb8e0b8057ef533aadb0e392ba0c132674b488aea85594763a
+imageDigest: sha256:b484090d738f72c8113e46a51c4ca311feb2c79e488757a1d2883971271e76df
 created: 2023-12-03T21:07:14.996832312-06:00
 build:
   builder: pack
@@ -11,8 +11,8 @@ run:
   envs:
   - name: LOGGING_NAME
     value: feature-full
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

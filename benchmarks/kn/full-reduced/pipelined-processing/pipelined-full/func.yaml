@@ -3,20 +3,20 @@ name: pipelined-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-full:kn
-imageDigest: sha256:c09cba04725168fe1d71f90a7f74368b556d4819d3503be1332c33c69828c325
+imageDigest: sha256:f220b8a2edbde733e6feb4dec9c6b3b158f46c3fcea3664d091336586f701395
 created: 2023-12-03T21:07:35.930126142-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://127.0.0.1
+    value: 127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: LOGGING_NAME
     value: pipelined-full
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

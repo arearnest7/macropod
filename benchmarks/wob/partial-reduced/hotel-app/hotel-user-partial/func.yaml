@@ -3,7 +3,7 @@ name: hotel-user-partial
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-user-partial:wob
-imageDigest: sha256:7a53c42b2c066f92b2dc4ac67cd989bf092aa10e78fe9f0ddfba36bcd015aaea
+imageDigest: sha256:113c5a5d2d4a520417c4a20ee651161c5c3cfa7f688feb8cf739110b8307472d
 created: 2023-10-26T19:54:52.836777088-05:00
 build:
   builder: pack
@@ -15,8 +15,8 @@ run:
     value: 10.42.4.93:11211
   - name: LOGGING_NAME
     value: hotel-user-partial
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

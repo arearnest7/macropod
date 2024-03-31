@@ -14,7 +14,7 @@ pp = pprint.PrettyPrinter(indent=4)
 redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 if "LOGGING_NAME" in os.environ:
-    loggingClient = redis.Redis(host=os.environ['LOGGING_URL'], password=os.environ['LOGGING_PASSWORD'])
+    loggingClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 def cfail_handler(req):
     return "CategorizationFail: Fail: \"Input CSV could not be categorised into 'Product' or 'Service'.\""

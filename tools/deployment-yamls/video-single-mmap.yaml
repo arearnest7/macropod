@@ -51,11 +51,11 @@ spec:
           - name: RPC_DEST_PV
             value: "/macropod-pv"
           - name: VIDEO_DECODER
-            value: redis://127.0.0.1:5001
+            value: 127.0.0.1:5001
           - name: LOGGING_NAME
             value: video-streaming
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: video-decoder
@@ -79,11 +79,11 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: VIDEO_RECOG
-            value: redis://127.0.0.1:5002
+            value: 127.0.0.1:5002
           - name: LOGGING_NAME
             value: video-decoder
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: video-recog
@@ -104,7 +104,7 @@ spec:
             value: "/macropod-pv"
           - name: LOGGING_NAME
             value: video-recog
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

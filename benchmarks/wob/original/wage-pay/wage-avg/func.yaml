@@ -3,7 +3,7 @@ name: wage-avg
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-avg:wob
-imageDigest: sha256:079419abc472e9f87d005a5443d1706eddcb2bbe93259a1745c9f943fc87b8a3
+imageDigest: sha256:fd65ae74514b50a230c39538701e46c6f4db081cd76e2a310718f23db4379964
 created: 2023-12-03T21:04:30.364238593-06:00
 build:
   builder: pack
@@ -13,8 +13,8 @@ run:
     value: http://wage-merit.default.127.0.0.1.sslip.io
   - name: LOGGING_NAME
     value: wage-avg
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

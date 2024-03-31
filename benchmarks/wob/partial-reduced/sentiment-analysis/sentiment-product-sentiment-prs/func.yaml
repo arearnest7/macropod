@@ -3,7 +3,7 @@ name: sentiment-product-sentiment-prs
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-product-sentiment-prs:wob
-imageDigest: sha256:c2458ff5ecb776619a6e21260aefb340fe66550d206ec3bfda8d26e132677d79
+imageDigest: sha256:75d1982bc245e5681bf027aa79b113c59c8e3d2d7d6878a9ef966d3402a39f63
 created: 2023-12-03T21:29:45.765241789-06:00
 build:
   builder: pack
@@ -13,8 +13,8 @@ run:
     value: http://sentiment-db-s.default.127.0.0.1.sslip.io
   - name: LOGGING_NAME
     value: sentiment-product-prs
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

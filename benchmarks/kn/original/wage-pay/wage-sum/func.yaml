@@ -3,22 +3,22 @@ name: wage-sum
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-sum:kn
-imageDigest: sha256:cdb4ef94a81de2fa0e90e4973168685374c1fc992a24b4dfb423669bba8168d1
+imageDigest: sha256:1baddb505e6a03a5b310b1a8a7f4175da1ea5295aef39b8ff935fb00e8e69857
 created: 2023-12-03T21:04:46.885982026-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://127.0.0.1
+    value: 127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: WAGE_AVG
     value: http://wage-avg.default.127.0.0.1.sslip.io
   - name: LOGGING_NAME
     value: wage-sum
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

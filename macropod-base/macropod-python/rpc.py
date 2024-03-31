@@ -13,7 +13,7 @@ opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_
 
 def RPC(context, dest, payloads):
     if "LOGGING_NAME" in os.environ:
-        redisClient = redis.Redis(host=os.environ['LOGGING_URL'], password=os.environ['LOGGING_PASSWORD'])
+        redisClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
     with grpc.insecure_channel(dest, options=opts,) as channel:
         stub = pb_grpc.gRPCFunctionStub(channel)
         tl = []

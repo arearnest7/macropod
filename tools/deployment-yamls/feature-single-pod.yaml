@@ -40,13 +40,13 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: FEATURE_EXTRACTOR
-            value: redis://127.0.0.1:5001
+            value: 127.0.0.1:5001
           - name: FEATURE_WAIT
-            value: redis://127.0.0.1:5002
+            value: 127.0.0.1:5002
           - name: LOGGING_NAME
             value: feature-orchestrator
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: feature-extractor
@@ -62,8 +62,8 @@ spec:
             value: "5001"
           - name: LOGGING_NAME
             value: feature-extractor
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: feature-wait
@@ -78,11 +78,11 @@ spec:
           - name: FUNC_PORT
             value: "5002"
           - name: FEATURE_STATUS
-            value: redis://127.0.0.1:5003
+            value: 127.0.0.1:5003
           - name: LOGGING_NAME
             value: feature-wait
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: feature-status
@@ -97,13 +97,13 @@ spec:
           - name: FUNC_PORT
             value: "5003"
           - name: FEATURE_WAIT
-            value: redis://127.0.0.1:5002
+            value: 127.0.0.1:5002
           - name: FEATURE_REDUCER
-            value: redis://127.0.0.1:5004
+            value: 127.0.0.1:5004
           - name: LOGGING_NAME
             value: feature-status
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: feature-reducer
@@ -119,7 +119,7 @@ spec:
             value: "5004"
           - name: LOGGING_NAME
             value: feature-reducer
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

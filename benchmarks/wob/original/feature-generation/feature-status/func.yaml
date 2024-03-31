@@ -3,14 +3,14 @@ name: feature-status
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-status:wob
-imageDigest: sha256:bbe2d2ca4d58b7dcff16ee8be3cf3603d31ec7c53c533510dc6c99b9468d7e82
+imageDigest: sha256:61c6eba33f9bc6f31d0cae3dafe2295c8e385bad93e921154ecaf18d79189f0c
 created: 2023-12-03T20:51:11.858374137-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://127.0.0.1
+    value: 127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: FEATURE_REDUCER
@@ -19,8 +19,8 @@ run:
     value: http://feature-wait.default.127.0.0.1.sslip.io
   - name: LOGGING_NAME
     value: feature-status
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

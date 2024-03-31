@@ -3,7 +3,7 @@ name: hotel-geo
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-geo:wob
-imageDigest: sha256:c365bc6d082ef06a93887bf298b5943873fc80c1e08ef72497d3f961b017849b
+imageDigest: sha256:90fcaa58622ee77e9eb1e6fa4da5befb846c9da3744519f5b416dfee4527ffa7
 created: 2023-10-26T19:30:51.417314908-05:00
 build:
   builder: pack
@@ -15,8 +15,8 @@ run:
     value: 10.42.4.93:11211
   - name: LOGGING_NAME
     value: hotel-geo
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

@@ -3,7 +3,7 @@ name: sentiment-sfail
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-sfail:wob
-imageDigest: sha256:c763a0c1007b01c559aa6b1bc28268855a7445bdc4c4d0789455775db2a985f4
+imageDigest: sha256:60da012c4458bad99350574d5b3acb295367d59e5fea22f3714dd792c98a73e3
 created: 2023-12-03T21:00:55.27390088-06:00
 build:
   builder: pack
@@ -11,8 +11,8 @@ run:
   envs:
   - name: LOGGING_NAME
     value: sentiment-sfail
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

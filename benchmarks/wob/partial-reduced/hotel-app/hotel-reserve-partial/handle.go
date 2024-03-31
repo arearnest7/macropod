@@ -323,10 +323,10 @@ func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
         redisClient := redis.NewClient(&redis.Options{})
         c := context.Background()
         if logging {
-                logging_url := os.Getenv("LOGGING_URL")
+                logging_ip := os.Getenv("LOGGING_IP")
                 logging_password := os.Getenv("LOGGING_PASSWORD")
                 redisClient = redis.NewClient(&redis.Options{
-                        Addr: logging_url,
+                        Addr: logging_ip,
                         Password: logging_password,
                         DB: 0,
                 })

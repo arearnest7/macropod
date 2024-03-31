@@ -3,20 +3,20 @@ name: election-vote-processor
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-vote-processor:wob
-imageDigest: sha256:eab3f16f99fc5270af8b0257277ea5b74f9cbb6df922c1e806b9eba877431a23
+imageDigest: sha256:8bea7a0bea4740a83c3f7da3b72db2f61c804bb1cd2ad1959a0820389b52bdf8
 created: 2023-10-10T14:57:02.060343933-05:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://127.0.0.1
+    value: 127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: LOGGING_NAME
     value: election-vote-processor
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

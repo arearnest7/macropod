@@ -3,20 +3,20 @@ name: pipelined-checksum
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-checksum:wob
-imageDigest: sha256:8fea76e3aed2ffcfd67a2a1290107372f88671f0e1e6c06b9e6382f75d1d67e6
+imageDigest: sha256:98ada54e9760628d2c4811cf62dc3d4b4427ffe4664017b2886583748ad79541
 created: 2023-12-03T20:55:04.99480755-06:00
 build:
   builder: pack
 run:
   envs:
   - name: REDIS_URL
-    value: redis://127.0.0.1
+    value: 127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: LOGGING_NAME
     value: pipelined-checksum
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

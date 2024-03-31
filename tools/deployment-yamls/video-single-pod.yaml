@@ -40,11 +40,11 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: VIDEO_DECODER
-            value: redis://127.0.0.1:5001
+            value: 127.0.0.1:5001
           - name: LOGGING_NAME
             value: video-streaming
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: video-decoder
@@ -59,11 +59,11 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: VIDEO_RECOG
-            value: redis://127.0.0.1:5002
+            value: 127.0.0.1:5002
           - name: LOGGING_NAME
             value: video-decoder
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: video-recog
@@ -79,7 +79,7 @@ spec:
             value: "5002"
           - name: LOGGING_NAME
             value: video-recog
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

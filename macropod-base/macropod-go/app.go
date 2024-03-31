@@ -28,10 +28,10 @@ func HTTPFunctionHandler(res http.ResponseWriter, req *http.Request) {
     c := context.Background()
     body, _ := ioutil.ReadAll(req.Body)
     if logging {
-        logging_url := os.Getenv("LOGGING_URL")
+        logging_ip := os.Getenv("LOGGING_IP")
         logging_password := os.Getenv("LOGGING_PASSWORD")
         redisClient = redis.NewClient(&redis.Options{
-            Addr: logging_url,
+            Addr: logging_ip,
             Password: logging_password,
             DB: 0,
         })
@@ -69,10 +69,10 @@ func (s *server) GRPCFunctionHandler(ctx context.Context, in *pb.RequestBody) (*
     redisClient := redis.NewClient(&redis.Options{})
     c := context.Background()
     if logging {
-        logging_url := os.Getenv("LOGGING_URL")
+        logging_ip := os.Getenv("LOGGING_IP")
         logging_password := os.Getenv("LOGGING_PASSWORD")
         redisClient = redis.NewClient(&redis.Options{
-            Addr: logging_url,
+            Addr: logging_ip,
             Password: logging_password,
             DB: 0,
         })

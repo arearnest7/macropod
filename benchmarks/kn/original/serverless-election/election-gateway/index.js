@@ -19,8 +19,10 @@ const axios = require("axios");
 const redis = require('redis');
 const moment = require('moment');
 
+var loggingClient = redis.createClient();
+
 if ("LOGGING_NAME" in process.env) {
-        const loggingClient = redis.createClient({url: process.env.LOGGING_URL, password: process.env.LOGGING_PASSWORD});
+        loggingClient = redis.createClient({url: 'redis://' + process.env.LOGGING_IP, password: process.env.LOGGING_PASSWORD});
 }
 
 const handle = async (context, body) => {

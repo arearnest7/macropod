@@ -3,7 +3,7 @@ name: hotel-recommend
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-recommend:wob
-imageDigest: sha256:19a148124c02fc0877153f3508c81be47f23723623ff01162766a7840074d2eb
+imageDigest: sha256:35ccb5eda7b84df98d9aceed4a8ae1d4c5a3a393efc1ca50539369cdead7c650
 created: 2023-10-26T19:54:40.164310055-05:00
 build:
   builder: pack
@@ -15,8 +15,8 @@ run:
     value: 10.42.4.93:11211
   - name: LOGGING_NAME
     value: hotel-recommend
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

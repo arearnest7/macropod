@@ -5,8 +5,10 @@ const index = require('./index')
 const redis = require('redis');
 const moment = require('moment');
 
+var client = redis.createClient();
+
 if ("LOGGING_NAME" in process.env) {
-  const client = redis.createClient({url: process.env.LOGGING_URL, password: process.env.LOGGING_PASSWORD});
+  const client = redis.createClient({url: 'redis://' + process.env.LOGGING_IP, password: process.env.LOGGING_PASSWORD});
 }
 
 app.get('/', async (req, res) => {

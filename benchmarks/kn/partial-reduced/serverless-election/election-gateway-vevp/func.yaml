@@ -3,7 +3,7 @@ name: election-gateway-vevp
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-gateway-vevp:kn
-imageDigest: sha256:2f8bb0893d50cda56e10ed61dc1011bdb2ed0b45ca67447331b8e32ed72ab360
+imageDigest: sha256:a78aa815d06b62e17057b2c73d682d6a563522316ff413b255fd52dc0c9c960f
 created: 2023-10-20T10:09:34.92768829-05:00
 build:
   builder: pack
@@ -12,13 +12,13 @@ run:
   - name: ELECTION_GET_RESULTS_PARTIAL
     value: http://election-get-results-partial.default.127.0.0.1.sslip.io
   - name: REDIS_URL
-    value: redis://127.0.0.1
+    value: 127.0.0.1
   - name: REDIS_PASSWORD
     value: password
   - name: LOGGING_NAME
     value: election-gateway-vevp
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

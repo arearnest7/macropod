@@ -140,8 +140,8 @@ spec:
             value: http://10.43.190.5
           - name: LOGGING_NAME
             value: hotel-frontend
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -179,8 +179,8 @@ spec:
             value: http://10.43.190.8
           - name: LOGGING_NAME
             value: hotel-search
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -214,8 +214,8 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: hotel-recommend
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -249,8 +249,8 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: hotel-reserve
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -284,8 +284,8 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: hotel-user
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -319,8 +319,8 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: hotel-geo
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -354,8 +354,8 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: hotel-profile
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -389,7 +389,7 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: hotel-rate
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

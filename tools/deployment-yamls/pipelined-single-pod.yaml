@@ -40,17 +40,17 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: PIPELINED_MAIN
-            value: redis://127.0.0.1:5000
+            value: 127.0.0.1:5000
           - name: PIPELINED_CHECKSUM
-            value: redis://127.0.0.1:5001
+            value: 127.0.0.1:5001
           - name: PIPELINED_ZIP
-            value: redis://127.0.0.1:5002
+            value: 127.0.0.1:5002
           - name: PIPELINED_ENCRYPT
-            value: redis://127.0.0.1:5003
+            value: 127.0.0.1:5003
           - name: LOGGING_NAME
             value: pipelined-main
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: pipelined-checksum
@@ -66,8 +66,8 @@ spec:
             value: "5001"
           - name: LOGGING_NAME
             value: pipelined-checksum
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: pipelined-zip
@@ -83,8 +83,8 @@ spec:
             value: "5002"
           - name: LOGGING_NAME
             value: pipelined-zip
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
       - name: pipelined-encrypt
@@ -100,7 +100,7 @@ spec:
             value: "5003"
           - name: LOGGING_NAME
             value: pipelined-encrypt
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

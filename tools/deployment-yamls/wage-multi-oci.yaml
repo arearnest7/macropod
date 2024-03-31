@@ -128,8 +128,8 @@ spec:
             value: http://10.43.190.2
           - name: LOGGING_NAME
             value: wage-validator
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -161,8 +161,8 @@ spec:
             value: http://10.43.190.3
           - name: LOGGING_NAME
             value: wage-format
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -194,8 +194,8 @@ spec:
             value: http://10.43.190.4
           - name: LOGGING_NAME
             value: wage-write-raw
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -227,8 +227,8 @@ spec:
             value: http://10.43.190.5
           - name: LOGGING_NAME
             value: wage-stats
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -260,8 +260,8 @@ spec:
             value: http://10.43.190.6
           - name: LOGGING_NAME
             value: wage-avg
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -293,8 +293,8 @@ spec:
             value: http://10.43.190.7
           - name: LOGGING_NAME
             value: wage-sum
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -326,8 +326,8 @@ spec:
             value: http://10.43.190.8
           - name: LOGGING_NAME
             value: wage-merit
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password
 ---
@@ -357,7 +357,7 @@ spec:
             value: "5000"
           - name: LOGGING_NAME
             value: wage-write-merit
-          - name: LOGGING_URL
-            value: redis://127.0.0.1
+          - name: LOGGING_IP
+            value: 127.0.0.1
           - name: LOGGING_PASSWORD
             value: password

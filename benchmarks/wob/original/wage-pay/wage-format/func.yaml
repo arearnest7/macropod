@@ -3,7 +3,7 @@ name: wage-format
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-format:wob
-imageDigest: sha256:85a28d1f6dd826ab94f54c60a3ee290a271616ec05ceda3d97f9863fbc05b4b3
+imageDigest: sha256:45459d27690c4e5c60b90d8993f991a2ee2a34ba598d24071d353df26f697c52
 created: 2023-12-03T21:04:34.098716872-06:00
 build:
   builder: pack
@@ -13,8 +13,8 @@ run:
     value: http://wage-write-raw.default.127.0.0.1.sslip.io
   - name: LOGGING_NAME
     value: wage-format
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

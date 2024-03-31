@@ -3,7 +3,7 @@ name: hotel-reserve
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-reserve:wob
-imageDigest: sha256:e1a48d0bcd5f6168426a75521d45a5e8fd273308fbb034c589abf126f0afa16f
+imageDigest: sha256:e70e8f61fc39a17d0623922c92318f05e3df8df44796f944f6f7af76ce002de0
 created: 2023-10-26T19:54:47.835967387-05:00
 build:
   builder: pack
@@ -15,8 +15,8 @@ run:
     value: 10.42.4.93:11211
   - name: LOGGING_NAME
     value: hotel-reserve
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

@@ -3,7 +3,7 @@ name: micro-rpc-b
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/micro-rpc-b:kn
-imageDigest: sha256:61bcf079e853dc003140c6574263aae9648e45474022751736d6124bb0a5c876
+imageDigest: sha256:fed69538b6ba8becdf83c1632ea3281f238a406d6f914e711d31dfad16fd5ee1
 created: 2023-12-21T14:55:57.409001657-06:00
 build:
   builder: pack
@@ -13,8 +13,8 @@ run:
     value: "1000000"
   - name: LOGGING_NAME
     value: micro-rpc-b
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

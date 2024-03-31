@@ -3,7 +3,7 @@ name: hotel-user
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-user:kn
-imageDigest: sha256:fad644a31bc8d1c7ecc8c1276c9d5e240cc4a6b859292127114b28d77ecab3d4
+imageDigest: sha256:69386869b9345ac3b2d8f00c372e58f678dfd7dbcdaee00714042b7c8aa2f98f
 created: 2023-10-26T19:54:52.836777088-05:00
 build:
   builder: pack
@@ -15,8 +15,8 @@ run:
     value: 10.42.4.93:11211
   - name: LOGGING_NAME
     value: hotel-user
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:

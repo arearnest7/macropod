@@ -3,7 +3,7 @@ name: sentiment-db
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-db:kn
-imageDigest: sha256:23c82f949cd4d0124076613cac596bd01046610c33078b4407d763116519f533
+imageDigest: sha256:03cb88e0cd250567df6ad7f8efe31d272d5cafc4ea69d8aca675a2c768acee2e
 created: 2023-12-03T21:00:05.343906893-06:00
 build:
   builder: pack
@@ -11,8 +11,8 @@ run:
   envs:
   - name: LOGGING_NAME
     value: sentiment-db
-  - name: LOGGING_URL
-    value: redis://127.0.0.1
+  - name: LOGGING_IP
+    value: 127.0.0.1
   - name: LOGGING_PASSWORD
     value: password
 deploy:
