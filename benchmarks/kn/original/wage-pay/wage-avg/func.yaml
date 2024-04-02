@@ -3,7 +3,7 @@ name: wage-avg
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-avg:kn
-imageDigest: sha256:251df5100004410d64c286a77c74e6591457d86343cf32d965db5d10a612e110
+imageDigest: sha256:2546015457cbaff2de470f60dcbc6015ac3e1328940142e11bc312ccc43982c7
 created: 2023-12-03T21:04:30.364238593-06:00
 build:
   builder: pack

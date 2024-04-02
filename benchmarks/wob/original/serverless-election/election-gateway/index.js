@@ -27,6 +27,7 @@ if ("LOGGING_NAME" in process.env) {
 
 const handle = async (context, body) => {
 	if ("LOGGING_NAME" in process.env) {
+		await loggingClient.connect();
                 await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n");
         }
 	if (body['requestType'] ==  'get_results') {

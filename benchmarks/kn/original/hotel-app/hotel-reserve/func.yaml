@@ -3,7 +3,7 @@ name: hotel-reserve
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-reserve:kn
-imageDigest: sha256:2deba7d51a66f02e4d4261b62cae028c5d8465d6c4d23e1edb0bc78841f77bcb
+imageDigest: sha256:42c0c74a04c41ad74fd061223347188e9855612f85828029b88375c39c64814b
 created: 2023-10-26T19:54:47.835967387-05:00
 build:
   builder: pack

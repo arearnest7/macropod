@@ -25,6 +25,7 @@ async function RPC(context, dest, payloads) {
 	var client = redis.createClient();
 	if ("LOGGING_NAME" in process.env) {
 		client = redis.createClient({url: 'redis://' + process.env.LOGGING_IP, password: process.env.LOGGING_PASSWORD});
+		await client.connect();
 		await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "10" + "\n");
 	}
 	var tl = new Array();

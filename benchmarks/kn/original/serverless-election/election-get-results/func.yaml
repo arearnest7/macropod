@@ -3,7 +3,7 @@ name: election-get-results
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-get-results:kn
-imageDigest: sha256:816bae3e57fb4541ebe5ac3672a01f289ac6b2aa22816d7be23a231c3df3fddf
+imageDigest: sha256:0cf8d1396c278efc3e72f96c21868bd3e5acc88fce08e217bfd6347199cc991f
 created: 2023-10-10T14:56:42.988177953-05:00
 build:
   builder: pack

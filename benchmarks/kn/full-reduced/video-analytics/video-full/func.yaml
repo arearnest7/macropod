@@ -3,7 +3,7 @@ name: video-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-full:kn
-imageDigest: sha256:9c73c6e77079daea87a84011077a70525230b8c740fcdfa39277f14bf69a12dd
+imageDigest: sha256:664a32c007d28a1d36cbb9f9148536e6212718cc30d7eac2c54cf793fa779ca9
 created: 2023-11-05T16:38:01.912085473-06:00
 build:
   builder: pack

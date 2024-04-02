@@ -3,7 +3,7 @@ name: feature-status
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-status:wob
-imageDigest: sha256:61c6eba33f9bc6f31d0cae3dafe2295c8e385bad93e921154ecaf18d79189f0c
+imageDigest: sha256:8dee52c5a5f7bf273cd11c9dcb73ef60d623a16832810fa04ebdef8d50a454e5
 created: 2023-12-03T20:51:11.858374137-06:00
 build:
   builder: pack

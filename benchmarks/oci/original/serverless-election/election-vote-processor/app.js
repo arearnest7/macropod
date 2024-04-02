@@ -24,6 +24,7 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
   if ("LOGGING_NAME" in process.env) {
+    await client.connect();
     await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "http" + "," + "2" + "\n");
   }
   var reply = await index.function_handler(req);

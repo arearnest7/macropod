@@ -3,7 +3,7 @@ name: wage-sum
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-sum:wob
-imageDigest: sha256:1adda20620d44c85537efbf97385f38a80ebc91de617e490df493db38d4877df
+imageDigest: sha256:650d807316d26f5ece12cc76c005c840cc01afe2576e3ae0981355e6a857e805
 created: 2023-12-03T21:04:46.885982026-06:00
 build:
   builder: pack

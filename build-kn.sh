@@ -67,7 +67,7 @@ docker volume prune -f
 ./deploy-full-sentiment.sh wob true true
 ../remove-functions-kn/remove-full-sentiment.sh wob
 ./deploy-full-video.sh wob true true
-..remove-functions-kn/remove-full-video.sh wob
+../remove-functions-kn/remove-full-video.sh wob
 ./deploy-full-wage.sh wob true true
 ../remove-functions-kn/remove-full-wage.sh wob
 docker system prune -a -f

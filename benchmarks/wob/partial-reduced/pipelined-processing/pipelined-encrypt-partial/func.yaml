@@ -3,7 +3,7 @@ name: pipelined-encrypt-partial
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-encrypt-partial:wob
-imageDigest: sha256:9d2fcc338f1c3bd8f38ceae90afb64f9b0bb8d9fa8fea75e0feca7c36dea57a2
+imageDigest: sha256:261057f45faeea6f81132dc19e9602def724e0dd6ccb7b413acec876308c1c51
 created: 2023-12-03T21:21:47.577703094-06:00
 build:
   builder: pack

@@ -3,7 +3,7 @@ name: hotel-recommend-partial
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-recommend-partial:wob
-imageDigest: sha256:33e1792a9d392dad48ad9d7bed559ee02f8fb5dd2ccd142a66f57ea1735b8565
+imageDigest: sha256:23ff7dccbfa724206a3fe65069f1b6d5b76e8c3eec37e29c5ae2c386d1762927
 created: 2023-10-26T19:54:40.164310055-05:00
 build:
   builder: pack

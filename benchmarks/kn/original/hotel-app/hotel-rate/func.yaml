@@ -3,7 +3,7 @@ name: hotel-rate
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-rate:kn
-imageDigest: sha256:942e54677183b42845f9a850f5694486a57f40e7af62389a4d565ec9aeb35432
+imageDigest: sha256:611d7353b21eadd93ff34386a2e224b5a48d09fedb5f5c32a416e7d7da70cd69
 created: 2023-10-26T19:30:55.730644786-05:00
 build:
   builder: pack

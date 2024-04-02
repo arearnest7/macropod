@@ -30,6 +30,7 @@ const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 
 
 const handle = async (context, body) => {
 	if ("LOGGING_NAME" in process.env) {
+		await loggingClient.connect();
                 await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n");
         }
 	client.on('error', err => console.log('Redis Client Error', err));

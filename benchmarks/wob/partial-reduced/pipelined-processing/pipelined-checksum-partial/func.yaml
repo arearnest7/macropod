@@ -3,7 +3,7 @@ name: pipelined-checksum-partial
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-checksum-partial:wob
-imageDigest: sha256:6573b87be55bb9e9f5b1645f8f9ffe336e70965e3f697db2082cd35abbb2cf5f
+imageDigest: sha256:1a00355f38dd1994ba6676c9289674f3999b374f9faf6578e616f04c94ecf237
 created: 2023-12-03T21:21:41.254958415-06:00
 build:
   builder: pack

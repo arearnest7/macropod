@@ -169,6 +169,9 @@ async function gRPCFunctionHandler(call, callback) {
 }
 
 function main() {
+  if ("LOGGING_NAME" in process.env) {
+    await client.connect();
+  }
   if (!("SERVICE_TYPE" in process.env) || process.env.SERVICE_TYPE == "HTTP") {
     app.listen(process.env.FUNC_PORT, () => {});
   }

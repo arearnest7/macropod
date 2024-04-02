@@ -3,7 +3,7 @@ name: sentiment-product-sentiment
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-product-sentiment:kn
-imageDigest: sha256:4241305011d824ee4d9351910bbc051cda141a18c113ded6623392b4f625ba4c
+imageDigest: sha256:557bd559eef945253f7fbe05f488db955f4d848f2e7662509ba5971a15d98afa
 created: 2023-12-03T21:00:31.444133847-06:00
 build:
   builder: pack
