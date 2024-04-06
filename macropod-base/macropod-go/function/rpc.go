@@ -1,10 +1,10 @@
 package function
 
 import (
+    "fmt"
     "os"
     "context"
     "time"
-    "github.com/redis/go-redis/v9"
     "strconv"
     "math/rand"
     "github.com/go-mmap/mmap"
@@ -30,18 +30,7 @@ func invoke(stub pb.GRPCFunctionClient, ctx_in context.Context, in *pb.RequestBo
 }
 
 func RPC(ctx_in Context, dest string, payloads [][]byte) ([]string) {
-    logging_name, logging := os.LookupEnv("LOGGING_NAME")
-    redisClient := redis.NewClient(&redis.Options{})
-    c := context.Background()
-    if logging {
-        logging_ip := os.Getenv("LOGGING_IP")
-        logging_password := os.Getenv("LOGGING_PASSWORD")
-        redisClient = redis.NewClient(&redis.Options{
-            Addr: logging_ip,
-            Password: logging_password,
-            DB: 0,
-        })
-    }
+    fmt.Println(time.Now().String() + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "11" + "\n")
     channel, _ := grpc.Dial(dest, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
     defer channel.Close()
     stub := pb.NewGRPCFunctionClient(channel)
@@ -49,9 +38,6 @@ func RPC(ctx_in Context, dest string, payloads [][]byte) ([]string) {
     defer cancel()
     tl := make(chan *pb.ResponseBody)
     pv_paths := make([]string, 0)
-    if logging {
-        redisClient.Append(c, logging_name, time.Now().String() + "," + ctx_in.WorkflowId + "," + strconv.Itoa(ctx_in.Depth) + "," + strconv.Itoa(ctx_in.Width) + "," + ctx_in.RequestType + "," + "10" + "\n")
-    }
     rpc_pv, pv := os.LookupEnv("RPC_PV")
     rpc_dest_pv, dest_pv := os.LookupEnv("RPC_DEST_PV")
     request_type := "gg"
@@ -99,8 +85,6 @@ func RPC(ctx_in Context, dest string, payloads [][]byte) ([]string) {
             os.Remove(rpc_pv + "/" + pv_paths[i])
         }
     }
-    if logging {
-        redisClient.Append(c, logging_name, time.Now().String() + "," + ctx_in.WorkflowId + "," + strconv.Itoa(ctx_in.Depth) + "," + strconv.Itoa(ctx_in.Width) + "," + ctx_in.RequestType + "," + "11" + "\n")
-    }
+    fmt.Println(time.Now().String() + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "12" + "\n")
     return results
 }

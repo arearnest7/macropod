@@ -1,7 +1,6 @@
 from concurrent import futures
 import os
 import random
-import redis
 import datetime
 import grpc
 import mmap
@@ -12,16 +11,13 @@ MAX_MESSAGE_LENGTH = 1024 * 1024 * 200
 opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_message_length", MAX_MESSAGE_LENGTH)]
 
 def RPC(context, dest, payloads):
-    if "LOGGING_NAME" in os.environ:
-        redisClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
+    print(str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + context["Depth"] + "," + context["Width"] + "," + context["RequestType"] + "," + "13" + "\n", flush=True)
     with grpc.insecure_channel(dest, options=opts,) as channel:
         stub = pb_grpc.gRPCFunctionStub(channel)
         tl = []
         pv_paths = []
         request_type = [["gg", "gm"],["mg","mm"]]["RPC_PV" in os.environ]["RPC_DEST_PV" in os.environ]
         print(request_type)
-        if "LOGGING_NAME" in os.environ:
-            redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + context["Depth"] + "," + context["Width"] + "," + context["RequestType"] + "," + "10" + "\n")
         with futures.ThreadPoolExecutor(max_workers=len(payloads)) as executor:
             for i in range(len(payloads)):
                 payload = payloads[i]
@@ -48,6 +44,5 @@ def RPC(context, dest, payloads):
         if "RPC_PV" in os.environ:
             for pv_path in pv_paths:
                 os.remove(os.environ["RPC_PV"] + "/" + pv_path)
-        if "LOGGING_NAME" in os.environ:
-            redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + context["Depth"] + "," + context["Width"] + "," + context["RequestType"] + "," + "11" + "\n")
+        print(str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + context["Depth"] + "," + context["Width"] + "," + context["RequestType"] + "," + "14" + "\n", flush=True)
         return results

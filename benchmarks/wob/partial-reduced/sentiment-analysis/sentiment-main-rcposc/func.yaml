@@ -3,7 +3,7 @@ name: sentiment-main-rcposc
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-main-rcposc:wob
-imageDigest: sha256:22ddf442ab9fd876588c252a4b2a3004afeb967b8ea9e5f53cf23e21449d0bae
+imageDigest: sha256:a1be08af831dd3eb9ca41d8ee05dc7afeb4504893030060c9cfaa238bf729274
 created: 2023-12-03T21:27:22.752749433-06:00
 build:
   builder: pack
@@ -17,11 +17,5 @@ run:
     value: http://sentiment-product-sentiment-prs.default.127.0.0.1.sslip.io
   - name: SENTIMENT_SERVICE_SENTIMENT_SRS
     value: http://sentiment-service-sentiment-srs.default.127.0.0.1.sslio.io
-  - name: LOGGING_NAME
-    value: sentiment-main-rcposc
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

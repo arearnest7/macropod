@@ -10,13 +10,10 @@ import json
 
 redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-if "LOGGING_NAME" in os.environ:
-    loggingClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 def main(context: Context):
     if 'request' in context.keys():
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n", flush=True)
         params = context.request.json
         bucket = params['input_bucket']
 
@@ -39,8 +36,7 @@ def main(context: Context):
         feature_key = 'feature.txt'
         redisClient.set(bucket + "-" + feature_key, str(feature))
 
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n", flush=True)
         return str(latency), 200
     else:
         print("Empty request", flush=True)

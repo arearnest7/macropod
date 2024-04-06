@@ -17,7 +17,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"time"
-        "github.com/redis/go-redis/v9"
 
 	"crypto/sha256"
 )
@@ -50,7 +49,7 @@ func loadUsers(client *mongo.Client) map[string]string {
 
 	filter := bson.D{}
 	// filter := bson.M{{"username": username}}
-	cursor, err := coll.Find(context.Background(), filter)
+        cursor, err := coll.Find(context.Background(), filter)
 	if err != nil {
 		log.Println("Failed get users data: ", err)
 	}
@@ -58,7 +57,7 @@ func loadUsers(client *mongo.Client) map[string]string {
 	// Get a list of all returned documents and print them out.
 	// See the mongo.Cursor documentation for more examples of using cursors.
 	var users []User
-	if err = cursor.All(context.Background(), &users); err != nil {
+        if err = cursor.All(context.Background(), &users); err != nil {
 		log.Println("Failed get users data: ", err)
 	}
 
@@ -73,7 +72,7 @@ func loadUsers(client *mongo.Client) map[string]string {
 }
 
 func lookupCache(username string) string {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+        ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
 	if err != nil { return "" }
@@ -89,7 +88,7 @@ func lookupCache(username string) string {
 func lookUpDB(username string) (User, bool) {
 	// session := s.MongoClient.Copy()
 	// defer session.Close()
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+        ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
         defer cancel()
         MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
 	collection := MongoClient.Database("user-db").Collection("user")
@@ -100,7 +99,7 @@ func lookUpDB(username string) (User, bool) {
 	var user User
 	filter := bson.D{primitive.E{Key: "username", Value: username}}
 	// filter := bson.M{{"username": username}}
-	err = collection.FindOne(context.Background(), filter).Decode(&user)
+        err = collection.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
 		log.Println("Failed get user: ", err)
 		return user, false
@@ -134,25 +133,12 @@ func CheckUser(req RequestBody) bool {
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-	logging_name, logging := os.LookupEnv("LOGGING_NAME")
-        redisClient := redis.NewClient(&redis.Options{})
-        c := context.Background()
-        if logging {
-                logging_ip := os.Getenv("LOGGING_IP")
-                logging_password := os.Getenv("LOGGING_PASSWORD")
-                redisClient = redis.NewClient(&redis.Options{
-                        Addr: logging_ip,
-                        Password: logging_password,
-                        DB: 0,
-                })
-        }
-        if logging {
-                redisClient.Append(c, logging_name, time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
-        }
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "0" + "\n")
 	body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
 	ret := strconv.FormatBool(CheckUser(body_u))
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1" + "\n")
         fmt.Fprintf(res, ret) // echo to caller
 }

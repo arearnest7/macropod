@@ -36,13 +36,6 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_READ_CSV
-            value: 127.0.0.1:5001
-          - name: LOGGING_NAME
-            value: sentiment-main
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:oci
         ports:
@@ -51,13 +44,6 @@ spec:
           - name: PORT
             value: "5001"
           - name: SENTIMENT_PRODUCT_OR_SERVICE
-            value: 127.0.0.1:5002
-          - name: LOGGING_NAME
-            value: sentiment-read-csv
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:oci
         ports:
@@ -66,17 +52,8 @@ spec:
           - name: PORT
             value: "5002"
           - name: SENTIMENT_CFAIL
-            value: 127.0.0.1:5003
           - name: SENTIMENT_PRODUCT_SENTIMENT
-            value: 127.0.0.1:5004
           - name: SENTIMENT_SERVICE_SENTIMENT
-            value: 127.0.0.1:5009
-          - name: LOGGING_NAME
-            value: sentiment-product-or-service
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-cfail
         image: arearnest7/sentiment-cfail:oci
         ports:
@@ -84,12 +61,6 @@ spec:
         env:
           - name: PORT
             value: "5003"
-          - name: LOGGING_NAME
-            value: sentiment-cfail
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-product-sentiment
         image: arearnest7/sentiment-product-sentiment:oci
         ports:
@@ -98,13 +69,6 @@ spec:
           - name: PORT
             value: "5004"
           - name: SENTIMENT_PRODUCT_RESULT
-            value: 127.0.0.1:5005
-          - name: LOGGING_NAME
-            value: sentiment-product-sentiment
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:oci
         ports:
@@ -113,17 +77,8 @@ spec:
           - name: PORT
             value: "5005"
           - name: SENTIMENT_SFAIL
-            value: 127.0.0.1:5006
           - name: SENTIMENT_SNS
-            value: 127.0.0.1:5007
           - name: SENTIMENT_DB
-            value: 127.0.0.1:5008
-          - name: LOGGING_NAME
-            value: sentiment-product-result
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:oci
         ports:
@@ -131,12 +86,6 @@ spec:
         env:
           - name: PORT
             value: "5006"
-          - name: LOGGING_NAME
-            value: sentiment-sfail
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-sns
         image: arearnest7/sentiment-sns:oci
         ports:
@@ -145,13 +94,6 @@ spec:
           - name: PORT
             value: "5007"
           - name: SENTIMENT_DB
-            value: 127.0.0.1:5008
-          - name: LOGGING_NAME
-            value: sentiment-sns
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-db
         image: arearnest7/sentiment-db:oci
         ports:
@@ -159,12 +101,6 @@ spec:
         env:
           - name: PORT
             value: "5008"
-          - name: LOGGING_NAME
-            value: sentiment-db
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-service-sentiment
         image: arearnest7/sentiment-service-sentiment:oci
         ports:
@@ -173,13 +109,6 @@ spec:
           - name: PORT
             value: "5009"
           - name: SENTIMENT_SERVICE_RESULT
-            value: 127.0.0.1:5010
-          - name: LOGGING_NAME
-            value: sentiment-service-sentiment
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:oci
         ports:
@@ -188,14 +117,5 @@ spec:
           - name: PORT
             value: "5010"
           - name: SENTIMENT_SFAIL
-            value: 127.0.0.1:5006
           - name: SENTIMENT_SNS
-            value: 127.0.0.1:5007
           - name: SENTIMENT_DB
-            value: 127.0.0.1:5008
-          - name: LOGGING_NAME
-            value: sentiment-service-result
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

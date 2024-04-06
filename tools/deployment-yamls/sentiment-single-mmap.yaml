@@ -51,13 +51,6 @@ spec:
           - name: RPC_DEST_PV
             value: "/macropod-pv"
           - name: SENTIMENT_READ_CSV
-            value: 127.0.0.1:5001
-          - name: LOGGING_NAME
-            value: sentiment-main
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:macropod
         ports:
@@ -79,13 +72,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_PRODUCT_OR_SERVICE
-            value: 127.0.0.1:5002
-          - name: LOGGING_NAME
-            value: sentiment-read-csv
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:macropod
         ports:
@@ -107,17 +93,8 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_CFAIL
-            value: 127.0.0.1:5003
           - name: SENTIMENT_PRODUCT_SENTIMENT
-            value: 127.0.0.1:5004
           - name: SENTIMENT_SERVICE_SENTIMENT
-            value: 127.0.0.1:5009
-          - name: LOGGING_NAME
-            value: sentiment-product-or-service
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-cfail
         image: arearnest7/sentiment-cfail:macropod
         ports:
@@ -134,12 +111,6 @@ spec:
             value: "5003"
           - name: APP_PV
             value: "/macropod-pv"
-          - name: LOGGING_NAME
-            value: sentiment-cfail
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-product-sentiment
         image: arearnest7/sentiment-product-sentiment:macropod
         ports:
@@ -161,13 +132,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_PRODUCT_RESULT
-            value: 127.0.0.1:5005
-          - name: LOGGING_NAME
-            value: sentiment-product-sentiment
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:macropod
         ports:
@@ -189,17 +153,8 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_SFAIL
-            value: 127.0.0.1:5006
           - name: SENTIMENT_SNS
-            value: 127.0.0.1:5007
           - name: SENTIMENT_DB
-            value: 127.0.0.1:5008
-          - name: LOGGING_NAME
-            value: sentiment-product-result
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:macropod
         ports:
@@ -216,12 +171,6 @@ spec:
             value: "5006"
           - name: APP_PV
             value: "/macropod-pv"
-          - name: LOGGING_NAME
-            value: sentiment-sfail
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-sns
         image: arearnest7/sentiment-sns:macropod
         ports:
@@ -243,13 +192,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_DB
-            value: 127.0.0.1:5008
-          - name: LOGGING_NAME
-            value: sentiment-sns
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-db
         image: arearnest7/sentiment-db:macropod
         ports:
@@ -266,12 +208,6 @@ spec:
             value: "5008"
           - name: APP_PV
             value: "/macropod-pv"
-          - name: LOGGING_NAME
-            value: sentiment-db
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-service-sentiment
         image: arearnest7/sentiment-service-sentiment:macropod
         ports:
@@ -293,13 +229,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_SERVICE_RESULT
-            value: 127.0.0.1:5010
-          - name: LOGGING_NAME
-            value: sentiment-service-sentiment
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:macropod
         ports:
@@ -321,14 +250,5 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_SFAIL
-            value: 127.0.0.1:5006
           - name: SENTIMENT_SNS
-            value: 127.0.0.1:5007
           - name: SENTIMENT_DB
-            value: 127.0.0.1:5008
-          - name: LOGGING_NAME
-            value: sentiment-service-result
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

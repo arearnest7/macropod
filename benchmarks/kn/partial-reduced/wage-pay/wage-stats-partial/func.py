@@ -13,13 +13,10 @@ import random
 
 redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-if "LOGGING_NAME" in os.environ:
-    loggingClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 def main(context: Context):
     if 'request' in context.keys():
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n", flush=True)
         manifest = []
 
         total = {'statistics': {'total': 0, 'staff-number': 0, 'teamleader-number': 0, 'manager-number': 0}}
@@ -39,11 +36,9 @@ def main(context: Context):
             for obj in manifest:
                 if obj != "raw/":
                     fs.append(executor.submit(requests.get, url=os.environ["WAGE_SUM_AMW"], json={'total': total, 'base': base, 'merit': merit, 'operator': obj}))
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n", flush=True)
         results = [f for f in fs]
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "2" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n", flush=True)
         return "processed batch at " + str(time.time()), 200
     else:
         print("Empty request", flush=True)

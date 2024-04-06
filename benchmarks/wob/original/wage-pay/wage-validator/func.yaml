@@ -3,7 +3,7 @@ name: wage-validator
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-validator:wob
-imageDigest: sha256:b27108543b0daab738ddc0dfc277e347baf445a2080686bab36e026c56621540
+imageDigest: sha256:9627c8aee16932a66a9095f80cc2e9aca7fd72cd250fea9e993943646085a4b2
 created: 2023-12-03T21:04:49.823948907-06:00
 build:
   builder: pack
@@ -11,11 +11,5 @@ run:
   envs:
   - name: WAGE_FORMAT
     value: http://wage-format.default.127.0.0.1.sslip.io
-  - name: LOGGING_NAME
-    value: wage-validator
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

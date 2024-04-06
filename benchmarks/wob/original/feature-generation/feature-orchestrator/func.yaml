@@ -3,7 +3,7 @@ name: feature-orchestrator
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-orchestrator:wob
-imageDigest: sha256:de5ede11dfcc413874c918074fb79b8d6ba3d3b880d4157941238618e0df007b
+imageDigest: sha256:5533b95c46fcf175e7aff6d13bfc70dae1ffba88e443f0cecc4d515584706f17
 created: 2023-12-03T20:51:02.770828406-06:00
 build:
   builder: pack
@@ -17,11 +17,5 @@ run:
     value: http://feature-extractor.default.127.0.0.1.sslip.io
   - name: FEATURE_WAIT
     value: http://feature-wait.default.127.0.0.1.sslip.io
-  - name: LOGGING_NAME
-    value: feature-orchestrator
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

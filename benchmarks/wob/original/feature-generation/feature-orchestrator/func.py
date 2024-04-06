@@ -12,20 +12,13 @@ import random
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-if "LOGGING_NAME" in os.environ:
-    loggingClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 def invoke_lambda(bucket, dest, key):
-    if "LOGGING_NAME" in os.environ:
-        loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "2" + "\n")
     requests.post(url=os.environ["FEATURE_EXTRACTOR"], json={"input_bucket": bucket, "key": key, "dest": dest})
-    if "LOGGING_NAME" in os.environ:
-        loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "3" + "\n")
 
 def main(context: Context):
     if 'request' in context.keys():
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n", flush=True)
         params = context.request.json
         bucket = params['bucket']
         dest = str(random.randint(0, 10000000)) + "-" + bucket
@@ -37,13 +30,15 @@ def main(context: Context):
         print("File : " + str(all_keys))
 
         pool = ThreadPool(len(all_keys))
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n", flush=True)
         pool.map(partial(invoke_lambda, bucket, dest), all_keys)
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n", flush=True)
         pool.close()
         pool.join()
 
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "3" + "\n", flush=True)
         ret = requests.post(url=os.environ["FEATURE_WAIT"], json={"num_of_file": str(len(all_keys)), "input_bucket": dest}).text
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "4" + "\n", flush=True)
         return ret, 200
     else:
         print("Empty request", flush=True)

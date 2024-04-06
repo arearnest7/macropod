@@ -134,12 +134,6 @@ spec:
             value: http://10.43.190.4
           - name: HOTEL_USER
             value: http://10.43.190.5
-          - name: LOGGING_NAME
-            value: hotel-frontend
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -169,12 +163,6 @@ spec:
             value: http://10.43.190.6
           - name: HOTEL_RATE
             value: http://10.43.190.8
-          - name: LOGGING_NAME
-            value: hotel-search
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -200,12 +188,6 @@ spec:
         env:
           - name: PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: hotel-recommend
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -231,12 +213,6 @@ spec:
         env:
           - name: PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: hotel-reserve
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -262,12 +238,6 @@ spec:
         env:
           - name: PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: hotel-user
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -293,12 +263,6 @@ spec:
         env:
           - name: PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: hotel-geo
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -324,12 +288,6 @@ spec:
         env:
           - name: PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: hotel-profile
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -355,9 +313,3 @@ spec:
         env:
           - name: PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: hotel-rate
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

@@ -317,6 +317,7 @@ func MakeReservation(req RequestBody) string {
 
 // Handle an HTTP Request.
 func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type string, is_json bool) {
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
         ret := ""
 	body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
@@ -327,5 +328,6 @@ func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type st
 	} else if body_u.RequestType == "make" {
 		ret = MakeReservation(body_u)
 	}
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
 	fmt.Fprintf(res, ret) // echo to caller
 }

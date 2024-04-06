@@ -13,6 +13,7 @@ import argparse
 
 from concurrent import futures
 import base64
+import datetime
 
 # Load model
 model = models.squeezenet1_1(pretrained=True)
@@ -68,7 +69,9 @@ def Recognise(request):
 
 def function_handler(context):
     if context["is_json"]:
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "10" + "\n", flush=True)
         ret = Recognise(context["request"])
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "11" + "\n", flush=True)
         return ret, 200
     else:
         print("Empty request", flush=True)

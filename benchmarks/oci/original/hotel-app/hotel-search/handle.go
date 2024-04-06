@@ -7,6 +7,7 @@ import (
 	"os"
 	"encoding/json"
 	"io/ioutil"
+	"time"
 )
 
 type RequestBody struct {
@@ -69,7 +70,9 @@ func Nearby(req RequestBody) string {
         req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_g))
         req_url.Header.Add("Content-Type", "application/json")
 	client := &http.Client{}
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
 	nearby, err := client.Do(req_url)
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "4" + "\n")
 	if err != nil {
                 fmt.Printf("nearby error: %v", err)
                 return ""
@@ -97,7 +100,9 @@ func Nearby(req RequestBody) string {
         requestURL2 := os.Getenv("HOTEL_RATE")
         req_url2, err := http.NewRequest(http.MethodPost, requestURL2, bytes.NewBuffer(body_r))
 	req_url2.Header.Add("Content-Type", "application/json")
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "5" + "\n")
         ratesRet, err := client.Do(req_url2)
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "6" + "\n")
 	if err != nil {
                 fmt.Printf("rates error: %v", err)
                 return ""
@@ -122,9 +127,11 @@ func Nearby(req RequestBody) string {
 
 // Handle an HTTP Request.
 func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type string, is_json bool) {
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
         body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "7" + "\n")
 	fmt.Fprintf(res, Nearby(body_u)) // echo to caller
 }

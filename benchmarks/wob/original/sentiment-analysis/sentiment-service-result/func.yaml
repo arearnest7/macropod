@@ -3,7 +3,7 @@ name: sentiment-service-result
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-service-result:wob
-imageDigest: sha256:1bb10e9591c99973d96cc7ec753be7251a9df1042c82a0e96b93d3e94b4fc9e4
+imageDigest: sha256:1da4f3dff531445b7132be21e0130fd1c27d5162d25b727e3409d7efe3dfb353
 created: 2023-12-03T21:00:45.838624707-06:00
 build:
   builder: pack
@@ -15,11 +15,5 @@ run:
     value: http://sentiment-sns.default.127.0.0.1.sslip.io
   - name: SENTIMENT_SFAIL
     value: http://sentiment-sfail.default.127.0.0.1.sslip.io
-  - name: LOGGING_NAME
-    value: sentiment-service-result
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

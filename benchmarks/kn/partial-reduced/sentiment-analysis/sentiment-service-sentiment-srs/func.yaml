@@ -3,7 +3,7 @@ name: sentiment-service-sentiment-srs
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-service-sentiment-srs:kn
-imageDigest: sha256:b567f0b5e0b113efd869beb5b9ebc18f9d16e14cb71b5f09dd68cad2e0d68857
+imageDigest: sha256:737b48fddb0201594b96f5da50556a7fd2ed959e8afea7b4599bc0078057bd4a
 created: 2023-12-03T21:30:00.866902725-06:00
 build:
   builder: pack
@@ -11,11 +11,5 @@ run:
   envs:
   - name: SENTIMENT_DB_S
     value: http://sentiment-db-s.default.127.0.0.1.sslip.io
-  - name: LOGGING_NAME
-    value: sentiment-service-sentiment-srs
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

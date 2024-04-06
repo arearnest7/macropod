@@ -51,13 +51,6 @@ spec:
           - name: RPC_DEST_PV
             value: "/macropod-pv"
           - name: VIDEO_DECODER
-            value: 127.0.0.1:5001
-          - name: LOGGING_NAME
-            value: video-streaming
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: video-decoder
         image: arearnest7/video-decoder:macropod
         ports:
@@ -79,13 +72,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: VIDEO_RECOG
-            value: 127.0.0.1:5002
-          - name: LOGGING_NAME
-            value: video-decoder
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: video-recog
         image: arearnest7/video-recog:macropod
         ports:
@@ -102,9 +88,3 @@ spec:
             value: "5002"
           - name: APP_PV
             value: "/macropod-pv"
-          - name: LOGGING_NAME
-            value: video-recog
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

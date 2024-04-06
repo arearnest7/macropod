@@ -16,8 +16,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-if "LOGGING_NAME" in os.environ:
-    loggingClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 cleanup_re = re.compile('[^a-z]+')
 
@@ -100,8 +98,7 @@ def invoke_lambda(bucket, dest, key):
 
 def main(context: Context):
     if 'request' in context.keys():
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n", flush=True)
         bucket = context.request.json['bucket']
         dest = str(random.randint(0, 10000000)) + "-" + bucket
         all_keys = []
@@ -116,8 +113,7 @@ def main(context: Context):
         pool.close()
         pool.join()
         ret = wait_handler({"num_of_file": str(len(all_keys)), "input_bucket": dest})
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n", flush=True)
         return ret, 200
     else:
         print("Empty request", flush=True)

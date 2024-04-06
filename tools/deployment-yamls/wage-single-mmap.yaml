@@ -51,13 +51,6 @@ spec:
           - name: RPC_DEST_PV
             value: "/macropod-pv"
           - name: WAGE_FORMAT
-            value: 127.0.0.1:5001
-          - name: LOGGING_NAME
-            value: wage-validator
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: wage-format
         image: arearnest7/wage-format:macropod
         ports:
@@ -79,13 +72,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: WAGE_WRITE_RAW
-            value: 127.0.0.1:5002
-          - name: LOGGING_NAME
-            value: wage-format
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: wage-write-raw
         image: arearnest7/wage-write-raw:macropod
         ports:
@@ -107,13 +93,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: WAGE_STATS
-            value: 127.0.0.1:5003
-          - name: LOGGING_NAME
-            value: wage-write-raw
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: wage-stats
         image: arearnest7/wage-stats:macropod
         ports:
@@ -135,13 +114,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: WAGE_AVG
-            value: 127.0.0.1:5004
-          - name: LOGGING_NAME
-            value: wage-stats
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: wage-avg
         image: arearnest7/wage-avg:macropod
         ports:
@@ -163,13 +135,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: WAGE_SUM
-            value: 127.0.0.1:5005
-          - name: LOGGING_NAME
-            value: wage-avg
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: wage-sum
         image: arearnest7/wage-sum:macropod
         ports:
@@ -191,13 +156,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: WAGE_MERIT
-            value: 127.0.0.1:5006
-          - name: LOGGING_NAME
-            value: wage-sum
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: wage-merit
         image: arearnest7/wage-merit:macropod
         ports:
@@ -219,13 +177,6 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: WAGE_WRITE_MERIT
-            value: 127.0.0.1:5007
-          - name: LOGGING_NAME
-            value: wage-merit
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: wage-write-merit
         image: arearnest7/wage-write-merit:macropod
         ports:
@@ -242,9 +193,3 @@ spec:
             value: "5007"
           - name: APP_PV
             value: "/macropod-pv"
-          - name: LOGGING_NAME
-            value: wage-write-merit
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

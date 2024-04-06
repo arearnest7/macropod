@@ -8,16 +8,13 @@ import os
 import datetime
 import redis
 
-if "LOGGING_NAME" in os.environ:
-    loggingClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 TAX = 0.0387
 INSURANCE = 1500
 
 def main(context: Context):
     if 'request' in context.keys():
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n", flush=True)
         params = context.request.json
         print(type(params))
         params['INSURANCE'] = INSURANCE
@@ -28,11 +25,9 @@ def main(context: Context):
         realpay = (1-TAX) * (params['base'] + params['merit'])
         params['realpay'] = realpay
 
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n", flush=True)
         response = requests.get(url=os.environ["WAGE_WRITE_RAW"], json=params)
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "2" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n", flush=True)
         return response.text, 200
     else:
         print("Empty request", flush=True)

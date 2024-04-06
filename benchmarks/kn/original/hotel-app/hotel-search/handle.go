@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 
 	"time"
-        "github.com/redis/go-redis/v9"
 )
 
 type RequestBody struct {
@@ -73,7 +72,9 @@ func Nearby(req RequestBody) string {
         req_url, err := http.NewRequest(http.MethodPost, requestURL, bytes.NewBuffer(body_g))
         req_url.Header.Add("Content-Type", "application/json")
 	client := &http.Client{}
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1" + "\n")
 	nearby, err := client.Do(req_url)
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
 	if err != nil {
                 fmt.Printf("nearby error: %v", err)
                 return ""
@@ -101,7 +102,9 @@ func Nearby(req RequestBody) string {
         requestURL2 := os.Getenv("HOTEL_RATE")
         req_url2, err := http.NewRequest(http.MethodPost, requestURL2, bytes.NewBuffer(body_r))
 	req_url2.Header.Add("Content-Type", "application/json")
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
         ratesRet, err := client.Do(req_url2)
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "4" + "\n")
 	if err != nil {
                 fmt.Printf("rates error: %v", err)
                 return ""
@@ -126,28 +129,12 @@ func Nearby(req RequestBody) string {
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-	logging_name, logging := os.LookupEnv("LOGGING_NAME")
-        redisClient := redis.NewClient(&redis.Options{})
-        c := context.Background()
-        if logging {
-                logging_ip := os.Getenv("LOGGING_IP")
-                logging_password := os.Getenv("LOGGING_PASSWORD")
-                redisClient = redis.NewClient(&redis.Options{
-                        Addr: logging_ip,
-                        Password: logging_password,
-                        DB: 0,
-                })
-        }
-        if logging {
-                redisClient.Append(c, logging_name, time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
-        }
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "0" + "\n")
         body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
 	ret := Nearby(body_u)
-	if logging {
-                redisClient.Append(c, logging_name, time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
-        }
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "5" + "\n")
 	fmt.Fprintf(res, ret) // echo to caller
 }

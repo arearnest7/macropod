@@ -19,48 +19,29 @@ const axios = require("axios");
 const redis = require('redis');
 const moment = require('moment');
 
-var loggingClient = redis.createClient();
-
-if ("LOGGING_NAME" in process.env) {
-        loggingClient = redis.createClient({url: 'redis://' + process.env.LOGGING_IP, password: process.env.LOGGING_PASSWORD});
-}
-
 const handle = async (context, body) => {
-	if ("LOGGING_NAME" in process.env) {
-		await loggingClient.connect();
-                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n");
-        }
+        console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n");
 	if (body['requestType'] ==  'get_results') {
 		var data = '';
-		if ("LOGGING_NAME" in process.env) {
-                	await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n");
-        	}
+        	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n");
                 await axios.post(process.env.ELECTION_GET_RESULTS, body)
                         .then( (response) => {
                                 data = response.data;
                         });
-		if ("LOGGING_NAME" in process.env) {
-                        await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "2" + "\n");
-                }
+                console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n");
 		return data;
 	}
 	else if (body['requestType'] == 'vote') {
 		var data = '';
-		if ("LOGGING_NAME" in process.env) {
-                        await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "3" + "\n");
-                }
+                console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "3" + "\n");
 		await axios.post(process.env.ELECTION_VOTE_ENQUEUER, body)
 			.then( (response) => {
 				data = response.data;
 			});
-		if ("LOGGING_NAME" in process.env) {
-                        await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "4" + "\n");
-                }
+                console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "4" + "\n");
 		return data;
 	}
-	if ("LOGGING_NAME" in process.env) {
-                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "5" + "\n");
-        }
+        console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "5" + "\n");
 	return 'invalid request type';
 }
 

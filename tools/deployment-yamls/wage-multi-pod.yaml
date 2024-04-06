@@ -130,12 +130,6 @@ spec:
             value: "5000"
           - name: WAGE_FORMAT
             value: http://10.43.190.2
-          - name: LOGGING_NAME
-            value: wage-validator
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -167,12 +161,6 @@ spec:
             value: "5000"
           - name: WAGE_WRITE_RAW
             value: http://10.43.190.3
-          - name: LOGGING_NAME
-            value: wage-format
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -204,12 +192,6 @@ spec:
             value: "5000"
           - name: WAGE_STATS
             value: http://10.43.190.4
-          - name: LOGGING_NAME
-            value: wage-write-raw
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -241,12 +223,6 @@ spec:
             value: "5000"
           - name: WAGE_AVG
             value: http://10.43.190.5
-          - name: LOGGING_NAME
-            value: wage-stats
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -278,12 +254,6 @@ spec:
             value: "5000"
           - name: WAGE_SUM
             value: http://10.43.190.6
-          - name: LOGGING_NAME
-            value: wage-avg
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -315,12 +285,6 @@ spec:
             value: "5000"
           - name: WAGE_MERIT
             value: http://10.43.190.7
-          - name: LOGGING_NAME
-            value: wage-sum
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -352,12 +316,6 @@ spec:
             value: "5000"
           - name: WAGE_WRITE_MERIT
             value: http://10.43.190.8
-          - name: LOGGING_NAME
-            value: wage-merit
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -387,9 +345,3 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: wage-write-merit
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

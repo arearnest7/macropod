@@ -6,9 +6,11 @@ import os
 from pymongo import MongoClient
 from urllib.parse import quote_plus
 import random
+import datetime
 
 def function_handler(context):
     if context["is_json"]:
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "10" + "\n", flush=True)
         event = context["request"]
 
 	#client = MongoClient(host=os.environ["MONGO_HOST"])
@@ -37,6 +39,7 @@ def function_handler(context):
         response['feedback'] = event['feedback']
         response['sentiment'] = event['sentiment']
 
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "11" + "\n", flush=True)
         return json.dumps(response), 200
     else:
         print("Empty request", flush=True)

@@ -3,7 +3,7 @@ name: video-streaming
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-streaming:wob
-imageDigest: sha256:d7d15ee45a9c442cbf6271f00fe212b42c278c1c358f4cd51a61b97691bee305
+imageDigest: sha256:0816e82c5dcf25172923470559658892e809ffc0505609524f5bd21aaedef797
 created: 2023-11-04T23:11:58.628724073-05:00
 build:
   builder: pack
@@ -11,11 +11,5 @@ run:
   envs:
   - name: VIDEO_DECODER
     value: http://video-decoder.default.127.0.0.1.sslip.io
-  - name: LOGGING_NAME
-    value: video-streaming
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

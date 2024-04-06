@@ -50,12 +50,7 @@ spec:
             value: "/macropod-pv"
           - name: TEST
             value: "127.0.0.1:5001"
-          - name: LOGGING_NAME
             value: macropod-go-1
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: macropod-go-2
         image: arearnest7/macropod-go:latest
         ports:
@@ -74,9 +69,4 @@ spec:
             value: "/macropod-pv"
           - name: TEST
             value: "127.0.0.1:5001"
-          - name: LOGGING_NAME
             value: macropod-go-2
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

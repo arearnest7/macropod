@@ -4,11 +4,13 @@ import json
 import pprint
 import random
 import os
+import datetime
 
 pp = pprint.PrettyPrinter(indent=4)
 
 def function_handler(context):
     if context["is_json"]:
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "10" + "\n", flush=True)
         event = context["request"]
 
         try:
@@ -23,7 +25,9 @@ def function_handler(context):
                 'bucket_name': bucket_name,
                 'file_key': file_key
             }
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "11" + "\n", flush=True)
         response = requests.get(url=os.environ["SENTIMENT_READ_CSV"], json=input)
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "12" + "\n", flush=True)
 
         return response.text, 200
     else:

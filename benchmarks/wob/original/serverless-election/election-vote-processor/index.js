@@ -21,17 +21,8 @@ const moment = require('moment');
 
 //const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
-var loggingClient = redis.createClient();
-
-if ("LOGGING_NAME" in process.env) {
-        loggingClient = redis.createClient({url: 'redis://' + process.env.LOGGING_IP, password: process.env.LOGGING_PASSWORD});
-}
-
 const handle = async (context, body) => {
-	if ("LOGGING_NAME" in process.env) {
-		await loggingClient.connect();
-                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n");
-        }
+        console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n");
 	//client.on('error', err => console.log('Redis Client Error', err));
         //await client.connect();
 	//await client.set("voter-" + body['id'], JSON.stringify(body));
@@ -48,9 +39,7 @@ const handle = async (context, body) => {
         //else {
         //        await client.set("election-results-" + state + "-" + candidate, "1");
         //}
-	if ("LOGGING_NAME" in process.env) {
-                await loggingClient.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n");
-        }
+        console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n");
         return "success";
 }
 

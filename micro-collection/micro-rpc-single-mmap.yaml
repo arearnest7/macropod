@@ -54,12 +54,7 @@ spec:
             value: "127.0.0.1:5001"
           - name: LEN
             value: "1000000"
-          - name: LOGGING_NAME
             value: micro-rpc-a
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: micro-rpc-b
         image: arearnest7/micro-rpc-b:macropod-v1.2
         ports:
@@ -78,9 +73,4 @@ spec:
             value: "/macropod-pv"
           - name: LEN
             value: "1000000"
-          - name: LOGGING_NAME
             value: micro-rpc-b
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

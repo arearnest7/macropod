@@ -3,7 +3,7 @@ name: wage-sum
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-sum:wob
-imageDigest: sha256:650d807316d26f5ece12cc76c005c840cc01afe2576e3ae0981355e6a857e805
+imageDigest: sha256:54344d52d585451bfdcd42f33c60ff86330ea4ababd7b665ed5fc186c644c400
 created: 2023-12-03T21:04:46.885982026-06:00
 build:
   builder: pack
@@ -15,11 +15,5 @@ run:
     value: password
   - name: WAGE_AVG
     value: http://wage-avg.default.127.0.0.1.sslip.io
-  - name: LOGGING_NAME
-    value: wage-sum
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

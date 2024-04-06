@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -29,6 +30,7 @@ type RequestBody struct {
 
 // Handle an HTTP Request.
 func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type string, is_json bool) {
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
 	requestURL := ""
 	body, err := ioutil.ReadAll(req.Body)
 	body_u := RequestBody{}
@@ -51,9 +53,12 @@ func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type st
         }
 	req_url.Header.Add("Content-Type", "application/json")
 	client := &http.Client{}
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
         ret, err := client.Do(req_url)
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "4" + "\n")
         retBody, err := ioutil.ReadAll(ret.Body)
         ret_val, err := json.Marshal(retBody)
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "5" + "\n")
 	fmt.Fprintf(res, string(ret_val)) // echo to caller
 }
 

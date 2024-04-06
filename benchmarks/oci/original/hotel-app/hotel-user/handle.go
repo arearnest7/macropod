@@ -9,6 +9,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"time"
+
 	"crypto/sha256"
 )
 
@@ -40,7 +42,7 @@ func loadUsers() map[string]string {
 
 	//filter := bson.D{}
 	// filter := bson.M{{"username": username}}
-	//cursor, err := coll.Find(context.Background(), filter)
+        //cursor, err := coll.Find(context.Background(), filter)
 	//if err != nil {
 	//	log.Println("Failed get users data: ", err)
 	//}
@@ -48,7 +50,7 @@ func loadUsers() map[string]string {
 	// Get a list of all returned documents and print them out.
 	// See the mongo.Cursor documentation for more examples of using cursors.
 	var users []User
-	//if err = cursor.All(context.Background(), &users); err != nil {
+        //if err = cursor.All(context.Background(), &users); err != nil {
 	//	log.Println("Failed get users data: ", err)
 	//}
 
@@ -79,7 +81,7 @@ func lookupCache(username string) string {
 func lookUpDB(username string) (User, bool) {
 	// session := s.MongoClient.Copy()
 	// defer session.Close()
-	//ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+        //ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
         //defer cancel()
         //MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
 	//collection := "{}"
@@ -90,7 +92,7 @@ func lookUpDB(username string) (User, bool) {
 	var user User
 	//filter := bson.D{primitive.E{Key: "username", Value: username}}
 	// filter := bson.M{{"username": username}}
-	//err = collection.FindOne(context.Background(), filter).Decode(&user)
+        //err = collection.FindOne(context.Background(), filter).Decode(&user)
 	//if err != nil {
 	//	log.Println("Failed get user: ", err)
 	//	return user, false
@@ -124,9 +126,11 @@ func CheckUser(req RequestBody) bool {
 
 // Handle an HTTP Request.
 func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type string, is_json bool) {
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
 	body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
         fmt.Fprintf(res, strconv.FormatBool(CheckUser(body_u))) // echo to caller
 }

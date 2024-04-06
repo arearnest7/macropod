@@ -38,7 +38,7 @@ func loadUsers() map[string]string {
 
 	//filter := bson.D{}
 	// filter := bson.M{{"username": username}}
-	//cursor, err := coll.Find(context.Background(), filter)
+        //cursor, err := coll.Find(context.Background(), filter)
 	//if err != nil {
 	//	log.Println("Failed get users data: ", err)
 	//}
@@ -46,7 +46,7 @@ func loadUsers() map[string]string {
 	// Get a list of all returned documents and print them out.
 	// See the mongo.Cursor documentation for more examples of using cursors.
 	var users []User
-	//if err = cursor.All(context.Background(), &users); err != nil {
+        //if err = cursor.All(context.Background(), &users); err != nil {
 	//	log.Println("Failed get users data: ", err)
 	//}
 
@@ -61,7 +61,7 @@ func loadUsers() map[string]string {
 }
 
 func lookupCache(username string) string {
-	//ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+        //ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	//defer cancel()
 	//MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
 	//if err != nil { return "" }
@@ -77,7 +77,7 @@ func lookupCache(username string) string {
 func lookUpDB(username string) (User, bool) {
 	// session := s.MongoClient.Copy()
 	// defer session.Close()
-	//ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+        //ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
         //defer cancel()
         //MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
 	//collection := "{}"
@@ -88,7 +88,7 @@ func lookUpDB(username string) (User, bool) {
 	var user User
 	//filter := bson.D{primitive.E{Key: "username", Value: username}}
 	// filter := bson.M{{"username": username}}
-	//err = collection.FindOne(context.Background(), filter).Decode(&user)
+        //err = collection.FindOne(context.Background(), filter).Decode(&user)
 	//if err != nil {
 	//	log.Println("Failed get user: ", err)
 	//	return user, false

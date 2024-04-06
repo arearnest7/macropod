@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const grpc = require('@grpc/grpc-js');
-const redis = require('redis');
 const moment = require('moment');
 const fs = require('fs');
 const func = require('./func');
@@ -16,13 +15,9 @@ var packageDefinition = protoLoader.loadSync(
   });
 var gRPCFunction = grpc.loadPackageDefinition(packageDefinition).function;
 
-var client = redis.createClient();
-
-if ("LOGGING_NAME" in process.env) {
-  client = redis.createClient({url: 'redis://' + process.env.LOGGING_IP, password: process.env.LOGGING_PASSWORD});
-}
-
 app.get('/', async (req, res) => {
+  var workflow_id = Math.floor(Math.random() * 10000000).toString();
+  console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "0" + "\n");
   var request_type = "gg";
   if ("APP_PV" in process.env) {
     request_type = "gm";
@@ -39,34 +34,26 @@ app.get('/', async (req, res) => {
     IsJson: true
   };
   if (req.header("Content-Type") == "application/json") {
-    var workflow_id = Math.floor(Math.random() * 10000000).toString();
-    if ("LOGGING_NAME" in process.env) {
-      await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "0" + "\n");
-    }
     ctx.WorkflowId = workflow_id;
     ctx.IsJson = true;
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "1" + "\n");
     [reply, code] = await func.FunctionHandler(ctx);
-    if ("LOGGING_NAME" in process.env) {
-      await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "1" + "\n");
-    }
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "2" + "\n");
     res.send(reply);
   }
   else {
-    var workflow_id = Math.floor(Math.random() * 10000000).toString();
-    if ("LOGGING_NAME" in process.env) {
-      await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "2" + "\n");
-    }
     ctx.WorkflowId = workflow_id;
     ctx.IsJson = false;
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "3" + "\n");
     [reply, code] = await func.FunctionHandler(ctx);
-    if ("LOGGING_NAME" in process.env) {
-      await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "3" + "\n");
-    }
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "4" + "\n");
     res.send(reply);
   }
 })
 
 app.post('/', async (req, res) => {
+  var workflow_id = Math.floor(Math.random() * 10000000).toString();
+  console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "POST" + "," + "5" + "\n");
   var request_type = "gg";
   if ("APP_PV" in process.env) {
     request_type = "gm";
@@ -83,29 +70,19 @@ app.post('/', async (req, res) => {
     IsJson: true
   };
   if (req.header("Content-Type") == "application/json") {
-    var workflow_id = Math.floor(Math.random() * 10000000).toString();
-    if ("LOGGING_NAME" in process.env) {
-      await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "4" + "\n");
-    }
     ctx.WorkflowId = workflow_id;
     ctx.IsJson = true;
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "6" + "\n");
     [reply, code] = await func.FunctionHandler(ctx);
-    if ("LOGGING_NAME" in process.env) {
-      await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "5" + "\n");
-    }
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "POST" + "," + "7" + "\n");
     res.send(reply);
   }
   else {
-    var workflow_id = Math.floor(Math.random() * 10000000).toString();
-    if ("LOGGING_NAME" in process.env) {
-      await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "6" + "\n");
-    }
     ctx.WorkflowId = workflow_id;
     ctx.IsJson = false;
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "8" + "\n");
     [reply, code] = await func.FunctionHandler(ctx);
-    if ("LOGGING_NAME" in process.env) {
-      await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "7" + "\n");
-    }
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + "0" + "," + "0" + "," + "POST" + "," + "9" + "\n");
     res.send(reply);
   }
 })
@@ -129,21 +106,22 @@ async function invoke(request) {
     InvokeType: "GRPC",
     IsJson: false
   };
-  if ("LOGGING_NAME" in process.env) {
-    await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "8" + "\n");
-  }
+  console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "10" + "\n");
   if (request_type == "" || request_type == "gg") {
     ctx.Request = data;
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "11" + "\n");
     [reply_t, code_t] = await func.FunctionHandler(ctx);
   }
   else if (request_type == "mg") {
     var req = fs.readFileSync(process.env.APP_PV + "/" + path);
     ctx.Request = req;
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "12" + "\n");
     [reply_t, code_t] = await func.FunctionHandler(ctx);
   }
   else if (request_type == "gm") {
     ctx.Request = data;
     var payload = "";
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "13" + "\n");
     [payload, code_t] = await func.FunctionHandler(ctx);
     pv_path_t = workflow_id + "_" + depth.toString() + "_" + width.toString() + "_" + Math.floor(Math.random() * 10000000).toString();
     fs.writeFileSync(process.env.APP_PV + "/" + pv_path_t, payload);
@@ -152,13 +130,12 @@ async function invoke(request) {
     var req = fs.readFileSync(process.env.APP_PV + "/" + path);
     ctx.Request = req;
     var payload = "";
+    console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "14" + "\n");
     [payload, code_t] = await func.FunctionHandler(ctx);
     pv_path_t = workflow_id + "_" + depth.toString() + "_" + width.toString() + "_" + Math.floor(Math.random() * 10000000).toString();
     fs.writeFileSync(process.env.APP_PV + "/" + pv_path_t, payload);
   }
-  if ("LOGGING_NAME" in process.env) {
-    await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "9" + "\n");
-  }
+  console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "15" + "\n");
   var res = {reply: reply_t, code: code_t, pv_path: pv_path_t};
   return res;
 }
@@ -169,9 +146,6 @@ async function gRPCFunctionHandler(call, callback) {
 }
 
 function main() {
-  if ("LOGGING_NAME" in process.env) {
-    await client.connect();
-  }
   if (!("SERVICE_TYPE" in process.env) || process.env.SERVICE_TYPE == "HTTP") {
     app.listen(process.env.FUNC_PORT, () => {});
   }

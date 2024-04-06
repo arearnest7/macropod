@@ -3,17 +3,9 @@ name: video-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-full:wob
-imageDigest: sha256:88b45ea0a637547fff5ae5e4a1b2b62d5bce30ca1bace0cad51e1ad2b5720030
+imageDigest: sha256:8412151ddd6250017d135c2f82d2d49cfea23437d61b7913f5432d6abc9f9424
 created: 2023-11-05T16:38:01.912085473-06:00
 build:
   builder: pack
-run:
-  envs:
-  - name: LOGGING_NAME
-    value: video-full
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

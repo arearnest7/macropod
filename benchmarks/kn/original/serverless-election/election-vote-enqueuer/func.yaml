@@ -3,7 +3,7 @@ name: election-vote-enqueuer
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-vote-enqueuer:kn
-imageDigest: sha256:f4e85f1d96c552623e9d9761c440a07b4e1fca07ae87664d69818dc5f8d1541a
+imageDigest: sha256:8b3a690e4d4478763e346e178b8d1e52e8230e22cad299db1b59b39a6f7e70b2
 created: 2023-10-10T14:56:57.264364766-05:00
 build:
   builder: pack
@@ -14,12 +14,6 @@ run:
   - name: REDIS_URL
     value: 127.0.0.1
   - name: REDIS_PASSWORD
-    value: password
-  - name: LOGGING_NAME
-    value: election-vote-enqueuer
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
     value: password
 deploy:
   namespace: default

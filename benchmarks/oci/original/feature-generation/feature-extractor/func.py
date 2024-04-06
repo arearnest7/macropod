@@ -5,6 +5,7 @@ import time
 import re
 import os
 import json
+import datetime
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
@@ -17,6 +18,7 @@ def cleanup(sentence):
 
 def function_handler(context):
     if context["is_json"]:
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "10" + "\n", flush=True)
         params = context["request"]
         bucket = params['input_bucket']
         key = params['key']
@@ -41,6 +43,7 @@ def function_handler(context):
 
         write_key = params['key'].split('.')[0] + ".txt"
         #redisClient.set(dest + "-" + write_key, feature)
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "11" + "\n", flush=True)
         return str(latency), 200
     else:
         print("Empty request", flush=True)

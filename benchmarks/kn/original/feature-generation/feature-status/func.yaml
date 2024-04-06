@@ -3,7 +3,7 @@ name: feature-status
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-status:kn
-imageDigest: sha256:a66f4af209f85a706a4a1c949e4e9d9b48bda825ad05ea07a46bbc31a120803c
+imageDigest: sha256:c39e7e31e7ffd3e6b3440062283b0c6505e717d067abd9328cb172f1ea9115d9
 created: 2023-12-03T20:51:11.858374137-06:00
 build:
   builder: pack
@@ -17,11 +17,5 @@ run:
     value: http://feature-reducer.default.127.0.0.1.sslip.io
   - name: FEATURE_WAIT
     value: http://feature-wait.default.127.0.0.1.sslip.io
-  - name: LOGGING_NAME
-    value: feature-status
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

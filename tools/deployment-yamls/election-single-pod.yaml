@@ -40,15 +40,7 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: ELECTION_GET_RESULTS
-            value: 127.0.0.1:5001
           - name: ELECTION_VOTE_ENQUEUER
-            value: 127.0.0.1:5002
-          - name: LOGGING_NAME
-            value: election-gateway
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: election-get-results
         image: arearnest7/election-get-results:macropod
         ports:
@@ -60,12 +52,6 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5001"
-          - name: LOGGING_NAME
-            value: election-get-results
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: election-vote-enqueuer
         image: arearnest7/election-vote-enqueuer:macropod
         ports:
@@ -78,13 +64,6 @@ spec:
           - name: FUNC_PORT
             value: "5002"
           - name: ELECTION_VOTE_PROCESSOR
-            value: 127.0.0.1:5003
-          - name: LOGGING_NAME
-            value: election-vote-enqueuer
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
       - name: election-vote-processor
         image: arearnest7/election-vote-processor:macropod
         ports:
@@ -96,9 +75,3 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5003"
-          - name: LOGGING_NAME
-            value: election-vote-processor
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

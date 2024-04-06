@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 
 	"time"
-        "github.com/redis/go-redis/v9"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -33,21 +32,7 @@ type RequestBody struct {
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-	logging_name, logging := os.LookupEnv("LOGGING_NAME")
-        redisClient := redis.NewClient(&redis.Options{})
-        c := context.Background()
-        if logging {
-                logging_ip := os.Getenv("LOGGING_IP")
-                logging_password := os.Getenv("LOGGING_PASSWORD")
-                redisClient = redis.NewClient(&redis.Options{
-                        Addr: logging_ip,
-                        Password: logging_password,
-                        DB: 0,
-                })
-        }
-        if logging {
-                redisClient.Append(c, logging_name, time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
-        }
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "0" + "\n")
 	requestURL := ""
 	body, err := ioutil.ReadAll(req.Body)
 	body_u := RequestBody{}
@@ -70,12 +55,12 @@ func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
         }
 	req_url.Header.Add("Content-Type", "application/json")
 	client := &http.Client{}
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1" + "\n")
         ret, err := client.Do(req_url)
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
         retBody, err := ioutil.ReadAll(ret.Body)
         ret_val, err := json.Marshal(retBody)
-	if logging {
-                redisClient.Append(c, logging_name, time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
-        }
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
 	fmt.Fprintf(res, string(ret_val)) // echo to caller
 }
 

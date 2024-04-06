@@ -10,8 +10,6 @@ import random
 import datetime
 import redis
 
-if "LOGGING_NAME" in os.environ:
-    loggingClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 def handle_handler(req):
     if req["manifest"]:
@@ -43,8 +41,7 @@ def handle_handler(req):
 
 def main(context: Context):
     if 'request' in context.keys():
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n", flush=True)
         if context.request.json["manifest"]:
             to_checksum = context.request.json["manifest"][0]
         else:
@@ -64,16 +61,16 @@ def main(context: Context):
                 fs.append(executor.submit(requests.get, url=os.environ["PIPELINED_ZIP_PARTIAL"], json={"event": to_zip}))
             if to_encrypt:
                 fs.append(executor.submit(requests.get, url=os.environ["PIPELINED_ENCRYPT_PARTIAL"], json={"event": to_encrypt}))
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n", flush=True)
         results = [f.result().text for f in fs]
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n", flush=True)
         if to_checksum or not to_zip:
             if not to_checksum and "success" not in results[0]:
                 to_checksum = []
             response = handle_handler({"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip})
-            if "LOGGING_NAME" in os.environ:
-                loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
+            print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "3" + "\n", flush=True)
             return response, 200
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "2" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "4" + "\n", flush=True)
         return "success", 200
     else:
         print("Empty request", flush=True)

@@ -3,7 +3,7 @@ name: sentiment-product-sentiment
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-product-sentiment:kn
-imageDigest: sha256:557bd559eef945253f7fbe05f488db955f4d848f2e7662509ba5971a15d98afa
+imageDigest: sha256:3f067ec9157b2d1167d3999554526168e9af349ac450cbb1c87d3a666d9a6295
 created: 2023-12-03T21:00:31.444133847-06:00
 build:
   builder: pack
@@ -11,11 +11,5 @@ run:
   envs:
   - name: SENTIMENT_PRODUCT_RESULT
     value: http://sentiment-product-result.default.127.0.0.1.sslip.io
-  - name: LOGGING_NAME
-    value: sentiment-product-sentiment
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

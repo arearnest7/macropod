@@ -15,8 +15,6 @@ import random
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-if "LOGGING_NAME" in os.environ:
-    loggingClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 def checksum_handler(req):
     event = req["event"]
@@ -88,8 +86,7 @@ def handle_handler(req):
 
 def main(context: Context):
     if 'request' in context.keys():
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n", flush=True)
         if context.request.json["manifest"]:
             to_checksum = context.request.json["manifest"][0]
         else:
@@ -113,9 +110,9 @@ def main(context: Context):
         if to_checksum or to_zip:
             if to_checksum and "success" not in results[0]:
                 to_checksum = []
+            print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n", flush=True)
             return handle_handler({"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip})
-        if "LOGGING_NAME" in os.environ:
-            loggingClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n", flush=True)
         return "success", 200
     else:
         print("Empty request", flush=True)

@@ -3,7 +3,7 @@ name: pipelined-encrypt
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-encrypt:kn
-imageDigest: sha256:56c3dbc64d1fc5c8f372eed9dfc9bb82ff7eb43a0946a5ee46541e7970e1302c
+imageDigest: sha256:25a22da148cd4bd4524a4dc2a3aeca5f0e8e22d511de88fad8a958a9e1b8804f
 created: 2023-12-03T20:55:12.172495531-06:00
 build:
   builder: pack
@@ -12,12 +12,6 @@ run:
   - name: REDIS_URL
     value: 127.0.0.1
   - name: REDIS_PASSWORD
-    value: password
-  - name: LOGGING_NAME
-    value: pipelined-encrypt
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
     value: password
 deploy:
   namespace: default

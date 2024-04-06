@@ -6,6 +6,7 @@ import (
 	"os"
 	"io/ioutil"
 	"encoding/json"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -110,9 +111,11 @@ func Nearby(req RequestBody) string {
 
 // Handle an HTTP Request.
 func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type string, is_json bool) {
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
 	body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
+	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
 	fmt.Fprintf(res, Nearby(body_u)) // echo to caller
 }

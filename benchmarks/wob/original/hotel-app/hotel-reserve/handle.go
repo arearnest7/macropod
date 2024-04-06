@@ -11,7 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"time"
-        "github.com/redis/go-redis/v9"
 
 	"github.com/bradfitz/gomemcache/memcache"
 )
@@ -319,21 +318,7 @@ func MakeReservation(req RequestBody) string {
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-	logging_name, logging := os.LookupEnv("LOGGING_NAME")
-        redisClient := redis.NewClient(&redis.Options{})
-        c := context.Background()
-        if logging {
-                logging_ip := os.Getenv("LOGGING_IP")
-                logging_password := os.Getenv("LOGGING_PASSWORD")
-                redisClient = redis.NewClient(&redis.Options{
-                        Addr: logging_ip,
-                        Password: logging_password,
-                        DB: 0,
-                })
-        }
-        if logging {
-                redisClient.Append(c, logging_name, time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "0" + "\n")
-        }
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "0" + "\n")
         ret := ""
 	body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
@@ -344,8 +329,6 @@ func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
 	} else if body_u.RequestType == "make" {
 		ret = MakeReservation(body_u)
 	}
-	if logging {
-                redisClient.Append(c, logging_name, time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "kn" + "," + "1" + "\n")
-        }
+        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1" + "\n")
 	fmt.Fprintf(res, ret) // echo to caller
 }

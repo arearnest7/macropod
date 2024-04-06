@@ -3,7 +3,7 @@ name: hotel-rate
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-rate:kn
-imageDigest: sha256:611d7353b21eadd93ff34386a2e224b5a48d09fedb5f5c32a416e7d7da70cd69
+imageDigest: sha256:cfcf1e4ec2a91d8c753d1f173995c6b946ce5c4e17afd8338101a5d33111e8ad
 created: 2023-10-26T19:30:55.730644786-05:00
 build:
   builder: pack
@@ -13,11 +13,5 @@ run:
     value: mongodb://10.42.2.96:27017
   - name: HOTEL_APP_MEMCACHED
     value: 10.42.4.93:11211
-  - name: LOGGING_NAME
-    value: hotel-rate
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

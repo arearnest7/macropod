@@ -164,12 +164,6 @@ spec:
             value: "5000"
           - name: SENTIMENT_READ_CSV
             value: http://10.43.190.2
-          - name: LOGGING_NAME
-            value: sentiment-main
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -197,12 +191,6 @@ spec:
             value: "5000"
           - name: SENTIMENT_PRODUCT_OR_SERVICE
             value: http://10.43.190.3
-          - name: LOGGING_NAME
-            value: sentiment-read-csv
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -234,12 +222,6 @@ spec:
             value: http://10.43.190.5
           - name: SENTIMENT_SERVICE_SENTIMENT
             value: http://10.43.190.10
-          - name: LOGGING_NAME
-            value: sentiment-product-or-service
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -265,12 +247,6 @@ spec:
         env:
           - name: PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: sentiment-cfail
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -298,12 +274,6 @@ spec:
             value: "5000"
           - name: SENTIMENT_PRODUCT_RESULT
             value: http://10.43.190.6
-          - name: LOGGING_NAME
-            value: sentiment-product-sentiment
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -335,12 +305,6 @@ spec:
             value: http://10.43.190.8
           - name: SENTIMENT_DB
             value: http://10.43.190.9
-          - name: LOGGING_NAME
-            value: sentiment-product-result
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -366,12 +330,6 @@ spec:
         env:
           - name: PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: sentiment-sfail
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -399,12 +357,6 @@ spec:
             value: "5000"
           - name: SENTIMENT_DB
             value: http://10.43.190.9
-          - name: LOGGING_NAME
-            value: sentiment-sns
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -430,12 +382,6 @@ spec:
         env:
           - name: PORT
             value: "5000"
-          - name: LOGGING_NAME
-            value: sentiment-db
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -463,12 +409,6 @@ spec:
             value: "5000"
           - name: SENTIMENT_SERVICE_RESULT
             value: http://10.43.190.11
-          - name: LOGGING_NAME
-            value: sentiment-service-sentiment
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -500,9 +440,3 @@ spec:
             value: http://10.43.190.8
           - name: SENTIMENT_DB
             value: http://10.43.190.9
-          - name: LOGGING_NAME
-            value: sentiment-service-result
-          - name: LOGGING_IP
-            value: 127.0.0.1
-          - name: LOGGING_PASSWORD
-            value: password

@@ -3,7 +3,7 @@ name: election-get-results-partial
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-get-results-partial:wob
-imageDigest: sha256:6c42689fc5aded9620606822bf0d25082c51e1897a50688aadbe9610243ccfea
+imageDigest: sha256:5724026fc108354a109dc08ef55da09bef84f54a7dd40324a8a94c7d4234af3e
 created: 2023-10-20T10:09:21.067803343-05:00
 build:
   builder: pack
@@ -12,12 +12,6 @@ run:
   - name: REDIS_URL
     value: 127.0.0.1
   - name: REDIS_PASSWORD
-    value: password
-  - name: LOGGING_NAME
-    value: election-get-results-partial
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
     value: password
 deploy:
   namespace: default

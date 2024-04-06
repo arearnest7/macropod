@@ -11,6 +11,7 @@ import argparse
 import socket
 import requests
 import base64
+import datetime
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -38,7 +39,9 @@ def processFrames(videoBytes):
     # send all requests
     frames = frames[0:6]
     ex = ThreadPoolExecutor(max_workers=6)
+    print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "11" + "\n", flush=True)
     all_result_futures = ex.map(Recognise, frames)
+    print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "12" + "\n", flush=True)
     results = ""
     for result in all_result_futures:
         results = results + result + ","
@@ -53,7 +56,9 @@ def Decode(request):
 
 def function_handler(context):
     if context["is_json"]:
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "10" + "\n", flush=True)
         ret = Decode(context["request"])
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "13" + "\n", flush=True)
         return ret, 200
     else:
         print("Empty request", flush=True)

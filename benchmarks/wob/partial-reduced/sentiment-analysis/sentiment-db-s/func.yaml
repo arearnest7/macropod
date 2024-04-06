@@ -3,17 +3,9 @@ name: sentiment-db-s
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-db-s:wob
-imageDigest: sha256:b41fc2251d863ecbbccffbcf15e5ad2e5cb63145087c64891ac54315e8d5cabf
+imageDigest: sha256:d5c14e586658d24941dda9afa4ed81d035cc868a4163b685f650c24204726f02
 created: 2023-12-03T21:31:16.287890091-06:00
 build:
   builder: pack
-run:
-  envs:
-  - name: LOGGING_NAME
-    value: sentiment-db-s
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

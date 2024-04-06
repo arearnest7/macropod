@@ -3,7 +3,7 @@ name: hotel-user-partial
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-user-partial:kn
-imageDigest: sha256:18a23fd2938d9c1c79a75486d0745a0c007e7df7f25c263429595d2a5a8692c1
+imageDigest: sha256:3610399e879d33d1e1efea3d5e05df77be776b96cd9d6aa72605de9c66754968
 created: 2023-10-26T19:54:52.836777088-05:00
 build:
   builder: pack
@@ -13,11 +13,5 @@ run:
     value: mongodb://10.42.2.96:27017
   - name: HOTEL_APP_MEMCACHED
     value: 10.42.4.93:11211
-  - name: LOGGING_NAME
-    value: hotel-user-partial
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

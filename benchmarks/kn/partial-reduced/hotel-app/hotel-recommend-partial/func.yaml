@@ -3,7 +3,7 @@ name: hotel-recommend-partial
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-recommend-partial:kn
-imageDigest: sha256:0156ccbbaf6551779a2f7feb502ee389b60e60497faa79730d0b9423da243f23
+imageDigest: sha256:bd01f048c3a363950d348bf6297c09c5355dc234c6a266ee800628dbbdc2c625
 created: 2023-10-26T19:54:40.164310055-05:00
 build:
   builder: pack
@@ -13,11 +13,5 @@ run:
     value: mongodb://10.42.2.96:27017
   - name: HOTEL_APP_MEMCACHED
     value: 10.42.4.93:11211
-  - name: LOGGING_NAME
-    value: hotel-recommend-partial
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

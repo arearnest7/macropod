@@ -4,11 +4,13 @@ import time
 from sklearn.feature_extraction.text import TfidfVectorizer
 import os
 import json
+import datetime
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def function_handler(context):
     if context["is_json"]:
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "10" + "\n", flush=True)
         params = context["request"]
         bucket = params['input_bucket']
 
@@ -31,6 +33,7 @@ def function_handler(context):
         feature_key = 'feature.txt'
         #redisClient.set(bucket + "-" + feature_key, str(feature))
 
+        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "11" + "\n", flush=True)
         return str(latency), 200
     else:
         print("Empty request", flush=True)

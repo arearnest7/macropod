@@ -3,7 +3,7 @@ name: wage-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-full:kn
-imageDigest: sha256:d8d001612e4ed2f46c0dc4ca8bb466026c0f86aea00a3e47d8032c5f4e82b4f8
+imageDigest: sha256:e30e1b95e0a1b992d416dfdb0d7354c027a30d6aa46f83752957584a4a638f7d
 created: 2023-12-03T21:08:48.450495924-06:00
 build:
   builder: pack
@@ -15,11 +15,5 @@ run:
     value: password
   - name: WAGE_FULL
     value: http://wage-full.default.127.0.0.1.sslip.io
-  - name: LOGGING_NAME
-    value: wage-full
-  - name: LOGGING_IP
-    value: 127.0.0.1
-  - name: LOGGING_PASSWORD
-    value: password
 deploy:
   namespace: default

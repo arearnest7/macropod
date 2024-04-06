@@ -6,7 +6,6 @@ import json
 import random
 import subprocess
 import datetime
-import redis
 import grpc
 import mmap
 import app_pb2 as pb
@@ -18,54 +17,40 @@ api = Api(app)
 
 MAX_MESSAGE_LENGTH = 1024 * 1024 * 200
 opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_message_length", MAX_MESSAGE_LENGTH)]
-if "LOGGING_NAME" in os.environ:
-    redisClient = redis.Redis(host=os.environ['LOGGING_IP'], password=os.environ['LOGGING_PASSWORD'])
 
 class HTTPFunctionHandler(Resource):
     def get(self):
+        workflow_id = str(random.randint(0, 10000000))
+        print(str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "0" + "\n", flush=True)
         request_type = ["gg", "gm"]["APP_PV" in os.environ]
         if request.is_json:
-            workflow_id = str(random.randint(0, 10000000))
-            if "LOGGING_NAME" in os.environ:
-                redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "0" + "\n")
             reply, code = FunctionHandler({"Request": request.json, "WorkflowId": workflow_id, "Depth": 0, "Width": 0, "RequestType": request_type, "InvokeType": "GET", "IsJson": True})
-            if "LOGGING_NAME" in os.environ:
-                redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "1" + "\n")
+            print(str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "1" + "\n", flush=True)
             return reply
         else:
-            workflow_id = str(random.randint(0, 10000000))
-            if "LOGGING_NAME" in os.environ:
-                redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "2" + "\n")
             reply, code = FunctionHandler({"Request": request.get_data(as_text=True), "WorkflowId": workflow_id, "Depth": 0, "Width": 0, "RequestType": request_type, "InvokeType": "GET", "IsJson": False})
-            if "LOGGING_NAME" in os.environ:
-                redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "3" + "\n")
+            print(str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + "GET" + "," + "2" + "\n", flush=True)
             return reply
     def post(self):
+        workflow_id = str(random.randint(0, 10000000))
+        print(str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + "POST" + "," + "3" + "\n", flush=True)
         request_type = ["gg", "gm"]["APP_PV" in os.environ]
         if request.is_json:
-            workflow_id = str(random.randint(0, 10000000))
-            if "LOGGING_NAME" in os.environ:
-                redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "4" + "\n")
             reply, code = FunctionHandler({"Request": request.json, "WorkflowId": workflow_id, "Depth": 0, "Width": 0, "RequestType": request_type, "InvokeType": "POST", "IsJson": True})
-            if "LOGGING_NAME" in os.environ:
-                redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "5" + "\n")
+            print(str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + "POST" + "," + "4" + "\n", flush=True)
             return reply
         else:
-            workflow_id = str(random.randint(0, 10000000))
-            if "LOGGING_NAME" in os.environ:
-                redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "6" + "\n")
             reply, code = FunctionHandler({"Request": request.get_data(as_text=True), "WorkflowId": workflow_id, "Depth": 0, "Width": 0, "RequestType": request_type, "InvokeType": "POST", "IsJson": False})
-            if "LOGGING_NAME" in os.environ:
-                redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + request_type + "," + "7" + "\n")
+            print(str(datetime.datetime.now()) + "," + workflow_id + "," + "0" + "," + "0" + "," + "POST" + "," + "5" + "\n", flush=True)
             return reply
 
 api.add_resource(HTTPFunctionHandler, '/')
 
 class gRPCFunctionServicer(pb_grpc.gRPCFunctionServicer):
     def gRPCFunctionHandler(self, request, context):
-        if "LOGGING_NAME" in os.environ:
-            redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + request.workflow_id + "," + str(request.depth) + "," + str(request.width) + "," + request.request_type + "," + "8" + "\n")
+        print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "6" + "\n", flush=True)
         if request.request_type == "" or request.request_type == "gg":
+            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "7" + "\n", flush=True)
             reply, code = FunctionHandler({"Request": request.data, "WorkflowId": request.workflow_id, "Depth": request.depth, "Width": request.width, "RequestType": request.request_type, "InvokeType": "GRPC", "IsJson": False})
             res = pb.ResponseBody(reply=reply, code=code)
         elif request.request_type == "mg":
@@ -74,9 +59,11 @@ class gRPCFunctionServicer(pb_grpc.gRPCFunctionServicer):
                 mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
                 req = mm.read()
                 mm.close()
+            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "8" + "\n", flush=True)
             reply, code = FunctionHandler({"Request": req, "WorkflowId": request.workflow_id, "Depth": request.depth, "Width": request.width, "RequestType": request.request_type, "InvokeType": "GRPC", "IsJson": False})
             res = pb.ResponseBody(reply=reply, code=code)
         elif request.request_type == "gm":
+            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "9" + "\n", flush=True)
             payload, code = FunctionHandler({"Request": request.data, "WorkflowId": request.workflow_id, "Depth": request.depth, "Width": request.width, "RequestType": request.request_type, "InvokeType": "GRPC", "IsJson": False})
             pv_path = request.workflow_id + "_" + str(request.depth) + "_" + str(request.width) + "_" + str(random.randint(0, 10000000))
             with open(os.environ["APP_PV"] + "/" + pv_path, "w") as f:
@@ -89,6 +76,7 @@ class gRPCFunctionServicer(pb_grpc.gRPCFunctionServicer):
                 mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
                 req = mm.read()
                 mm.close()
+            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "11" + "\n", flush=True)
             payload, code = FunctionHandler({"Request": req, "WorkflowId": request.workflow_id, "Depth": request.depth, "Width": request.width, "RequestType": request.request_type, "InvokeType": "GRPC", "IsJson": False})
             pv_path = request.workflow_id + "_" + str(request.depth) + "_" + str(request.width) + "_" + str(random.randint(0, 10000000))
             with open(os.environ["APP_PV"] + "/" + pv_path, "w") as f:
@@ -97,8 +85,7 @@ class gRPCFunctionServicer(pb_grpc.gRPCFunctionServicer):
             res = pb.ResponseBody(reply=reply, code=code, pv_path=pv_path)
         else:
             res = pb.ResponseBody(reply="", code=500)
-        if "LOGGING_NAME" in os.environ:
-            redisClient.append(os.environ["LOGGING_NAME"], str(datetime.datetime.now()) + "," + request.workflow_id + "," + str(request.depth) + "," + str(request.width) + "," + request.request_type + "," + "9" + "\n")
+        print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "12" + "\n", flush=True)
         return res
 
 if __name__ == '__main__':

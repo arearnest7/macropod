@@ -22,12 +22,7 @@ function invoke(dest, request) {
 }
 
 async function RPC(context, dest, payloads) {
-	var client = redis.createClient();
-	if ("LOGGING_NAME" in process.env) {
-		client = redis.createClient({url: 'redis://' + process.env.LOGGING_IP, password: process.env.LOGGING_PASSWORD});
-		await client.connect();
-		await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "10" + "\n");
-	}
+	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "8" + "\n");
 	var tl = new Array();
 	var pv_paths = new Array();
 	var request_type = "gg";
@@ -94,9 +89,7 @@ async function RPC(context, dest, payloads) {
 			fs.rmSync(process.env.RPC_PV + "/" + pv_path);
 		}
 	}
-	if ("LOGGING_NAME" in process.env) {
-                await client.append(process.env.LOGGING_NAME, moment().format('MMMM Do YYYY, h:mm:ss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "11" + "\n");
-        }
+        console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "9" + "\n");
 	return results;
 }
 

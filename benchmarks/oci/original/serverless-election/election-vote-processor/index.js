@@ -17,10 +17,12 @@
  */
 
 const redis = require('redis');
+const moment = require('moment');
 
 //const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const function_handler = async (body) => {
+	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "4" + "\n");
 	//client.on('error', err => console.log('Redis Client Error', err));
         //await client.connect();
 	//await client.set("voter-" + body['id'], JSON.stringify(body));
@@ -37,6 +39,7 @@ const function_handler = async (body) => {
         //else {
         //        await client.set("election-results-" + state + "-" + candidate, "1");
         //}
+	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "5" + "\n");
         return "success";
 }
 
