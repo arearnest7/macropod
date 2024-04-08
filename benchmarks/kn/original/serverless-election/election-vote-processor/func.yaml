@@ -3,7 +3,7 @@ name: election-vote-processor
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-vote-processor:kn
-imageDigest: sha256:1ec59564910efabe3913b090a588c317a0afd0b7c951a3069654204daa06346c
+imageDigest: sha256:fdf3ddff23af72fb6280029ee5dc782a30751caf04b9194a6403d07b11b3e3fd
 created: 2023-10-10T14:57:02.060343933-05:00
 build:
   builder: pack

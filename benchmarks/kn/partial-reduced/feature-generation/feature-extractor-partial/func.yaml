@@ -3,7 +3,7 @@ name: feature-extractor-partial
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-extractor-partial:kn
-imageDigest: sha256:fee5e022ecdf08d4e32631d79ec3d6af2263fa00a08fc01f02fe57333849b7a5
+imageDigest: sha256:06632944d1d224e76be810a51933294fd42b43d334ba6d33c726bf7dceab5348
 created: 2023-12-03T21:18:28.69304073-06:00
 build:
   builder: pack

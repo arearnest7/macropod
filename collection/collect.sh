@@ -1,8 +1,8 @@
 #!/bin/bash
 HOST=${1:-127.0.0.1}
-C=${4:-1}
-N=${5:-10000}
-DIR=${6:-results}
+C=${2:-1}
+N=${3:-10000}
+DIR=${4:-results}
 ./collect-invoke.sh $HOST full-election wob election-full $C ../payloads/election.json $N
 ./collect-invoke.sh $HOST full-feature wob feature-full $C ../payloads/feature.json $N
 ./collect-invoke.sh $HOST full-hotel wob hotel-full $C ../payloads/hotel.json $N
