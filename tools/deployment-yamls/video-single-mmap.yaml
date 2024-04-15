@@ -26,7 +26,7 @@ spec:
         app: video-single-pod
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       volumes:
       - name: macropod-pv
         emptyDir:
@@ -51,6 +51,7 @@ spec:
           - name: RPC_DEST_PV
             value: "/macropod-pv"
           - name: VIDEO_DECODER
+            value: 127.0.0.1:5001
       - name: video-decoder
         image: arearnest7/video-decoder:macropod
         ports:
@@ -72,6 +73,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: VIDEO_RECOG
+            value: 127.0.0.1:5002
       - name: video-recog
         image: arearnest7/video-recog:macropod
         ports:

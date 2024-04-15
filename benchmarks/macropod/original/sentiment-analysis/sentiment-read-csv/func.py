@@ -9,7 +9,7 @@ import random
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         event = json.loads(context["Request"])
 

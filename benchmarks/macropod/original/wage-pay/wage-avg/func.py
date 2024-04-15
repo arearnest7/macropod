@@ -8,7 +8,7 @@ import os
 TAX = 0.0387
 ROLES = ['staff', 'teamleader', 'manager']
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         params = json.loads(context["Request"])
 

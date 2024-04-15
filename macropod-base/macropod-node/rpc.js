@@ -22,7 +22,7 @@ function invoke(dest, request) {
 }
 
 async function RPC(context, dest, payloads) {
-	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "8" + "\n");
+	await console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "8" + "\n");
 	var tl = new Array();
 	var pv_paths = new Array();
 	var request_type = "gg";
@@ -73,7 +73,6 @@ async function RPC(context, dest, payloads) {
 	var results = new Array();
 	if (!("RPC_DEST_PV" in process.env)) {
 		for (let t of tl) {
-			console.log(t.reply);
 			var reply = t.reply;
 			results.push(reply);
 		}
@@ -89,7 +88,7 @@ async function RPC(context, dest, payloads) {
 			fs.rmSync(process.env.RPC_PV + "/" + pv_path);
 		}
 	}
-        console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "9" + "\n");
+        await console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "9" + "\n");
 	return results;
 }
 

@@ -1,4 +1,4 @@
-module function
+module app
 
 go 1.19
 

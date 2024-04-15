@@ -39,7 +39,7 @@ spec:
         app: micro-rpc-a
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       volumes:
       - name: macropod-pv
         emptyDir:
@@ -80,7 +80,7 @@ spec:
         app: micro-rpc-b
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-4
+        kubernetes.io/hostname: sys-dev-vm-4
       volumes:
       - name: macropod-pv
         emptyDir:

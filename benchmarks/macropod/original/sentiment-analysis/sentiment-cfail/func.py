@@ -2,7 +2,7 @@ from rpc import RPC
 import base64
 import random
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         return "CategorizationFail: Fail: \"Input CSV could not be categorised into 'Product' or 'Service'.\"", 200
     else:

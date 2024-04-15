@@ -5,7 +5,7 @@ import os
 import json
 import random
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         event = json.loads(context["Request"])
 
@@ -24,7 +24,7 @@ def function_handler(context):
             'customerID': event['customerID'],
             'productID': event['productID'],
             'feedback': event['feedback']
-        }).encode()])
+        }).encode()])[0]
         return response.text, 200
     else:
         print("Empty request", flush=True)

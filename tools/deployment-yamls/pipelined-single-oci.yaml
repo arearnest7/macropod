@@ -26,7 +26,7 @@ spec:
         app: pipelined-single-oci
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: pipelined-main
         image: arearnest7/pipelined-main:oci
@@ -36,9 +36,13 @@ spec:
           - name: PORT
             value: "5000"
           - name: PIPELINED_MAIN
+            value: http://127.0.0.1:5000
           - name: PIPELINED_CHECKSUM
+            value: http://127.0.0.1:5001
           - name: PIPELINED_ZIP
+            value: http://127.0.0.1:5002
           - name: PIPELINED_ENCRYPT
+            value: http://127.0.0.1:5003
       - name: pipelined-checksum
         image: arearnest7/pipelined-checksum:oci
         ports:

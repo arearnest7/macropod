@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import base64
+import datetime
 
 def function_handler(context):
     print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "10" + "\n", flush=True)

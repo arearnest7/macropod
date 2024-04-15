@@ -67,7 +67,7 @@ def Recognise(request):
     classification = infer(preprocessImage(frame))
     return classification
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         ret = Recognise(context["Request"])
         return ret, 200

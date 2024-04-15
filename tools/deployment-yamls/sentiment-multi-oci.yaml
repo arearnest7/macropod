@@ -36,6 +36,7 @@ spec:
     targetPort: 5000
   type: LoadBalancer
   clusterIP: 10.43.190.3
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -74,6 +75,7 @@ spec:
     targetPort: 5000
   type: LoadBalancer
   clusterIP: 10.43.190.6
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -112,6 +114,7 @@ spec:
     targetPort: 5000
   type: LoadBalancer
   clusterIP: 10.43.190.9
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -153,7 +156,7 @@ spec:
         app: sentiment-main
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: sentiment-main
         image: arearnest7/sentiment-main:oci
@@ -163,7 +166,7 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_READ_CSV
-            value: http://10.43.190.2
+            value: http://10.43.190.2:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -180,7 +183,7 @@ spec:
         app: sentiment-read-csv
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-3
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:oci
@@ -190,7 +193,7 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_PRODUCT_OR_SERVICE
-            value: http://10.43.190.3
+            value: http://10.43.190.3:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -207,7 +210,7 @@ spec:
         app: sentiment-product-or-service
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-4
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:oci
@@ -217,11 +220,11 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_CFAIL
-            value: http://10.43.190.4
+            value: http://10.43.190.4:80
           - name: SENTIMENT_PRODUCT_SENTIMENT
-            value: http://10.43.190.5
+            value: http://10.43.190.5:80
           - name: SENTIMENT_SERVICE_SENTIMENT
-            value: http://10.43.190.10
+            value: http://10.43.190.1:800
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -238,7 +241,7 @@ spec:
         app: sentiment-cfail
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-5
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: sentiment-cfail
         image: arearnest7/sentiment-cfail:oci
@@ -263,7 +266,7 @@ spec:
         app: sentiment-product-sentiment
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: sentiment-product-sentiment
         image: arearnest7/sentiment-product-sentiment:oci
@@ -273,7 +276,7 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_PRODUCT_RESULT
-            value: http://10.43.190.6
+            value: http://10.43.190.6:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -290,7 +293,7 @@ spec:
         app: sentiment-product-result
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-3
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:oci
@@ -300,11 +303,11 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_SFAIL
-            value: http://10.43.190.7
+            value: http://10.43.190.7:80
           - name: SENTIMENT_SNS
-            value: http://10.43.190.8
+            value: http://10.43.190.8:80
           - name: SENTIMENT_DB
-            value: http://10.43.190.9
+            value: http://10.43.190.9:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -321,7 +324,7 @@ spec:
         app: sentiment-sfail
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-4
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:oci
@@ -346,7 +349,7 @@ spec:
         app: sentiment-sns
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-5
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: sentiment-sns
         image: arearnest7/sentiment-sns:oci
@@ -356,7 +359,7 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_DB
-            value: http://10.43.190.9
+            value: http://10.43.190.9:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -373,7 +376,7 @@ spec:
         app: sentiment-db
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: sentiment-db
         image: arearnest7/sentiment-db:oci
@@ -398,7 +401,7 @@ spec:
         app: sentiment-service-sentiment
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-3
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: sentiment-service-sentiment
         image: arearnest7/sentiment-service-sentiment:oci
@@ -408,7 +411,7 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_SERVICE_RESULT
-            value: http://10.43.190.11
+            value: http://10.43.190.1:801
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -425,7 +428,7 @@ spec:
         app: sentiment-service-result
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-4
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:oci
@@ -435,8 +438,8 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_SFAIL
-            value: http://10.43.190.7
+            value: http://10.43.190.7:80
           - name: SENTIMENT_SNS
-            value: http://10.43.190.8
+            value: http://10.43.190.8:80
           - name: SENTIMENT_DB
-            value: http://10.43.190.9
+            value: http://10.43.190.9:80

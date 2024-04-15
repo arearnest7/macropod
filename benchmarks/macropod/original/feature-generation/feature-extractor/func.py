@@ -16,7 +16,7 @@ def cleanup(sentence):
     sentence = cleanup_re.sub(' ', sentence).strip()
     return sentence
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         params = json.loads(context["Request"])
         bucket = params['input_bucket']

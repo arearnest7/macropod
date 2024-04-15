@@ -78,7 +78,7 @@ spec:
         app: feature-orchestrator
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: feature-orchestrator
         image: arearnest7/feature-orchestrator:oci
@@ -88,9 +88,9 @@ spec:
           - name: PORT
             value: "5000"
           - name: FEATURE_EXTRACTOR
-            value: http://10.43.190.2
+            value: http://10.43.190.2:80
           - name: FEATURE_WAIT
-            value: http://10.43.190.3
+            value: http://10.43.190.3:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -107,7 +107,7 @@ spec:
         app: feature-extractor
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-3
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: feature-extractor
         image: arearnest7/feature-extractor:oci
@@ -132,7 +132,7 @@ spec:
         app: feature-wait
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-4
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: feature-wait
         image: arearnest7/feature-wait:oci
@@ -142,7 +142,7 @@ spec:
           - name: PORT
             value: "5000"
           - name: FEATURE_STATUS
-            value: http://10.43.190.4
+            value: http://10.43.190.4:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -159,7 +159,7 @@ spec:
         app: feature-status
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-5
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: feature-status
         image: arearnest7/feature-status:oci
@@ -169,9 +169,9 @@ spec:
           - name: PORT
             value: "5000"
           - name: FEATURE_WAIT
-            value: http://10.43.190.3
+            value: http://10.43.190.3:80
           - name: FEATURE_REDUCER
-            value: http://10.43.190.5
+            value: http://10.43.190.5:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -188,7 +188,7 @@ spec:
         app: feature-reducer
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: feature-reducer
         image: arearnest7/feature-reducer:oci

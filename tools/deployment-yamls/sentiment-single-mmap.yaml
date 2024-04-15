@@ -26,7 +26,7 @@ spec:
         app: sentiment-single-pod
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       volumes:
       - name: macropod-pv
         emptyDir:
@@ -51,6 +51,7 @@ spec:
           - name: RPC_DEST_PV
             value: "/macropod-pv"
           - name: SENTIMENT_READ_CSV
+            value: 127.0.0.1:5001
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:macropod
         ports:
@@ -72,6 +73,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_PRODUCT_OR_SERVICE
+            value: 127.0.0.1:5002
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:macropod
         ports:
@@ -93,8 +95,11 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_CFAIL
+            value: 127.0.0.1:5003
           - name: SENTIMENT_PRODUCT_SENTIMENT
+            value: 127.0.0.1:5004
           - name: SENTIMENT_SERVICE_SENTIMENT
+            value: 127.0.0.1:5009
       - name: sentiment-cfail
         image: arearnest7/sentiment-cfail:macropod
         ports:
@@ -132,6 +137,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_PRODUCT_RESULT
+            value: 127.0.0.1:5005
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:macropod
         ports:
@@ -153,8 +159,11 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_SFAIL
+            value: 127.0.0.1:5006
           - name: SENTIMENT_SNS
+            value: 127.0.0.1:5007
           - name: SENTIMENT_DB
+            value: 127.0.0.1:5008
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:macropod
         ports:
@@ -192,6 +201,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_DB
+            value: 127.0.0.1:5008
       - name: sentiment-db
         image: arearnest7/sentiment-db:macropod
         ports:
@@ -229,6 +239,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_SERVICE_RESULT
+            value: 127.0.0.1:5010
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:macropod
         ports:
@@ -250,5 +261,8 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: SENTIMENT_SFAIL
+            value: 127.0.0.1:5006
           - name: SENTIMENT_SNS
+            value: 127.0.0.1:5007
           - name: SENTIMENT_DB
+            value: 127.0.0.1:5008

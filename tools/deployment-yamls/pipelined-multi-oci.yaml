@@ -65,7 +65,7 @@ spec:
         app: pipelined-main
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: pipelined-main
         image: arearnest7/pipelined-main:oci
@@ -75,13 +75,13 @@ spec:
           - name: PORT
             value: "5000"
           - name: PIPELINED_MAIN
-            value: http://10.43.190.1
+            value: http://10.43.190.1:80
           - name: PIPELINED_CHECKSUM
-            value: http://10.43.190.2
+            value: http://10.43.190.2:80
           - name: PIPELINED_ZIP
-            value: http://10.43.190.3
+            value: http://10.43.190.3:80
           - name: PIPELINED_ENCRYPT
-            value: http://10.43.190.4
+            value: http://10.43.190.4:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -98,7 +98,7 @@ spec:
         app: pipelined-checksum
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-3
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: pipelined-checksum
         image: arearnest7/pipelined-checksum:oci
@@ -123,7 +123,7 @@ spec:
         app: pipelined-zip
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-4
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: pipelined-zip
         image: arearnest7/pipelined-zip:oci
@@ -148,7 +148,7 @@ spec:
         app: pipelined-encrypt
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-5
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: pipelined-encrypt
         image: arearnest7/pipelined-encrypt:oci

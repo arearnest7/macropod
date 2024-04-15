@@ -5,7 +5,7 @@ import json
 import random
 import os
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         event = json.loads(context["Request"])
 

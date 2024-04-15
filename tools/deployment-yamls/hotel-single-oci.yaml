@@ -26,7 +26,7 @@ spec:
         app: hotel-single-oci
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: hotel-frontend
         image: arearnest7/hotel-frontend:oci
@@ -36,9 +36,13 @@ spec:
           - name: PORT
             value: "5000"
           - name: HOTEL_SEARCH
+            value: http://127.0.0.1:5001
           - name: HOTEL_RECOMMEND
+            value: http://127.0.0.1:5002
           - name: HOTEL_RESERVE
+            value: http://127.0.0.1:5003
           - name: HOTEL_USER
+            value: http://127.0.0.1:5004
       - name: hotel-search
         image: arearnest7/hotel-search:oci
         ports:
@@ -47,7 +51,9 @@ spec:
           - name: PORT
             value: "5001"
           - name: HOTEL_GEO
+            value: http://127.0.0.1:5005
           - name: HOTEL_RATE
+            value: http://127.0.0.1:5007
       - name: hotel-recommend
         image: arearnest7/hotel-recommend:oci
         ports:

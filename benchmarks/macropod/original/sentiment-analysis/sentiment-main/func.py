@@ -8,7 +8,7 @@ import os
 
 pp = pprint.PrettyPrinter(indent=4)
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] != "GRPC":
         event = context["Request"]
 

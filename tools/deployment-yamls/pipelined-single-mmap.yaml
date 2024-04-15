@@ -26,7 +26,7 @@ spec:
         app: pipelined-single-pod
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       volumes:
       - name: macropod-pv
         emptyDir:
@@ -53,11 +53,15 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: PIPELINED_MAIN
+            value: 127.0.0.1:5001
           - name: PIPELINED_CHECKSUM
+            value: 127.0.0.1:5002
           - name: PIPELINED_ZIP
+            value: 127.0.0.1:5003
           - name: PIPELINED_ENCRYPT
-      - name: pipelined-checksum
-        image: arearnest7/pipelined-checksum:macropod
+            value: 127.0.0.1:5004
+      - name: pipelined-main-grpc
+        image: arearnest7/pipelined-main:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
@@ -70,10 +74,22 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5001"
+          - name: RPC_PV
+            value: "/macropod-pv"
+          - name: RPC_DEST_PV
+            value: "/macropod-pv"
           - name: APP_PV
             value: "/macropod-pv"
-      - name: pipelined-zip
-        image: arearnest7/pipelined-zip:macropod
+          - name: PIPELINED_MAIN
+            value: 127.0.0.1:5001
+          - name: PIPELINED_CHECKSUM
+            value: 127.0.0.1:5002
+          - name: PIPELINED_ZIP
+            value: 127.0.0.1:5003
+          - name: PIPELINED_ENCRYPT
+            value: 127.0.0.1:5004
+      - name: pipelined-checksum
+        image: arearnest7/pipelined-checksum:macropod
         ports:
         - containerPort: 5002
         volumeMounts:
@@ -86,8 +102,10 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5002"
-      - name: pipelined-encrypt
-        image: arearnest7/pipelined-encrypt:macropod
+          - name: APP_PV
+            value: "/macropod-pv"
+      - name: pipelined-zip
+        image: arearnest7/pipelined-zip:macropod
         ports:
         - containerPort: 5003
         volumeMounts:
@@ -100,3 +118,17 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5003"
+      - name: pipelined-encrypt
+        image: arearnest7/pipelined-encrypt:macropod
+        ports:
+        - containerPort: 5004
+        volumeMounts:
+        - name: macropod-pv
+          mountPath: /macropod-pv
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5004"

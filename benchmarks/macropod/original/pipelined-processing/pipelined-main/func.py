@@ -7,9 +7,11 @@ import string
 from concurrent.futures import ThreadPoolExecutor
 import random
 
-def function_handler(context):
-    #if context["request_type"] != "GRPC":
-    body = json.loads(context["Request"])
+def FunctionHandler(context):
+    if context["InvokeType"] == "GRPC":
+        body = json.loads(context["Request"])
+    else:
+        body = context["Request"]
     if body["manifest"]:
         to_checksum = body["manifest"][0]
     else:
@@ -29,11 +31,11 @@ def function_handler(context):
             fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ZIP"], [json.dumps(to_zip).encode()]))
         if to_encrypt:
             fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ENCRYPT"], [json.dumps(to_encrypt).encode()]))
-    results = [f.result().text for f in fs]
+    results = [f.result()[0] for f in fs]
     if to_checksum or to_zip:
         if to_checksum and "success" not in results[0]:
             to_checksum = []
-        response = RPC(context, os.environ["PIPELINED_MAIN"], [json.dumps({"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip}).encode()])
+        response = RPC(context, os.environ["PIPELINED_MAIN"], [json.dumps({"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip}).encode()])[0]
         return response, 200
     return "success", 200
     #else:

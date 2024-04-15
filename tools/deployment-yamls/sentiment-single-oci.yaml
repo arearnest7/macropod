@@ -26,7 +26,7 @@ spec:
         app: sentiment-single-oci
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: sentiment-main
         image: arearnest7/sentiment-main:oci
@@ -36,6 +36,7 @@ spec:
           - name: PORT
             value: "5000"
           - name: SENTIMENT_READ_CSV
+            value: http://127.0.0.1:5001
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:oci
         ports:
@@ -44,6 +45,7 @@ spec:
           - name: PORT
             value: "5001"
           - name: SENTIMENT_PRODUCT_OR_SERVICE
+            value: http://127.0.0.1:5002
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:oci
         ports:
@@ -52,8 +54,11 @@ spec:
           - name: PORT
             value: "5002"
           - name: SENTIMENT_CFAIL
+            value: http://127.0.0.1:5003
           - name: SENTIMENT_PRODUCT_SENTIMENT
+            value: http://127.0.0.1:5004
           - name: SENTIMENT_SERVICE_SENTIMENT
+            value: http://127.0.0.1:5009
       - name: sentiment-cfail
         image: arearnest7/sentiment-cfail:oci
         ports:
@@ -69,6 +74,7 @@ spec:
           - name: PORT
             value: "5004"
           - name: SENTIMENT_PRODUCT_RESULT
+            value: http://127.0.0.1:5005
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:oci
         ports:
@@ -77,8 +83,11 @@ spec:
           - name: PORT
             value: "5005"
           - name: SENTIMENT_SFAIL
+            value: http://127.0.0.1:5006
           - name: SENTIMENT_SNS
+            value: http://127.0.0.1:5007
           - name: SENTIMENT_DB
+            value: http://127.0.0.1:5008
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:oci
         ports:
@@ -94,6 +103,7 @@ spec:
           - name: PORT
             value: "5007"
           - name: SENTIMENT_DB
+            value: http://127.0.0.1:5008
       - name: sentiment-db
         image: arearnest7/sentiment-db:oci
         ports:
@@ -109,6 +119,7 @@ spec:
           - name: PORT
             value: "5009"
           - name: SENTIMENT_SERVICE_RESULT
+            value: http://127.0.0.1:5010
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:oci
         ports:
@@ -117,5 +128,8 @@ spec:
           - name: PORT
             value: "5010"
           - name: SENTIMENT_SFAIL
+            value: http://127.0.0.1:5006
           - name: SENTIMENT_SNS
+            value: http://127.0.0.1:5007
           - name: SENTIMENT_DB
+            value: http://127.0.0.1:5008

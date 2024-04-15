@@ -26,7 +26,7 @@ spec:
         app: election-single-mmap
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       volumes:
       - name: macropod-pv
         emptyDir:
@@ -51,7 +51,9 @@ spec:
           - name: RPC_DEST_PV
             value: "/macropod-pv"
           - name: ELECTION_GET_RESULTS
+            value: 127.0.0.1:5001
           - name: ELECTION_VOTE_ENQUEUER
+            value: 127.0.0.1:5002
       - name: election-get-results
         image: arearnest7/election-get-results:macropod
         ports:
@@ -89,6 +91,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
           - name: ELECTION_VOTE_PROCESSOR
+            value: 127.0.0.1:5003
       - name: election-vote-processor
         image: arearnest7/election-vote-processor:macropod
         ports:

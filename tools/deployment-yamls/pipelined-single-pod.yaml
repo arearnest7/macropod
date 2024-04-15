@@ -26,7 +26,7 @@ spec:
         app: pipelined-single-pod
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: pipelined-main
         image: arearnest7/pipelined-main:macropod
@@ -40,11 +40,15 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: PIPELINED_MAIN
+            value: 127.0.0.1:5001
           - name: PIPELINED_CHECKSUM
+            value: 127.0.0.1:5002
           - name: PIPELINED_ZIP
+            value: 127.0.0.1:5003
           - name: PIPELINED_ENCRYPT
-      - name: pipelined-checksum
-        image: arearnest7/pipelined-checksum:macropod
+            value: 127.0.0.1:5004
+      - name: pipelined-main-grpc
+        image: arearnest7/pipelined-main:macropod
         ports:
         - containerPort: 5001
         env:
@@ -54,8 +58,16 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5001"
-      - name: pipelined-zip
-        image: arearnest7/pipelined-zip:macropod
+          - name: PIPELINED_MAIN
+            value: 127.0.0.1:5001
+          - name: PIPELINED_CHECKSUM
+            value: 127.0.0.1:5002
+          - name: PIPELINED_ZIP
+            value: 127.0.0.1:5003
+          - name: PIPELINED_ENCRYPT
+            value: 127.0.0.1:5004
+      - name: pipelined-checksum
+        image: arearnest7/pipelined-checksum:macropod
         ports:
         - containerPort: 5002
         env:
@@ -65,8 +77,8 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5002"
-      - name: pipelined-encrypt
-        image: arearnest7/pipelined-encrypt:macropod
+      - name: pipelined-zip
+        image: arearnest7/pipelined-zip:macropod
         ports:
         - containerPort: 5003
         env:
@@ -76,3 +88,14 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5003"
+      - name: pipelined-encrypt
+        image: arearnest7/pipelined-encrypt:macropod
+        ports:
+        - containerPort: 5004
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5004"

@@ -16,6 +16,6 @@ run:
   - name: SENTIMENT_PRODUCT_SENTIMENT_PRS
     value: http://sentiment-product-sentiment-prs.default.127.0.0.1.sslip.io
   - name: SENTIMENT_SERVICE_SENTIMENT_SRS
-    value: http://sentiment-service-sentiment-srs.default.127.0.0.1.sslio.io
+    value: http://sentiment-service-sentiment-srs.default.127.0.0.1.sslip.io
 deploy:
   namespace: default

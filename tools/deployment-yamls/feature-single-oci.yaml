@@ -26,7 +26,7 @@ spec:
         app: feature-single-oci
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: feature-orchestrator
         image: arearnest7/feature-orchestrator:oci
@@ -36,7 +36,9 @@ spec:
           - name: PORT
             value: "5000"
           - name: FEATURE_EXTRACTOR
+            value: http://127.0.0.1:5001
           - name: FEATURE_WAIT
+            value: http://127.0.0.1:5002
       - name: feature-extractor
         image: arearnest7/feature-extractor:oci
         ports:
@@ -52,6 +54,7 @@ spec:
           - name: PORT
             value: "5002"
           - name: FEATURE_STATUS
+            value: http://127.0.0.1:5003
       - name: feature-status
         image: arearnest7/feature-status:oci
         ports:
@@ -60,7 +63,9 @@ spec:
           - name: PORT
             value: "5003"
           - name: FEATURE_WAIT
+            value: http://127.0.0.1:5002
           - name: FEATURE_REDUCER
+            value: http://127.0.0.1:5004
       - name: feature-reducer
         image: arearnest7/feature-reducer:oci
         ports:

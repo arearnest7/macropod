@@ -10,7 +10,7 @@ import random
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         manifest = []
 
@@ -30,8 +30,10 @@ def function_handler(context):
         with ThreadPoolExecutor(max_workers=len(manifest)) as executor:
             for obj in manifest:
                 if obj != "raw/":
-                    fs.append(executor.submit(RPC, context, os.environ["WAGE_SUM"], json.dumps({'total': total, 'base': base, 'merit': merit, 'operator': obj}).encode()))
-        results = [f[0] for f in fs]
+                    # fs.append(executor.submit(requests.get, url=os.environ["WAGE_SUM"], json={'total': total, 'base': base, 'merit': merit, 'operator': obj}))
+                    fs.append(json.dumps({'total': total, 'base': base, 'merit': merit, 'operator': obj}).encode())
+        #results = [f for f in fs]
+        results = RPC(context, os.environ["WAGE_SUM"], fs)
         return "processed batch at " + str(time.time()), 200
     else:
         print("Empty request", flush=True)

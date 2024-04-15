@@ -8,7 +8,7 @@ from pymongo import MongoClient
 from urllib.parse import quote_plus
 import random
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         event = json.loads(context["Request"])
 

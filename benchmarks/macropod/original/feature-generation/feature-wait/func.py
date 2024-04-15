@@ -6,7 +6,7 @@ import random
 import json
 import os
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         time.sleep(12)
         response = RPC(context, os.environ["FEATURE_STATUS"], [context["Request"]])[0]

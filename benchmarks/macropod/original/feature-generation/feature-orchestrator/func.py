@@ -10,10 +10,10 @@ import random
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-def invoke_lambda(bucket, dest, key, context):
+def invoke_lambda(bucket, dest, context, key):
     RPC(context, os.environ["FEATURE_EXTRACTOR"], [json.dumps({"input_bucket": bucket, "key": key, "dest": dest}).encode()])
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] != "GRPC":
         params = context["Request"]
         bucket = params['bucket']

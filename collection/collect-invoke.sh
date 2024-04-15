@@ -9,10 +9,9 @@ N=${7:-10000}
 cd ../tools/deploy-functions-kn/
 ./deploy-$SCRIPT.sh $TYPE
 sleep 180s
-hey -n $N -c $C -t 180 -o csv -D $PAYLOAD http://$ENTRY.default.$HOST.sslip.io >> $TYPE-$SCRIPT.csv
-mv $TYPE-$SCRIPT.csv ../../collection/
+hey -n $N -c $C -t 180 -o csv -D $PAYLOAD -m POST -T application/json http://$ENTRY.default.$HOST.sslip.io >> ../../collection/$TYPE-$SCRIPT.csv
 logs=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" --sort-by="metadata.name")
-for i in $logs; do kubectl logs $i >> $TYPE-$i.csv; done;
+for i in $logs; do kubectl logs $i >> ../../collection/$TYPE-$i.csv; done;
 ../remove-functions-kn/remove-$SCRIPT.sh $TYPE
 cd ../../collection
 sleep 180s

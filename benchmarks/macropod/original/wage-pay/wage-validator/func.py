@@ -7,7 +7,7 @@ import os
 
 ROLES = ['staff', 'teamleader', 'manager']
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] != "GRPC":
         event = context["Request"]
         for param in ['id', 'name', 'role', 'base', 'merit', 'operator']:

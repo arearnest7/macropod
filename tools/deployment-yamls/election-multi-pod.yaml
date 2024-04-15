@@ -65,7 +65,7 @@ spec:
         app: election-gateway
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: election-gateway
         image: arearnest7/election-gateway:macropod
@@ -79,9 +79,9 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: ELECTION_GET_RESULTS
-            value: http://10.43.190.2
+            value: 10.43.190.2:80
           - name: ELECTION_VOTE_ENQUEUER
-            value: http://10.43.190.3
+            value: 10.43.190.3:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -98,7 +98,7 @@ spec:
         app: election-get-results
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-3
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: election-get-results
         image: arearnest7/election-get-results:macropod
@@ -127,7 +127,7 @@ spec:
         app: election-vote-enqueuer
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-4
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: election-vote-enqueuer
         image: arearnest7/election-vote-enqueuer:macropod
@@ -141,7 +141,7 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: ELECTION_VOTE_PROCESSOR
-            value: http://10.43.190.4
+            value: 10.43.190.4:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -158,7 +158,7 @@ spec:
         app: election-vote-processor
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-5
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: election-vote-processor
         image: arearnest7/election-vote-processor:macropod

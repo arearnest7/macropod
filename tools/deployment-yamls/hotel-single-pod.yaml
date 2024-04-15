@@ -26,7 +26,7 @@ spec:
         app: hotel-single-pod
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: hotel-frontend
         image: arearnest7/hotel-frontend:macropod
@@ -40,9 +40,13 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: HOTEL_SEARCH
+            value: 127.0.0.1:5001
           - name: HOTEL_RECOMMEND
+            value: 127.0.0.1:5002
           - name: HOTEL_RESERVE
+            value: 127.0.0.1:5003
           - name: HOTEL_USER
+            value: 127.0.0.1:5004
       - name: hotel-search
         image: arearnest7/hotel-search:macropod
         ports:
@@ -55,7 +59,9 @@ spec:
           - name: FUNC_PORT
             value: "5001"
           - name: HOTEL_GEO
+            value: 127.0.0.1:5005
           - name: HOTEL_RATE
+            value: 127.0.0.1:5007
       - name: hotel-recommend
         image: arearnest7/hotel-recommend:macropod
         ports:

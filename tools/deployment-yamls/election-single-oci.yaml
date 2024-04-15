@@ -26,7 +26,7 @@ spec:
         app: election-single-oci
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: election-gateway
         image: arearnest7/election-gateway:oci
@@ -36,7 +36,9 @@ spec:
           - name: PORT
             value: "5000"
           - name: ELECTION_GET_RESULTS
+            value: http://127.0.0.1:5001
           - name: ELECTION_VOTE_ENQUEUER
+            value: http://127.0.0.1:5002
       - name: election-get-results
         image: arearnest7/election-get-results:oci
         ports:
@@ -52,6 +54,7 @@ spec:
           - name: PORT
             value: "5002"
           - name: ELECTION_VOTE_PROCESSOR
+            value: http://127.0.0.1:5003
       - name: election-vote-processor
         image: arearnest7/election-vote-processor:oci
         ports:

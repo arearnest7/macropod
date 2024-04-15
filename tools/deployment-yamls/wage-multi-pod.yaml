@@ -36,6 +36,7 @@ spec:
     targetPort: 5000
   type: LoadBalancer
   clusterIP: 10.43.190.3
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -52,10 +53,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: wage-avg
+  name: wage-sum
 spec:
   selector:
-    app: wage-avg
+    app: wage-sum
   ports:
   - port: 80
     targetPort: 5000
@@ -65,15 +66,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: wage-sum
+  name: wage-avg
 spec:
   selector:
-    app: wage-sum
+    app: wage-avg
   ports:
   - port: 80
     targetPort: 5000
   type: LoadBalancer
   clusterIP: 10.43.190.6
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -115,7 +117,7 @@ spec:
         app: wage-validator
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: wage-validator
         image: arearnest7/wage-validator:macropod
@@ -129,7 +131,7 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: WAGE_FORMAT
-            value: http://10.43.190.2
+            value: 10.43.190.2:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -146,7 +148,7 @@ spec:
         app: wage-format
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-3
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: wage-format
         image: arearnest7/wage-format:macropod
@@ -160,7 +162,7 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: WAGE_WRITE_RAW
-            value: http://10.43.190.3
+            value: 10.43.190.3:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -177,7 +179,7 @@ spec:
         app: wage-write-raw
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-4
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: wage-write-raw
         image: arearnest7/wage-write-raw:macropod
@@ -191,7 +193,7 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: WAGE_STATS
-            value: http://10.43.190.4
+            value: 10.43.190.4:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -208,7 +210,7 @@ spec:
         app: wage-stats
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-5
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: wage-stats
         image: arearnest7/wage-stats:macropod
@@ -221,39 +223,8 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5000"
-          - name: WAGE_AVG
-            value: http://10.43.190.5
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: wage-avg
-spec:
-  selector:
-    matchLabels:
-      app: wage-avg
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: wage-avg
-    spec:
-      nodeSelector:
-        kubernetes.io/hostname: earnest-vm-2
-      containers:
-      - name: wage-avg
-        image: arearnest7/wage-avg:macropod
-        ports:
-        - containerPort: 5000
-        env:
-          - name: SERVICE_TYPE
-            value: "GRPC"
-          - name: GRPC_THREAD
-            value: "10"
-          - name: FUNC_PORT
-            value: "5000"
           - name: WAGE_SUM
-            value: http://10.43.190.6
+            value: 10.43.190.5:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -270,7 +241,7 @@ spec:
         app: wage-sum
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-3
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: wage-sum
         image: arearnest7/wage-sum:macropod
@@ -283,8 +254,39 @@ spec:
             value: "10"
           - name: FUNC_PORT
             value: "5000"
+          - name: WAGE_AVG
+            value: 10.43.190.6:80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wage-avg
+spec:
+  selector:
+    matchLabels:
+      app: wage-avg
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wage-avg
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: sys-dev-vm-3
+      containers:
+      - name: wage-avg
+        image: arearnest7/wage-avg:macropod
+        ports:
+        - containerPort: 5000
+        env:
+          - name: SERVICE_TYPE
+            value: "GRPC"
+          - name: GRPC_THREAD
+            value: "10"
+          - name: FUNC_PORT
+            value: "5000"
           - name: WAGE_MERIT
-            value: http://10.43.190.7
+            value: 10.43.190.7:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -301,7 +303,7 @@ spec:
         app: wage-merit
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-4
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: wage-merit
         image: arearnest7/wage-merit:macropod
@@ -315,7 +317,7 @@ spec:
           - name: FUNC_PORT
             value: "5000"
           - name: WAGE_WRITE_MERIT
-            value: http://10.43.190.8
+            value: 10.43.190.8:80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -332,7 +334,7 @@ spec:
         app: wage-write-merit
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-5
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: wage-write-merit
         image: arearnest7/wage-write-merit:macropod

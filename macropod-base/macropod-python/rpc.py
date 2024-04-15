@@ -11,7 +11,7 @@ MAX_MESSAGE_LENGTH = 1024 * 1024 * 200
 opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_message_length", MAX_MESSAGE_LENGTH)]
 
 def RPC(context, dest, payloads):
-    print(str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + context["Depth"] + "," + context["Width"] + "," + context["RequestType"] + "," + "13" + "\n", flush=True)
+    print(str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + "," + context["RequestType"] + "," + "13" + "\n", flush=True)
     with grpc.insecure_channel(dest, options=opts,) as channel:
         stub = pb_grpc.gRPCFunctionStub(channel)
         tl = []
@@ -37,12 +37,12 @@ def RPC(context, dest, payloads):
                 reply = b''
                 with open(os.environ["RPC_DEST_PV"] + "/" + t.result().pv_path, "r") as f:
                     mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
-                    reply = mm.read()
+                    reply = mm.read().decode()
                     mm.close()
                 os.remove(os.environ["RPC_DEST_PV"] + "/" + t.result().pv_path)
                 results.append(reply)
         if "RPC_PV" in os.environ:
             for pv_path in pv_paths:
                 os.remove(os.environ["RPC_PV"] + "/" + pv_path)
-        print(str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + context["Depth"] + "," + context["Width"] + "," + context["RequestType"] + "," + "14" + "\n", flush=True)
+        print(str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + "," + context["RequestType"] + "," + "14" + "\n", flush=True)
         return results

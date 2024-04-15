@@ -26,14 +26,8 @@ wget https://github.com/knative/client/releases/download/knative-v1.11.2/kn-linu
 mv kn-linux-amd64 kn
 chmod +x kn
 sudo mv kn /usr/local/bin
-rm kn
 wget https://github.com/knative/func/releases/download/knative-v1.12.0/func_linux_amd64
 mv func_linux_amd64 kn-func
 chmod +x kn-func
 sudo mv kn-func /usr/local/bin
-rm kn-func
-curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-sudo apt-get update
-sudo apt-get install redis
 sudo apt install hey

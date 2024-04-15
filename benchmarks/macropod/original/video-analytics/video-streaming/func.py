@@ -4,9 +4,9 @@ import os
 import requests
 import base64
 
-def function_handler(context):
+def FunctionHandler(context):
     videoFile = open("reference/video.mp4", "rb")
     videoFragment = videoFile.read()
     videoFile.close()
-    ret = requests.get(context, os.environ['VIDEO_DECODER'], [videoFragment])[0]
+    ret = RPC(context, os.environ['VIDEO_DECODER'], [videoFragment])[0]
     return ret, 200

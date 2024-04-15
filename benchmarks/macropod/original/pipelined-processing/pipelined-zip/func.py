@@ -9,9 +9,9 @@ import random
 
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
-def function_handler(context):
+def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
-        event = json.loads(context["Request"])["event"]
+        event = json.loads(context["Request"])
         data = open("checksumed-" + event[0], 'rb').read()
         with open("/tmp/" + event[0], "wb") as f:
             f.write(data)

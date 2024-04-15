@@ -48,9 +48,9 @@ api.add_resource(HTTPFunctionHandler, '/')
 
 class gRPCFunctionServicer(pb_grpc.gRPCFunctionServicer):
     def gRPCFunctionHandler(self, request, context):
-        print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "6" + "\n", flush=True)
+        print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + str(request.depth) + "," + str(request.width) + "," + request.request_type + "," + "6" + "\n", flush=True)
         if request.request_type == "" or request.request_type == "gg":
-            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "7" + "\n", flush=True)
+            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + str(request.depth) + "," + str(request.width) + "," + request.request_type + "," + "7" + "\n", flush=True)
             reply, code = FunctionHandler({"Request": request.data, "WorkflowId": request.workflow_id, "Depth": request.depth, "Width": request.width, "RequestType": request.request_type, "InvokeType": "GRPC", "IsJson": False})
             res = pb.ResponseBody(reply=reply, code=code)
         elif request.request_type == "mg":
@@ -59,11 +59,11 @@ class gRPCFunctionServicer(pb_grpc.gRPCFunctionServicer):
                 mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
                 req = mm.read()
                 mm.close()
-            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "8" + "\n", flush=True)
+            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + str(request.depth) + "," + str(request.width) + "," + request.request_type + "," + "8" + "\n", flush=True)
             reply, code = FunctionHandler({"Request": req, "WorkflowId": request.workflow_id, "Depth": request.depth, "Width": request.width, "RequestType": request.request_type, "InvokeType": "GRPC", "IsJson": False})
             res = pb.ResponseBody(reply=reply, code=code)
         elif request.request_type == "gm":
-            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "9" + "\n", flush=True)
+            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + str(request.depth) + "," + str(request.width) + "," + request.request_type + "," + "9" + "\n", flush=True)
             payload, code = FunctionHandler({"Request": request.data, "WorkflowId": request.workflow_id, "Depth": request.depth, "Width": request.width, "RequestType": request.request_type, "InvokeType": "GRPC", "IsJson": False})
             pv_path = request.workflow_id + "_" + str(request.depth) + "_" + str(request.width) + "_" + str(random.randint(0, 10000000))
             with open(os.environ["APP_PV"] + "/" + pv_path, "w") as f:
@@ -76,7 +76,7 @@ class gRPCFunctionServicer(pb_grpc.gRPCFunctionServicer):
                 mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
                 req = mm.read()
                 mm.close()
-            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "11" + "\n", flush=True)
+            print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + str(request.depth) + "," + str(request.width) + "," + request.request_type + "," + "11" + "\n", flush=True)
             payload, code = FunctionHandler({"Request": req, "WorkflowId": request.workflow_id, "Depth": request.depth, "Width": request.width, "RequestType": request.request_type, "InvokeType": "GRPC", "IsJson": False})
             pv_path = request.workflow_id + "_" + str(request.depth) + "_" + str(request.width) + "_" + str(random.randint(0, 10000000))
             with open(os.environ["APP_PV"] + "/" + pv_path, "w") as f:
@@ -85,7 +85,7 @@ class gRPCFunctionServicer(pb_grpc.gRPCFunctionServicer):
             res = pb.ResponseBody(reply=reply, code=code, pv_path=pv_path)
         else:
             res = pb.ResponseBody(reply="", code=500)
-        print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + request.depth + "," + request.width + "," + request.request_type + "," + "12" + "\n", flush=True)
+        print(str(datetime.datetime.now()) + "," + request.workflow_id + "," + str(request.depth) + "," + str(request.width) + "," + request.request_type + "," + "12" + "\n", flush=True)
         return res
 
 if __name__ == '__main__':

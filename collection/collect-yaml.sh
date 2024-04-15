@@ -6,50 +6,37 @@ N=${4:-10000}
 cd ../tools/deployment-yamls
 kubectl apply -f ./$BENCHMARK-multi-oci.yaml
 sleep 180s
-hey -n $N -c $C -t 180 -o csv -D $PAYLOAD http://10.43.190.1 >> multi-oci-$BENCHMARK.csv
-mv multi-oci-$BENCHMARK.csv ../../collection/
+hey -n $N -c $C -t 180 -o csv -D $PAYLOAD -m POST -T application/json http://10.43.190.1 >> ../../collection/multi-oci-$BENCHMARK.csv
 logs=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" --sort-by="metadata.name")
-for i in $logs; do kubectl logs $i >> multi-oci-$i.csv; done;
+for i in $logs; do kubectl logs $i >> ../../collection/multi-oci-$i.csv; done;
 kubectl delete -f ./$BENCHMARK-multi-oci.yaml
-cd ../../collection
 sleep 180s
-cd ../tools/deployment-yamls
 kubectl apply -f ./$BENCHMARK-multi-pod.yaml
 sleep 180s
-hey -n $N -c $C -t 180 -o csv -D $PAYLOAD http://10.43.190.1 >> multi-pod-$BENCHMARK.csv
-mv multi-pod-$BENCHMARK.csv ../../collection/
+hey -n $N -c $C -t 180 -o csv -D $PAYLOAD -m POST -T application/json http://10.43.190.1 >> ../../collection/multi-pod-$BENCHMARK.csv
 logs=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" --sort-by="metadata.name")
-for i in $logs; do kubectl logs $i >> multi-pod-$i.csv; done;
+for i in $logs; do kubectl logs $i >> ../../collection/multi-pod-$i.csv; done;
 kubectl delete -f ./$BENCHMARK-multi-pod.yaml
-cd ../../collection
 sleep 180s
-cd ../tools/deployment-yamls
 kubectl apply -f ./$BENCHMARK-single-mmap.yaml
 sleep 180s
-hey -n $N -c $C -t 180 -o csv -D $PAYLOAD http://10.43.190.1 >> single-mmap-$BENCHMARK.csv
-mv single-mmap-$BENCHMARK.csv ../../collection/
+hey -n $N -c $C -t 180 -o csv -D $PAYLOAD -m POST -T application/json http://10.43.190.1 >> ../../collection/single-mmap-$BENCHMARK.csv
 logs=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" --sort-by="metadata.name")
-for i in $logs; do kubectl logs $i >> single-mmap-$i.csv; done;
+for i in $logs; do kubectl logs $i >> ../../collection/single-mmap-$i.csv; done;
 kubectl delete -f ./$BENCHMARK-single-mmap.yaml
-cd ../../collection
 sleep 180s
-cd ../tools/deployment-yamls
 kubectl apply -f ./$BENCHMARK-single-oci.yaml
 sleep 180s
-hey -n $N -c $C -t 180 -o csv -D $PAYLOAD http://10.43.190.1 >> single-oci-$BENCHMARK.csv
-mv single-oci-$BENCHMARK.csv ../../collection/
+hey -n $N -c $C -t 180 -o csv -D $PAYLOAD -m POST -T application/json http://10.43.190.1 >> ../../collection/single-oci-$BENCHMARK.csv
 logs=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" --sort-by="metadata.name")
-for i in $logs; do kubectl logs $i >> single-oci-$i.csv; done;
+for i in $logs; do kubectl logs $i >> ../../collection/single-oci-$i.csv; done;
 kubectl delete -f ./$BENCHMARK-single-oci.yaml
-cd ../../collection
 sleep 180s
-cd ../tools/deployment-yamls
 kubectl apply -f ./$BENCHMARK-single-pod.yaml
 sleep 180s
-hey -n $N -c $C -t 180 -o csv -D $PAYLOAD http://10.43.190.1 >> single-pod-$BENCHMARK.csv
-mv single-pod-$BENCHMARK.csv ../../collection/
+hey -n $N -c $C -t 180 -o csv -D $PAYLOAD -m POST -T application/json http://10.43.190.1 >> ../../collection/single-pod-$BENCHMARK.csv
 logs=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" --sort-by="metadata.name")
-for i in $logs; do kubectl logs $i >> single-pod-$i.csv; done;
+for i in $logs; do kubectl logs $i >> ../../collection/single-pod-$i.csv; done;
 kubectl delete -f ./$BENCHMARK-single-pod.yaml
 cd ../../collection
 sleep 180s
