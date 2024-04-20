@@ -1,0 +1,13 @@
+replicaCount: 1
+image:
+  image: "nginx:latest"
+  pullPolicy: Always
+env: 
+  name: "test"
+  value: "test-value"
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+ingress: 
+  host: b.example.com

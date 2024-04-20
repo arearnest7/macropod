@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: icmp-ping
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: icmp-ping
+  template:
+    metadata:
+      labels:
+        name: icmp-ping
+    spec:
+      containers:
+      - name: icmp-ping
+        image: vasu1711/icmp:itr8
+        securityContext:
+          runAsUser: 0
+        env: 
+          - name: "NODE_NAME"
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: "IP_SELF"
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        
+
+--- 
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-reader-binding
+subjects:
+- kind: ServiceAccount
+  namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-gateway
+  labels:
+    app: custom-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-gateway
+  template:
+    metadata:
+      labels:
+        app: custom-gateway
+    spec:
+      serviceAccountName: gateway-service-account
+      containers:
+      - name: custom-gateway
+        image: vasu1711/gateway:itr1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DEP_CONTROLLER_ADD
+          value: "deploymnet-controller.default.svc.cluster.local:8080"
+  
+
+--- 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-gateway
+spec:
+  selector:
+    app: custom-gateway
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gateway-service-account
+
+
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gateway-role
+rules:
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gateway-role
+subjects:
+- kind: ServiceAccount
+  name: gateway-service-account
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: gateway-role
+  apiGroup: rbac.authorization.k8s.io
