@@ -94,20 +94,20 @@ const get_results_handler = async (body) => {
 }
 
 const handle = async (context, body) => {
-	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n");
+	console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n");
 	client.on('error', err => console.log('Redis Client Error', err));
 	await client.connect();
         if (body['requestType'] ==  'get_results') {
                 let data = await get_results_handler(body);
-        	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n");
+        	console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n");
                 return data;
         }
         else if (body['requestType'] == 'vote') {
                 let data = await vote_enqueuer_handler(body);
-                console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n");
+                console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n");
 		return data;
         }
-        console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "3" + "\n");
+        console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "3" + "\n");
         return 'invalid request type';
 }
 

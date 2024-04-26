@@ -58,26 +58,26 @@ const vote_enqueuer_handler = async (body) => {
 }
 
 const handle = async (context, body) => {
-        console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n");
+        console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n");
         client.on('error', err => console.log('Redis Client Error', err));
         await client.connect();
 	if (body['requestType'] ==  'get_results') {
                 let data = '';
-        	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n");
+        	console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n");
 		await axios.post(process.env.ELECTION_GET_RESULTS_PARTIAL, body)
                         .then( (response) => {
                                 data = response.data;
                         });
-        	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n");
+        	console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n");
                 return data;
         }
         else if (body['requestType'] == 'vote') {
-        	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "3" + "\n");
+        	console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "3" + "\n");
                 let data = await vote_enqueuer_handler(body);
-        	console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "4" + "\n");
+        	console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "4" + "\n");
 		return data;
         }
-        console.log(moment().format('MMMM Do YYYY, h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "5" + "\n");
+        console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "5" + "\n");
         return 'invalid request type';
 }
 

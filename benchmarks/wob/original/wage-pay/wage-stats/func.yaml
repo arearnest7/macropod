@@ -3,7 +3,7 @@ name: wage-stats
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-stats:wob
-imageDigest: sha256:902999b3194d34b99a814e60c915fd8bf9e98ad0d77efb61bcabf28f36f171db
+imageDigest: sha256:c4feabe8950461c07b8c933b85b6e642b9992ea27d8ca022f74a96d9fa6fa1d0
 created: 2023-12-03T21:04:43.68529525-06:00
 build:
   builder: pack

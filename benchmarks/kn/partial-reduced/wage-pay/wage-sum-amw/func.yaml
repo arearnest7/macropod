@@ -3,7 +3,7 @@ name: wage-sum-amw
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-sum-amw:kn
-imageDigest: sha256:b369d2221eb0c1417b30fd89e81f5f325e31d2d325d47c18399a54c5b33bca21
+imageDigest: sha256:7e7e03dec798cd816b530b9e1e15f69e8ba55db0cbe1dfd9bf92db15504170db
 created: 2023-12-03T21:32:24.803571082-06:00
 build:
   builder: pack

@@ -3,7 +3,7 @@ name: sentiment-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-full:kn
-imageDigest: sha256:6544bc3a5cadd1c0cbf9b7f238fe823e0b3227021bfdfc02b792126f32627d6c
+imageDigest: sha256:45d6d1dca8a61a4d68986b3cbec056fb5d04214c50cc59790318153320eb45ba
 created: 2023-12-03T21:08:33.226898249-06:00
 build:
   builder: pack

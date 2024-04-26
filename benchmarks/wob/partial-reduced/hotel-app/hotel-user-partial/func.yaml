@@ -3,7 +3,7 @@ name: hotel-user-partial
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-user-partial:wob
-imageDigest: sha256:f84111065c254e3f1e55be54bca1d1170059432077b2f17cca3462d304e92f30
+imageDigest: sha256:d24595e40c1a06dd1c08a9e9b4d79b3dfd6fb796d92340da9cab04e834269604
 created: 2023-10-26T19:54:52.836777088-05:00
 build:
   builder: pack

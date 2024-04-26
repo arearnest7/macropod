@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: wage-single-pod
+  name: wage-single-mmap
 spec:
   selector:
-    app: wage-single-pod
+    app: wage-single-mmap
   ports:
   - port: 80
     targetPort: 5000
@@ -14,16 +14,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wage-single-pod
+  name: wage-single-mmap
 spec:
   selector:
     matchLabels:
-      app: wage-single-pod
+      app: wage-single-mmap
   replicas: 1
   template:
     metadata:
       labels:
-        app: wage-single-pod
+        app: wage-single-mmap
     spec:
       nodeSelector:
         kubernetes.io/hostname: sys-dev-vm-2

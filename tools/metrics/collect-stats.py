@@ -17,7 +17,7 @@ def worker_handler(file_name):
                 ic = psutil.net_io_counters()
                 timestamp = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
                 f.write("%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n" % (timestamp, ct[0], ct[3], ct[4], ct[7], ct[8], cf[0], cf[1], cf[2], la[0], la[1], la[2], vm[0], vm[1], vm[3], vm[4], vm[5], vm[6], ic[0], ic[1], ic[2], ic[3]))
-                time.sleep(0.005)
+                time.sleep(1)
     except KeyboardInterrupt:
         pass
 
