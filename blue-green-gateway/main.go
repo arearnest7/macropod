@@ -31,7 +31,7 @@ func (h *baseHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	pathParts := strings.Split(r.URL.Path, "/")
 	func_name := pathParts[1]
-
+    r.URL.Path = ""
     target, ok := hostTargets[func_name]
     if !ok {
         http.Error(w, "Target not found making the function workflow", http.StatusNotFound)
@@ -39,21 +39,21 @@ func (h *baseHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	return
    }
-	log.Print("Forwarding request to",target)
 	remoteUrl, err := url.Parse(target)
 	if err != nil {
 		log.Fatal("target parse fail:", err)
 	}
-	callDepController(true, func_name)
+	go callDepController(true, func_name)
+	log.Print("Forwarding request to",remoteUrl)
 	proxy := httputil.NewSingleHostReverseProxy(remoteUrl)
 	proxy.ServeHTTP(w, r)
 }
 
-func callDepController(func_found bool, func_name string) {
+func callDepController(func_found bool, func_name string) error {
     depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
     if depControllerAddr == "" {
         fmt.Println("DEP_CONTROLLER_ADD environment variable not set")
-        return
+        return nil
     }
 	depControllerAddr = "http://" + depControllerAddr //schema support
     var path string
@@ -66,8 +66,10 @@ func callDepController(func_found bool, func_name string) {
     _, err := http.Get(targetURL)
     if err != nil {
         fmt.Printf("Failed to make HTTP request: %v\n", err)
-        return
+        return err
     }
+
+	return nil
 }
 
 func main() {
@@ -111,11 +113,12 @@ func watchIngress(clientset *kubernetes.Clientset) {
 
             switch event.Type {
             case watch.Added, watch.Modified:
+				log.Printf("Updated host targets: %+v", hostTargets)
                 updateHostTargets(ingress)
             case watch.Deleted:
                 deleteHostTargets(ingress)
             }
-            log.Printf("Updated host targets: %+v", hostTargets)
+            
         }
     }()
 }
@@ -127,7 +130,6 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
 				serviceName := path.Backend.Service.Name
 				namespace := ingress.Namespace
 				port := path.Backend.Service.Port.Number
-				//host := rule.Host
 				func_name:= ingress.Labels["function_name"]
 				hostname := fmt.Sprintf("http://%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
 				hostTargets[func_name] = hostname
@@ -137,7 +139,24 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
 }
 
 func deleteHostTargets(ingress *networkingv1.Ingress) {
+	func_name := ""
+	hostname_deleted   :=""
 	for _, rule := range ingress.Spec.Rules {
-		delete(hostTargets, rule.Host)
+		if rule.HTTP != nil {
+			for _, path := range rule.HTTP.Paths {
+				serviceName := path.Backend.Service.Name
+				namespace := ingress.Namespace
+				port := path.Backend.Service.Port.Number
+				func_name = ingress.Labels["function_name"]
+				hostname_deleted = fmt.Sprintf("http://%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+			}
+		}
 	}
+
+	// delete entry only when deleted ingress is same as present ingress 
+	if hostTargets[func_name] == hostname_deleted {
+		log.Printf("Deleting ingress for %s", func_name)
+		delete(hostTargets, func_name)
+	}
+
 }

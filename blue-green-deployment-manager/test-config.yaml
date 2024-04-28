@@ -4,13 +4,14 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-test
-  namespace: nginx-test2
+  name: nginx-test-0
+  namespace: default
   labels: 
-    "cpu_threshold_1": "1"
-    "cpu_threshold_2" : "2"
-    "mm_threshold_1" : "1"
-    "mm_threshold_2" : "1"
+    "cpu_threshold_1": "10"
+    "cpu_threshold_2" : "20"
+    "mm_threshold_1" : "1000"
+    "mm_threshold_2" : "1000000"
+    "function_name" : "nginx-test"
 data:
   my-config.json: |
     [
@@ -24,7 +25,7 @@ data:
         },
         "env": {
           "name": "test",
-          "value": "test-value"
+          "value": "vasudha"
         },
         "service": {
           "type": "ClusterIP",
@@ -51,9 +52,6 @@ data:
           "type": "ClusterIP",
           "port": 80,
           "targetPort": 80
-        },
-        "ingress": {
-          "host": "b.example.com"
         }
       }
     ]
@@ -68,13 +66,14 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-test
-  namespace: nginx-test1
+  name: nginx-test-1
+  namespace: default
   labels: 
     "cpu_threshold_1": "1"
     "cpu_threshold_2" : "2"
     "mm_threshold_1" : "1"
     "mm_threshold_2" : "1"
+    "function_name" : "nginx-test"
 data:
   my-config.json: |
     [
@@ -88,7 +87,7 @@ data:
         },
         "env": {
           "name": "test",
-          "value": "test-value"
+          "value": "test-value-test"
         },
         "service": {
           "type": "ClusterIP",
@@ -96,7 +95,8 @@ data:
           "targetPort": 80
         },
         "ingress": {
-          "host": "b.example.com"
+          "host": "b.example.com",
+          "function_name": "nginx-test"
         }
       }
     ]
@@ -109,13 +109,14 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-test
-  namespace: nginx-test0
+  name: nginx-test-2
+  namespace: default
   labels: 
-    "cpu_threshold_1": "1"
-    "cpu_threshold_2" : "2"
-    "mm_threshold_1" : "1"
-    "mm_threshold_2" : "1"
+    "cpu_threshold_1": "20"
+    "cpu_threshold_2" : "20"
+    "mm_threshold_1" : "20"
+    "mm_threshold_2" : "20"
+    "function_name" : "nginx-test"
 data:
   my-config.json: |
     [
@@ -129,7 +130,7 @@ data:
         },
         "env": {
           "name": "test",
-          "value": "test-value"
+          "value": "test-value-svvfgfdvdsdsfgfdgftegdjdwdwkdwf"
         },
         "service": {
           "type": "ClusterIP",
@@ -137,9 +138,10 @@ data:
           "targetPort": 80
         },
         "ingress": {
-          "host": "b.example.com"
+          "host": "b.example.com",
+          "function_name": "nginx-test"
         }
-      },
+      }
     ]
 
 

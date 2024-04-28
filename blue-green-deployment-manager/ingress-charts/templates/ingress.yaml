@@ -2,6 +2,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Values.name }}-ingress
+  labels:
+    function_name: {{ .Values.ingress.function_name }}
 spec:
   rules:
     - host: {{ .Values.ingress.host }}

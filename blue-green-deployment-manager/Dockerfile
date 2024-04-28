@@ -1,12 +1,11 @@
-FROM golang:1.21
-RUN apt-get update && \
-    apt-get install -y vim && \
-    rm -rf /var/lib/apt/lists/*
-RUN mkdir /app
-COPY . /app
+FROM golang AS build
 WORKDIR /app
-RUN go mod tidy
-RUN go build -o main . 
-USER root 
-CMD ["/app/main"]
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+COPY . ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \ 
+    go build -o /main
+CMD ["/main"]
 

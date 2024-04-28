@@ -17,8 +17,13 @@ spec:
       serviceAccountName: deploymnet-controller-sa
       containers:
       - name: deploymnet-controller
-        image: vasu1711/blue-green:itr1
+        image: vasu1711/blue-green:itr5
         imagePullPolicy: Always
+        env: 
+          - name: "NAMESPACE_INGRESS"
+            value: "default"
+          - name: TTL
+            value: "60"  #60 seconds
         ports:
         - containerPort: 8080
         
@@ -44,6 +49,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: deploymnet-controller-sa
+  namespace: default 
 
 
 ---
@@ -53,8 +59,8 @@ kind: ClusterRole
 metadata:
   name: deploymnet-controller-role
 rules:
-- apiGroups: ["*"]
-  resources: ["*"]
+- apiGroups: ["*"] 
+  resources: ["*"] 
   verbs: ["*"]
 
 ---
@@ -66,7 +72,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: deploymnet-controller-sa
-  namespace: kube-system
+  namespace: default
 roleRef:
   kind: ClusterRole
   name: deploymnet-controller-role
