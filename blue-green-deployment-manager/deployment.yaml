@@ -23,7 +23,7 @@ spec:
           - name: "NAMESPACE_INGRESS"
             value: "default"
           - name: TTL
-            value: "60"  #60 seconds
+            value: "300"  #60 seconds
         ports:
         - containerPort: 8080
         

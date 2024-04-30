@@ -7,15 +7,16 @@ metadata:
   name: nginx-test-0
   namespace: default
   labels: 
-    "cpu_threshold_1": "10"
-    "cpu_threshold_2" : "20"
+    "cpu_threshold_1": "300"
+    "cpu_threshold_2" : "900"
     "mm_threshold_1" : "1000"
-    "mm_threshold_2" : "1000000"
+    "mm_threshold_2" : "10000000000000"
     "function_name" : "nginx-test"
 data:
   my-config.json: |
     [
       {
+        "endpoints": "recog",
         "name": "decoder",
         "version": 1,
         "replicaCount": 1,
@@ -37,6 +38,7 @@ data:
         }
       },
       {
+        "endpoints": "",
         "name": "recog",
         "version": 1,
         "replicaCount": 1,
@@ -69,15 +71,16 @@ metadata:
   name: nginx-test-1
   namespace: default
   labels: 
-    "cpu_threshold_1": "1"
-    "cpu_threshold_2" : "2"
-    "mm_threshold_1" : "1"
-    "mm_threshold_2" : "1"
+    "cpu_threshold_1": "900000"
+    "cpu_threshold_2" : "9700000"
+    "mm_threshold_1" : "1000"
+    "mm_threshold_2" : "10000000000000"
     "function_name" : "nginx-test"
 data:
   my-config.json: |
     [
       {
+        "endpoints": "",
         "name": "decoder",
         "version": 1,
         "replicaCount": 1,
@@ -112,15 +115,16 @@ metadata:
   name: nginx-test-2
   namespace: default
   labels: 
-    "cpu_threshold_1": "20"
-    "cpu_threshold_2" : "20"
-    "mm_threshold_1" : "20"
-    "mm_threshold_2" : "20"
+    "cpu_threshold_1": "9000000"
+    "cpu_threshold_2" : "97000000"
+    "mm_threshold_1" : "1000"
+    "mm_threshold_2" : "10000000000000"
     "function_name" : "nginx-test"
 data:
   my-config.json: |
     [
       {
+        "endpoints": "",
         "name": "decoder",
         "version": 1,
         "replicaCount": 1,

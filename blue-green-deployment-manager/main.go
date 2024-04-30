@@ -7,6 +7,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/watch"
@@ -377,6 +378,11 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 		imageData := configMapData["image"].(map[string]interface{})
 		// log.Print(imageData)
 		imageName := imageData["image"].(string)
+		endpoints, ok := configMapData["endpoints"].(string)
+		if !ok {
+			endpoints = ""
+		}
+		log.Printf("EndpointsList %s", endpoints)
 		// log.Print(imageName)
 		imagePullPolicy := corev1.PullPolicy(imageData["pullPolicy"].(string))
 		// log.Print(imagePullPolicy)
@@ -387,6 +393,7 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 				Value: value.(string),
 			})
 		}
+		user_int := int64(0)
 		// log.Print(env)
 		labels := map[string]string{
 			"function_name": func_name,
@@ -408,6 +415,21 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 			},
 		}
 
+		envVarEndpoints := corev1.EnvVar{
+			Name:  "ENDPOINTS",
+			Value: endpoints,
+		}
+
+		// Define your environment variable for NAMESPACE
+		envVarNamespace := corev1.EnvVar{
+			Name: "NAMESPACE",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "metadata.namespace",
+				},
+			},
+		}
+
 		_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
 		if exists != nil {
 			_, err = clientset.CoreV1().Namespaces().Create(context.Background(), namespace_object, metav1.CreateOptions{})
@@ -421,7 +443,7 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 
 		if ingress {
 			if _, ok := configMapData["ingress"]; ok {
-				
+
 				hostName := configMapData["ingress"].(map[string]interface{})["host"].(string)
 				ingress := &networkingv1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
@@ -489,6 +511,21 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 						Spec: corev1.PodSpec{
 							Containers: []corev1.Container{
 								{
+
+									Name:  "icmp",
+									Image: "vasu1711/icmp:itr10",
+									Env:   []corev1.EnvVar{envVarEndpoints, envVarNamespace},
+									ImagePullPolicy: imagePullPolicy,
+									Ports: []corev1.ContainerPort{
+										{
+											ContainerPort: 8003,
+										},
+									},
+									SecurityContext: &corev1.SecurityContext{
+										RunAsUser: &user_int,
+									},
+								},
+								{
 									Name:            name,
 									Image:           imageName,
 									ImagePullPolicy: imagePullPolicy,
@@ -498,10 +535,6 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 										},
 									},
 									Env: env,
-								}, {
-
-									Name:  "tcp-dump",
-									Image: "docker.io/dockersec/tcpdump",
 								},
 							},
 						},
@@ -509,20 +542,67 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 				},
 			}
 
-			// log.Print(deployment)
-			if update == false{
+			role := &rbacv1.Role{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "pod-reader",
+				},
+				Rules: []rbacv1.PolicyRule{
+					{
+						APIGroups: []string{""},
+						Resources: []string{"pods"},
+						Verbs:     []string{"get", "list"},
+					},
+				},
+			}
+
+			existingRole, err := clientset.RbacV1().Roles(namespace).Get(context.TODO(), "pod-reader", metav1.GetOptions{})
+			if err != nil {
+				_, err := clientset.RbacV1().Roles(namespace).Create(context.TODO(), role, metav1.CreateOptions{})
+				if err != nil {
+					panic(err.Error())
+				}
+
+				roleBinding := &rbacv1.RoleBinding{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "pod-reader-binding",
+					},
+					Subjects: []rbacv1.Subject{
+						{
+							Kind:      "ServiceAccount",
+							Name:      "default",
+							Namespace: namespace,
+						},
+					},
+					RoleRef: rbacv1.RoleRef{
+						Kind:     "Role",
+						Name:     "pod-reader",
+						APIGroup: "rbac.authorization.k8s.io",
+					},
+				}
+
+				_, err = clientset.RbacV1().RoleBindings(namespace).Create(context.TODO(), roleBinding, metav1.CreateOptions{})
+				if err != nil {
+					panic(err.Error())
+				}
+
+				log.Printf("Created role %q.\n", role.Name)
+			} else {
+				log.Printf("Role %q already exists.\n", existingRole.Name)
+			}
+
+			if update == false {
 				log.Printf("Creating deployment and service %s in %s", name, namespace)
-			_, err = clientset.AppsV1().Deployments(namespace).Create(context.Background(), deployment, metav1.CreateOptions{})
-			if err != nil {
-				panic(err.Error())
+				_, err = clientset.AppsV1().Deployments(namespace).Create(context.Background(), deployment, metav1.CreateOptions{})
+				if err != nil {
+					panic(err.Error())
+				}
+			} else {
+				log.Print("Updating deployment and service %s in %s", name, namespace)
+				_, err = clientset.AppsV1().Deployments(namespace).Update(context.Background(), deployment, metav1.UpdateOptions{})
+				if err != nil {
+					panic(err.Error())
+				}
 			}
-		}else{
-			log.Print("Updating deployment and service %s in %s", name, namespace)
-			_, err = clientset.AppsV1().Deployments(namespace).Update(context.Background(), deployment, metav1.UpdateOptions{})
-			if err != nil {
-				panic(err.Error())
-			}
-		}
 
 			// deploy a service as well
 
@@ -537,23 +617,29 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 					},
 					Ports: []corev1.ServicePort{
 						{
+							Name:       "main-port",
 							Port:       servicePort,
 							TargetPort: intstr.FromInt(int(containerPort)),
+						},
+						{
+							Name:       "icmp-port",
+							Port:       8003,
+							TargetPort: intstr.FromInt(int(8003)),
 						},
 					},
 				},
 			}
-			if update == false{
-			_, err = clientset.CoreV1().Services(namespace).Create(context.Background(), service, metav1.CreateOptions{})
-			if err != nil {
-				panic(err.Error())
+			if update == false {
+				_, err = clientset.CoreV1().Services(namespace).Create(context.Background(), service, metav1.CreateOptions{})
+				if err != nil {
+					panic(err.Error())
+				}
+			} else {
+				_, err = clientset.CoreV1().Services(namespace).Update(context.Background(), service, metav1.UpdateOptions{})
+				if err != nil {
+					panic(err.Error())
+				}
 			}
-		}else{
-			_, err = clientset.CoreV1().Services(namespace).Update(context.Background(), service, metav1.UpdateOptions{})
-			if err != nil {
-				panic(err.Error())
-			}
-		}
 
 		}
 	}
@@ -589,6 +675,7 @@ func metricEvalHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if cpu_usage > cpu_threshold1 || mm_usage > mm_threshold1 {
+		log.Print("Threshold 1 reached")
 		version_update := version + 1
 		namespace_update := func_name + "-" + strconv.Itoa(version_update)
 		_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace_update, metav1.GetOptions{})
@@ -600,7 +687,7 @@ func metricEvalHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if cpu_usage > cpu_threshold2 || mm_usage > mm_threshold2 {
-
+		    log.Print("Threshold 2 reached")
 			err = MakeDeployment(namespace_update, func_name, true, false)
 			if err != nil {
 				log.Printf("Falied to install ingress: %v\n", err)
