@@ -14,6 +14,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -138,7 +139,7 @@ func convertCPUUsage(cpuUsage string) (float64, error) {
 		if err != nil {
 			return 0, err
 		}
-		return cpu / 1000000, nil
+		return cpu * 1000000, nil
 	} else if strings.HasSuffix(cpuUsage, "m") {
 		cpuUsage = strings.TrimSuffix(cpuUsage, "m")
 		cpu, err := strconv.ParseFloat(cpuUsage, 64)
@@ -195,20 +196,48 @@ func convertMemoryUsage(memoryUsage string) (float64, error) {
 		return 0, fmt.Errorf("unsupported memory usage format")
 	}
 }
-func getMetrics(clientset *kubernetes.Clientset, pods *PodMetricsList, namespace string) error {
-	// result := clientset.RESTClient().
-	// 	Get().
-	// 	Namespace(namespace).
-	// 	AbsPath("apis/metrics.k8s.io/v1beta1/pods").
-	// 	Do(context.TODO())
-	// data, err := result.Raw()
-	// if err != nil {
-	// 	return err
-	// }
-	// err = json.Unmarshal(data, &pods)
-	// log.Print(pods)
-	// return err
 
+func getMetricsNodes(node *NodeMetricList) error {
+
+	result := clientset.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO())
+	data, err := result.Raw()
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(data, &node)
+	log.Print(node)
+	return err
+}
+
+func nodeCPUSort() string {
+
+	var nodes NodeMetricList
+	err := getMetricsNodes(&nodes)
+	if err != nil {
+
+		return ""
+
+	}
+
+	node_name := ""
+	var node_usage_minimum float64 = math.Inf(1)
+
+	for _, item := range nodes.Items {
+		cpu_current, _ := convertCPUUsage(item.Usage.CPU)
+		log.Print(item.Metadata.Name)
+		log.Print(cpu_current)
+		if cpu_current < node_usage_minimum {
+			node_usage_minimum = cpu_current
+			node_name = item.Metadata.Name
+
+		}
+	}
+	log.Print(node_name)
+	return node_name
+
+}
+
+func getMetrics(clientset *kubernetes.Clientset, pods *PodMetricsList, namespace string) error {
 	result := clientset.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/pods").Do(context.TODO())
 	data, err := result.Raw()
 	if err != nil {
@@ -393,7 +422,6 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 				Value: value.(string),
 			})
 		}
-		user_int := int64(0)
 		// log.Print(env)
 		labels := map[string]string{
 			"function_name": func_name,
@@ -412,21 +440,6 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 		namespace_object := &corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: namespace,
-			},
-		}
-
-		envVarEndpoints := corev1.EnvVar{
-			Name:  "ENDPOINTS",
-			Value: endpoints,
-		}
-
-		// Define your environment variable for NAMESPACE
-		envVarNamespace := corev1.EnvVar{
-			Name: "NAMESPACE",
-			ValueFrom: &corev1.EnvVarSource{
-				FieldRef: &corev1.ObjectFieldSelector{
-					FieldPath: "metadata.namespace",
-				},
 			},
 		}
 
@@ -494,6 +507,7 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 			}
 		} else {
 			log.Print("Creating deployment and service %s in %s", name, namespace)
+			node_name := nodeCPUSort()
 			deployment := &appsv1.Deployment{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:   name,
@@ -511,21 +525,6 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 						Spec: corev1.PodSpec{
 							Containers: []corev1.Container{
 								{
-
-									Name:  "icmp",
-									Image: "vasu1711/icmp:itr10",
-									Env:   []corev1.EnvVar{envVarEndpoints, envVarNamespace},
-									ImagePullPolicy: imagePullPolicy,
-									Ports: []corev1.ContainerPort{
-										{
-											ContainerPort: 8003,
-										},
-									},
-									SecurityContext: &corev1.SecurityContext{
-										RunAsUser: &user_int,
-									},
-								},
-								{
 									Name:            name,
 									Image:           imageName,
 									ImagePullPolicy: imagePullPolicy,
@@ -541,7 +540,13 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 					},
 				},
 			}
-
+			if node_name != "" {
+				log.Printf("Assigning node %s",node_name)
+				deployment.Spec.Template.Spec.NodeSelector = map[string]string{
+					"kubernetes.io/hostname": node_name,
+				}
+			}
+			
 			role := &rbacv1.Role{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "pod-reader",
@@ -642,6 +647,7 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 			}
 
 		}
+
 	}
 
 	return nil
@@ -687,7 +693,7 @@ func metricEvalHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if cpu_usage > cpu_threshold2 || mm_usage > mm_threshold2 {
-		    log.Print("Threshold 2 reached")
+			log.Print("Threshold 2 reached")
 			err = MakeDeployment(namespace_update, func_name, true, false)
 			if err != nil {
 				log.Printf("Falied to install ingress: %v\n", err)
