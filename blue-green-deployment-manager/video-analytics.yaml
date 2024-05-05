@@ -1,0 +1,265 @@
+
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: video-analytics-0
+  namespace: default
+  labels: 
+    "cpu_threshold_1": "30000000000000"
+    "cpu_threshold_2" : "900000000000000"
+    "mm_threshold_1" : "120000000000000"
+    "mm_threshold_2" : "10000000000000"
+    "function_name" : "video-analytics"
+    "kind" : "mmap"
+data:
+  my-config.json: |
+    [
+        {
+          "endpoints": "video-decoder",
+          "name": "video-streaming",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/video-streaming:macropod",
+            "pullPolicy": "Always"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "HTTP"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, {
+              "name": "FUNC_PORT",
+              "value": "5000"
+            }, {
+              "name": "RPC_PV",
+              "value":  "/macropod-pv"
+            },
+            {
+              "name": "RPC_DEST_PV",
+              "value":  "/macropod-pv"
+            },
+            {
+              "name": "LOGGING_NAME",
+              "value":  "video-streaming"
+            },
+            {
+              "name": "LOGGING_URL",
+              "value":  "redis://127.0.0.1"
+            },
+            {
+              "name": "LOGGING_PASSWORD",
+              "value":  "password"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 80,
+            "targetPort": 5000
+          },
+          "ingress": {
+            "host": "b.example.com"
+          }
+        },
+        {
+          "name": "video-recog",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/video-recog:macropod",
+            "pullPolicy": "Always"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, {
+              "name": "FUNC_PORT",
+              "value": "5002"
+            }, {
+              "name": "APP_PV",
+              "value":  "/macropod-pv"
+            },
+            {
+              "name": "LOGGING_NAME",
+              "value":  "video-recog"
+            },
+            {
+              "name": "LOGGING_URL",
+              "value":  "redis://127.0.0.1"
+            },
+          {
+              "name": "URL",
+              "value":  "http://127.0.0.1:"
+            },
+            {
+              "name": "LOGGING_PASSWORD",
+              "value":  "password"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5002,
+            "targetPort": 5002
+          }
+        },
+        {
+          "endpoints": "video-recog",
+          "name": "video-decoder",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/video-decoder:macropod",
+            "pullPolicy": "Always"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, {
+              "name": "FUNC_PORT",
+              "value": "5001"
+            }, {
+              "name": "RPC_PV",
+              "value":  "/macropod-pv"
+            },
+            {
+              "name": "RPC_DEST_PV",
+              "value":  "/macropod-pv"
+            },
+            {
+              "name": "LOGGING_NAME",
+              "value":  "video-decoder"
+            },
+            {
+              "name": "APP_PV",
+              "value":  "/macropod-pv"
+            },
+            {
+              "name": "LOGGING_URL",
+              "value":  "redis://127.0.0.1"
+            },
+            {
+              "name": "LOGGING_PASSWORD",
+              "value":  "password"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5001,
+            "targetPort": 5001
+          }
+        }
+      ]
+
+
+# ---
+
+
+
+
+
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: nginx-test-1
+#   namespace: default
+#   labels: 
+#     "cpu_threshold_1": "900000"
+#     "cpu_threshold_2" : "9700000"
+#     "mm_threshold_1" : "1000"
+#     "mm_threshold_2" : "10000000000000"
+#     "function_name" : "nginx-test"
+# data:
+#   my-config.json: |
+#     [
+#       {
+#         "endpoints": "",
+#         "name": "decoder",
+#         "version": 1,
+#         "replicaCount": 1,
+#         "image": {
+#           "image": "nginx:latest",
+#           "pullPolicy": "Always"
+#         },
+#         "env": [{
+#           "name": "test",
+#           "value": "vasudha"
+#           },
+#           {
+#           "name": "test2",
+#           "value": "vasudha"
+#           }
+#         ],
+#         "service": {
+#           "type": "ClusterIP",
+#           "port": 80,
+#           "targetPort": 80
+#         },
+#         "ingress": {
+#           "host": "b.example.com",
+#           "function_name": "nginx-test"
+#         }
+#       }
+#     ]
+
+
+
+
+# ---
+
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: nginx-test-2
+#   namespace: default
+#   labels: 
+#     "cpu_threshold_1": "9000000"
+#     "cpu_threshold_2" : "97000000"
+#     "mm_threshold_1" : "1000"
+#     "mm_threshold_2" : "10000000000000"
+#     "function_name" : "nginx-test"
+# data:
+#   my-config.json: |
+#     [
+#       {
+#         "endpoints": "",
+#         "name": "decoder",
+#         "version": 1,
+#         "replicaCount": 1,
+#         "image": {
+#           "image": "nginx:latest",
+#           "pullPolicy": "Always"
+#         },
+#         "env": [{
+#           "name": "test",
+#           "value": "vasudha"
+#           },
+#           {
+#           "name": "test2",
+#           "value": "vasudha"
+#           }
+#         ],
+#         "service": {
+#           "type": "ClusterIP",
+#           "port": 80,
+#           "targetPort": 80
+#         },
+#         "ingress": {
+#           "host": "b.example.com",
+#           "function_name": "nginx-test"
+#         }
+#       }
+#     ]
+
+

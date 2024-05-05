@@ -7,7 +7,6 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/watch"
@@ -205,7 +204,6 @@ func getMetricsNodes(node *NodeMetricList) error {
 		return err
 	}
 	err = json.Unmarshal(data, &node)
-	log.Print(node)
 	return err
 }
 
@@ -249,6 +247,11 @@ func getMetrics(clientset *kubernetes.Clientset, pods *PodMetricsList, namespace
 }
 
 func getPodMetricsAndChanges(namespace string) (float64, float64, error) {
+	_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
+	if exists != nil {
+		log.Printf("%s worflow version does not exist", namespace)
+		return 0.0, 0.0, nil
+	}
 	var podMetricsList PodMetricsList
 	err := getMetrics(clientset, &podMetricsList, namespace)
 	if err != nil {
@@ -283,22 +286,12 @@ func getPodMetricsAndChanges(namespace string) (float64, float64, error) {
 		nsMemUsage += podMemUsage
 
 	}
+
 	log.Printf("Namespace : %s\n", namespace)
 	log.Printf("CPU Usage:%v\n", nsCPUUsage)
 	log.Printf("Memory Usage:%v\n", nsMemUsage)
 	return nsCPUUsage, nsMemUsage, nil
 }
-
-// func getMetricsNode(clientset *kubernetes.Clientset, nodes *NodeMetricList) error {
-// 	result := clientset.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO())
-// 	data, err := result.Raw()
-// 	if err != nil {
-// 		print("error")
-// 		return err
-// 	}
-// 	err = json.Unmarshal(data, &nodes)
-// 	return err
-// }
 
 func getConfigMapData(namespace, configMapName string) ([]map[string]interface{}, error) {
 	cm, err := clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), configMapName, metav1.GetOptions{})
@@ -315,16 +308,6 @@ func getConfigMapData(namespace, configMapName string) ([]map[string]interface{}
 }
 
 func getConfigMapThreshold(namespace, configMapName string) (float64, float64, float64, float64, error) {
-	log.Printf("Fetching  metrics for %s from configMap %s", namespace, configMapName)
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return 0.0, 0.0, 0.0, 0.0, err
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return 0.0, 0.0, 0.0, 0.0, err
-	}
-
 	cm, err := clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), configMapName, metav1.GetOptions{})
 	if err != nil {
 		return 0.0, 0.0, 0.0, 0.0, err
@@ -344,6 +327,17 @@ func getConfigMapThreshold(namespace, configMapName string) (float64, float64, f
 	mm_threshold2, _ := strconv.ParseFloat(mmThreshold2Str, 64)
 
 	return cpu_threshold1, cpu_threshuld2, mm_threshold1, mm_threshold2, nil
+
+}
+
+func getKind(configMapName string) string {
+
+	cm, _ := clientset.CoreV1().ConfigMaps(namesapce_ingress).Get(context.TODO(), configMapName, metav1.GetOptions{})
+
+	if kind, ok := cm.Labels["kind"]; ok {
+		return kind
+	}
+	return ""
 
 }
 
@@ -389,8 +383,352 @@ func updateDeployment(configMap *corev1.ConfigMap) {
 	}
 
 }
-func MakeDeployment(namespace string, func_name string, ingress bool, update bool) error {
+
+// kind := getKind(configMapName)
+func MakeDeploymentSinglePod(kind string, namespace string, func_name string, ingress bool, update bool) error {
+
+	log.Print("Deploying Single pod")
+
 	configMapName := namespace
+
+	configDataArray, err := getConfigMapData(namesapce_ingress, configMapName)
+	if err != nil {
+		log.Printf("Falied to delete deployment: %v\n", err)
+	}
+
+	// first lets make deplouyment and then service
+
+	namespace_object := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: namespace,
+		},
+	}
+
+	_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
+	if exists != nil {
+		_, err = clientset.CoreV1().Namespaces().Create(context.Background(), namespace_object, metav1.CreateOptions{})
+		if err != nil {
+			panic(err.Error())
+		}
+		log.Print("Namespace created successfuly")
+	}
+	if ingress == false {
+		// deployment := appsv1.Deployment{
+		// 	ObjectMeta: metav1.ObjectMeta{
+		// 		Name: namespace,
+		// 	},
+		// 	Spec: appsv1.DeploymentSpec{
+		// 		Selector: &metav1.LabelSelector{
+		// 			MatchLabels: map[string]string{"app": namespace},
+		// 		},
+		// 		Template: corev1.PodTemplateSpec{
+		// 			ObjectMeta: metav1.ObjectMeta{
+		// 				Labels: map[string]string{"app": namespace},
+		// 			},
+		// 			Spec: corev1.PodSpec{
+		// 				Containers: make([]corev1.Container, len(configDataArray)),
+		// 			},
+		// 		},
+		// 	},
+		// }
+		service := &corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      namespace,
+				Namespace: namespace,
+			},
+			Spec: corev1.ServiceSpec{
+				Selector: map[string]string{
+					"app": namespace,
+				},
+				Ports: []corev1.ServicePort{},
+			},
+		}
+		// if kind == "mmap" {
+		// 	volume := corev1.Volume{
+		// 		Name: "macropod-pv",
+		// 		VolumeSource: corev1.VolumeSource{
+		// 			EmptyDir: &corev1.EmptyDirVolumeSource{
+		// 				Medium: corev1.StorageMediumMemory,
+		// 			},
+		// 		},
+		// 	}
+
+		// 	if deployment.Spec.Template.Spec.Volumes == nil {
+		// 		deployment.Spec.Template.Spec.Volumes = make([]corev1.Volume, 0)
+		// 	}
+
+		// 	deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, volume)
+
+		// }
+
+		// log.Print(configDataArray)
+
+		for _, configMapData := range configDataArray {
+			name := configMapData["name"].(string)
+			servicePort := int32(configMapData["service"].(map[string]interface{})["port"].(float64))
+
+			containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
+			service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
+				Name:       name,
+				Port:       servicePort,
+				TargetPort: intstr.FromInt(int(containerPort)),
+			})
+
+		}
+
+		deployment := appsv1.Deployment{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: namespace,
+			},
+			Spec: appsv1.DeploymentSpec{
+				Selector: &metav1.LabelSelector{
+					MatchLabels: map[string]string{"app": namespace},
+				},
+				Template: corev1.PodTemplateSpec{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{"app": namespace},
+					},
+					Spec: corev1.PodSpec{
+						Containers: make([]corev1.Container, len(configDataArray)),
+					},
+				},
+			},
+		}
+
+		if kind == "mmap" {
+			volume := corev1.Volume{
+				Name: "macropod-pv",
+				VolumeSource: corev1.VolumeSource{
+					EmptyDir: &corev1.EmptyDirVolumeSource{
+						Medium: corev1.StorageMediumMemory,
+					},
+				},
+			}
+
+			if deployment.Spec.Template.Spec.Volumes == nil {
+				deployment.Spec.Template.Spec.Volumes = make([]corev1.Volume, 0)
+			}
+
+			deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, volume)
+
+		}
+
+		// log.Print(configDataArray)
+
+		for i, configMapData := range configDataArray {
+			name := configMapData["name"].(string)
+			log.Print(name)
+			replicaCount := int32(configMapData["replicaCount"].(float64))
+
+			envVariables, _ := configMapData["env"].([]interface{})
+
+			imageData := configMapData["image"].(map[string]interface{})
+			imageName := imageData["image"].(string)
+			endpoints, ok := configMapData["endpoints"].(string)
+			if !ok {
+				endpoints = ""
+			}
+			containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
+
+			log.Printf("EndpointsList %s", endpoints)
+			imagePullPolicy := corev1.PullPolicy(imageData["pullPolicy"].(string))
+
+			var env []corev1.EnvVar
+			for _, item := range envVariables {
+				envData, _ := item.(map[string]interface{})
+
+				name, _ := envData["name"].(string)
+				value, _ := envData["value"].(string)
+
+				env = append(env, corev1.EnvVar{
+					Name:  name,
+					Value: value,
+				})
+			}
+
+			endpointList := strings.Split(endpoints, ",")
+			if endpoints != "" {
+				for _, endpoint := range endpointList {
+					name_key := strings.ToUpper(endpoint)
+					port := ""
+					for _, port_svc := range service.Spec.Ports {
+						if port_svc.Name == endpoint {
+							port = strconv.Itoa(int(port_svc.Port)) 
+							break
+						}
+					}
+					service_name := "redis://127.0.0.1:"+port
+					log.Print(service_name)
+					final_name := strings.ReplaceAll(name_key, "-", "_")
+					env = append(env, corev1.EnvVar{
+						Name:  final_name,
+						Value: service_name,
+					})
+				}
+			}
+			deployment.Spec.Replicas = &replicaCount
+			deployment.Spec.Template.Spec.Containers[i] = corev1.Container{
+				Name:            name,
+				Image:           imageName,
+				ImagePullPolicy: imagePullPolicy,
+				Ports: []corev1.ContainerPort{
+					{
+						ContainerPort: containerPort,
+					},
+				},
+				Env: env,
+			}
+
+			if kind == "mmap" {
+				volumeMount := corev1.VolumeMount{
+					Name:      "macropod-pv",
+					MountPath: "/macropod-pv",
+				}
+				deployment.Spec.Template.Spec.Containers[i].VolumeMounts = append(
+					deployment.Spec.Template.Spec.Containers[i].VolumeMounts, volumeMount)
+			}
+			command, ok := configMapData["command"].(string)
+			if !ok {
+				command = ""
+			}
+			if command != "" {
+				commandList := strings.Split(command, ",")
+				log.Print(commandList)
+				deployment.Spec.Template.Spec.Containers[i].Command = commandList
+
+			}
+			args, ok := configMapData["args"].(string)
+			if !ok {
+				args = ""
+			}
+			if args != "" {
+				argsList := strings.Split(args, ",")
+				log.Print(argsList)
+				deployment.Spec.Template.Spec.Containers[i].Args = argsList
+
+			}
+
+		}
+
+		node_name := nodeCPUSort()
+		if node_name != "" {
+			log.Printf("Assigning node %s", node_name)
+			deployment.Spec.Template.Spec.NodeSelector = map[string]string{
+				"kubernetes.io/hostname": node_name,
+			}
+		}
+
+		// log.Print("Deploying...............")
+		// log.Print(deployment)
+		// log.Print("..............................")
+
+		if update == false {
+			log.Printf("Creating deployment and service %s in %s", namespace, namespace)
+			_, err = clientset.AppsV1().Deployments(namespace).Create(context.Background(), &deployment, metav1.CreateOptions{})
+			if err != nil {
+				panic(err.Error())
+			}
+		} else {
+			log.Print("Updating deployment and service %s in %s", namespace, namespace)
+			_, err = clientset.AppsV1().Deployments(namespace).Update(context.Background(), &deployment, metav1.UpdateOptions{})
+			if err != nil {
+				panic(err.Error())
+			}
+		}
+		if update == false {
+			_, err = clientset.CoreV1().Services(namespace).Create(context.Background(), service, metav1.CreateOptions{})
+			if err != nil {
+				panic(err.Error())
+			}
+		} else {
+			_, err = clientset.CoreV1().Services(namespace).Update(context.Background(), service, metav1.UpdateOptions{})
+			if err != nil {
+				panic(err.Error())
+			}
+		}
+	}
+	for _, configMapData := range configDataArray {
+
+		name := configMapData["name"].(string)
+
+		labels := map[string]string{
+			"function_name": func_name,
+			"app":           name,
+		}
+
+		// log.Print(labels)
+		//containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
+		// log.Print(containerPort)
+		servicePort := int32(configMapData["service"].(map[string]interface{})["port"].(float64))
+		// log.Print(servicePort)
+
+		pathType := networkingv1.PathTypePrefix
+		// create namespace first
+
+		// create deployment and service if ingress is false else make ingress resource
+
+		if ingress {
+			if _, ok := configMapData["ingress"]; ok {
+
+				hostName := configMapData["ingress"].(map[string]interface{})["host"].(string)
+				ingress := &networkingv1.Ingress{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      name,
+						Namespace: namespace,
+						Labels:    labels,
+					},
+					Spec: networkingv1.IngressSpec{
+						Rules: []networkingv1.IngressRule{
+							{
+								Host: hostName,
+								IngressRuleValue: networkingv1.IngressRuleValue{
+									HTTP: &networkingv1.HTTPIngressRuleValue{
+										Paths: []networkingv1.HTTPIngressPath{
+											{
+												Path:     "/",
+												PathType: &pathType,
+												Backend: networkingv1.IngressBackend{
+													Service: &networkingv1.IngressServiceBackend{
+														Name: namespace,
+														Port: networkingv1.ServiceBackendPort{
+															Number: servicePort,
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				}
+				if update == false {
+					log.Printf("Creating ingress for %s in %s", name, namespace)
+					_, err = clientset.NetworkingV1().Ingresses(namespace).Create(context.Background(), ingress, metav1.CreateOptions{})
+					if err != nil {
+						panic(err.Error())
+					}
+				} else {
+					log.Printf("Updating ingress for %s in %s", name, namespace)
+					_, err = clientset.NetworkingV1().Ingresses(namespace).Update(context.Background(), ingress, metav1.UpdateOptions{})
+					if err != nil {
+						panic(err.Error())
+					}
+				}
+
+			}
+		}
+
+	}
+
+	return nil
+
+}
+
+func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ingress bool, update bool) error {
+	configMapName := namespace
+
 	configDataArray, err := getConfigMapData(namesapce_ingress, configMapName)
 	if err != nil {
 		log.Printf("Falied to delete deployment: %v\n", err)
@@ -402,7 +740,7 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 		// log.Print(name)
 		replicaCount := int32(configMapData["replicaCount"].(float64))
 		// log.Print(replicaCount)
-		envVariables := configMapData["env"].(map[string]interface{})
+		envVariables, _ := configMapData["env"].([]interface{})
 		// log.Print(envVariables)
 		imageData := configMapData["image"].(map[string]interface{})
 		// log.Print(imageData)
@@ -416,10 +754,15 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 		imagePullPolicy := corev1.PullPolicy(imageData["pullPolicy"].(string))
 		// log.Print(imagePullPolicy)
 		var env []corev1.EnvVar
-		for key, value := range envVariables {
+		for _, item := range envVariables {
+			envData, _ := item.(map[string]interface{})
+
+			name, _ := envData["name"].(string)
+			value, _ := envData["value"].(string)
+
 			env = append(env, corev1.EnvVar{
-				Name:  key,
-				Value: value.(string),
+				Name:  name,
+				Value: value,
 			})
 		}
 		// log.Print(env)
@@ -436,7 +779,19 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 
 		pathType := networkingv1.PathTypePrefix
 		// create namespace first
+		endpointList := strings.Split(endpoints, ",")
 
+		if endpoints != "" {
+			for _, endpoint := range endpointList {
+				service_name := endpoint + "." + namespace + "." + "svc.cluster.local"
+				name_key := strings.ToUpper(endpoint)
+				final_name := strings.ReplaceAll(name_key, "-", "_")
+				env = append(env, corev1.EnvVar{
+					Name:  final_name,
+					Value: service_name,
+				})
+			}
+		}
 		namespace_object := &corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: namespace,
@@ -506,6 +861,7 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 
 			}
 		} else {
+
 			log.Print("Creating deployment and service %s in %s", name, namespace)
 			node_name := nodeCPUSort()
 			deployment := &appsv1.Deployment{
@@ -540,59 +896,30 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 					},
 				},
 			}
+			command, ok := configMapData["command"].(string)
+			if !ok {
+				command = ""
+			}
+			if command != "" {
+				commandList := strings.Split(command, ",")
+				deployment.Spec.Template.Spec.Containers[0].Command = commandList
+
+			}
+			args, ok := configMapData["args"].(string)
+			if !ok {
+				args = ""
+			}
+			if args != "" {
+				argsList := strings.Split(args, ",")
+				deployment.Spec.Template.Spec.Containers[0].Args = argsList
+
+			}
+
 			if node_name != "" {
-				log.Printf("Assigning node %s",node_name)
+				log.Printf("Assigning node %s", node_name)
 				deployment.Spec.Template.Spec.NodeSelector = map[string]string{
 					"kubernetes.io/hostname": node_name,
 				}
-			}
-			
-			role := &rbacv1.Role{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "pod-reader",
-				},
-				Rules: []rbacv1.PolicyRule{
-					{
-						APIGroups: []string{""},
-						Resources: []string{"pods"},
-						Verbs:     []string{"get", "list"},
-					},
-				},
-			}
-
-			existingRole, err := clientset.RbacV1().Roles(namespace).Get(context.TODO(), "pod-reader", metav1.GetOptions{})
-			if err != nil {
-				_, err := clientset.RbacV1().Roles(namespace).Create(context.TODO(), role, metav1.CreateOptions{})
-				if err != nil {
-					panic(err.Error())
-				}
-
-				roleBinding := &rbacv1.RoleBinding{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "pod-reader-binding",
-					},
-					Subjects: []rbacv1.Subject{
-						{
-							Kind:      "ServiceAccount",
-							Name:      "default",
-							Namespace: namespace,
-						},
-					},
-					RoleRef: rbacv1.RoleRef{
-						Kind:     "Role",
-						Name:     "pod-reader",
-						APIGroup: "rbac.authorization.k8s.io",
-					},
-				}
-
-				_, err = clientset.RbacV1().RoleBindings(namespace).Create(context.TODO(), roleBinding, metav1.CreateOptions{})
-				if err != nil {
-					panic(err.Error())
-				}
-
-				log.Printf("Created role %q.\n", role.Name)
-			} else {
-				log.Printf("Role %q already exists.\n", existingRole.Name)
 			}
 
 			if update == false {
@@ -626,11 +953,6 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 							Port:       servicePort,
 							TargetPort: intstr.FromInt(int(containerPort)),
 						},
-						{
-							Name:       "icmp-port",
-							Port:       8003,
-							TargetPort: intstr.FromInt(int(8003)),
-						},
 					},
 				},
 			}
@@ -651,6 +973,24 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 	}
 
 	return nil
+
+}
+func MakeDeployment(namespace string, func_name string, ingress bool, update bool) error {
+
+	configMapName := namespace
+	kind := getKind(configMapName)
+
+	if kind == "mmap" || kind == "single-pod" {
+		log.Print("Single Pod")
+		err := MakeDeploymentSinglePod(kind, namespace, func_name, ingress, update)
+		return err
+
+	} else {
+		log.Print("Multi-Pod")
+		err := MakeDeploymentMultiPod(kind, namespace, func_name, ingress, update)
+		return err
+
+	}
 
 }
 

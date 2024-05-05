@@ -17,13 +17,13 @@ spec:
       serviceAccountName: deploymnet-controller-sa
       containers:
       - name: deploymnet-controller
-        image: vasu1711/blue-green:itr5
+        image: vasu1711/blue-green:itr6
         imagePullPolicy: Always
         env: 
           - name: "NAMESPACE_INGRESS"
             value: "default"
           - name: TTL
-            value: "60"  #60 seconds
+            value: "300"  #60 seconds
         ports:
         - containerPort: 8080
         

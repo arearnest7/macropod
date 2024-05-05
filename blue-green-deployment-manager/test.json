@@ -1,0 +1,156 @@
+[
+    {
+      "endpoints": "video-decoder",
+      "name": "video-streaming",
+      "version": 1,
+      "replicaCount": 1,
+      "image": {
+        "image": "arearnest7/video-streaming:macropod",
+        "pullPolicy": "Always"
+      },
+      "env": [{
+        "name": "SERVICE_TYPE",
+        "value": "HTTP"
+        },
+        {
+        "name": "GRPC_THREAD",
+        "value": "10"
+        }, {
+          "name": "FUNC_PORT",
+          "value": "5000"
+        }, {
+          "name": "RPC_PV",
+          "value":  "/macropod-pv"
+        },
+        {
+          "name": "RPC_DEST_PV",
+          "value":  "/macropod-pv"
+        },
+        {
+          "name": "LOGGING_NAME",
+          "value":  "video-streaming"
+        },
+       {
+          "name": "URL",
+          "value":  "http://127.0.0.1:"
+        },
+        {
+          "name": "LOGGING_URL",
+          "value":  "redis://127.0.0.1"
+        },
+        {
+          "name": "LOGGING_PASSWORD",
+          "value":  "password"
+        }
+      ],
+      "service": {
+        "type": "ClusterIP",
+        "port": 80,
+        "targetPort": 5000
+      },
+      "ingress": {
+        "host": "b.example.com"
+      }
+    },
+    {
+      "name": "video-recog",
+      "version": 1,
+      "replicaCount": 1,
+      "image": {
+        "image": "arearnest7/video-recog:macropod",
+        "pullPolicy": "Always"
+      },
+      "command": "/bin/sh,-c,sleep 60m",
+      "env": [{
+        "name": "SERVICE_TYPE",
+        "value": "HTTP"
+        },
+        {
+        "name": "GRPC_THREAD",
+        "value": "10"
+        }, {
+          "name": "FUNC_PORT",
+          "value": "5002"
+        }, {
+          "name": "APP_PV",
+          "value":  "/macropod-pv"
+        },
+        {
+          "name": "LOGGING_NAME",
+          "value":  "video-recog"
+        },
+        {
+          "name": "LOGGING_URL",
+          "value":  "redis://127.0.0.1"
+        },
+       {
+          "name": "URL",
+          "value":  "http://127.0.0.1:"
+        },
+        {
+          "name": "LOGGING_PASSWORD",
+          "value":  "password"
+        }
+      ],
+      "service": {
+        "type": "ClusterIP",
+        "port": 5002,
+        "targetPort": 5002
+      }
+    },
+    {
+      "endpoints": "video-recog",
+      "name": "video-decoder",
+      "version": 1,
+      "replicaCount": 1,
+      "image": {
+        "image": "arearnest7/video-decoder:macropod",
+        "pullPolicy": "Always"
+      },
+      "command": "/bin/sh,-c,sleep 60m",
+      "env": [{
+        "name": "SERVICE_TYPE",
+        "value": "HTTP"
+        },
+        {
+        "name": "GRPC_THREAD",
+        "value": "10"
+        }, {
+          "name": "FUNC_PORT",
+          "value": "5000"
+        }, {
+          "name": "RPC_PV",
+          "value":  "/macropod-pv"
+        },
+       {
+          "name": "URL",
+          "value":  "http://127.0.0.1:"
+        },
+        {
+          "name": "RPC_DEST_PV",
+          "value":  "/macropod-pv"
+        },
+        {
+          "name": "LOGGING_NAME",
+          "value":  "video-decoder"
+        },
+        {
+          "name": "APP_PV",
+          "value":  "/macropod-pv"
+        },
+        {
+          "name": "LOGGING_URL",
+          "value":  "redis://127.0.0.1"
+        },
+        {
+          "name": "LOGGING_PASSWORD",
+          "value":  "password"
+        }
+      ],
+      "service": {
+        "type": "ClusterIP",
+        "port": 5001,
+        "targetPort": 5001
+      }
+    }
+  ]
