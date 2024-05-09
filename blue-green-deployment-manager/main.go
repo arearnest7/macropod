@@ -129,6 +129,7 @@ func init() {
 	}
 }
 func convertCPUUsage(cpuUsage string) (float64, error) {
+	log.Print("Converting to millicores")
 	if cpuUsage == "0" {
 		return 0, nil
 	}
@@ -138,16 +139,18 @@ func convertCPUUsage(cpuUsage string) (float64, error) {
 		if err != nil {
 			return 0, err
 		}
-		return cpu * 1000000, nil
+
+		return cpu / 1000000, nil
 	} else if strings.HasSuffix(cpuUsage, "m") {
 		cpuUsage = strings.TrimSuffix(cpuUsage, "m")
 		cpu, err := strconv.ParseFloat(cpuUsage, 64)
 		if err != nil {
 			return 0, err
 		}
+
 		return cpu, nil
 	} else {
-		return 0, fmt.Errorf("unsupported CPU usage format")
+		return 0, fmt.Errorf("unsupported CPU usage format %s", cpuUsage)
 	}
 }
 
@@ -174,6 +177,7 @@ func checkTTL() {
 }
 
 func convertMemoryUsage(memoryUsage string) (float64, error) {
+	log.Print("Calculating memory in bytes")
 	if memoryUsage == "0" {
 		return 0, nil
 	}
@@ -222,15 +226,12 @@ func nodeCPUSort() string {
 
 	for _, item := range nodes.Items {
 		cpu_current, _ := convertCPUUsage(item.Usage.CPU)
-		log.Print(item.Metadata.Name)
-		log.Print(cpu_current)
 		if cpu_current < node_usage_minimum {
 			node_usage_minimum = cpu_current
 			node_name = item.Metadata.Name
 
 		}
 	}
-	log.Print(node_name)
 	return node_name
 
 }
@@ -242,7 +243,7 @@ func getMetrics(clientset *kubernetes.Clientset, pods *PodMetricsList, namespace
 		return err
 	}
 	err = json.Unmarshal(data, &pods)
-	//log.Print(pods)
+	log.Print(pods)
 	return err
 }
 
@@ -303,7 +304,7 @@ func getConfigMapData(namespace, configMapName string) ([]map[string]interface{}
 	if err := json.Unmarshal([]byte(cm.Data["my-config.json"]), &configData); err != nil {
 		return nil, err
 	}
-	log.Print(configData)
+	//log.Print(configData)
 	return configData, nil
 }
 
@@ -517,7 +518,7 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 
 		for i, configMapData := range configDataArray {
 			name := configMapData["name"].(string)
-			log.Print(name)
+			//log.Print(name)
 			replicaCount := int32(configMapData["replicaCount"].(float64))
 
 			envVariables, _ := configMapData["env"].([]interface{})
@@ -530,7 +531,7 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 			}
 			containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
 
-			log.Printf("EndpointsList %s", endpoints)
+			//log.Printf("EndpointsList %s", endpoints)
 			imagePullPolicy := corev1.PullPolicy(imageData["pullPolicy"].(string))
 
 			var env []corev1.EnvVar
@@ -553,12 +554,11 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 					port := ""
 					for _, port_svc := range service.Spec.Ports {
 						if port_svc.Name == endpoint {
-							port = strconv.Itoa(int(port_svc.Port)) 
+							port = strconv.Itoa(int(port_svc.Port))
 							break
 						}
 					}
-					service_name := "redis://127.0.0.1:"+port
-					log.Print(service_name)
+					service_name := "127.0.0.1:" + port
 					final_name := strings.ReplaceAll(name_key, "-", "_")
 					env = append(env, corev1.EnvVar{
 						Name:  final_name,
@@ -593,7 +593,7 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 			}
 			if command != "" {
 				commandList := strings.Split(command, ",")
-				log.Print(commandList)
+				//log.Print(commandList)
 				deployment.Spec.Template.Spec.Containers[i].Command = commandList
 
 			}
@@ -603,7 +603,7 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 			}
 			if args != "" {
 				argsList := strings.Split(args, ",")
-				log.Print(argsList)
+				//log.Print(argsList)
 				deployment.Spec.Template.Spec.Containers[i].Args = argsList
 
 			}
@@ -1034,15 +1034,35 @@ func metricEvalHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if cpu_usage > cpu_threshold2 || mm_usage > mm_threshold2 {
 			log.Print("Threshold 2 reached")
-			err = MakeDeployment(namespace_update, func_name, true, false)
+
+			// lets check if the deploymnets are up then only sfift ingress
+			deployments, err := clientset.AppsV1().Deployments(namespace_update).List(context.TODO(), metav1.ListOptions{})
 			if err != nil {
-				log.Printf("Falied to install ingress: %v\n", err)
+				fmt.Fprintf(os.Stderr, "Error listing deployments: %v\n", err)
 			}
-			err = DeleteNamespace(namespace_existing)
-			if err != nil {
-				log.Printf("Falied to delete older version: %v\n", err)
+			//log.Print(deployments)
+			allRunning := true
+			for _, deployment := range deployments.Items {
+				if deployment.Status.ReadyReplicas == 0 {
+					fmt.Printf("Deployment %s is not running\n", deployment.Name)
+					allRunning = false
+					break
+				}
 			}
-			version_function[func_name] = version_update
+
+			if allRunning {
+
+				err = MakeDeployment(namespace_update, func_name, true, false)
+				if err != nil {
+					log.Printf("Falied to install ingress: %v\n", err)
+				}
+				err = DeleteNamespace(namespace_existing)
+				if err != nil {
+					log.Printf("Falied to delete older version: %v\n", err)
+				}
+				version_function[func_name] = version_update
+			}
+
 		}
 	}
 

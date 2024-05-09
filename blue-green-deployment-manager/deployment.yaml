@@ -17,7 +17,7 @@ spec:
       serviceAccountName: deploymnet-controller-sa
       containers:
       - name: deploymnet-controller
-        image: vasu1711/blue-green:itr6
+        image: vasu1711/blue-green:itr8
         imagePullPolicy: Always
         env: 
           - name: "NAMESPACE_INGRESS"
