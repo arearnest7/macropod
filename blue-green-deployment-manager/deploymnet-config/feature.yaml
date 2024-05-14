@@ -1,0 +1,530 @@
+
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feature-0
+  namespace: default
+  labels: 
+    "cpu_threshold_1": "100"
+    "cpu_threshold_2" : "300"
+    "mm_threshold_1" : "100000000"
+    "mm_threshold_2" : "10000000000"
+    "function_name" : "feature"
+    "kind" : "mmap"
+data:
+  my-config.json: |
+    [
+        {
+          "endpoints": "feature-extractor,feature-wait",
+          "name": "feature-orchestrator",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-orchestrator:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "HTTP"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+            "name": "RPC_PV",
+            "value": "/macropod-pv"
+            }, 
+            {
+            "name": "RPC_DEST_PV",
+            "value": "/macropod-pv"
+            }, 
+            {
+              "name": "FUNC_PORT",
+              "value": "5000"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 80,
+            "targetPort": 5000
+          },
+          "ingress": {
+            "host": "feature.example.com"
+          }
+        },
+        {
+          "name": "feature-extractor",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-extractor:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+              "name": "FUNC_PORT",
+              "value": "5001"
+            },
+            {
+              "name": "APP_PV",
+              "value": "/macropod-pv"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5001,
+            "targetPort": 5001
+          }
+        },
+        {
+          "endpoints": "feature-status",
+          "name": "feature-wait",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-wait:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+            "name": "RPC_PV",
+            "value": "/macropod-pv"
+            },
+            {
+            "name": "RPC_DEST_PV",
+            "value": "/macropod-pv"
+            },
+            {
+            "name": "APP_PV",
+            "value": "/macropod-pv"
+            },
+            {
+              "name": "FUNC_PORT",
+              "value": "5002"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5002,
+            "targetPort": 5002
+          }
+        },
+        {
+          "endpoints": "feature-wait,feature-reducer",
+          "name": "feature-status",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-status:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+            "name": "RPC_PV",
+            "value": "/macropod-pv"
+            },
+            {
+            "name": "RPC_DEST_PV",
+            "value": "/macropod-pv"
+            },
+            {
+            "name": "APP_PV",
+            "value": "/macropod-pv"
+            },
+            {
+              "name": "FUNC_PORT",
+              "value": "5003"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5003,
+            "targetPort": 5003
+          }
+        },
+        {
+          "name": "feature-reducer",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-reducer:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+            "name": "APP_PV",
+            "value": "/macropod-pv"
+            },
+            {
+              "name": "FUNC_PORT",
+              "value": "5004"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5004,
+            "targetPort": 5004
+          }
+        }
+      ]
+
+
+---
+
+
+
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feature-1
+  namespace: default
+  labels: 
+    "cpu_threshold_1": "100"
+    "cpu_threshold_2" : "600"
+    "mm_threshold_1" : "100000000"
+    "mm_threshold_2" : "10000000000"
+    "function_name" : "feature"
+    "kind" : "single-pod"
+data:
+  my-config.json: |
+    [
+        {
+          "endpoints": "feature-extractor,feature-wait",
+          "name": "feature-orchestrator",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-orchestrator:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "HTTP"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+              "name": "FUNC_PORT",
+              "value": "5000"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 80,
+            "targetPort": 5000
+          },
+          "ingress": {
+            "host": "feature.example.com"
+          }
+        },
+        {
+          "name": "feature-extractor",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-extractor:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+              "name": "FUNC_PORT",
+              "value": "5001"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5001,
+            "targetPort": 5001
+          }
+        },
+        {
+          "endpoints": "feature-status",
+          "name": "feature-wait",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-wait:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+              "name": "FUNC_PORT",
+              "value": "5002"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5002,
+            "targetPort": 5002
+          }
+        },
+        {
+          "endpoints": "feature-wait,feature-reducer",
+          "name": "feature-status",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-status:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+              "name": "FUNC_PORT",
+              "value": "5003"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5003,
+            "targetPort": 5003
+          }
+        },
+        {
+          "name": "feature-reducer",
+          "version": 1,
+          "replicaCount": 1,
+          "image": {
+            "image": "arearnest7/feature-reducer:macropod",
+            "pullPolicy": "IfNotPresent"
+          },
+          "env": [{
+            "name": "SERVICE_TYPE",
+            "value": "GRPC"
+            },
+            {
+            "name": "GRPC_THREAD",
+            "value": "10"
+            }, 
+            {
+              "name": "FUNC_PORT",
+              "value": "5004"
+            }
+          ],
+          "service": {
+            "type": "ClusterIP",
+            "port": 5004,
+            "targetPort": 5004
+          }
+        }
+      ]
+
+
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feature-2
+  namespace: default
+  labels: 
+    "cpu_threshold_1": "200000"
+    "cpu_threshold_2" : "4000000"
+    "mm_threshold_1" : "100000000"
+    "mm_threshold_2" : "10000000000"
+    "function_name" : "feature"
+    "kind" : "multi-pod"
+data:
+  my-config.json: |
+    [
+      {
+        "endpoints": "feature-extractor,feature-wait",
+        "name": "feature-orchestrator",
+        "version": 1,
+        "replicaCount": 1,
+        "image": {
+          "image": "arearnest7/feature-orchestrator:macropod",
+          "pullPolicy": "IfNotPresent"
+        },
+        "env": [{
+          "name": "SERVICE_TYPE",
+          "value": "HTTP"
+          },
+          {
+          "name": "GRPC_THREAD",
+          "value": "10"
+          }, 
+          {
+            "name": "FUNC_PORT",
+            "value": "5000"
+          }
+        ],
+        "service": {
+          "type": "ClusterIP",
+          "port": 80,
+          "targetPort": 5000
+        },
+        "ingress": {
+          "host": "feature.example.com"
+        }
+      },
+      {
+        "name": "feature-extractor",
+        "version": 1,
+        "replicaCount": 1,
+        "image": {
+          "image": "arearnest7/feature-extractor:macropod",
+          "pullPolicy": "IfNotPresent"
+        },
+        "env": [{
+          "name": "SERVICE_TYPE",
+          "value": "GRPC"
+          },
+          {
+          "name": "GRPC_THREAD",
+          "value": "10"
+          }, 
+          {
+            "name": "FUNC_PORT",
+            "value": "5000"
+          }
+        ],
+        "service": {
+          "type": "ClusterIP",
+          "port": 443,
+          "targetPort": 5000
+        }
+      },
+      {
+        "endpoints": "feature-status",
+        "name": "feature-wait",
+        "version": 1,
+        "replicaCount": 1,
+        "image": {
+          "image": "arearnest7/feature-wait:macropod",
+          "pullPolicy": "IfNotPresent"
+        },
+        "env": [{
+          "name": "SERVICE_TYPE",
+          "value": "GRPC"
+          },
+          {
+          "name": "GRPC_THREAD",
+          "value": "10"
+          }, 
+          {
+            "name": "FUNC_PORT",
+            "value": "5000"
+          }
+        ],
+        "service": {
+          "type": "ClusterIP",
+          "port": 443,
+          "targetPort": 5000
+        }
+      },
+      {
+        "endpoints": "feature-wait,feature-reducer",
+        "name": "feature-status",
+        "version": 1,
+        "replicaCount": 1,
+        "image": {
+          "image": "arearnest7/feature-status:macropod",
+          "pullPolicy": "IfNotPresent"
+        },
+        "env": [{
+          "name": "SERVICE_TYPE",
+          "value": "GRPC"
+          },
+          {
+          "name": "GRPC_THREAD",
+          "value": "10"
+          }, 
+          {
+            "name": "FUNC_PORT",
+            "value": "5000"
+          }
+        ],
+        "service": {
+          "type": "ClusterIP",
+          "port": 443,
+          "targetPort": 5000
+        }
+      },
+      {
+        "name": "feature-reducer",
+        "version": 1,
+        "replicaCount": 1,
+        "image": {
+          "image": "arearnest7/feature-reducer:macropod",
+          "pullPolicy": "IfNotPresent"
+        },
+        "env": [{
+          "name": "SERVICE_TYPE",
+          "value": "GRPC"
+          },
+          {
+          "name": "GRPC_THREAD",
+          "value": "10"
+          }, 
+          {
+            "name": "FUNC_PORT",
+            "value": "5000"
+          }
+        ],
+        "service": {
+          "type": "ClusterIP",
+          "port": 443,
+          "targetPort": 5000
+        }
+      }
+    ]
+
+
+
