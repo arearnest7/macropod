@@ -270,13 +270,13 @@ data:
             },
             {
               "name": "FUNC_PORT",
-              "value": "5006"
+              "value": "5007"
             }
           ],
           "service": {
             "type": "ClusterIP",
-            "port": 5006,
-            "targetPort": 5006
+            "port": 5007,
+            "targetPort": 5007
           }
         }
       ]

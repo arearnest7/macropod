@@ -213,7 +213,7 @@ metadata:
   namespace: default
   labels: 
     "cpu_threshold_1": "100"
-    "cpu_threshold_2" : "600"
+    "cpu_threshold_2" : "1500"
     "mm_threshold_1" : "100000000"
     "mm_threshold_2" : "10000000000"
     "function_name" : "feature"

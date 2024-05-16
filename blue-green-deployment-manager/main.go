@@ -18,7 +18,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -100,16 +99,11 @@ type Metrics struct {
 	Nodes []NodeMetrics `json:"nodes"`
 }
 
-type FunctionTimestamp struct {
-	data map[string]time.Time
-	sync.Mutex
-}
-
 var (
 	clientset          *kubernetes.Clientset
 	err                error
 	namesapce_ingress  string
-	function_timestamp FunctionTimestamp
+	function_timestamp map[string]time.Time
 	ttl_seconds        int // time in seconds
 	version_function   map[string]int
 )
@@ -120,7 +114,7 @@ func init() {
 		panic(err.Error())
 	}
 	version_function = make(map[string]int)
-	function_timestamp = FunctionTimestamp{data: make(map[string]time.Time)}
+	function_timestamp = make(map[string]time.Time)
 	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
 	namesapce_ingress = os.Getenv("NAMESPACE_INGRESS")
 	clientset, err = kubernetes.NewForConfig(config)
@@ -128,8 +122,9 @@ func init() {
 		panic(err.Error())
 	}
 }
+
 func convertCPUUsage(cpuUsage string) (float64, error) {
-	log.Print("Converting to millicores")
+
 	if cpuUsage == "0" {
 		return 0, nil
 	}
@@ -149,6 +144,16 @@ func convertCPUUsage(cpuUsage string) (float64, error) {
 		}
 
 		return cpu, nil
+	} else if strings.HasSuffix(cpuUsage, "u") {
+
+		cpuUsage = strings.TrimSuffix(cpuUsage, "m")
+		cpu, err := strconv.ParseFloat(cpuUsage, 64)
+		if err != nil {
+			return 0, err
+		}
+
+		return cpu / 1000, nil
+
 	} else {
 		return 0, fmt.Errorf("unsupported CPU usage format %s", cpuUsage)
 	}
@@ -158,26 +163,33 @@ func convertCPUUsage(cpuUsage string) (float64, error) {
 func checkTTL() {
 	for {
 		//log.Print(function_timestamp.data)
-		function_timestamp.Lock()
 		currentTime := time.Now()
-		for name, timestamp := range function_timestamp.data {
+		for name, timestamp := range function_timestamp {
 			elapsedTime := currentTime.Sub(timestamp)
 			if elapsedTime.Seconds() > float64(ttl_seconds) {
 				version := version_function[name]
 				versionStr := strconv.Itoa(version)
 				namespace := name + "-" + versionStr
-				log.Print("Deleting because of TTL")
+				log.Printf("Deleting %s because of TTL", namespace)
 				DeleteNamespace(namespace)
-				delete(function_timestamp.data, name)
+				delete(function_timestamp, name)
+				version += 1
+				versionStr = strconv.Itoa(version)
+				// delete both blue  and green version 
+				namespace = name + "-" + versionStr
+				_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
+				if exists == nil {
+					log.Printf("Deleting %s because of TTL", namespace)
+					DeleteNamespace(namespace)
+				}
 			}
 		}
-		function_timestamp.Unlock()
 		time.Sleep(time.Second)
 	}
 }
 
+// convert memory given by metric server to float for comaprisions
 func convertMemoryUsage(memoryUsage string) (float64, error) {
-	log.Print("Calculating memory in bytes")
 	if memoryUsage == "0" {
 		return 0, nil
 	}
@@ -243,7 +255,7 @@ func getMetrics(clientset *kubernetes.Clientset, pods *PodMetricsList, namespace
 		return err
 	}
 	err = json.Unmarshal(data, &pods)
-	log.Print(pods)
+	//log.Print(pods)
 	return err
 }
 
@@ -342,15 +354,15 @@ func getKind(configMapName string) string {
 
 }
 
-//check for changes in config map configurations provided by uiser -> if the user update sthe existing depkoyment it needs to be changed toooo
-
+// check for changes in config map configurations provided by uiser -> if the user update sthe existing depkoyment it needs to be changed toooo
+// keep running continuously
 func watchConfigMaps() {
-	watcher, err := clientset.CoreV1().ConfigMaps(namesapce_ingress).Watch(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatalf("Failed to set up watch: %s", err)
-	}
+	for {
+		watcher, err := clientset.CoreV1().ConfigMaps(namesapce_ingress).Watch(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatalf("Failed to set up watch: %s", err)
+		}
 
-	go func() {
 		for event := range watcher.ResultChan() {
 			configmap, ok := event.Object.(*corev1.ConfigMap)
 			if !ok {
@@ -365,7 +377,7 @@ func watchConfigMaps() {
 			}
 
 		}
-	}()
+	}
 }
 
 func updateDeployment(configMap *corev1.ConfigMap) {
@@ -385,7 +397,6 @@ func updateDeployment(configMap *corev1.ConfigMap) {
 
 }
 
-// kind := getKind(configMapName)
 func MakeDeploymentSinglePod(kind string, namespace string, func_name string, ingress bool, update bool) error {
 
 	log.Print("Deploying Single pod")
@@ -1004,9 +1015,7 @@ func metricEvalHandler(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 	func_name := query.Get("function")
-	function_timestamp.Lock()
-	defer function_timestamp.Unlock()
-	function_timestamp.data[func_name] = time.Now()
+	function_timestamp[func_name] = time.Now()
 	log.Printf("Evaluation metrics of %s", func_name)
 	version := version_function[func_name]
 	versionStr := strconv.Itoa(version)
@@ -1073,9 +1082,7 @@ func makeNewFunctionHandler(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 	func_name := query.Get("function")
-	function_timestamp.Lock()
-	defer function_timestamp.Unlock()
-	function_timestamp.data[func_name] = time.Now()
+	function_timestamp[func_name] = time.Now()
 	log.Printf("Deploying new function.....%s", func_name)
 	version := 0
 	versionStr := strconv.Itoa(version)
