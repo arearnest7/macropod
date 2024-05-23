@@ -3,18 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
+	networkingv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
 	"strings"
-
-	networkingv1 "k8s.io/api/networking/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 )
 
 var (
@@ -26,19 +26,37 @@ var (
 
 type baseHandle struct{}
 
-func (h *baseHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// host := r.Host
+func (h *baseHandle) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	// host := req.Host
 	// hostWithoutPort, _, err := net.SplitHostPort(host)
 	// if err != nil {
 	//     hostWithoutPort = host
 	// }
 
-	pathParts := strings.Split(r.URL.Path, "/")
+	pathParts := strings.Split(req.URL.Path, "/")
 	func_name := pathParts[1]
-	r.URL.Path = ""
+	if func_name == "logs" {
+		func_name_for_logs := pathParts[2]
+		depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
+		depControllerAddr = "http://" + depControllerAddr //schema support
+		path := "/get_logs"
+		// curl http://127.0.0.1:8083/logs/video-analytics
+		//curl http://127.0.0.1:8083/video-analytics
+		targetURL := depControllerAddr + path + "?function=" + func_name_for_logs
+		log.Printf("Forwarding request for logs to deployment controller logs %s", targetURL)
+		var client http.Client
+		resp, _ := client.Get(targetURL)
+		defer resp.Body.Close()
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		result := string(bodyBytes)
+		log.Print(result)
+		fmt.Print(res, result)
+		return
+	}
+	req.URL.Path = ""
 	target, ok := hostTargets[func_name]
 	if !ok {
-		http.Error(w, "Target not found making the function workflow", http.StatusNotFound)
+		http.Error(res, "Target not found making the function workflow", http.StatusNotFound)
 		runningDeploymentController[func_name] = false
 		callDepController(false, func_name)
 
@@ -51,11 +69,11 @@ func (h *baseHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	go callDepController(true, func_name)
 	log.Print("Forwarding request to", remoteUrl)
 	proxy := httputil.NewSingleHostReverseProxy(remoteUrl)
-	proxy.ServeHTTP(w, r)
+	proxy.ServeHTTP(res, req)
 }
 
 func callDepController(func_found bool, func_name string) error {
-	if runningDeploymentController[func_name] == false {
+	if !runningDeploymentController[func_name] {
 		runningDeploymentController[func_name] = true
 		depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
 		if depControllerAddr == "" {

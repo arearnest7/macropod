@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
@@ -175,7 +177,7 @@ func checkTTL() {
 				delete(function_timestamp, name)
 				version += 1
 				versionStr = strconv.Itoa(version)
-				// delete both blue  and green version 
+				// delete both blue  and green version
 				namespace = name + "-" + versionStr
 				_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
 				if exists == nil {
@@ -1011,9 +1013,9 @@ func DeleteNamespace(namespace string) error {
 	return err
 }
 
-func metricEvalHandler(w http.ResponseWriter, r *http.Request) {
+func metricEvalHandler(res http.ResponseWriter, req *http.Request) {
 
-	query := r.URL.Query()
+	query := req.URL.Query()
 	func_name := query.Get("function")
 	function_timestamp[func_name] = time.Now()
 	log.Printf("Evaluation metrics of %s", func_name)
@@ -1078,9 +1080,9 @@ func metricEvalHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // this will look into the function name and check if version 0 is available - if yes, move ahead and deploy - this will also keep track of the versions and functions that are being handled
-func makeNewFunctionHandler(w http.ResponseWriter, r *http.Request) {
+func makeNewFunctionHandler(res http.ResponseWriter, req *http.Request) {
 
-	query := r.URL.Query()
+	query := req.URL.Query()
 	func_name := query.Get("function")
 	function_timestamp[func_name] = time.Now()
 	log.Printf("Deploying new function.....%s", func_name)
@@ -1099,12 +1101,53 @@ func makeNewFunctionHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Deployed initial version of %s", func_name)
 
 }
+func getLogs(res http.ResponseWriter, req *http.Request) {
+	query := req.URL.Query()
+	func_name := query.Get("function")
+	log.Printf("getting logs of %s\n", func_name)
+	logs_arr := make(map[string]string)
+	version := version_function[func_name]
+	versionStr := strconv.Itoa(version)
+	namespace := func_name + "-" + versionStr
+	pods, _ := clientset.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{})
+	for _, pod := range pods.Items {
+		for _, container_name := range pod.Spec.Containers{
+			// log.Print(container_name.Name)
+			podLogOpts := corev1.PodLogOptions{
+				Container: container_name.Name,
+			}
+			req := clientset.CoreV1().Pods(namespace).GetLogs(pod.Name, &podLogOpts)
+			log.Print("req success")
+			logs, err := req.Stream(context.TODO())
+			if err != nil {
+				log.Print("error in opening stream")
+			}
+			defer logs.Close()
+			b := new(bytes.Buffer)
+			io.Copy(b, logs)
+			// log.Print("\n-----------------------------------------------------\n")
+			// log.Print(pod.Name)
+			// log.Print(b.String())
+			// log.Print("\n-----------------------------------------------------\n")
+			logs_arr[container_name.Name] = b.String()
+		}
+	}
+	result := ""
+	for container_name, logs := range logs_arr {
+		result += container_name + "\n" + logs + "\n"
+	}
+	log.Print("\n-----------------------------------------------------\n")
+	log.Print(result)
+	log.Print("\n-----------------------------------------------------\n")
+	fmt.Print(res, result)
 
+}
 func main() {
 	go checkTTL()
 	go watchConfigMaps()
-	http.HandleFunc("/metric_eval", metricEvalHandler)            //after first invokation
-	http.HandleFunc("/make_new_function", makeNewFunctionHandler) // this will be triggered when no version of function is deployed
+	http.HandleFunc("/metric_eval", metricEvalHandler) //after first invokation
+	http.HandleFunc("/make_new_function", makeNewFunctionHandler)
+	http.HandleFunc("/get_logs", getLogs)
 	log.Print("Server listening on :8080...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Printf("Failed to start server: %v\n", err)
