@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"google.golang.org/grpc"
+	pb "main/pb"
 	"io"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -16,12 +18,16 @@ import (
 	"k8s.io/client-go/rest"
 	"log"
 	"math"
-	"net/http"
+	"net"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 )
+
+type server struct {
+	pb.DeploymentServiceServer
+}
 
 // // this will also take the ping metrics for latancy in pod to pod communication and
 
@@ -1013,10 +1019,7 @@ func DeleteNamespace(namespace string) error {
 	return err
 }
 
-func metricEvalHandler(res http.ResponseWriter, req *http.Request) {
-
-	query := req.URL.Query()
-	func_name := query.Get("function")
+func metricEvalHandler(func_name string) string {
 	function_timestamp[func_name] = time.Now()
 	log.Printf("Evaluation metrics of %s", func_name)
 	version := version_function[func_name]
@@ -1077,13 +1080,12 @@ func metricEvalHandler(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	return "Evaluated metrics"
+
 }
 
 // this will look into the function name and check if version 0 is available - if yes, move ahead and deploy - this will also keep track of the versions and functions that are being handled
-func makeNewFunctionHandler(res http.ResponseWriter, req *http.Request) {
-
-	query := req.URL.Query()
-	func_name := query.Get("function")
+func makeNewFunctionHandler(func_name string) string {
 	function_timestamp[func_name] = time.Now()
 	log.Printf("Deploying new function.....%s", func_name)
 	version := 0
@@ -1099,11 +1101,10 @@ func makeNewFunctionHandler(res http.ResponseWriter, req *http.Request) {
 	}
 	version_function[func_name] = version
 	log.Printf("Deployed initial version of %s", func_name)
+	return "Deployed"
 
 }
-func getLogs(res http.ResponseWriter, req *http.Request) {
-	query := req.URL.Query()
-	func_name := query.Get("function")
+func getLogs(func_name string) string {
 	log.Printf("getting logs of %s\n", func_name)
 	logs_arr := make(map[string]string)
 	version := version_function[func_name]
@@ -1111,7 +1112,7 @@ func getLogs(res http.ResponseWriter, req *http.Request) {
 	namespace := func_name + "-" + versionStr
 	pods, _ := clientset.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{})
 	for _, pod := range pods.Items {
-		for _, container_name := range pod.Spec.Containers{
+		for _, container_name := range pod.Spec.Containers {
 			// log.Print(container_name.Name)
 			podLogOpts := corev1.PodLogOptions{
 				Container: container_name.Name,
@@ -1139,17 +1140,43 @@ func getLogs(res http.ResponseWriter, req *http.Request) {
 	log.Print("\n-----------------------------------------------------\n")
 	log.Print(result)
 	log.Print("\n-----------------------------------------------------\n")
-	fmt.Print(res, result)
+	return result
 
 }
+
+func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceRequest) (*pb.DeploymentServiceReply, error) {
+	func_name := req.Name
+	var result string
+	if req.FunctionCall == "logs" {
+		result = getLogs(func_name)
+	}
+	if req.FunctionCall == "new_invoke" {
+		result = makeNewFunctionHandler(func_name)
+	}
+	if req.FunctionCall == "existing_invoke" {
+		result = metricEvalHandler(func_name)
+	}
+	return &pb.DeploymentServiceReply{
+		Message: fmt.Sprintf("%s", result),
+	}, nil
+}
+
 func main() {
 	go checkTTL()
 	go watchConfigMaps()
-	http.HandleFunc("/metric_eval", metricEvalHandler) //after first invokation
-	http.HandleFunc("/make_new_function", makeNewFunctionHandler)
-	http.HandleFunc("/get_logs", getLogs)
-	log.Print("Server listening on :8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Printf("Failed to start server: %v\n", err)
+	//http
+	// http.HandleFunc("/metric_eval", metricEvalHandler) //after first invokation
+	// http.HandleFunc("/make_new_function", makeNewFunctionHandler)
+	// http.HandleFunc("/get_logs", getLogs)
+	// log.Print("Server listening on :8080...")
+	//grpc
+	listener, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		panic(err)
+	}
+	s := grpc.NewServer()
+	pb.RegisterDeploymentServiceServer(s, &server{})
+	if err := s.Serve(listener); err != nil {
+		log.Fatalf("failed to serve: %v", err)
 	}
 }

@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
+	"google.golang.org/grpc"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"log"
+	pb "main/pb"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -38,38 +39,42 @@ func (h *baseHandle) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if func_name == "logs" {
 		func_name_for_logs := pathParts[2]
 		depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
-		depControllerAddr = "http://" + depControllerAddr //schema support
-		path := "/get_logs"
-		// curl http://127.0.0.1:8083/logs/video-analytics
-		//curl http://127.0.0.1:8083/video-analytics
-		targetURL := depControllerAddr + path + "?function=" + func_name_for_logs
-		log.Printf("Forwarding request for logs to deployment controller logs %s", targetURL)
-		var client http.Client
-		resp, _ := client.Get(targetURL)
-		defer resp.Body.Close()
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		result := string(bodyBytes)
-		log.Print(result)
-		fmt.Print(res, result)
-		return
-	}
-	req.URL.Path = ""
-	target, ok := hostTargets[func_name]
-	if !ok {
-		http.Error(res, "Target not found making the function workflow", http.StatusNotFound)
-		runningDeploymentController[func_name] = false
-		callDepController(false, func_name)
+		depControllerAddr = depControllerAddr //grpc
+		type_call := "logs"
+		opts := grpc.WithInsecure()
+		cc, err := grpc.Dial(depControllerAddr, opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer cc.Close()
+		client := pb.NewDeploymentServiceClient(cc)
+		request := &pb.DeploymentServiceRequest{Name: func_name_for_logs, FunctionCall: type_call}
 
+		resp, err := client.Deployment(context.Background(), request)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Fprintf(res, resp.Message)
 		return
+	} else {
+		req.URL.Path = ""
+		target, ok := hostTargets[func_name]
+		if !ok {
+			http.Error(res, "Target not found making the function workflow", http.StatusNotFound)
+			runningDeploymentController[func_name] = false
+			callDepController(false, func_name)
+
+			return
+		}
+		remoteUrl, err := url.Parse(target)
+		if err != nil {
+			log.Fatal("target parse fail:", err)
+		}
+		go callDepController(true, func_name)
+		log.Print("Forwarding request to", remoteUrl)
+		proxy := httputil.NewSingleHostReverseProxy(remoteUrl)
+		proxy.ServeHTTP(res, req)
 	}
-	remoteUrl, err := url.Parse(target)
-	if err != nil {
-		log.Fatal("target parse fail:", err)
-	}
-	go callDepController(true, func_name)
-	log.Print("Forwarding request to", remoteUrl)
-	proxy := httputil.NewSingleHostReverseProxy(remoteUrl)
-	proxy.ServeHTTP(res, req)
 }
 
 func callDepController(func_found bool, func_name string) error {
@@ -81,27 +86,47 @@ func callDepController(func_found bool, func_name string) error {
 			runningDeploymentController[func_name] = false
 			return nil
 		}
-		depControllerAddr = "http://" + depControllerAddr //schema support
-		var path string
+		//depControllerAddr = "http://" + depControllerAddr
+		depControllerAddr = depControllerAddr //grpc
+		var type_call string
 		if func_found {
-			path = "/metric_eval"
+			type_call = "existing_invoke"
 		} else {
-			path = "/make_new_function"
+			type_call = "new_invoke"
 		}
-		targetURL := depControllerAddr + path + "?function=" + func_name
-		_, err := http.Get(targetURL)
+		opts := grpc.WithInsecure()
+		cc, err := grpc.Dial(depControllerAddr, opts)
 		if err != nil {
-			fmt.Printf("Failed to make HTTP request: %v\n", err)
-			runningDeploymentController[func_name] = false
+			log.Fatal(err)
+		}
+		defer cc.Close()
+		client := pb.NewDeploymentServiceClient(cc)
+		request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: type_call}
+
+		resp, err := client.Deployment(context.Background(), request)
+		if err != nil {
+			log.Fatal(err)
 			return err
 		}
-		runningDeploymentController[func_name] = false
-	} else {
+		fmt.Printf("Receive response => %s ", resp.Message)
 
-		log.Printf("Deployment Controller for function this %s is already in progress", func_name)
 	}
 	return nil
 }
+
+// 	targetURL := depControllerAddr + path + "?function=" + func_name
+// 	_, err := http.Get(targetURL)
+// 	if err != nil {
+// 		fmt.Printf("Failed to make HTTP request: %v\n", err)
+// 		runningDeploymentController[func_name] = false
+// 		return err
+// 	}
+// 	runningDeploymentController[func_name] = false
+// } else {
+
+// 	log.Printf("Deployment Controller for function this %s is already in progress", func_name)
+// }
+// return nil
 
 func main() {
 	log.Print("Ingress controller started")
