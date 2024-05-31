@@ -3,27 +3,45 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"log"
+	app_pb "main/app_pb"
+	pb "main/pb"
+	"math/rand"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"log"
-	pb "main/pb"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
-	"os"
-	"strings"
 )
 
 var (
 	hostTargets                 = make(map[string]string)
 	runningDeploymentController = make(map[string]bool) // this can be used for lock mechanism
+	function_timestamp          = make(map[string]time.Time)
+	clientset                   *kubernetes.Clientset
+	ttl_seconds                 int // time in seconds
 )
 
 // TODO - if deploymnet controller for a fucntion is already running dont run it again
+func init() {
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		panic(err.Error())
+	}
+	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
+	clientset, err = kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+}
 
 type baseHandle struct{}
 
@@ -39,6 +57,8 @@ func (h *baseHandle) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if func_name == "logs" {
 		func_name_for_logs := pathParts[2]
 		depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
+		function_timestamp[func_name_for_logs] = time.Now()
+		log.Print(function_timestamp)
 		depControllerAddr = depControllerAddr //grpc
 		type_call := "logs"
 		opts := grpc.WithInsecure()
@@ -57,6 +77,8 @@ func (h *baseHandle) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(res, resp.Message)
 		return
 	} else {
+		function_timestamp[func_name] = time.Now()
+		log.Print(function_timestamp)
 		req.URL.Path = ""
 		target, ok := hostTargets[func_name]
 		if !ok {
@@ -66,14 +88,40 @@ func (h *baseHandle) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 			return
 		}
-		remoteUrl, err := url.Parse(target)
-		if err != nil {
-			log.Fatal("target parse fail:", err)
-		}
+		// remoteUrl, err := url.Parse(target)
+		// if err != nil {
+		// 	log.Fatal("target parse fail:", err)
+		// }
 		go callDepController(true, func_name)
-		log.Print("Forwarding request to", remoteUrl)
-		proxy := httputil.NewSingleHostReverseProxy(remoteUrl)
-		proxy.ServeHTTP(res, req)
+		// log.Print("Forwarding request to", remoteUrl)
+		// proxy := httputil.NewSingleHostReverseProxy(remoteUrl)
+		// proxy.ServeHTTP(res, req)
+
+		opts := grpc.WithInsecure()
+		cc, err := grpc.Dial(target, opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer cc.Close()
+
+		/*    optional bytes data = 1;
+		string workflow_id = 2;
+		int32 depth = 3;
+		int32 width = 4;
+		optional string request_type = 5;
+		optional string pv_path = 6;*/
+		payload, _ := ioutil.ReadAll(req.Body)
+		workflow_id := strconv.Itoa(rand.Intn(100000))
+		channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+		defer channel.Close()
+		stub := app_pb.NewGRPCFunctionClient(channel)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		request_type := "gg"
+		response, _ := stub.GRPCFunctionHandler(ctx, &app_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
+		results := response.GetReply()
+		fmt.Fprintf(res, results)
+		return
 	}
 }
 
@@ -128,9 +176,40 @@ func callDepController(func_found bool, func_name string) error {
 // }
 // return nil
 
+func fetchUpdatedTimeStamp() map[string]time.Time {
+	//log.Print(function_timestamp)
+	return function_timestamp
+}
+func checkTTL() {
+	for {
+		currentTime := time.Now()
+		function_timestamp_updated := fetchUpdatedTimeStamp()
+		//log.Print(function_timestamp_updated)
+		for name, timestamp := range function_timestamp_updated {
+			elapsedTime := currentTime.Sub(timestamp)
+			if elapsedTime.Seconds() > float64(ttl_seconds) {
+				log.Printf("Deleting resources of function %s\n", name)
+				namespaces, _ := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+				//log.Print(namespaces)
+				for _, ns := range namespaces.Items {
+					namespace := ns.Name
+					if strings.Contains(namespace, name) {
+						log.Printf("Namespace deletion %s", namespace)
+						clientset.CoreV1().Namespaces().Delete(context.TODO(), namespace, metav1.DeleteOptions{})
+					}
+				}
+				delete(function_timestamp, name)
+			}
+
+		}
+		time.Sleep(time.Second)
+	}
+
+}
+
 func main() {
 	log.Print("Ingress controller started")
-
+	go checkTTL()
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		log.Fatalf("Failed to get in-cluster config: %s", err)
@@ -185,7 +264,7 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
 				namespace := ingress.Namespace
 				port := path.Backend.Service.Port.Number
 				func_name := ingress.Labels["function_name"]
-				hostname := fmt.Sprintf("http://%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+				hostname := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
 				hostTargets[func_name] = hostname
 			}
 		}

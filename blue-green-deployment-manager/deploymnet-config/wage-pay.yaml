@@ -27,7 +27,7 @@ data:
           },
           "env": [{
             "name": "SERVICE_TYPE",
-            "value": "HTTP"
+            "value": "GRPC"
             },
             {
             "name": "GRPC_THREAD",
@@ -361,7 +361,7 @@ data:
           },
           "env": [{
             "name": "SERVICE_TYPE",
-            "value": "HTTP"
+            "value": "GRPC"
             },
             {
             "name": "GRPC_THREAD",
@@ -609,7 +609,7 @@ data:
           },
           "env": [{
             "name": "SERVICE_TYPE",
-            "value": "HTTP"
+            "value": "GRPC"
             },
             {
             "name": "GRPC_THREAD",

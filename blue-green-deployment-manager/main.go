@@ -111,8 +111,6 @@ var (
 	clientset          *kubernetes.Clientset
 	err                error
 	namesapce_ingress  string
-	function_timestamp map[string]time.Time
-	ttl_seconds        int // time in seconds
 	version_function   map[string]int
 )
 
@@ -122,8 +120,6 @@ func init() {
 		panic(err.Error())
 	}
 	version_function = make(map[string]int)
-	function_timestamp = make(map[string]time.Time)
-	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
 	namesapce_ingress = os.Getenv("NAMESPACE_INGRESS")
 	clientset, err = kubernetes.NewForConfig(config)
 	if err != nil {
@@ -167,34 +163,7 @@ func convertCPUUsage(cpuUsage string) (float64, error) {
 	}
 }
 
-// continously check TTL if TTL is above certain seconds delete the namespace
-func checkTTL() {
-	for {
-		//log.Print(function_timestamp.data)
-		currentTime := time.Now()
-		for name, timestamp := range function_timestamp {
-			elapsedTime := currentTime.Sub(timestamp)
-			if elapsedTime.Seconds() > float64(ttl_seconds) {
-				version := version_function[name]
-				versionStr := strconv.Itoa(version)
-				namespace := name + "-" + versionStr
-				log.Printf("Deleting %s because of TTL", namespace)
-				DeleteNamespace(namespace)
-				delete(function_timestamp, name)
-				version += 1
-				versionStr = strconv.Itoa(version)
-				// delete both blue  and green version
-				namespace = name + "-" + versionStr
-				_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
-				if exists == nil {
-					log.Printf("Deleting %s because of TTL", namespace)
-					DeleteNamespace(namespace)
-				}
-			}
-		}
-		time.Sleep(time.Second)
-	}
-}
+
 
 // convert memory given by metric server to float for comaprisions
 func convertMemoryUsage(memoryUsage string) (float64, error) {
@@ -1020,7 +989,6 @@ func DeleteNamespace(namespace string) error {
 }
 
 func metricEvalHandler(func_name string) string {
-	function_timestamp[func_name] = time.Now()
 	log.Printf("Evaluation metrics of %s", func_name)
 	version := version_function[func_name]
 	versionStr := strconv.Itoa(version)
@@ -1086,7 +1054,6 @@ func metricEvalHandler(func_name string) string {
 
 // this will look into the function name and check if version 0 is available - if yes, move ahead and deploy - this will also keep track of the versions and functions that are being handled
 func makeNewFunctionHandler(func_name string) string {
-	function_timestamp[func_name] = time.Now()
 	log.Printf("Deploying new function.....%s", func_name)
 	version := 0
 	versionStr := strconv.Itoa(version)
@@ -1162,7 +1129,6 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 }
 
 func main() {
-	go checkTTL()
 	go watchConfigMaps()
 	//http
 	// http.HandleFunc("/metric_eval", metricEvalHandler) //after first invokation
