@@ -343,13 +343,12 @@ func watchConfigMaps() {
 		for event := range watcher.ResultChan() {
 			configmap, ok := event.Object.(*corev1.ConfigMap)
 			if !ok {
-				log.Printf("Expected Ingress type, got %T", event.Object)
 				continue
 			}
 
 			switch event.Type {
 			case watch.Modified:
-				log.Printf("Updated host targets: %+v", configmap)
+				//log.Printf("Updated host targets: %+v", configmap)
 				updateDeployment(configmap)
 			}
 
@@ -357,6 +356,46 @@ func watchConfigMaps() {
 	}
 }
 
+
+
+
+func watchNamespaces() {
+	for {
+		watcher, err := clientset.CoreV1().Namespaces().Watch(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatalf("Failed to set up watch: %s", err)
+		}
+
+		for event := range watcher.ResultChan() {
+			namespace, ok := event.Object.(*corev1.Namespace)
+			if !ok {
+				continue
+			}
+
+			switch event.Type {
+			case watch.Deleted:
+				updateDeletedNamespace(namespace.Name)
+			}
+
+		}
+	}
+}
+
+
+
+func updateDeletedNamespace(namespace string){
+	for key, version := range version_function{
+		versionStr := strconv.Itoa(version)
+		ns := key+versionStr
+		if ns == namespace{
+			log.Printf("Deleting log of function of %s because the namespace has been externally deleted",namespace)
+			delete(version_function,key)
+			return
+		}
+
+	}
+	return
+}
 func updateDeployment(configMap *corev1.ConfigMap) {
 	namespace := configMap.Name
 	func_name := configMap.Labels["function_name"]
@@ -369,6 +408,7 @@ func updateDeployment(configMap *corev1.ConfigMap) {
 		log.Printf("ConfigMap for %s updates", namespace)
 		MakeDeployment(namespace, func_name, false, true)
 		MakeDeployment(namespace, func_name, true, true)
+		return
 
 	}
 
@@ -1130,6 +1170,7 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 
 func main() {
 	go watchConfigMaps()
+	go watchNamespaces()
 	//http
 	// http.HandleFunc("/metric_eval", metricEvalHandler) //after first invokation
 	// http.HandleFunc("/make_new_function", makeNewFunctionHandler)
