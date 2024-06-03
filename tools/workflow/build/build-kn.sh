@@ -1,5 +1,5 @@
 #!/bin/bash
-cd ../deploy-functions-kn/
+cd ../kn/
 kn func deploy --build=true --push=true --path ../../benchmarks/micro/micro-rpc-a
 kn func deploy --build=true --push=true --path ../../benchmarks/micro/micro-rpc-b
 kn func deploy --build=true --push=true --path ../../benchmarks/micro/micro-rpc-a-b
