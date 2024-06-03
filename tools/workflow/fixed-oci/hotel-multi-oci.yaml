@@ -150,7 +150,7 @@ spec:
         app: hotel-search
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: hotel-search
         image: arearnest7/hotel-search:oci
@@ -179,7 +179,7 @@ spec:
         app: hotel-recommend
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: hotel-recommend
         image: arearnest7/hotel-recommend:oci
@@ -204,7 +204,7 @@ spec:
         app: hotel-reserve
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-5
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: hotel-reserve
         image: arearnest7/hotel-reserve:oci
@@ -229,7 +229,7 @@ spec:
         app: hotel-user
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: hotel-user
         image: arearnest7/hotel-user:oci
@@ -279,7 +279,7 @@ spec:
         app: hotel-profile
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: hotel-profile
         image: arearnest7/hotel-profile:oci
@@ -304,7 +304,7 @@ spec:
         app: hotel-rate
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-5
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: hotel-rate
         image: arearnest7/hotel-rate:oci

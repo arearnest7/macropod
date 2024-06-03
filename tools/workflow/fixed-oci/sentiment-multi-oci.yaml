@@ -183,7 +183,7 @@ spec:
         app: sentiment-read-csv
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:oci
@@ -210,7 +210,7 @@ spec:
         app: sentiment-product-or-service
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:oci
@@ -266,7 +266,7 @@ spec:
         app: sentiment-product-sentiment
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: sentiment-product-sentiment
         image: arearnest7/sentiment-product-sentiment:oci
@@ -293,7 +293,7 @@ spec:
         app: sentiment-product-result
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:oci
@@ -324,7 +324,7 @@ spec:
         app: sentiment-sfail
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:oci
@@ -349,7 +349,7 @@ spec:
         app: sentiment-sns
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-5
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: sentiment-sns
         image: arearnest7/sentiment-sns:oci
@@ -376,7 +376,7 @@ spec:
         app: sentiment-db
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: sys-dev-vm-1
       containers:
       - name: sentiment-db
         image: arearnest7/sentiment-db:oci
@@ -401,7 +401,7 @@ spec:
         app: sentiment-service-sentiment
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: sentiment-service-sentiment
         image: arearnest7/sentiment-service-sentiment:oci
@@ -428,7 +428,7 @@ spec:
         app: sentiment-service-result
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:oci

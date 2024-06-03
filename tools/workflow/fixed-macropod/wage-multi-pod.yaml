@@ -148,7 +148,7 @@ spec:
         app: wage-format
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: wage-format
         image: arearnest7/wage-format:macropod
@@ -179,7 +179,7 @@ spec:
         app: wage-write-raw
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: wage-write-raw
         image: arearnest7/wage-write-raw:macropod
@@ -272,7 +272,7 @@ spec:
         app: wage-avg
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: wage-avg
         image: arearnest7/wage-avg:macropod
@@ -303,7 +303,7 @@ spec:
         app: wage-merit
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: wage-merit
         image: arearnest7/wage-merit:macropod

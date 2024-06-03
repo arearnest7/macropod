@@ -36,31 +36,61 @@ spec:
           - name: PORT
             value: "5000"
           - name: PIPELINED_MAIN
-            value: http://127.0.0.1:5000
-          - name: PIPELINED_CHECKSUM
             value: http://127.0.0.1:5001
-          - name: PIPELINED_ZIP
-            value: http://127.0.0.1:5002
-          - name: PIPELINED_ENCRYPT
+          - name: PIPELINED_CHECKSUM
             value: http://127.0.0.1:5003
-      - name: pipelined-checksum
-        image: arearnest7/pipelined-checksum:oci
+          - name: PIPELINED_ZIP
+            value: http://127.0.0.1:5004
+          - name: PIPELINED_ENCRYPT
+            value: http://127.0.0.1:5005
+      - name: pipelined-main-2
+        image: arearnest7/pipelined-main:oci
         ports:
         - containerPort: 5001
         env:
           - name: PORT
             value: "5001"
-      - name: pipelined-zip
-        image: arearnest7/pipelined-zip:oci
+          - name: PIPELINED_MAIN
+            value: http://127.0.0.2:5000
+          - name: PIPELINED_CHECKSUM
+            value: http://127.0.0.1:5003
+          - name: PIPELINED_ZIP
+            value: http://127.0.0.1:5004
+          - name: PIPELINED_ENCRYPT
+            value: http://127.0.0.1:5005
+      - name: pipelined-main-3
+        image: arearnest7/pipelined-main:oci
         ports:
         - containerPort: 5002
         env:
           - name: PORT
             value: "5002"
-      - name: pipelined-encrypt
-        image: arearnest7/pipelined-encrypt:oci
+          - name: PIPELINED_MAIN
+            value: http://127.0.0.1:5001
+          - name: PIPELINED_CHECKSUM
+            value: http://127.0.0.1:5003
+          - name: PIPELINED_ZIP
+            value: http://127.0.0.1:5004
+          - name: PIPELINED_ENCRYPT
+            value: http://127.0.0.1:5005
+      - name: pipelined-checksum
+        image: arearnest7/pipelined-checksum:oci
         ports:
         - containerPort: 5003
         env:
           - name: PORT
             value: "5003"
+      - name: pipelined-zip
+        image: arearnest7/pipelined-zip:oci
+        ports:
+        - containerPort: 5004
+        env:
+          - name: PORT
+            value: "5004"
+      - name: pipelined-encrypt
+        image: arearnest7/pipelined-encrypt:oci
+        ports:
+        - containerPort: 5005
+        env:
+          - name: PORT
+            value: "5005"

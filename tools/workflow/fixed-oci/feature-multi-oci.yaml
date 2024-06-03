@@ -107,7 +107,7 @@ spec:
         app: feature-extractor
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: feature-extractor
         image: arearnest7/feature-extractor:oci
@@ -132,7 +132,7 @@ spec:
         app: feature-wait
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: feature-wait
         image: arearnest7/feature-wait:oci
@@ -159,7 +159,7 @@ spec:
         app: feature-status
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-5
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: feature-status
         image: arearnest7/feature-status:oci
@@ -188,7 +188,7 @@ spec:
         app: feature-reducer
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: feature-reducer
         image: arearnest7/feature-reducer:oci

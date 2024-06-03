@@ -187,7 +187,7 @@ spec:
         app: sentiment-read-csv
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:macropod
@@ -218,7 +218,7 @@ spec:
         app: sentiment-product-or-service
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:macropod
@@ -282,7 +282,7 @@ spec:
         app: sentiment-product-sentiment
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: sentiment-product-sentiment
         image: arearnest7/sentiment-product-sentiment:macropod
@@ -313,7 +313,7 @@ spec:
         app: sentiment-product-result
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:macropod
@@ -348,7 +348,7 @@ spec:
         app: sentiment-sfail
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:macropod
@@ -377,7 +377,7 @@ spec:
         app: sentiment-sns
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-5
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: sentiment-sns
         image: arearnest7/sentiment-sns:macropod
@@ -408,7 +408,7 @@ spec:
         app: sentiment-db
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-2
+        kubernetes.io/hostname: sys-dev-vm-1
       containers:
       - name: sentiment-db
         image: arearnest7/sentiment-db:macropod
@@ -437,7 +437,7 @@ spec:
         app: sentiment-service-sentiment
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: sentiment-service-sentiment
         image: arearnest7/sentiment-service-sentiment:macropod
@@ -468,7 +468,7 @@ spec:
         app: sentiment-service-result
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:macropod
@@ -487,3 +487,4 @@ spec:
             value: 10.43.190.8:80
           - name: SENTIMENT_DB
             value: 10.43.190.9:80
+

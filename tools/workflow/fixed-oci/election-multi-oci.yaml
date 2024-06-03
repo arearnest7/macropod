@@ -94,7 +94,7 @@ spec:
         app: election-get-results
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-3
+        kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: election-get-results
         image: arearnest7/election-get-results:oci
@@ -119,7 +119,7 @@ spec:
         app: election-vote-enqueuer
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-4
+        kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: election-vote-enqueuer
         image: arearnest7/election-vote-enqueuer:oci
@@ -146,7 +146,7 @@ spec:
         app: election-vote-processor
     spec:
       nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-5
+        kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: election-vote-processor
         image: arearnest7/election-vote-processor:oci
