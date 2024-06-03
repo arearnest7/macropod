@@ -14,6 +14,7 @@ import base64
 import datetime
 
 from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 
 def decode(bytes):
     temp = tempfile.NamedTemporaryFile(suffix=".mp4")
@@ -28,20 +29,21 @@ def decode(bytes):
 
     return all_frames
 
-def Recognise(frame):
-    result = requests.get(os.environ['VIDEO_RECOG'], json={"frame": base64.b64encode(frame).decode()}).text
+def Recognise(workflow_id, workflow_depth, frame):
+    result = requests.post(os.environ['VIDEO_RECOG'], json={"frame": base64.b64encode(frame).decode(), "workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0}).text
 
     return result
 
-def processFrames(videoBytes):
+def processFrames(videoBytes, workflow_id, workflow_depth):
+    workflow_width = 0
     frames = decode(videoBytes)
     all_result_futures = []
     # send all requests
     frames = frames[0:6]
     ex = ThreadPoolExecutor(max_workers=6)
-    print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "11" + "\n", flush=True)
-    all_result_futures = ex.map(Recognise, frames)
-    print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "12" + "\n", flush=True)
+    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "3" + "\n", flush=True)
+    all_result_futures = ex.map(partial(Recognise, workflow_id, workflow_depth), frames)
+    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "4" + "\n", flush=True)
     results = ""
     for result in all_result_futures:
         results = results + result + ","
@@ -51,14 +53,17 @@ def processFrames(videoBytes):
 def Decode(request):
     videoBytes = b''
     videoBytes = base64.b64decode(request["video"].encode())
-    results = processFrames(videoBytes)
+    results = processFrames(videoBytes, request["workflow_id"], request["workflow_depth"])
     return results
 
 def function_handler(context):
     if context["is_json"]:
-        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "10" + "\n", flush=True)
+        workflow_id = context["request"]["workflow_id"]
+        workflow_depth = context["request"]["workflow_depth"]
+        workflow_width = context["request"]["workflow_width"]
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "5" + "\n", flush=True)
         ret = Decode(context["request"])
-        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "13" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "6" + "\n", flush=True)
         return ret, 200
     else:
         print("Empty request", flush=True)

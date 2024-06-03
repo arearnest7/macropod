@@ -30,7 +30,7 @@ def FunctionHandler(context):
         with ThreadPoolExecutor(max_workers=len(manifest)) as executor:
             for obj in manifest:
                 if obj != "raw/":
-                    # fs.append(executor.submit(requests.get, url=os.environ["WAGE_SUM"], json={'total': total, 'base': base, 'merit': merit, 'operator': obj}))
+                    # fs.append(executor.submit(requests.post, url=os.environ["WAGE_SUM"], json={'total': total, 'base': base, 'merit': merit, 'operator': obj}))
                     fs.append(json.dumps({'total': total, 'base': base, 'merit': merit, 'operator': obj}).encode())
         #results = [f for f in fs]
         results = RPC(context, os.environ["WAGE_SUM"], fs)

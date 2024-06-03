@@ -18,34 +18,39 @@
 
 const redis = require('redis');
 const axios = require('axios');
+const exec = require('child_process').execSync;
 const moment = require('moment');
 
 //const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const function_handler = async (body) => {
-	console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "4" + "\n");
+	workflow_id = body["workflow_id"];
+        workflow_depth = body["workflow_depth"];
+        workflow_width = body["workflow_width"];
+        body["workflow_depth"] += 1;
+	console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "3" + "\n");
 	//client.on('error', err => console.log('Redis Client Error', err));
         //await client.connect();
 	reply = 1; //await client.exists("voter-" + body['id']);
 	if (reply == 1) {
 		const g_val = "Not Voted"; //await client.get("voter-" + body['id']);
 		if (g_val != "Not Voted") {
-			console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "5" + "\n");
+			console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "4" + "\n");
 			return body['id'] + " already submitted a vote.";
 		}
 		else {
 			data = '';
 			newBody = body;
-			console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "6" + "\n");
+			console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "5" + "\n");
 			await axios.post(process.env.ELECTION_VOTE_PROCESSOR, newBody)
 				.then( (response) => {
                                 	data = response.data;
 				});
-			console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "7" + "\n");
+			console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "6" + "\n");
 			return "Vote " + body['id'] + " registered";
 		}
 	}
-	console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "8" + "\n");
+	console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "7" + "\n");
 	return "This voter id does not exist: " + body['id'];
 }
 

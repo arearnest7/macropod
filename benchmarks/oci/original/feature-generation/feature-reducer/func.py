@@ -10,7 +10,10 @@ import datetime
 
 def function_handler(context):
     if context["is_json"]:
-        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "10" + "\n", flush=True)
+        workflow_id = context["request"]["workflow_id"]
+        workflow_depth = context["request"]["workflow_depth"]
+        workflow_width = context["request"]["workflow_width"]
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "3" + "\n", flush=True)
         params = context["request"]
         bucket = params['input_bucket']
 
@@ -33,7 +36,7 @@ def function_handler(context):
         feature_key = 'feature.txt'
         #redisClient.set(bucket + "-" + feature_key, str(feature))
 
-        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "11" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "4" + "\n", flush=True)
         return str(latency), 200
     else:
         print("Empty request", flush=True)

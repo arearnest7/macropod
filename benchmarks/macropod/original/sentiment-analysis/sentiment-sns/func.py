@@ -8,7 +8,7 @@ import os
 def FunctionHandler(context):
     if context["InvokeType"] == "GRPC":
         event = json.loads(context["Request"])
-        #response = requests.get(url = 'http://' + OF_Gateway_IP + ':' + OF_Gateway_Port + '/function/sha>
+        #response = requests.post(url = 'http://' + OF_Gateway_IP + ':' + OF_Gateway_Port + '/function/sha>
         #    "Subject": 'Negative Review Received',
         #    "Message": 'Review (ID = %i) of %s (ID = %i) received with negative results from sentiment a>
         #    event['reviewType'], int(event['productID']), int(event['customerID']), event['feedback'])

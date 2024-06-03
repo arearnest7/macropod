@@ -3,7 +3,7 @@ name: hotel-profile
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-profile:wob
-imageDigest: sha256:c73f639d556415ea0bb8ec265743ef62b3862b013eb288a8f40c8e45d43266cc
+imageDigest: sha256:9f3a61d4f79f1977f4864e67a5f84bef7919326aba62ce22efa08bcf00fa1ec4
 created: 2023-10-26T19:30:48.125063479-05:00
 build:
   builder: pack

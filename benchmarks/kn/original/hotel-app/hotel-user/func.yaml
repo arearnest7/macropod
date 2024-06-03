@@ -3,7 +3,7 @@ name: hotel-user
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-user:kn
-imageDigest: sha256:b1660c6274b594364bcd20f09f154dbe0763ddc190976ae2f795d56f761d9056
+imageDigest: sha256:89fce83da9cb66d2ba3c4dcad614fd594b1c09bf2600d6acbfd47b6c39166964
 created: 2023-10-26T19:54:52.836777088-05:00
 build:
   builder: pack

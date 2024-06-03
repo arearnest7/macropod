@@ -8,6 +8,7 @@ import (
 	"os"
 	"io/ioutil"
 	"time"
+        "strconv"
 
 	"github.com/bradfitz/gomemcache/memcache"
 )
@@ -26,6 +27,9 @@ type RequestBody struct {
         Require string `json:"Require"`
         InDate string `json:"InDate"`
         OutDate string `json:"OutDate"`
+	WorkflowID string `json:"WorkflowID"`
+        WorkflowDepth int `json:"WorkflowDepth"`
+        WorkflowWidth int `json:"WorkflowWidth"`
 }
 
 type RoomType struct {
@@ -148,12 +152,14 @@ func GetRates(req RequestBody) string {
 }
 
 // Handle an HTTP Request.
-func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type string, is_json bool) {
-	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
-        body, _ := ioutil.ReadAll(req.Body)
-        body_u := RequestBody{}
-        json.Unmarshal(body, &body_u)
-        defer req.Body.Close()
-	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
-	fmt.Fprintf(res, GetRates(body_u)) // echo to caller
+func FunctionHandler(res http.ResponseWriter, req RequestBody, content_type string, is_json bool) {
+	body_u := req
+	workflow_id := body_u.WorkflowID
+        workflow_depth := body_u.WorkflowDepth
+        workflow_width := body_u.WorkflowWidth
+        body_u.WorkflowDepth += 1
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "3" + "\n")
+        ret := GetRates(body_u)
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "4" + "\n")
+	fmt.Fprintf(res, ret) // echo to caller
 }

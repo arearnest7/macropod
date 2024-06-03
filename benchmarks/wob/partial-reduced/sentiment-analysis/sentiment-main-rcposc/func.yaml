@@ -3,7 +3,7 @@ name: sentiment-main-rcposc
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-main-rcposc:wob
-imageDigest: sha256:48d811af8888f256e4026aef0c47f2843406b6573b14ff994c6053d00a9d5a24
+imageDigest: sha256:0cc17bb2266f63d67114fe5d12b42eb9bced6fa1d17cf3b44d680e5dfcc1c8c7
 created: 2023-12-03T21:27:22.752749433-06:00
 build:
   builder: pack

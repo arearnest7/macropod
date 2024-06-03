@@ -85,7 +85,7 @@ def stats_handler(req):
 def write_raw_handler(req):
     params = req
     redisClient.set("raw-" + str(params["id"]), json.dumps(req))
-    response = requests.get(url=os.environ["WAGE_FULL"], json={})
+    response = requests.post(url=os.environ["WAGE_FULL"], json={"workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0})
     return response.text
 
 def format_handler(req):
@@ -122,14 +122,21 @@ def validator_handler(req):
 
 def main(context: Context):
     if 'request' in context.keys():
-        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n", flush=True)
+        workflow_id = str(random.randint(0, 10000000))
+        workflow_depth = 0
+        workflow_width = 0
+        if "workflow_id" in context.request.json:
+            workflow_id = context.request.json["workflow_id"]
+            workflow_depth = context.request.json["workflow_depth"]
+            workflow_width = context.request.json["workflow_width"]
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "0" + "\n", flush=True)
         params = context.request.json
         response = ""
         if len(params) > 0:
             response = validator_handler(params)
         else:
             response = stats_handler(params)
-        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
         return response, 200
     else:
         print("Empty request", flush=True)

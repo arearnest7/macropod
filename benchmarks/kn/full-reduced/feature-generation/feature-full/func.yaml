@@ -3,7 +3,7 @@ name: feature-full
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-full:kn
-imageDigest: sha256:4b5ef1c6683d4a178f76b0a39954c9b6063761d9b961bf7561366f5ea0836164
+imageDigest: sha256:a987bfe9c456b107eb2782c9be7ae9678bce16e7c133705e6c07d02ab83592d8
 created: 2023-12-03T21:07:14.996832312-06:00
 build:
   builder: pack

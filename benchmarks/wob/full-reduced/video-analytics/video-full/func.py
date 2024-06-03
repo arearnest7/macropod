@@ -23,7 +23,7 @@ import base64
 
 import datetime
 import redis
-
+import random
 
 # Load model
 model = models.squeezenet1_1(pretrained=True)
@@ -116,12 +116,19 @@ def Decode(request):
 
 def main(context: Context):
     if 'request' in context.keys():
-        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n", flush=True)
+        workflow_id = str(random.randint(0, 10000000))
+        workflow_depth = 0
+        workflow_width = 0
+        if "workflow_id" in context.request.json:
+            workflow_id = context.request.json["workflow_id"]
+            workflow_depth = context.request.json["workflow_depth"]
+            workflow_width = context.request.json["workflow_width"]
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "0" + "\n", flush=True)
         videoFile = open("reference/video.mp4", "rb")
         videoFragment = videoFile.read()
         videoFile.close()
         ret = Decode({"video": base64.b64encode(videoFragment).decode()})
-        print(str(datetime.datetime.now()) + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
         return ret, 200
     else:
         print("Empty request", flush=True)

@@ -3,7 +3,7 @@ name: election-get-results-partial
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-get-results-partial:kn
-imageDigest: sha256:c2891b4210aa5a35a1349b4743bbf4b9f65116bcffa156ad6ae9624e2b361f22
+imageDigest: sha256:a180bb6aa16bb5a45b3eac04915cccadb44a0f8f5e29fe329e8d12ee88267cb0
 created: 2023-10-20T10:09:21.067803343-05:00
 build:
   builder: pack

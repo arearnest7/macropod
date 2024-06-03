@@ -23,7 +23,7 @@ type RequestBody struct {
 
 func FunctionHandler(context Context) (string, int) {
 	requestURL := ""
-	//body, err := ioutil.ReadAll(req.Body)
+	//body, _ := ioutil.ReadAll(req.Body)
 	body_u := RequestBody{}
 	json.Unmarshal([]byte(context.Request), &body_u)
   	//defer req.Body.Close()

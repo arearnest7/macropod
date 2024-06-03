@@ -10,6 +10,8 @@ import (
 	"io/ioutil"
         "sort"
 	"gopkg.in/mgo.v2/bson"
+        "strconv"
+        "math/rand"
 
 	"github.com/hailocab/go-geoindex"
 
@@ -34,6 +36,9 @@ type RequestBody struct {
         Require string `json:"Require"`
         InDate string `json:"InDate"`
         OutDate string `json:"OutDate"`
+	WorkflowID string `json:"WorkflowID"`
+        WorkflowDepth int `json:"WorkflowDepth"`
+        WorkflowWidth int `json:"WorkflowWidth"`
 }
 
 const (
@@ -69,12 +74,18 @@ type RatePlans []*RatePlan
 type BodyGeo struct {
         Lat float64
         Lon float64
+	WorkflowID string
+        WorkflowDepth int
+        WorkflowWidth int
 }
 
 type Request struct {
         HotelIds []string
         InDate string
         OutDate string
+	WorkflowID string
+        WorkflowDepth int
+        WorkflowWidth int
 }
 
 type User struct {
@@ -435,12 +446,25 @@ func SearchNearby(req RequestBody) string {
 
 // Handle an HTTP Request.
 func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
-        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "0" + "\n")
-	ret := ""
+	workflow_id := strconv.Itoa(rand.Intn(10000000))
+        workflow_depth := 0
+        workflow_width := 0
         body, _ := ioutil.ReadAll(req.Body)
         body_u := RequestBody{}
         json.Unmarshal(body, &body_u)
         defer req.Body.Close()
+        if body_u.WorkflowID != "" {
+                workflow_id = body_u.WorkflowID
+                workflow_depth = body_u.WorkflowDepth
+                workflow_width = body_u.WorkflowWidth
+                body_u.WorkflowDepth += 1
+        } else {
+                body_u.WorkflowID = workflow_id
+                body_u.WorkflowDepth = workflow_depth
+                body_u.WorkflowWidth = workflow_width
+        }
+        fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "0" + "\n")
+	ret := ""
         if body_u.Request == "search" {
                 ret = SearchNearby(body_u)
         } else {
@@ -460,14 +484,14 @@ func Handle(ctx context.Context, res http.ResponseWriter, req *http.Request) {
         	}
         	req_url.Header.Add("Content-Type", "application/json")
         	client := &http.Client{}
-                fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1" + "\n")
+                fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "1" + "\n")
         	ret1, err := client.Do(req_url)
-                fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
+                fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "2" + "\n")
         	retBody, err := ioutil.ReadAll(ret1.Body)
         	ret_val, err := json.Marshal(retBody)
 		ret = string(ret_val)
         }
-        fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
+        fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "3" + "\n")
         fmt.Fprintf(res, ret) // echo to caller
 }
 

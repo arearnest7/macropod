@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"time"
+        "strconv"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -26,16 +27,20 @@ type RequestBody struct {
         Require string `json:"Require"`
         InDate string `json:"InDate"`
         OutDate string `json:"OutDate"`
+        WorkflowID string `json:"WorkflowID"`
+        WorkflowDepth int `json:"WorkflowDepth"`
+        WorkflowWidth int `json:"WorkflowWidth"`
 }
 
 // Handle an HTTP Request.
-func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type string, is_json bool) {
-	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n")
+func FunctionHandler(res http.ResponseWriter, req RequestBody, content_type string, is_json bool) {
+        body_u := req
+        workflow_id := body_u.WorkflowID
+        workflow_depth := body_u.WorkflowDepth
+        workflow_width := body_u.WorkflowWidth
+        body_u.WorkflowDepth += 1
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "3" + "\n")
 	requestURL := ""
-	body, err := ioutil.ReadAll(req.Body)
-	body_u := RequestBody{}
-	json.Unmarshal(body, &body_u)
-  	defer req.Body.Close()
 	if body_u.Request == "search" {
 		requestURL = os.Getenv("HOTEL_SEARCH")
 	} else if body_u.Request == "recommend" {
@@ -53,12 +58,12 @@ func FunctionHandler(res http.ResponseWriter, req *http.Request, content_type st
         }
 	req_url.Header.Add("Content-Type", "application/json")
 	client := &http.Client{}
-	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "3" + "\n")
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "4" + "\n")
         ret, err := client.Do(req_url)
-	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "4" + "\n")
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "5" + "\n")
         retBody, err := ioutil.ReadAll(ret.Body)
         ret_val, err := json.Marshal(retBody)
-	fmt.Println(time.Now().String() + "," + "0" + "," + "0" + "," + "0" + "," + "HTTP" + "," + "5" + "\n")
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "6" + "\n")
 	fmt.Fprintf(res, string(ret_val)) // echo to caller
 }
 

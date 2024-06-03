@@ -17,31 +17,45 @@
  */
 const axios = require("axios");
 const redis = require('redis');
+const exec = require('child_process').execSync;
 const moment = require('moment');
 
 const handle = async (context, body) => {
-        console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "0" + "\n");
+	var workflow_id = Math.floor(Math.random() * 10000000).toString();
+        var workflow_depth = 0;
+        var workflow_width = 0;
+        var newbody = body;
+        if ("workflow_id" in body) {
+                workflow_id = body["workflow_id"];
+                workflow_depth = body["workflow_depth"] + 1;
+                workflow_width = body["workflow_width"];
+        } else {
+                newbody["workflow_id"] = workflow_id;
+                newbody["workflow_depth"] = workflow_depth;
+                newbody["workflow_width"] = workflow_width;
+        }
+        console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "0" + "\n");
 	if (body['requestType'] ==  'get_results') {
 		var data = '';
-        	console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "1" + "\n");
-                await axios.post(process.env.ELECTION_GET_RESULTS, body)
+        	console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "1" + "\n");
+                await axios.post(process.env.ELECTION_GET_RESULTS, newbody)
                         .then( (response) => {
                                 data = response.data;
                         });
-                console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "2" + "\n");
+                console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "2" + "\n");
 		return data;
 	}
 	else if (body['requestType'] == 'vote') {
 		var data = '';
-                console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "3" + "\n");
-		await axios.post(process.env.ELECTION_VOTE_ENQUEUER, body)
+                console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "3" + "\n");
+		await axios.post(process.env.ELECTION_VOTE_ENQUEUER, newbody)
 			.then( (response) => {
 				data = response.data;
 			});
-                console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "4" + "\n");
+                console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "4" + "\n");
 		return data;
 	}
-        console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + "0" + "," + "0" + "," + "0" + "," + "POST" + "," + "5" + "\n");
+        console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "5" + "\n");
 	return 'invalid request type';
 }
 

@@ -3,7 +3,7 @@ name: hotel-recommend
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-recommend:kn
-imageDigest: sha256:405364b7821a33242266baa5e9b762b2a056f8b315e6a9cdddc183c8bed00224
+imageDigest: sha256:311d0aa26f047d6894e7e5a15f4cdd54d30dadf1f3a494171aad9ce16e1b4750
 created: 2023-10-26T19:54:40.164310055-05:00
 build:
   builder: pack

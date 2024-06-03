@@ -29,7 +29,7 @@ def decode(bytes):
     return all_frames
 
 def Recognise(frame):
-    result = requests.get(os.environ['VIDEO_RECOG'], json={"frame": base64.b64encode(frame).decode()}).text
+    result = requests.post(os.environ['VIDEO_RECOG'], json={"frame": base64.b64encode(frame).decode()}).text
 
     return result
 
