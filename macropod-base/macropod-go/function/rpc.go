@@ -30,7 +30,7 @@ func invoke(stub pb.GRPCFunctionClient, ctx_in context.Context, in *pb.RequestBo
 }
 
 func RPC(ctx_in Context, dest string, payloads [][]byte) ([]string) {
-    fmt.Println(time.Now().String() + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "11" + "\n")
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "3" + "\n")
     channel, _ := grpc.Dial(dest, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
     defer channel.Close()
     stub := pb.NewGRPCFunctionClient(channel)
@@ -85,6 +85,6 @@ func RPC(ctx_in Context, dest string, payloads [][]byte) ([]string) {
             os.Remove(rpc_pv + "/" + pv_paths[i])
         }
     }
-    fmt.Println(time.Now().String() + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "12" + "\n")
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "4" + "\n")
     return results
 }

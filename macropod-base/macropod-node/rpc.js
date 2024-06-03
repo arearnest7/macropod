@@ -1,3 +1,4 @@
+const exec = require('child_process').execSync;
 const moment = require('moment')
 const fs = require('fs')
 const grpc = require('@grpc/grpc-js')
@@ -22,7 +23,7 @@ function invoke(dest, request) {
 }
 
 async function RPC(context, dest, payloads) {
-	await console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "16" + "\n");
+	await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "3" + "\n");
 	var tl = new Array();
 	var pv_paths = new Array();
 	var request_type = "gg";
@@ -88,7 +89,7 @@ async function RPC(context, dest, payloads) {
 			fs.rmSync(process.env.RPC_PV + "/" + pv_path);
 		}
 	}
-        await console.log(moment().format('MMMM Do YYYY h:mm:sss a') + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "17" + "\n");
+        await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "4" + "\n");
 	return results;
 }
 

@@ -11,7 +11,7 @@ MAX_MESSAGE_LENGTH = 1024 * 1024 * 200
 opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_message_length", MAX_MESSAGE_LENGTH)]
 
 def RPC(context, dest, payloads):
-    print(str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + "," + context["RequestType"] + "," + "13" + "\n", flush=True)
+    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowId"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + "," + context["RequestType"] + "," + "3" + "\n", flush=True)
     with grpc.insecure_channel(dest, options=opts,) as channel:
         stub = pb_grpc.gRPCFunctionStub(channel)
         tl = []
@@ -44,5 +44,5 @@ def RPC(context, dest, payloads):
         if "RPC_PV" in os.environ:
             for pv_path in pv_paths:
                 os.remove(os.environ["RPC_PV"] + "/" + pv_path)
-        print(str(datetime.datetime.now()) + "," + context["WorkflowId"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + "," + context["RequestType"] + "," + "14" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowId"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + "," + context["RequestType"] + "," + "4" + "\n", flush=True)
         return results
