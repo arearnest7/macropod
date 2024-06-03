@@ -4,9 +4,11 @@ import (
     "encoding/csv"
     "fmt"
     "os"
-    "strconv"
     "path/filepath"
     "io/ioutil"
+    "strconv"
+    "bufio"
+    "strings"
 )
 
 func main() {
@@ -26,16 +28,15 @@ func main() {
         }
         for _, log := range logs {
             i, _ := os.Open(os.Args[1] + "/" + log)
-            reader := csv.NewReader(i)
-            reader.FieldsPerRecord = -1
-            reader.LazyQuotes = true
-            record, _ := reader.ReadAll()
+            fscanner := bufio.NewScanner(i)
             o, _ := os.Create(os.Args[2] + "/" + log)
             writer := csv.NewWriter(o)
             defer writer.Flush()
-            for _, line := range record {
+            for fscanner.Scan() {
+                l := fscanner.Text()
+                line := strings.Split(l, ",")
                 if len(line) == 6 {
-                    if _, err := strconv.Atoi(line[len(line)-1]); err == nil {
+                    if _, err := strconv.Atoi(line[5]); err == nil {
                         writer.Write(line)
                     }
                 }

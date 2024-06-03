@@ -7,7 +7,7 @@ import (
     "strconv"
     "strings"
     "time"
-    "sort"
+    "github.com/montanaflynn/stats"
 )
 
 func main() {
@@ -31,129 +31,118 @@ func main() {
             log_file, _ := os.Open(log_name)
             log_reader := csv.NewReader(log_file)
             log_record, _ := log_reader.ReadAll()
-            temp := log_record[0]
-            var tags []string
-            tags = append(tags, wf_name)
-            tags = append(tags, "E2E Workflow Latency")
-            tags = append(tags, "Peak Used CPU")
-            tags = append(tags, "Peak Used Memory")
-            tags = append(tags, "Peak Bytes Sent")
-            for _, tag := range temp {
-                tags = append(tags, tag)
-            }
-            results.Write(tags)
-            var avg []string
-            var percentile99 []string
-            avg = append(avg, "average")
-            percentile99 = append(percentile99, "99 percentile")
-            var wf_latency []float64
-            var cpu []float64
-            var memory []float64
-            var bytes_sent []float64
-            var log_record_nano [][]int64
-            timestamp_name := s[1] + ".mts"
-            timestamp_file, _ := os.Open(timestamp_name)
-            timestamp_reader := csv.NewReader(timestamp_file)
-            timestamp_record, _ := timestamp_reader.ReadAll()
-            timestamp_start, _ := time.Parse("2006-01-02 15:04:05", timestamp_record[0][0])
-            timestamp_end, _ := time.Parse("2006-01-02 15:04:05", timestamp_record[0][1])
-            var latency_idx int
-            for i, entry := range latency_record[0] {
-                if entry == wf_name {
-                    latency_idx = i
-                    break
+            if len(log_record) > 0 {
+                temp := log_record[0]
+                var tags []string
+                tags = append(tags, wf_name)
+                tags = append(tags, "E2E Workflow Latency")
+                tags = append(tags, "Peak Used CPU")
+                tags = append(tags, "Peak Used Memory")
+                tags = append(tags, "Peak Bytes Sent")
+                for _, tag := range temp {
+                    tags = append(tags, tag)
                 }
-            }
-            for _, line := range latency_record[1:] {
-                l, _ := strconv.ParseFloat(line[latency_idx], 64)
-                wf_latency = append(wf_latency, l)
-            }
-            for _, line := range metrics_record[1:] {
-                timestamp, _ := time.Parse("Jan 2 2006 15:04:05", line[0])
-                cpu_load_1, _ := strconv.ParseFloat(line[9], 64)
-                total_memory, _ := strconv.ParseFloat(line[12], 64)
-                available_memory, _ := strconv.ParseFloat(line[13], 64)
-                bytes_sent_entry, _ := strconv.ParseFloat(line[18], 64)
-                if timestamp.After(timestamp_start) && timestamp.Before(timestamp_end) {
-                    cpu = append(cpu, cpu_load_1)
-                    memory = append(memory, total_memory - available_memory)
-                    bytes_sent = append(bytes_sent, bytes_sent_entry)
+                results.Write(tags)
+                var median []string
+                var percentile99 []string
+                median = append(median, "median")
+                percentile99 = append(percentile99, "99 percentile")
+                var wf_latency []float64
+                var cpu []float64
+                var memory []float64
+                var bytes_sent []float64
+                var log_record_nano [][]int64
+                timestamp_name := s[1] + ".mts"
+                timestamp_file, _ := os.Open(timestamp_name)
+                timestamp_reader := csv.NewReader(timestamp_file)
+                timestamp_record, _ := timestamp_reader.ReadAll()
+                timestamp_start, _ := time.Parse("2006-01-02 15:04:05.000000 UTC", timestamp_record[0][0])
+                timestamp_end, _ := time.Parse("2006-01-02 15:04:05.000000 UTC", timestamp_record[0][1])
+                timestamp_end = timestamp_end.Add(time.Second * 2)
+                var latency_idx int
+                for i, entry := range latency_record[0] {
+                    if entry == wf_name {
+                        latency_idx = i
+                        break
+                    }
                 }
-            }
-            sort.Float64s(wf_latency)
-            sum := 0.0
-            for _, entry := range wf_latency {
-                sum += entry
-            }
-            if len(wf_latency) > 0 {
-                avg = append(avg, strconv.FormatFloat(sum / float64(len(wf_latency)), 'f', -1, 64))
-                percentile_idx := int(float64(len(wf_latency)) * 0.99)
-                percentile99 = append(percentile99, strconv.FormatFloat(wf_latency[percentile_idx], 'f', -1, 64))
-            } else {
-                avg = append(avg, "0")
-                percentile99 = append(percentile99, "0")
-            }
-            sort.Float64s(cpu)
-            sum = 0.0
-            for _, entry := range cpu {
-                sum += entry
-            }
-            if len(cpu) > 0 {
-                avg = append(avg, strconv.FormatFloat(sum / float64(len(cpu)), 'f', -1, 64))
-                percentile_idx := int(float64(len(cpu)) * 0.99)
-                percentile99 = append(percentile99, strconv.FormatFloat(cpu[percentile_idx], 'f', -1, 64))
-            } else {
-                avg = append(avg, "0")
-                percentile99 = append(percentile99, "0")
-            }
-            sort.Float64s(memory)
-            sum = 0.0
-            for _, entry := range memory {
-                sum += entry
-            }
-            if len(memory) > 0 {
-                avg = append(avg, strconv.FormatFloat(sum / float64(len(memory)), 'f', -1, 64))
-                percentile_idx := int(float64(len(memory)) * 0.99)
-                percentile99 = append(percentile99, strconv.FormatFloat(memory[percentile_idx], 'f', -1, 64))
-            } else {
-                avg = append(avg, "0")
-                percentile99 = append(percentile99, "0")
-            }
-            sort.Float64s(bytes_sent)
-            sum = 0.0
-            for _, entry := range bytes_sent {
-                sum += entry
-            }
-            if len(bytes_sent) > 0 {
-                avg = append(avg, strconv.FormatFloat(sum / float64(len(bytes_sent)), 'f', -1, 64))
-                percentile_idx := int(float64(len(bytes_sent)) * 0.99)
-                percentile99 = append(percentile99, strconv.FormatFloat(bytes_sent[percentile_idx], 'f', -1, 64))
-            } else {
-                avg = append(avg, "0")
-                percentile99 = append(percentile99, "0")
-            }
-            for _, line := range log_record[1:] {
-                var newline []int64
-                for _, entry := range line {
-                    new_entry, _ := time.ParseDuration(entry)
-                    newline = append(newline, new_entry.Nanoseconds())
+                for _, line := range latency_record[1:] {
+                    l, _ := strconv.ParseFloat(line[latency_idx], 64)
+                    wf_latency = append(wf_latency, l)
                 }
-                log_record_nano = append(log_record_nano, newline)
-            }
-            for i, _ := range temp {
-                var temp2 []float64
-                sum = 0.0
-                for _, line := range log_record_nano {
-                    temp2 = append(temp2, float64(line[i]))
-                    sum += float64(line[i])
+                for _, line := range metrics_record[1:] {
+                    timestamp, _ := time.Parse("2006-01-02 15:04:05 UTC", line[0])
+                    cpu_load_1, _ := strconv.ParseFloat(line[1], 64)
+                    used_memory, _ := strconv.ParseFloat(line[2], 64)
+                    bytes_sent_entry, _ := strconv.ParseFloat(line[3], 64)
+                    if timestamp.After(timestamp_start) && timestamp.Before(timestamp_end) {
+                       cpu = append(cpu, cpu_load_1)
+                        memory = append(memory, used_memory)
+                        bytes_sent = append(bytes_sent, bytes_sent_entry)
+                    }
                 }
-                sort.Float64s(temp2)
-                avg = append(avg, strconv.FormatFloat(sum / float64(len(temp2)), 'f', -1, 64))
-                percentile_idx := int(float64(len(temp2)) * 0.99)
-                percentile99 = append(percentile99, strconv.FormatFloat(temp2[percentile_idx], 'f', -1, 64))
+                if len(wf_latency) > 0 {
+                    m, _ := stats.Median(wf_latency)
+                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
+                    p, _ := stats.Percentile(wf_latency, 99)
+                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
+                } else {
+                    median = append(median, "0")
+                    percentile99 = append(percentile99, "0")
+                }
+                if len(cpu) > 0 {
+                    m, _ := stats.Median(cpu)
+                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
+                    p, _ := stats.Percentile(cpu, 99)
+                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
+                } else {
+                    median = append(median, "0")
+                    percentile99 = append(percentile99, "0")
+                }
+                if len(memory) > 0 {
+                    m, _ := stats.Median(memory)
+                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
+                    p, _ := stats.Percentile(memory, 99)
+                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
+                } else {
+                    median = append(median, "0")
+                    percentile99 = append(percentile99, "0")
+                }
+                if len(bytes_sent) > 0 {
+                    m, _ := stats.Median(bytes_sent)
+                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
+                    p, _ := stats.Percentile(bytes_sent, 99)
+                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
+                } else {
+                    median = append(median, "0")
+                    percentile99 = append(percentile99, "0")
+                }
+                for _, line := range log_record[1:] {
+                    var newline []int64
+                    for _, entry := range line {
+                        new_entry, _ := strconv.ParseInt(entry, 10, 64)
+                        newline = append(newline, new_entry)
+                    }
+                    log_record_nano = append(log_record_nano, newline)
+                }
+                for i, _ := range temp {
+                    var temp2 []float64
+                    for _, line := range log_record_nano {
+                        val := float64(line[i])
+                        if val > 0 {
+                            temp2 = append(temp2, val)
+                        } else {
+                            temp2 = append(temp2, 0)
+                        }
+                    }
+                    m, _ := stats.Median(temp2)
+                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
+                    p, _ := stats.Percentile(temp2, 99)
+                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
+                }
+                results.Write(median)
+                results.Write(percentile99)
             }
-            results.Write(avg)
-            results.Write(percentile99)
         }
     }
 }
