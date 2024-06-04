@@ -3,7 +3,7 @@ name: hotel-geo
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-geo:wob
-imageDigest: sha256:32b942f1d73199d95af66b0b8d12e8f5527c435b6f0c9a11f4b7bb0b4a2f912c
+imageDigest: sha256:ca656e705836e7859b8a26ef7fee336d62c05f94fef95d9f2f93434cce46c0d9
 created: 2023-10-26T19:30:51.417314908-05:00
 build:
   builder: pack

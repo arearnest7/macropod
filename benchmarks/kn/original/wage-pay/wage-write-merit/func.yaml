@@ -3,7 +3,7 @@ name: wage-write-merit
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-write-merit:kn
-imageDigest: sha256:8a6122a397216d07057c14d8acb67d7013e09f71427049a14b24d6b112644e7c
+imageDigest: sha256:07a2ef0a40627428f6380db99dd5b6962b7c8da52e78da6407838a389aaff86b
 created: 2023-12-03T21:05:01.566151977-06:00
 build:
   builder: pack

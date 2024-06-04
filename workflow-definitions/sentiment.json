@@ -1,0 +1,71 @@
+{
+        "workflow": "sentiment",
+        "functions": {
+		"SENTIMENT_CFAIL": {
+			"registry": "arearnest7/sentiment-cfail:macropod",
+                        "endpoints": [],
+                        "envs": {},
+                        "secrets": {}
+		},
+		"SENTIMENT_DB": {
+			"registry": "arearnest7/sentiment-db:macropod",
+                        "endpoints": [],
+                        "envs": {},
+                        "secrets": {}
+		},
+		"SENTIMENT_MAIN": {
+			"registry": "arearnest7/sentiment-main:macropod",
+                        "endpoints": ["SENTIMENT_READ_CSV"],
+                        "envs": {},
+                        "secrets": {}
+		},
+		"SENTIMENT_PRODUCT_OR_SERVICE": {
+			"registry": "arearnest7/sentiment-product-or-service:macropod",
+                        "endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"],
+                        "envs": {},
+                        "secrets": {}
+		},
+		"SENTIMENT_PRODUCT_RESULT": {
+			"registry": "arearnest7/sentiment-product-result:macropod",
+                        "endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"],
+                        "envs": {},
+                        "secrets": {}
+		},
+		"SENTIMENT_PRODUCT_SENTIMENT": {
+			"registry": "arearnest7/sentiment-product-sentiment:macropod",
+                        "endpoints": ["SENTIMENT_PRODUCT_RESULT"],
+                        "envs": {},
+                        "secrets": {}
+		},
+		"SENTIMENT_READ_CSV": {
+			"registry": "arearnest7/sentiment-read-csv:macropod",
+                        "endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
+                        "envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+                        "secrets": {}
+		},
+		"SENTIMENT_SERVICE_RESULT": {
+			"registry": "arearnest7/sentiment-service-results:macropod",
+                        "endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"],
+                        "envs": {},
+                        "secrets": {}
+		},
+		"SENTIMENT_SERVICE_SENTIMENT": {
+			"registry": "arearnest7/sentiment-service-sentiment:macropod",
+                        "endpoints": ["SENTIMENT_SERVICE_RESULT"],
+                        "envs": {},
+                        "secrets": {}
+		},
+		"SENTIMENT_SFAIL": {
+			"registry": "arearnest7/sentiment-sfail:macropod",
+                        "endpoints": [],
+                        "envs": {},
+                        "secrets": {}
+		},
+		"SENTIMENT_SNS": {
+			"registry": "arearnest7/sentiment-sns:macropod",
+                        "endpoints": ["SENTIMENT_DB"],
+                        "envs": {},
+                        "secrets": {}
+		}
+        }
+}

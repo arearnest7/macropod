@@ -3,7 +3,7 @@ name: hotel-frontend
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-frontend:wob
-imageDigest: sha256:2ac66126fb8ee50637c060b693cf63dea10cb90ad1e15dbf254a9fe8d8e73880
+imageDigest: sha256:9c4a44f5ae8165168c37f7d44c0d120aa764e5fe2caa550085bd746539c5a9ae
 created: 2023-10-26T19:30:15.504368653-05:00
 build:
   builder: pack

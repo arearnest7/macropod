@@ -18,36 +18,36 @@ go run ../../tools/processing-scripts/clean-logs.go $DIR $LOGS_DIR $LOG_FILES
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-election-processed-log.csv kn-full-election-election full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-election-processed-log.csv kn-original-election-election gateway vote-enqueuer vote-processor
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-election-processed-log.csv kn-partial-election-election gateway-vevp
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-election-processed-log.csv macropod-election-election gateway vote-enqueuer vote-processor
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-election-processed-log.csv macropod-election ELECTION_GATEWAY ELECTION_VOTE_ENQUEUER ELECTION_VOTE_PROCESSOR
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-feature-processed-log.csv kn-full-feature-feature full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-feature-processed-log.csv kn-original-feature-feature orchestrator extractor wait status reducer
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-feature-processed-log.csv kn-partial-feature-feature orchestrator-wsr extractor-partial
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-feature-processed-log.csv macropod-feature-feature orchestrator extractor wait status reducer
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-feature-processed-log.csv macropod-feature FEATURE_ORCHESTRATOR FEATURE_EXTRACTOR FEATURE_WAIT FEATURE_STATUS FEATURE_REDUCER
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-hotel-processed-log.csv kn-full-hotel-hotel full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-hotel-processed-log.csv kn-original-hotel-hotel frontend search geo rate
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-hotel-processed-log.csv kn-partial-hotel-hotel frontend-spgr
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-hotel-processed-log.csv macropod-hotel-hotel frontend search geo rate
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-hotel-processed-log.csv macropod-hotel HOTEL_FRONTEND HOTEL_SEARCH HOTEL_GEO HOTEL_RATE
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-pipelined-processed-log.csv kn-full-pipelined-pipelined full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-pipelined-processed-log.csv kn-original-pipelined-pipelined main checksum zip encrypt
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-pipelined-processed-log.csv kn-partial-pipelined-pipelined main-partial checksum-partial zip-partial encrypt-partial
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-pipelined-processed-log.csv macropod-pipelined-pipelined main checksum zip encrypt
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-pipelined-processed-log.csv macropod-pipelined PIPELINED_MAIN PIPELINED_CHECKSUM PIPELINED_ZIP PIPELINED_ENCRYPT
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-sentiment-processed-log.csv kn-full-sentiment-sentiment full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-sentiment-processed-log.csv kn-original-sentiment-sentiment main read-csv product-or-service product-sentiment product-result sns db
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-sentiment-processed-log.csv kn-partial-sentiment-sentiment main-rcposc product-sentiment-prs db-s
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-sentiment-processed-log.csv macropod-sentiment-sentiment main read-csv product-or-service product-sentiment product-result sns db
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-sentiment-processed-log.csv macropod-sentiment SENTIMENT_MAIN SENTIMENT_READ_CSV SENTIMENT_PRODUCT_OR_SERVICE SENTIMENT_PRODUCT_SENTIMENT SENTIMENT_PRODUCT_RESULT SENTIMENT_SNS SENTIMENT_DB
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-video-processed-log.csv kn-full-video-video full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-video-processed-log.csv kn-original-video-video streaming decoder recog
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-video-processed-log.csv kn-partial-video-video streaming-d recog-partial
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-video-processed-log.csv streaming decoder recog
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-video-processed-log.csv macropod-video VIDEO_STREAMING VIDEO_DECODER VIDEO_RECOG
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-wage-processed-log.csv kn-full-wage-wage full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-wage-processed-log.csv kn-original-wage-wage validator format write-raw stats sum avg merit write-merit
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-wage-processed-log.csv kn-partial-wage-wage validator-fw stats-partial sum-amw
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-wage-processed-log.csv validator format write-raw stats sum avg merit write-merit
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR macropod-wage-processed-log.csv macropod-wage WAGE_VALIDATOR WAGE_FORMAT WAGE_WRITE_RAW WAGE_STATS WAGE_SUM WAGE_AVG WAGE_MERIT WAGE_WRITE_MERIT
 
 go run ../../tools/processing-scripts/process-stats.go $STATS_RESULTS $LATENCY_RESULTS $METRIC_RESULTS "macropod-election;macropod-election-processed-log.csv" "kn-full-election;kn-full-election-processed-log.csv" "kn-original-election;kn-original-election-processed-log.csv" "kn-partial-election;kn-partial-election-processed-log.csv" "macropod-feature;macropod-feature-processed-log.csv" "kn-full-feature;kn-full-feature-processed-log.csv" "kn-original-feature;kn-original-feature-processed-log.csv" "kn-partial-feature;kn-partial-feature-processed-log.csv" "macropod-pod-hotel;macropod-hotel-processed-log.csv" "kn-full-hotel;kn-full-hotel-processed-log.csv" "kn-original-hotel;kn-original-hotel-processed-log.csv" "kn-partial-hotel;kn-partial-hotel-processed-log.csv" "macropod-pipelined;macropod-pipelined-processed-log.csv" "kn-full-pipelined;kn-full-pipelined-processed-log.csv" "kn-original-pipelined;kn-original-pipelined-processed-log.csv" "kn-partial-pipelined;kn-partial-pipelined-processed-log.csv" "macropod-sentiment;macropod-sentiment-processed-log.csv" "kn-full-sentiment;kn-full-sentiment-processed-log.csv" "kn-original-sentiment;kn-original-sentiment-processed-log.csv" "kn-partial-sentiment;kn-partial-sentiment-processed-log.csv" "macropod-video;macropod-video-processed-log.csv" "kn-full-video;kn-full-video-processed-log.csv" "kn-original-video;kn-original-video-processed-log.csv" "kn-partial-video;kn-partial-video-processed-log.csv" "macropod-wage;macropod-wage-processed-log.csv" "kn-full-wage;kn-full-wage-processed-log.csv" "kn-original-wage;kn-original-wage-processed-log.csv" "kn-partial-wage;kn-partial-wage-processed-log.csv"

@@ -1,6 +1,6 @@
 #!/bin/bash
 BUILD=${2:-false}
 PUSH=${3:-false}
-kn func deploy --build=$BUILD --push=$PUSH --path ../../benchmarks/$1/original/video-analytics/video-streaming
-kn func deploy --build=$BUILD --push=$PUSH --path ../../benchmarks/$1/original/video-analytics/video-decoder
-kn func deploy --build=$BUILD --push=$PUSH --path ../../benchmarks/$1/original/video-analytics/video-recog
+kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/original/video-analytics/video-streaming
+kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/original/video-analytics/video-decoder
+kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/original/video-analytics/video-recog

@@ -3,7 +3,7 @@ name: sentiment-cfail
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-cfail:kn
-imageDigest: sha256:dfe1d370348f08cd892084018c32d077f3bfeef197a281c61ad8320dccf08d9e
+imageDigest: sha256:f5217785dc0cccdaa38f1f8db406dd95dad48b6d3c7312dce7e96c8525d66e0f
 created: 2023-12-03T20:59:59.650656944-06:00
 build:
   builder: pack
