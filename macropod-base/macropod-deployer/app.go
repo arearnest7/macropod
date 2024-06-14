@@ -316,6 +316,7 @@ func manageDeployment(wf_name string, ns string) (string, error) {
             return "", err
         }
     }
+    workflow.IngressVersion[namespace] = workflow.LatestVersion
     return wf_name + "." + namespace + ".macropod", nil
 }
 
@@ -739,6 +740,7 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 
 func main() {
     internal_log("Ingress Controller Started")
+    workflows = make(map[string]Workflow, 0)
     config, err := rest.InClusterConfig()
     if err != nil {
         internal_log("error config - " + err.Error())
