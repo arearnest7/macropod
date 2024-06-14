@@ -82,6 +82,7 @@ spec:
       containers:
       - name: feature-orchestrator
         image: arearnest7/feature-orchestrator:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -111,6 +112,7 @@ spec:
       containers:
       - name: feature-extractor
         image: arearnest7/feature-extractor:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -136,6 +138,7 @@ spec:
       containers:
       - name: feature-wait
         image: arearnest7/feature-wait:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -163,6 +166,7 @@ spec:
       containers:
       - name: feature-status
         image: arearnest7/feature-status:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -192,6 +196,7 @@ spec:
       containers:
       - name: feature-reducer
         image: arearnest7/feature-reducer:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

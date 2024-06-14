@@ -121,6 +121,7 @@ spec:
       containers:
       - name: wage-validator
         image: arearnest7/wage-validator:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -152,6 +153,7 @@ spec:
       containers:
       - name: wage-format
         image: arearnest7/wage-format:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -183,6 +185,7 @@ spec:
       containers:
       - name: wage-write-raw
         image: arearnest7/wage-write-raw:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -214,6 +217,7 @@ spec:
       containers:
       - name: wage-stats
         image: arearnest7/wage-stats:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -245,6 +249,7 @@ spec:
       containers:
       - name: wage-sum
         image: arearnest7/wage-sum:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -276,6 +281,7 @@ spec:
       containers:
       - name: wage-avg
         image: arearnest7/wage-avg:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -307,6 +313,7 @@ spec:
       containers:
       - name: wage-merit
         image: arearnest7/wage-merit:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -338,6 +345,7 @@ spec:
       containers:
       - name: wage-write-merit
         image: arearnest7/wage-write-merit:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

@@ -4,7 +4,7 @@ const fs = require('fs')
 const grpc = require('@grpc/grpc-js')
 const protoLoader = require('@grpc/proto-loader');
 var packageDefinition = protoLoader.loadSync(
-  "./app.proto",
+  "./wf.proto",
   { keepCase: true,
     longs: String,
     enums: String,
@@ -23,7 +23,7 @@ function invoke(dest, request) {
 }
 
 async function RPC(context, dest, payloads) {
-	await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "3" + "\n");
+	await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "3");
 	var tl = new Array();
 	var pv_paths = new Array();
 	var request_type = "gg";
@@ -89,7 +89,7 @@ async function RPC(context, dest, payloads) {
 			fs.rmSync(process.env.RPC_PV + "/" + pv_path);
 		}
 	}
-        await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "4" + "\n");
+        await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "4");
 	return results;
 }
 

@@ -34,6 +34,7 @@ spec:
       containers:
       - name: pipelined-main
         image: arearnest7/pipelined-main:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -60,6 +61,7 @@ spec:
             value: 127.0.0.1:5005
       - name: pipelined-main-2
         image: arearnest7/pipelined-main:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5001
         volumeMounts:
@@ -88,6 +90,7 @@ spec:
             value: 127.0.0.1:5005
       - name: pipelined-main-3
         image: arearnest7/pipelined-main:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5002
         volumeMounts:
@@ -116,6 +119,7 @@ spec:
             value: 127.0.0.1:5005
       - name: pipelined-checksum
         image: arearnest7/pipelined-checksum:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5003
         volumeMounts:
@@ -132,6 +136,7 @@ spec:
             value: "/macropod-pv"
       - name: pipelined-zip
         image: arearnest7/pipelined-zip:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5004
         volumeMounts:
@@ -146,6 +151,7 @@ spec:
             value: "5004"
       - name: pipelined-encrypt
         image: arearnest7/pipelined-encrypt:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5005
         volumeMounts:

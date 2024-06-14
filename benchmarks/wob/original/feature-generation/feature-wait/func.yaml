@@ -3,7 +3,7 @@ name: feature-wait
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-wait:wob
-imageDigest: sha256:613265676117f1fc62a53e58de8b10f041b1f12c951a775af5fab3ef86a45425
+imageDigest: sha256:ed0f67d39053116e45a90bdd42929580b64387c3da2b04e850d37aa3a6771822
 created: 2023-12-03T20:51:14.796019377-06:00
 build:
   builder: pack

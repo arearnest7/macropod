@@ -69,6 +69,7 @@ spec:
       containers:
       - name: election-gateway
         image: arearnest7/election-gateway:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -102,6 +103,7 @@ spec:
       containers:
       - name: election-get-results
         image: arearnest7/election-get-results:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -131,6 +133,7 @@ spec:
       containers:
       - name: election-vote-enqueuer
         image: arearnest7/election-vote-enqueuer:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -162,6 +165,7 @@ spec:
       containers:
       - name: election-vote-processor
         image: arearnest7/election-vote-processor:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

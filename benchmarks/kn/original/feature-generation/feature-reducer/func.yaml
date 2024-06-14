@@ -3,7 +3,7 @@ name: feature-reducer
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-reducer:kn
-imageDigest: sha256:66ea37627a53c01c4125299a86f69230b86de023b3cfead142b17ca8aafb918a
+imageDigest: sha256:c777457f5aabf92f9fd996f303c5152470e18bc61dd2242b2abae55685a533f8
 created: 2023-12-03T20:51:07.694206765-06:00
 build:
   builder: pack

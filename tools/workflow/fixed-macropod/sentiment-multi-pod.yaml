@@ -160,6 +160,7 @@ spec:
       containers:
       - name: sentiment-main
         image: arearnest7/sentiment-main:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -191,6 +192,7 @@ spec:
       containers:
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -222,6 +224,7 @@ spec:
       containers:
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -257,6 +260,7 @@ spec:
       containers:
       - name: sentiment-cfail
         image: arearnest7/sentiment-cfail:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -286,6 +290,7 @@ spec:
       containers:
       - name: sentiment-product-sentiment
         image: arearnest7/sentiment-product-sentiment:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -317,6 +322,7 @@ spec:
       containers:
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -352,6 +358,7 @@ spec:
       containers:
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -381,6 +388,7 @@ spec:
       containers:
       - name: sentiment-sns
         image: arearnest7/sentiment-sns:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -412,6 +420,7 @@ spec:
       containers:
       - name: sentiment-db
         image: arearnest7/sentiment-db:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -441,6 +450,7 @@ spec:
       containers:
       - name: sentiment-service-sentiment
         image: arearnest7/sentiment-service-sentiment:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -472,6 +482,7 @@ spec:
       containers:
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

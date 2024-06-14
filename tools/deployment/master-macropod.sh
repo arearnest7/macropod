@@ -14,8 +14,7 @@ sudo cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
 echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> ~/.profile
 export token=$(sudo cat /var/lib/rancher/k3s/server/node-token)
 for i in ${worker_nodes[@]}; do ssh $user@$i "wget -P /home/$user/ https://raw.githubusercontent.com/arearnest7/macropod/main/tools/deployment/worker.sh && sudo -S /home/$user/worker.sh $host $token"; done;
-sudo k3s kubectl apply -f macropod-ingress.yaml
-sudo k3s kubectl create clusterrolebinding default-admin --clusterrole=admin --serviceaccount=default:default
+sudo k3s kubectl apply -f macropod.yaml
 sudo apt install hey
 mkdir ~/metrics
 cd ~/metrics

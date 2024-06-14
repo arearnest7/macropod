@@ -121,6 +121,7 @@ spec:
       containers:
       - name: hotel-frontend
         image: arearnest7/hotel-frontend:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -158,6 +159,7 @@ spec:
       containers:
       - name: hotel-search
         image: arearnest7/hotel-search:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -191,6 +193,7 @@ spec:
       containers:
       - name: hotel-recommend
         image: arearnest7/hotel-recommend:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -220,6 +223,7 @@ spec:
       containers:
       - name: hotel-reserve
         image: arearnest7/hotel-reserve:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -249,6 +253,7 @@ spec:
       containers:
       - name: hotel-user
         image: arearnest7/hotel-user:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -278,6 +283,7 @@ spec:
       containers:
       - name: hotel-geo
         image: arearnest7/hotel-geo:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -307,6 +313,7 @@ spec:
       containers:
       - name: hotel-profile
         image: arearnest7/hotel-profile:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -336,6 +343,7 @@ spec:
       containers:
       - name: hotel-rate
         image: arearnest7/hotel-rate:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

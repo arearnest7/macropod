@@ -22,8 +22,7 @@ sudo k3s kubectl apply -f https://github.com/knative/net-istio/releases/download
 sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-default-domain.yaml
 sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.2/serving-hpa.yaml
 sudo k3s kubectl apply -f autoscaler.yaml
-sudo k3s kubectl apply -f macropod-ingress.yaml
-sudo k3s kubectl create clusterrolebinding default-admin --clusterrole=admin --serviceaccount=default:default
+sudo k3s kubectl apply -f macropod.yaml
 wget https://github.com/knative/client/releases/download/knative-v1.11.2/kn-linux-amd64
 mv kn-linux-amd64 kn
 chmod +x kn

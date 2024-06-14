@@ -30,6 +30,7 @@ spec:
       containers:
       - name: election-gateway
         image: arearnest7/election-gateway:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -41,6 +42,7 @@ spec:
             value: http://127.0.0.1:5002
       - name: election-get-results
         image: arearnest7/election-get-results:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5001
         env:
@@ -48,6 +50,7 @@ spec:
             value: "5001"
       - name: election-vote-enqueuer
         image: arearnest7/election-vote-enqueuer:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5002
         env:
@@ -57,6 +60,7 @@ spec:
             value: http://127.0.0.1:5003
       - name: election-vote-processor
         image: arearnest7/election-vote-processor:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5003
         env:

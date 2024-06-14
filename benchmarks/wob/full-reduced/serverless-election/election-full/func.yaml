@@ -3,7 +3,7 @@ name: election-full
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-full:wob
-imageDigest: sha256:5986184e55469f83d8baa3c845cd3a5d472bbbd1e1346ca945d9054fcab22670
+imageDigest: sha256:cf33cf636a799fd1f95851f90f203f24e2a3e04d53fa04ea6fdb1278ac106402
 created: 2023-10-20T09:54:18.57851076-05:00
 build:
   builder: pack

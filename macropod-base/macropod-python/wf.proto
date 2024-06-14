@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package function;
-option go_package = "./app_pb";
+option go_package = "./wf_pb";
 
 message RequestBody {
     optional bytes data = 1;

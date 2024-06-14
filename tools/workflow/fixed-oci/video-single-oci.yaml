@@ -30,6 +30,7 @@ spec:
       containers:
       - name: video-streaming
         image: arearnest7/video-streaming:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -39,6 +40,7 @@ spec:
             value: http://127.0.0.1:5001
       - name: video-decoder
         image: arearnest7/video-decoder:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5001
         env:
@@ -48,6 +50,7 @@ spec:
             value: http://127.0.0.1:5002
       - name: video-recog
         image: arearnest7/video-recog:oci
+        imagePullPolicy: Always
         ports:
         - containerPort: 5002
         env:

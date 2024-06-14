@@ -3,7 +3,7 @@ name: micro-rpc-b
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/micro-rpc-b:kn
-imageDigest: sha256:65d36678aa8c73be63d061ef2606ee3fad501519ba507d958efcad4d343f2136
+imageDigest: sha256:8981f634202fb408edb7f394602fce065687e1cc10ac3f909e2639243018d907
 created: 2023-12-21T14:55:57.409001657-06:00
 build:
   builder: pack

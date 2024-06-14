@@ -34,6 +34,7 @@ spec:
       containers:
       - name: feature-orchestrator
         image: arearnest7/feature-orchestrator:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -56,6 +57,7 @@ spec:
             value: 127.0.0.1:5002
       - name: feature-extractor
         image: arearnest7/feature-extractor:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5001
         volumeMounts:
@@ -72,6 +74,7 @@ spec:
             value: "/macropod-pv"
       - name: feature-wait
         image: arearnest7/feature-wait:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5002
         volumeMounts:
@@ -94,6 +97,7 @@ spec:
             value: 127.0.0.1:5003
       - name: feature-status
         image: arearnest7/feature-status:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5003
         volumeMounts:
@@ -118,6 +122,7 @@ spec:
             value: 127.0.0.1:5004
       - name: feature-reducer
         image: arearnest7/feature-reducer:macropod
+        imagePullPolicy: Always
         ports:
         - containerPort: 5004
         volumeMounts:

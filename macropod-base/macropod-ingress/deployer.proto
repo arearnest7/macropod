@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "./deployer_pb";
+
+service DeploymentService {
+    rpc Deployment(DeploymentServiceRequest) returns (DeploymentServiceReply) {}
+}
+
+message DeploymentServiceRequest {
+    string WorkflowName = 1;
+    string RequestType = 2;
+    optional string Data = 3;
+}
+
+message DeploymentServiceReply {
+    string message = 3;
+}
