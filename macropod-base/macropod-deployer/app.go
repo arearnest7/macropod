@@ -119,6 +119,7 @@ type Workflow struct {
     LastUpdated time.Time
     NextReplicaIndex int
     Updating bool
+    FullyDisaggregated bool
 }
 
 var (
@@ -335,7 +336,7 @@ func updateDeployments(wf_name string) {
     }
     if cpu_total > cpu_threshold_1 || memory_total > mem_threshold_1 {
         internal_log("threshold 1 reached - " + wf_name)
-        if time.Now().Sub(workflow.LastUpdated) > time.Second * time.Duration(update_threshold) {
+        if time.Now().Sub(workflow.LastUpdated) > time.Second * time.Duration(update_threshold) && !workflow.FullyDisaggregated {
             workflow.LatestVersion += 1
             internal_log("workflow " + wf_name + " updated to version " + strconv.Itoa(workflow.LatestVersion))
             var pods_updated [][]string
@@ -349,6 +350,17 @@ func updateDeployments(wf_name string) {
                 }
             }
             workflow.Pods = pods_updated
+            pod_2_or_more := false
+            for _, pod := range pods_updated {
+                if len(pod) > 1 {
+                    pod_2_or_more = true
+                    break
+                }
+            }
+            if !pod_2_or_more {
+                internal_log(wf_name + " has been fully disaggregated")
+                workflow.FullyDisaggregated = true
+            }
             workflow.LastUpdated = time.Now()
         }
         if cpu_total > cpu_threshold_2 || memory_total > mem_threshold_2 {
