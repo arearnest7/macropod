@@ -1,23 +1,39 @@
 {
 	"workflow": "video",
 	"functions": {
-		"VIDEO_DECODER": {
+		"video-decoder": {
 			"registry": "arearnest7/video-decoder:macropod",
-			"endpoints": ["VIDEO_RECOG"],
+			"endpoints": ["video-recog"],
 			"envs": {},
 			"secrets": {}
 		},
-		"VIDEO_RECOG": {
+		"video-recog": {
 			"registry": "arearnest7/video-recog:macropod",
 			"endpoints": [],
 			"envs": {},
 			"secrets": {}
 		},
-		"VIDEO_STREAMING": {
+		"video-streaming": {
 			"registry": "arearnest7/video-streaming:macropod",
-			"endpoints": ["VIDEO_DECODER"],
+			"endpoints": ["video-decoder"],
 			"envs": {},
 			"secrets": {}
 		}
 	}
 }
+
+
+
+
+curl -X POST -H "Content-Type: application/json" -d @video.json http://localhost:8087/create/video
+curl -X POST -H "Content-Type: application/json" -d @election.json http://localhost:8083/update/video
+curl http://localhost:8087/delete/video
+curl http://localhost:8085/invoke/video
+[video-streaming video-decoder video-recog]
+
+hey -n 20 -c 4 -t 0 http://localhost:8087/invoke/video
+
+hey -n 80 -c 1 -t 0 http://localhost:8087/invoke/video
+
+hey -n 160 -c 32 -t 0 http://localhost:8082
+curl http://localhost:8084/delete/video

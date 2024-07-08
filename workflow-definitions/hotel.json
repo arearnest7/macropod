@@ -1,49 +1,49 @@
 {
 	"workflow": "hotel",
 	"functions": {
-		"HOTEL_FRONTEND": {
+		"hotel-frontend": {
 			"registry": "arearnest7/hotel-frontend:macropod",
-			"endpoints": ["HOTEL_SEARCH", "HOTEL_RECOMMEND", "HOTEL_RESERVE", "HOTEL_USER"],
+			"endpoints": ["hotel-search", "hotel-recommend", "hotel-reserve", "hotel-user"],
 			"envs": {},
 			"secrets": {}
 		},
-		"HOTEL_GEO": {
+		"hotel-geo": {
 			"registry": "arearnest7/hotel-geo:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
-		"HOTEL_PROFILE": {
+		"hotel-profile": {
 			"registry": "arearnest7/hotel-profile:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
-		"HOTEL_RATE": {
+		"hotel-rate": {
 			"registry": "arearnest7/hotel-rate:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
-		"HOTEL_RECOMMEND": {
+		"hotel-recommend": {
 			"registry": "arearnest7/hotel-recommend:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
-		"HOTEL_RESERVE": {
+		"hotel-reserve": {
 			"registry": "arearnest7/hotel-reserve:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
-		"HOTEL_SEARCH": {
+		"hotel-search": {
 			"registry": "arearnest7/hotel-search:macropod",
-			"endpoints": ["HOTEL_PROFILE", "HOTEL_GEO", "HOTEL_RATE"],
+			"endpoints": ["hotel-profile", "hotel-geo", "hotel-rate"],
 			"envs": {},
 			"secrets": {}
 		},
-		"HOTEL_USER": {
+		"hotel-user": {
 			"registry": "arearnest7/hotel-user:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
@@ -51,3 +51,16 @@
 		}
 	}
 }
+
+
+curl -X POST -H "Content-Type: application/json" -d @hotel.json http://localhost:8087/create/hotel
+curl -X POST -H "Content-Type: application/json" -d @hotel.json http://localhost:8083/update/hotel
+curl  http://localhost:8087/delete/hotel
+[hotel-frontend hotel-search hotel-recommend hotel-reserve hotel-user hotel-profile hotel-geo hotel-rate]
+
+curl --header "Content-Type: application/json"  --request POST --data '{"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}' http://localhost:8082/invoke/hotel
+
+{"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}
+
+
+hey -n 640 -c 128 -m POST -t 0 -H "Content-Type: application/json"  -d '{"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}' http://localhost:8087/invoke/hotel

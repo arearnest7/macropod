@@ -1,25 +1,25 @@
 {
 	"workflow": "election",
 	"functions": {
-		"ELECTION_GATEWAY": {
+		"election-gateway": {
 			"registry": "arearnest7/election-gateway:macropod",
-			"endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"],
+			"endpoints": ["election-get-results", "election-vote-enqueuer"],
 			"envs": {},
 			"secrets": {}
 		},
-		"ELECTION_GET_RESULTS": {
+		"election-get-results": {
 			"registry": "arearnest7/election-get-results:macropod",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
-		"ELECTION_VOTE_ENQUEUER": {
+		"election-vote-enqueuer": {
 			"registry": "arearnest7/election-vote-enqueuer:macropod",
-			"endpoints": ["ELECTION_VOTE_PROCESSOR"],
+			"endpoints": ["election-vote-processor"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
-		"ELECTION_VOTE_PROCESSOR": {
+		"election-vote-processor": {
 			"registry": "arearnest7/election-vote-processor:macropod",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
@@ -27,3 +27,20 @@
 		}
 	}
 }
+
+
+[election-gateway election-get-results]      [election-vote-enqueuer election-vote-processor]
+
+
+
+
+curl -X POST -H "Content-Type: application/json" -d @election.json http://localhost:8083/create/election
+curl -X POST -H "Content-Type: application/json" -d @election.json http://localhost:8083/update/election
+curl -X POST -H "Content-Type: application/json" -d @election_payload.json  http://localhost:8083/invoke/election
+
+
+
+curl --header "Content-Type: application/json"  --request POST --data '{"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}' http://localhost:8083/invoke/election
+
+
+hey -n 10 -c 2 -m POST -H "Content-Type: application/json"  -d '{"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}' http://localhost:8083/invoke/election

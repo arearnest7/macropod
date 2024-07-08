@@ -1,71 +1,81 @@
 {
 	"workflow": "sentiment",
 	"functions": {
-		"SENTIMENT_CFAIL": {
+		"sentiment-cfail": {
 			"registry": "arearnest7/sentiment-cfail:macropod",
 			"endpoints": [],
 			"envs": {},
 			"secrets": {}
 		},
-		"SENTIMENT_DB": {
+		"sentiment-db": {
 			"registry": "arearnest7/sentiment-db:macropod",
 			"endpoints": [],
 			"envs": {},
 			"secrets": {}
 		},
-		"SENTIMENT_MAIN": {
+		"sentiment-main": {
 			"registry": "arearnest7/sentiment-main:macropod",
-			"endpoints": ["SENTIMENT_READ_CSV"],
+			"endpoints": ["sentiment-read-csv"],
 			"envs": {},
 			"secrets": {}
 		},
-		"SENTIMENT_PRODUCT_OR_SERVICE": {
+		"sentiment-product-or-service": {
 			"registry": "arearnest7/sentiment-product-or-service:macropod",
-			"endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"],
+			"endpoints": ["sentiment-cfail", "sentiment-product-sentiment", "sentiment-service-sentiment"],
 			"envs": {},
 			"secrets": {}
 		},
-		"SENTIMENT_PRODUCT_RESULT": {
+		"sentiment-product-result": {
 			"registry": "arearnest7/sentiment-product-result:macropod",
-			"endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"],
+			"endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"],
 			"envs": {},
 			"secrets": {}
 		},
-		"SENTIMENT_PRODUCT_SENTIMENT": {
+		"sentiment-product-sentiment": {
 			"registry": "arearnest7/sentiment-product-sentiment:macropod",
-			"endpoints": ["SENTIMENT_PRODUCT_RESULT"],
+			"endpoints": ["sentiment-product-result"],
 			"envs": {},
 			"secrets": {}
 		},
-		"SENTIMENT_READ_CSV": {
+		"sentiment-read-csv": {
 			"registry": "arearnest7/sentiment-read-csv:macropod",
-			"endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
+			"endpoints": ["sentiment-product-or-service"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
-		"SENTIMENT_SERVICE_RESULT": {
+		"sentiment-service-result": {
 			"registry": "arearnest7/sentiment-service-results:macropod",
-			"endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"],
+			"endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"],
 			"envs": {},
 			"secrets": {}
 		},
-		"SENTIMENT_SERVICE_SENTIMENT": {
+		"sentiment-service-sentiment": {
 			"registry": "arearnest7/sentiment-service-sentiment:macropod",
-			"endpoints": ["SENTIMENT_SERVICE_RESULT"],
+			"endpoints": ["sentiment-service-result"],
 			"envs": {},
 			"secrets": {}
 		},
-		"SENTIMENT_SFAIL": {
+		"sentiment-sfail": {
 			"registry": "arearnest7/sentiment-sfail:macropod",
 			"endpoints": [],
 			"envs": {},
 			"secrets": {}
 		},
-		"SENTIMENT_SNS": {
+		"sentiment-sns": {
 			"registry": "arearnest7/sentiment-sns:macropod",
-			"endpoints": ["SENTIMENT_DB"],
+			"endpoints": ["sentiment-db"],
 			"envs": {},
 			"secrets": {}
 		}
 	}
 }
+
+sentiment-main sentiment-read-csv sentiment-product-or-service sentiment-cfail sentiment-product-sentiment sentiment-service-sentiment sentiment-product-result sentiment-service-result sentiment-sfail sentiment-sns sentiment-db
+
+
+curl -X POST -H "Content-Type: application/json" -d @sentiment.json http://localhost:8083/create/sentiment
+
+
+
+curl -X POST -H "Content-Type: application/json" -d @sentiment_payload.json  http://localhost:8083/invoke/sentiment
+[sentiment-main sentiment-read-csv sentiment-product-or-service sentiment-cfail sentiment-product-sentiment sentiment-service-sentiment sentiment-product-result sentiment-service-result sentiment-sfail sentiment-sns sentiment-db]

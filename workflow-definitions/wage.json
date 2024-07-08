@@ -1,53 +1,76 @@
 {
 	"workflow": "wage",
 	"functions": {
-		"WAGE_AVG": {
+		"wage-avg": {
 			"registry": "arearnest7/wage-avg:macropod",
-			"endpoints": ["WAGE_MERIT"],
+			"endpoints": ["wage-merit"],
 			"envs": {},
 			"secrets": {}
 		},
-		"WAGE_FORMAT": {
+		"wage-format": {
 			"registry": "arearnest7/wage-format:macropod",
-			"endpoints": ["WAGE_WRITE_RAW"],
+			"endpoints": ["wage-write-raw"],
 			"envs": {},
 			"secrets": {}
 		},
-		"WAGE_MERIT": {
+		"wage-merit": {
 			"registry": "arearnest7/wage-merit:macropod",
-			"endpoints": ["WAGE_WRITE_MERIT"],
+			"endpoints": ["wage-write-merit"],
 			"envs": {},
 			"secrets": {}
 		},
-		"WAGE_STATS": {
+		"wage-stats": {
 			"registry": "arearnest7/wage-stats:macropod",
-			"endpoints": ["WAGE_SUM"],
+			"endpoints": ["wage-sum"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
-		"WAGE_SUM": {
+		"wage-sum": {
 			"registry": "arearnest7/wage-sum:macropod",
-			"endpoints": ["WAGE_AVG"],
+			"endpoints": ["wage-avg"],
 			"envs": {},
 			"secrets": {}
 		},
-		"WAGE_VALIDATOR": {
+		"wage-validator": {
 			"registry": "arearnest7/wage-validator:macropod",
-			"endpoints": ["WAGE_FORMAT"],
+			"endpoints": ["wage-format"],
 			"envs": {},
 			"secrets": {}
 		},
-		"WAGE_WRITE_MERIT": {
+		"wage-write-merit": {
 			"registry": "arearnest7/wage-write-merit:macropod",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
-		"WAGE_WRITE_RAW": {
+		"wage-write-raw": {
 			"registry": "arearnest7/wage-write-raw:macropod",
-			"endpoints": ["WAGE_STATS"],
+			"endpoints": ["wage-stats"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		}
 	}
 }
+
+
+curl -X POST -H "Content-Type: application/json" -d @wage.json http://localhost:8082/create/wage
+
+curl -X POST -H "Content-Type: application/json" -d @wage_payload.json  http://localhost:8082/invoke/wage
+
+
+
+hey -n 100 -c 20 -t 60 -m POST -H "Content-Type: application/json"  -d @wage_payload.json http://localhost:8082/invoke/wage
+
+[wage-validator wage-format wage-write-raw wage-stats wage-sum wage-avg wage-merit wage-write-merit]
+
+
+
+
+
+curl -X POST -H "Content-Type: application/json" -d @nginx.json http://localhost:8082/create/nginx
+
+curl -X POST -H "Content-Type: application/json" -d @nginx.json http://localhost:8082/update/nginx
+hey -n 120 -c 12 -t 0 http://localhost:8082/invoke/nginx
+
+
+curl http://localhost:8082/delete/nginx

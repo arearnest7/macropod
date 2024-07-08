@@ -1,35 +1,48 @@
 {
 	"workflow": "feature",
 	"functions": {
-		"FEATURE_EXTRACTOR": {
+		"feature-extractor": {
 			"registry": "arearnest7/feature-extractor:macropod",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
-		"FEATURE_ORCHESTRATOR": {
+		"feature-orchestrator": {
 			"registry": "arearnest7/feature-orchestrator:macropod",
-			"endpoints": ["FEATURE_EXTRACTOR", "FEATURE_WAIT"],
+			"endpoints": ["feature-extractor", "feature-wait"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
-		"FEATURE_REDUCER": {
+		"feature-reducer": {
 			"registry": "arearnest7/feature-reducer:macropod",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
-		"FEATURE_STATUS": {
+		"feature-status": {
 			"registry": "arearnest7/feature-status:macropod",
-			"endpoints": ["FEATURE_REDUCER"],
+			"endpoints": ["feature-reducer"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
-		"FEATURE_WAIT": {
+		"feature-wait": {
 			"registry": "arearnest7/feature-wait:macropod",
-			"endpoints": ["FEATURE_STATUS"],
+			"endpoints": ["feature-status"],
 			"envs": {},
 			"secrets": {}
 		}
 	}
 }
+
+
+curl -X POST -H "Content-Type: application/json" -d @feature.json http://localhost:8082/create/feature
+
+curl -X POST -H "Content-Type: application/json" -d @feature_payload.json  http://localhost:8082/invoke/feature
+
+
+
+hey -n 40 -c 4 -t 180 -m POST -H "Content-Type: application/json"  -d @feature_payload.json http://localhost:8083/invoke/feature
+
+
+
+[feature-orchestrator feature-extractor feature-wait feature-status feature-reducer]

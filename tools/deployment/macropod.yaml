@@ -8,8 +8,6 @@ spec:
   ports:
   - port: 80
     targetPort: 8080
-  type: LoadBalancer
-  clusterIP: 10.43.190.1
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -28,9 +26,9 @@ kind: ClusterRole
 metadata:
   name: macropod-role
 rules:
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingresses"]
-  verbs: ["get", "list", "watch"]
+- apiGroups: ["*"] #adding more permission because deployer is making resources as well 
+  resources: ["*"]
+  verbs: ["*"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -50,7 +48,6 @@ kind: Deployment
 metadata:
   name: macropod-service
 spec:
-  serviceAccountName: macropod-service-account
   selector:
     matchLabels:
       app: macropod
@@ -60,9 +57,10 @@ spec:
       labels:
         app: macropod
     spec:
+      serviceAccountName: macropod-service-account
       containers:
       - name: macropod-ingress
-        image: arearnest7/macropod-ingress:latest
+        image: vasu1711/blue-green:ingress2
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -70,11 +68,11 @@ spec:
         - name: SERVICE_PORT
           value: "8080"
         - name: TTL
-          value: "180"
+          value: "900"
         - name: DEP_CONTROLLER_ADD
           value: "127.0.0.1:8081"
       - name: macropod-deployer
-        image: arearnest7/macropod-deployer:latest
+        image: vasu1711/blue-green:deployer1
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
@@ -88,8 +86,13 @@ spec:
         - name: CPU_THRESHOLD_2
           value: "300"
         - name: MEM_THRESHOLD_1
-          value: "100000000"
+          value: "100000"
         - name: MEM_THRESHOLD_2
           value: "10000000000"
         - name: UPDATE_THRESHOLD
           value: "5"
+      - name: prepuller
+        image: vasu1711/prepuller:2
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5003

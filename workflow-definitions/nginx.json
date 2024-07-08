@@ -1,0 +1,11 @@
+{
+	"workflow": "nginx",
+	"functions": {
+		"nginx": {
+			"registry": "nginx:latest",
+			"endpoints": [],
+			"envs": {},
+			"secrets": {}
+		}
+	}
+}
