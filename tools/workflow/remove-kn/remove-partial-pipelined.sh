@@ -1,6 +1,6 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-checksum-partial
-kn func delete -p ../../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-encrypt-partial
-kn func delete -p ../../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-main-partial
-kn func delete -p ../../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-zip-partial
+kubectl delete -f ../kn/yamls/pipelined-checksum-partial.yaml
+kubectl delete -f ../kn/yamls/pipelined-encrypt-partial.yaml
+kubectl delete -f ../kn/yamls/pipelined-main-partial.yaml
+kubectl delete -f ../kn/yamls/pipelined-zip-partial.yaml
 

@@ -39,7 +39,7 @@ func FunctionHandler(res http.ResponseWriter, req RequestBody, content_type stri
         workflow_depth := body_u.WorkflowDepth
         workflow_width := body_u.WorkflowWidth
         body_u.WorkflowDepth += 1
-	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "3" + "\n")
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "3")
 	requestURL := ""
 	if body_u.Request == "search" {
 		requestURL = os.Getenv("HOTEL_SEARCH")
@@ -58,12 +58,12 @@ func FunctionHandler(res http.ResponseWriter, req RequestBody, content_type stri
         }
 	req_url.Header.Add("Content-Type", "application/json")
 	client := &http.Client{}
-	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "4" + "\n")
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "4")
         ret, err := client.Do(req_url)
-	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "5" + "\n")
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "5")
         retBody, err := ioutil.ReadAll(ret.Body)
         ret_val, err := json.Marshal(retBody)
-	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "6" + "\n")
+	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + workflow_id + "," + strconv.Itoa(workflow_depth) + "," + strconv.Itoa(workflow_width) + "," + "HTTP" + "," + "6")
 	fmt.Fprintf(res, string(ret_val)) // echo to caller
 }
 

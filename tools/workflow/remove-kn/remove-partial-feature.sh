@@ -1,4 +1,4 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/partial-reduced/feature-generation/feature-extractor-partial
-kn func delete -p ../../../benchmarks/$1/partial-reduced/feature-generation/feature-orchestrator-wsr
+kubectl delete -f ../kn/yamls/feature-extractor-partial.yaml
+kubectl delete -f ../kn/yamls/feature-orchestrator-wsr.yaml
 

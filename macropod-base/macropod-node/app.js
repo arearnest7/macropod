@@ -7,7 +7,7 @@ const fs = require('fs');
 const func = require('./func');
 const protoLoader = require('@grpc/proto-loader');
 var packageDefinition = protoLoader.loadSync(
-  "./app.proto",
+  "./wf.proto",
   { keepCase: true,
     longs: String,
     enums: String,
@@ -19,7 +19,7 @@ app.use(express.json());
 
 app.get('/', async (req, res) => {
   var workflow_id = Math.floor(Math.random() * 10000000).toString();
-  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "0" + "\n");
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "0");
   var request_type = "gg";
   if ("APP_PV" in process.env) {
     request_type = "gm";
@@ -38,24 +38,24 @@ app.get('/', async (req, res) => {
   if (req.header("Content-Type") == "application/json") {
     ctx.WorkflowId = workflow_id;
     ctx.IsJson = true;
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1");
     [reply, code] = await func.FunctionHandler(ctx);
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2");
     res.send(reply);
   }
   else {
     ctx.WorkflowId = workflow_id;
     ctx.IsJson = false;
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1");
     [reply, code] = await func.FunctionHandler(ctx);
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2");
     res.send(reply);
   }
 })
 
 app.post('/', async (req, res) => {
   var workflow_id = Math.floor(Math.random() * 10000000).toString();
-  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "0" + "\n");
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "0");
   var request_type = "gg";
   if ("APP_PV" in process.env) {
     request_type = "gm";
@@ -74,17 +74,17 @@ app.post('/', async (req, res) => {
   if (req.header("Content-Type") == "application/json") {
     ctx.WorkflowId = workflow_id;
     ctx.IsJson = true;
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1");
     [reply, code] = await func.FunctionHandler(ctx);
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2");
     res.send(reply);
   }
   else {
     ctx.WorkflowId = workflow_id;
     ctx.IsJson = false;
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "1");
     [reply, code] = await func.FunctionHandler(ctx);
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + "0" + "," + "0" + "," + "HTTP" + "," + "2");
     res.send(reply);
   }
 })
@@ -108,22 +108,22 @@ async function invoke(request) {
     InvokeType: "GRPC",
     IsJson: false
   };
-  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "0" + "\n");
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "0");
   if (request_type == "" || request_type == "gg") {
     ctx.Request = data;
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "1" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "1");
     [reply_t, code_t] = await func.FunctionHandler(ctx);
   }
   else if (request_type == "mg") {
     var req = fs.readFileSync(process.env.APP_PV + "/" + path);
     ctx.Request = req;
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "1" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "1");
     [reply_t, code_t] = await func.FunctionHandler(ctx);
   }
   else if (request_type == "gm") {
     ctx.Request = data;
     var payload = "";
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "1" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "1");
     [payload, code_t] = await func.FunctionHandler(ctx);
     pv_path_t = workflow_id + "_" + depth.toString() + "_" + width.toString() + "_" + Math.floor(Math.random() * 10000000).toString();
     fs.writeFileSync(process.env.APP_PV + "/" + pv_path_t, payload);
@@ -132,12 +132,12 @@ async function invoke(request) {
     var req = fs.readFileSync(process.env.APP_PV + "/" + path);
     ctx.Request = req;
     var payload = "";
-    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "1" + "\n");
+    await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "1");
     [payload, code_t] = await func.FunctionHandler(ctx);
     pv_path_t = workflow_id + "_" + depth.toString() + "_" + width.toString() + "_" + Math.floor(Math.random() * 10000000).toString();
     fs.writeFileSync(process.env.APP_PV + "/" + pv_path_t, payload);
   }
-  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "2" + "\n");
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + depth.toString() + "," + width.toString() + "," + request_type + "," + "2");
   var res = {reply: reply_t, code: code_t, pv_path: pv_path_t};
   return res;
 }

@@ -1,35 +1,35 @@
 {
-        "workflow": "feature",
-        "functions": {
+	"workflow": "feature",
+	"functions": {
 		"FEATURE_EXTRACTOR": {
 			"registry": "arearnest7/feature-extractor:macropod",
-                        "endpoints": [],
-                        "envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
-                        "secrets": {}
+			"endpoints": [],
+			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+			"secrets": {}
 		},
 		"FEATURE_ORCHESTRATOR": {
 			"registry": "arearnest7/feature-orchestrator:macropod",
-                        "endpoints": ["FEATURE_EXTRACTOR", "FEATURE_WAIT"],
-                        "envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
-                        "secrets": {}
+			"endpoints": ["FEATURE_EXTRACTOR", "FEATURE_WAIT"],
+			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+			"secrets": {}
 		},
 		"FEATURE_REDUCER": {
 			"registry": "arearnest7/feature-reducer:macropod",
-                        "endpoints": [],
-                        "envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
-                        "secrets": {}
+			"endpoints": [],
+			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+			"secrets": {}
 		},
 		"FEATURE_STATUS": {
 			"registry": "arearnest7/feature-status:macropod",
-                        "endpoints": ["FEATURE_REDUCER"],
-                        "envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
-                        "secrets": {}
+			"endpoints": ["FEATURE_REDUCER"],
+			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+			"secrets": {}
 		},
 		"FEATURE_WAIT": {
 			"registry": "arearnest7/feature-wait:macropod",
-                        "endpoints": ["FEATURE_STATUS"],
-                        "envs": {},
-                        "secrets": {}
+			"endpoints": ["FEATURE_STATUS"],
+			"envs": {},
+			"secrets": {}
 		}
-        }
+	}
 }

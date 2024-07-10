@@ -1,4 +1,4 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/original/video-analytics/video-streaming
-kn func delete -p ../../../benchmarks/$1/original/video-analytics/video-decoder
-kn func delete -p ../../../benchmarks/$1/original/video-analytics/video-recog
+kubectl delete -f ../kn/yamls/video-streaming.yaml
+kubectl delete -f ../kn/yamls/video-decoder.yaml
+kubectl delete -f ../kn/yamls/video-recog.yaml

@@ -3,7 +3,7 @@ name: election-vote-enqueuer
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-vote-enqueuer:kn
-imageDigest: sha256:8746150fe780d1c7238912a59c26f415473fb180b244a2a844bd7927416f60e9
+imageDigest: sha256:76a3e6345920d5ffa446c04cd52ec14fbcf6fb61e36e659cbce828a8482d816e
 created: 2023-10-10T14:56:57.264364766-05:00
 build:
   builder: pack

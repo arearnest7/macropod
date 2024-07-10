@@ -8,8 +8,8 @@ import subprocess
 import datetime
 import grpc
 import mmap
-import app_pb2 as pb
-import app_pb2_grpc as pb_grpc
+import wf_pb2 as pb
+import wf_pb2_grpc as pb_grpc
 from func import FunctionHandler
 
 app = Flask(__name__)

@@ -1,91 +1,146 @@
 #!/bin/bash
-kn func deploy --build=true --push=true --path ../../../benchmarks/micro/micro-rpc-a
-kn func deploy --build=true --push=true --path ../../../benchmarks/micro/micro-rpc-b
-kn func deploy --build=true --push=true --path ../../../benchmarks/micro/micro-rpc-a-b
-kn func delete micro-rpc-a
-kn func delete micro-rpc-b
-kn func delete micro-rpc-a-b
-../kn/deploy-full-election.sh kn true true
-../remove-kn/remove-full-election.sh kn
-../kn/deploy-full-feature.sh kn true true
-../remove-kn/remove-full-feature.sh kn
-../kn/deploy-full-hotel.sh kn true true
-../remove-kn/remove-full-hotel.sh kn
-../kn/deploy-full-pipelined.sh kn true true
-../remove-kn/remove-full-pipelined.sh kn
-../kn/deploy-full-sentiment.sh kn true true
-../remove-kn/remove-full-sentiment.sh kn
-../kn/deploy-full-video.sh kn true true
-../remove-kn/remove-full-video.sh kn
-../kn/deploy-full-wage.sh kn true true
-../remove-kn/remove-full-wage.sh kn
-../kn/deploy-original-election.sh kn true true
-../remove-kn/remove-original-election.sh kn
-../kn/deploy-original-feature.sh kn true true
-../remove-kn/remove-original-feature.sh kn
-../kn/deploy-original-hotel.sh kn true true
-../remove-kn/remove-original-hotel.sh kn
-../kn/deploy-original-pipelined.sh kn true true
-../remove-kn/remove-original-pipelined.sh kn
-../kn/deploy-original-sentiment.sh kn true true
-../remove-kn/remove-original-sentiment.sh kn
-../kn/deploy-original-video.sh kn true true
-../remove-kn/remove-original-video.sh kn
-../kn/deploy-original-wage.sh kn true true
-../remove-kn/remove-original-wage.sh kn
-../kn/deploy-partial-election.sh kn true true
-../remove-kn/remove-partial-election.sh kn
-../kn/deploy-partial-feature.sh kn true true
-../remove-kn/remove-partial-feature.sh kn
-../kn/deploy-partial-hotel.sh kn true true
-../remove-kn/remove-partial-hotel.sh kn
-../kn/deploy-partial-pipelined.sh kn true true
-../remove-kn/remove-partial-pipelined.sh kn
-../kn/deploy-partial-sentiment.sh kn true true
-../remove-kn/remove-partial-sentiment.sh kn
-../kn/deploy-partial-video.sh kn true true
-../remove-kn/remove-partial-video.sh kn
-../kn/deploy-partial-wage.sh kn true true
-../remove-kn/remove-partial-wage.sh kn
-../kn/deploy-full-election.sh wob true true
-../remove-kn/remove-full-election.sh wob
-../kn/deploy-full-feature.sh wob true true
-../remove-kn/remove-full-feature.sh wob
-../kn/deploy-full-hotel.sh wob true true
-../remove-kn/remove-full-hotel.sh wob
-../kn/deploy-full-pipelined.sh wob true true
-../remove-kn/remove-full-pipelined.sh wob
-../kn/deploy-full-sentiment.sh wob true true
-../remove-kn/remove-full-sentiment.sh wob
-../kn/deploy-full-video.sh wob true true
-../remove-kn/remove-full-video.sh wob
-../kn/deploy-full-wage.sh wob true true
-../remove-kn/remove-full-wage.sh wob
-../kn/deploy-original-election.sh wob true true
-../remove-kn/remove-original-election.sh wob
-../kn/deploy-original-feature.sh wob true true
-../remove-kn/remove-original-feature.sh wob
-../kn/deploy-original-hotel.sh wob true true
-../remove-kn/remove-original-hotel.sh wob
-../kn/deploy-original-pipelined.sh wob true true
-../remove-kn/remove-original-pipelined.sh wob
-../kn/deploy-original-sentiment.sh wob true true
-../remove-kn/remove-original-sentiment.sh wob
-../kn/deploy-original-video.sh wob true true
-../remove-kn/remove-original-video.sh wob
-../kn/deploy-original-wage.sh wob true true
-../remove-kn/remove-original-wage.sh wob
-../kn/deploy-partial-election.sh wob true true
-../remove-kn/remove-partial-election.sh wob
-../kn/deploy-partial-feature.sh wob true true
-../remove-kn/remove-partial-feature.sh wob
-../kn/deploy-partial-hotel.sh wob true true
-../remove-kn/remove-partial-hotel.sh wob
-../kn/deploy-partial-pipelined.sh wob true true
-../remove-kn/remove-partial-pipelined.sh wob
-../kn/deploy-partial-sentiment.sh wob true true
-../remove-kn/remove-partial-sentiment.sh wob
-../kn/deploy-partial-video.sh wob true true
-../remove-kn/remove-partial-video.sh wob
-../kn/deploy-partial-wage.sh wob true true
-../remove-kn/remove-partial-wage.sh wob
+kn func build --push=true --path ../../../benchmarks/micro/micro-rpc-a
+kn func build --push=true --path ../../../benchmarks/micro/micro-rpc-b
+kn func build --push=true --path ../../../benchmarks/micro/micro-rpc-a-b
+kn func build --push=true --path ../../../benchmarks/kn/full-reduced/feature-generation/feature-full
+kn func build --push=true --path ../../../benchmarks/kn/full-reduced/hotel-app/hotel-full
+kn func build --push=true --path ../../../benchmarks/kn/full-reduced/pipelined-processing/pipelined-full
+kn func build --push=true --path ../../../benchmarks/kn/full-reduced/sentiment-analysis/sentiment-full
+kn func build --push=true --path ../../../benchmarks/kn/full-reduced/serverless-election/election-full
+kn func build --push=true --path ../../../benchmarks/kn/full-reduced/video-analytics/video-full
+kn func build --push=true --path ../../../benchmarks/kn/full-reduced/wage-pay/wage-full
+kn func build --push=true --path ../../../benchmarks/kn/original/feature-generation/feature-extractor
+kn func build --push=true --path ../../../benchmarks/kn/original/feature-generation/feature-orchestrator
+kn func build --push=true --path ../../../benchmarks/kn/original/feature-generation/feature-reducer
+kn func build --push=true --path ../../../benchmarks/kn/original/feature-generation/feature-status
+kn func build --push=true --path ../../../benchmarks/kn/original/feature-generation/feature-wait
+kn func build --push=true --path ../../../benchmarks/kn/original/hotel-app/hotel-frontend
+kn func build --push=true --path ../../../benchmarks/kn/original/hotel-app/hotel-geo
+kn func build --push=true --path ../../../benchmarks/kn/original/hotel-app/hotel-profile
+kn func build --push=true --path ../../../benchmarks/kn/original/hotel-app/hotel-rate
+kn func build --push=true --path ../../../benchmarks/kn/original/hotel-app/hotel-recommend
+kn func build --push=true --path ../../../benchmarks/kn/original/hotel-app/hotel-reserve
+kn func build --push=true --path ../../../benchmarks/kn/original/hotel-app/hotel-search
+kn func build --push=true --path ../../../benchmarks/kn/original/hotel-app/hotel-user
+kn func build --push=true --path ../../../benchmarks/kn/original/pipelined-processing/pipelined-checksum
+kn func build --push=true --path ../../../benchmarks/kn/original/pipelined-processing/pipelined-encrypt
+kn func build --push=true --path ../../../benchmarks/kn/original/pipelined-processing/pipelined-main
+kn func build --push=true --path ../../../benchmarks/kn/original/pipelined-processing/pipelined-zip
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-cfail
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-db
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-main
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-product-or-service
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-product-result
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-product-sentiment
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-read-csv
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-service-result
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-service-sentiment
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-sfail
+kn func build --push=true --path ../../../benchmarks/kn/original/sentiment-analysis/sentiment-sns
+kn func build --push=true --path ../../../benchmarks/kn/original/serverless-election/election-gateway
+kn func build --push=true --path ../../../benchmarks/kn/original/serverless-election/election-get-results
+kn func build --push=true --path ../../../benchmarks/kn/original/serverless-election/election-vote-enqueuer
+kn func build --push=true --path ../../../benchmarks/kn/original/serverless-election/election-vote-processor
+kn func build --push=true --path ../../../benchmarks/kn/original/video-analytics/video-streaming
+kn func build --push=true --path ../../../benchmarks/kn/original/video-analytics/video-decoder
+kn func build --push=true --path ../../../benchmarks/kn/original/video-analytics/video-recog
+kn func build --push=true --path ../../../benchmarks/kn/original/wage-pay/wage-avg
+kn func build --push=true --path ../../../benchmarks/kn/original/wage-pay/wage-format
+kn func build --push=true --path ../../../benchmarks/kn/original/wage-pay/wage-merit
+kn func build --push=true --path ../../../benchmarks/kn/original/wage-pay/wage-stats
+kn func build --push=true --path ../../../benchmarks/kn/original/wage-pay/wage-sum
+kn func build --push=true --path ../../../benchmarks/kn/original/wage-pay/wage-validator
+kn func build --push=true --path ../../../benchmarks/kn/original/wage-pay/wage-write-merit
+kn func build --push=true --path ../../../benchmarks/kn/original/wage-pay/wage-write-raw
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/feature-generation/feature-extractor-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/feature-generation/feature-orchestrator-wsr
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/hotel-app/hotel-frontend-spgr
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/hotel-app/hotel-recommend-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/hotel-app/hotel-reserve-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/hotel-app/hotel-user-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/pipelined-processing/pipelined-checksum-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/pipelined-processing/pipelined-encrypt-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/pipelined-processing/pipelined-main-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/pipelined-processing/pipelined-zip-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/sentiment-analysis/sentiment-db-s
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/sentiment-analysis/sentiment-main-rcposc
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/sentiment-analysis/sentiment-product-sentiment-prs
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/sentiment-analysis/sentiment-service-sentiment-srs
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/serverless-election/election-gateway-vevp
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/serverless-election/election-get-results-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/video-analytics/video-streaming-d
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/video-analytics/video-recog-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/wage-pay/wage-stats-partial
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/wage-pay/wage-sum-amw
+kn func build --push=true --path ../../../benchmarks/kn/partial-reduced/wage-pay/wage-validator-fw
+kn func build --push=true --path ../../../benchmarks/wob/full-reduced/feature-generation/feature-full
+kn func build --push=true --path ../../../benchmarks/wob/full-reduced/hotel-app/hotel-full
+kn func build --push=true --path ../../../benchmarks/wob/full-reduced/pipelined-processing/pipelined-full
+kn func build --push=true --path ../../../benchmarks/wob/full-reduced/sentiment-analysis/sentiment-full
+kn func build --push=true --path ../../../benchmarks/wob/full-reduced/serverless-election/election-full
+kn func build --push=true --path ../../../benchmarks/wob/full-reduced/video-analytics/video-full
+kn func build --push=true --path ../../../benchmarks/wob/full-reduced/wage-pay/wage-full
+kn func build --push=true --path ../../../benchmarks/wob/original/feature-generation/feature-extractor
+kn func build --push=true --path ../../../benchmarks/wob/original/feature-generation/feature-orchestrator
+kn func build --push=true --path ../../../benchmarks/wob/original/feature-generation/feature-reducer
+kn func build --push=true --path ../../../benchmarks/wob/original/feature-generation/feature-status
+kn func build --push=true --path ../../../benchmarks/wob/original/feature-generation/feature-wait
+kn func build --push=true --path ../../../benchmarks/wob/original/hotel-app/hotel-frontend
+kn func build --push=true --path ../../../benchmarks/wob/original/hotel-app/hotel-geo
+kn func build --push=true --path ../../../benchmarks/wob/original/hotel-app/hotel-profile
+kn func build --push=true --path ../../../benchmarks/wob/original/hotel-app/hotel-rate
+kn func build --push=true --path ../../../benchmarks/wob/original/hotel-app/hotel-recommend
+kn func build --push=true --path ../../../benchmarks/wob/original/hotel-app/hotel-reserve
+kn func build --push=true --path ../../../benchmarks/wob/original/hotel-app/hotel-search
+kn func build --push=true --path ../../../benchmarks/wob/original/hotel-app/hotel-user
+kn func build --push=true --path ../../../benchmarks/wob/original/pipelined-processing/pipelined-checksum
+kn func build --push=true --path ../../../benchmarks/wob/original/pipelined-processing/pipelined-encrypt
+kn func build --push=true --path ../../../benchmarks/wob/original/pipelined-processing/pipelined-main
+kn func build --push=true --path ../../../benchmarks/wob/original/pipelined-processing/pipelined-zip
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-cfail
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-db
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-main
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-product-or-service
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-product-result
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-product-sentiment
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-read-csv
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-service-result
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-service-sentiment
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-sfail
+kn func build --push=true --path ../../../benchmarks/wob/original/sentiment-analysis/sentiment-sns
+kn func build --push=true --path ../../../benchmarks/wob/original/serverless-election/election-gateway
+kn func build --push=true --path ../../../benchmarks/wob/original/serverless-election/election-get-results
+kn func build --push=true --path ../../../benchmarks/wob/original/serverless-election/election-vote-enqueuer
+kn func build --push=true --path ../../../benchmarks/wob/original/serverless-election/election-vote-processor
+kn func build --push=true --path ../../../benchmarks/wob/original/video-analytics/video-streaming
+kn func build --push=true --path ../../../benchmarks/wob/original/video-analytics/video-decoder
+kn func build --push=true --path ../../../benchmarks/wob/original/video-analytics/video-recog
+kn func build --push=true --path ../../../benchmarks/wob/original/wage-pay/wage-avg
+kn func build --push=true --path ../../../benchmarks/wob/original/wage-pay/wage-format
+kn func build --push=true --path ../../../benchmarks/wob/original/wage-pay/wage-merit
+kn func build --push=true --path ../../../benchmarks/wob/original/wage-pay/wage-stats
+kn func build --push=true --path ../../../benchmarks/wob/original/wage-pay/wage-sum
+kn func build --push=true --path ../../../benchmarks/wob/original/wage-pay/wage-validator
+kn func build --push=true --path ../../../benchmarks/wob/original/wage-pay/wage-write-merit
+kn func build --push=true --path ../../../benchmarks/wob/original/wage-pay/wage-write-raw
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/feature-generation/feature-extractor-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/feature-generation/feature-orchestrator-wsr
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/hotel-app/hotel-frontend-spgr
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/hotel-app/hotel-recommend-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/hotel-app/hotel-reserve-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/hotel-app/hotel-user-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/pipelined-processing/pipelined-checksum-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/pipelined-processing/pipelined-encrypt-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/pipelined-processing/pipelined-main-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/pipelined-processing/pipelined-zip-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/sentiment-analysis/sentiment-db-s
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/sentiment-analysis/sentiment-main-rcposc
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/sentiment-analysis/sentiment-product-sentiment-prs
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/sentiment-analysis/sentiment-service-sentiment-srs
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/serverless-election/election-gateway-vevp
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/serverless-election/election-get-results-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/video-analytics/video-streaming-d
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/video-analytics/video-recog-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/wage-pay/wage-stats-partial
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/wage-pay/wage-sum-amw
+kn func build --push=true --path ../../../benchmarks/wob/partial-reduced/wage-pay/wage-validator-fw

@@ -3,7 +3,7 @@ name: pipelined-encrypt
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-encrypt:wob
-imageDigest: sha256:bbdee2d172d557eaff095b24bbb1b3367dbf6d0ae3a2bfbee572f63722ebb663
+imageDigest: sha256:c6b2071390f6e0072d4aa2f50cf5a134249b4c6a231c341d644704fe234ff2f3
 created: 2023-12-03T20:55:12.172495531-06:00
 build:
   builder: pack

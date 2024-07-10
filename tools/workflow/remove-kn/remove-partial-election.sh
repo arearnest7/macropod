@@ -1,3 +1,3 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/partial-reduced/serverless-election/election-gateway-vevp
-kn func delete -p ../../../benchmarks/$1/partial-reduced/serverless-election/election-get-results-partial
+kubectl delete -f ../kn/yamls/election-gateway-vevp.yaml
+kubectl delete -f ../kn/yamls/election-get-results-partial.yaml

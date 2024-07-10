@@ -4,8 +4,8 @@ import random
 import datetime
 import grpc
 import mmap
-import app_pb2 as pb
-import app_pb2_grpc as pb_grpc
+import wf_pb2 as pb
+import wf_pb2_grpc as pb_grpc
 
 MAX_MESSAGE_LENGTH = 1024 * 1024 * 200
 opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_message_length", MAX_MESSAGE_LENGTH)]

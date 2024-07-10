@@ -1,8 +1,6 @@
 #!/bin/bash
-BUILD=${2:-false}
-PUSH=${3:-false}
-kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-checksum-partial
-kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-encrypt-partial
-kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-main-partial
-kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/partial-reduced/pipelined-processing/pipelined-zip-partial
+kubectl apply -f ./yamls/pipelined-checksum-partial.yaml
+kubectl apply -f ./yamls/pipelined-encrypt-partial.yaml
+kubectl apply -f ./yamls/pipelined-main-partial.yaml
+kubectl apply -f ./yamls/pipelined-zip-partial.yaml
 

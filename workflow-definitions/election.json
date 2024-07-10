@@ -9,21 +9,21 @@
 		},
 		"ELECTION_GET_RESULTS": {
 			"registry": "arearnest7/election-get-results:macropod",
-                        "endpoints": [],
-                        "envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
-                        "secrets": {}
+			"endpoints": [],
+			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+			"secrets": {}
 		},
 		"ELECTION_VOTE_ENQUEUER": {
 			"registry": "arearnest7/election-vote-enqueuer:macropod",
-                        "endpoints": ["ELECTION_VOTE_PROCESSOR"],
-                        "envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
-                        "secrets": {}
+			"endpoints": ["ELECTION_VOTE_PROCESSOR"],
+			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+			"secrets": {}
 		},
 		"ELECTION_VOTE_PROCESSOR": {
 			"registry": "arearnest7/election-vote-processor:macropod",
-                        "endpoints": [],
-                        "envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
-                        "secrets": {}
+			"endpoints": [],
+			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+			"secrets": {}
 		}
 	}
 }

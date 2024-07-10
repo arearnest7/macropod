@@ -3,7 +3,7 @@ name: sentiment-read-csv
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-read-csv:wob
-imageDigest: sha256:554dc80611c823fa8b36e6b89e9e7031da614ff94d7aa0c519fedc526bfef105
+imageDigest: sha256:d7848b809f6a8dc6f96d71df36759ec14457337be38eafe2e6541010d688b009
 created: 2023-12-03T21:00:37.907039642-06:00
 build:
   builder: pack
