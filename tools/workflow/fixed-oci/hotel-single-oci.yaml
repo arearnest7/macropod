@@ -30,7 +30,6 @@ spec:
       containers:
       - name: hotel-frontend
         image: arearnest7/hotel-frontend:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -46,7 +45,6 @@ spec:
             value: http://127.0.0.1:5004
       - name: hotel-search
         image: arearnest7/hotel-search:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5001
         env:
@@ -58,7 +56,6 @@ spec:
             value: http://127.0.0.1:5007
       - name: hotel-recommend
         image: arearnest7/hotel-recommend:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5002
         env:
@@ -66,7 +63,6 @@ spec:
             value: "5002"
       - name: hotel-reserve
         image: arearnest7/hotel-reserve:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5003
         env:
@@ -74,7 +70,6 @@ spec:
             value: "5003"
       - name: hotel-user
         image: arearnest7/hotel-user:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5004
         env:
@@ -82,7 +77,6 @@ spec:
             value: "5004"
       - name: hotel-geo
         image: arearnest7/hotel-geo:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5005
         env:
@@ -90,7 +84,6 @@ spec:
             value: "5005"
       - name: hotel-profile
         image: arearnest7/hotel-profile:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5006
         env:
@@ -98,7 +91,6 @@ spec:
             value: "5006"
       - name: hotel-rate
         image: arearnest7/hotel-rate:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5007
         env:

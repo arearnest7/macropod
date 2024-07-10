@@ -1,3 +1,3 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/partial-reduced/video-analytics/video-streaming-d
-kn func delete -p ../../../benchmarks/$1/partial-reduced/video-analytics/video-recog-partial
+kubectl delete -f ../kn/yamls/video-streaming-d.yaml
+kubectl delete -f ../kn/yamls/video-recog-partial.yaml

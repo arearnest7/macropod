@@ -11,7 +11,7 @@ import (
 
 func main() {
     if len(os.Args) <= 3 {
-        fmt.Println("go run process-latency [N] [results.csv] [file1] ... [filen]")
+        fmt.Println("go run process-latency [N] [results.csv] [directory] [file1] ... [filen]")
     } else {
         n, _ := strconv.Atoi(os.Args[1])
         var file_names []string
@@ -20,7 +20,8 @@ func main() {
         defer r.Close()
         results := csv.NewWriter(r)
         defer results.Flush()
-        for _, file_name := range os.Args[3:] {
+        directory := os.Args[3]
+        for _, file_name := range os.Args[4:] {
             _, f := filepath.Split(file_name)
             idx := strings.Index(f, ".")
             file_names = append(file_names, file_name)
@@ -29,7 +30,7 @@ func main() {
         results.Write(file_names_stripped)
         var records [][][]string
         for _, file_name := range file_names {
-            file, _ := os.Open(file_name)
+            file, _ := os.Open(directory + "/" + file_name)
             reader := csv.NewReader(file)
             record, _ := reader.ReadAll()
             records = append(records, record)

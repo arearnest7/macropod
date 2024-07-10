@@ -3,7 +3,7 @@ name: feature-orchestrator-wsr
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-orchestrator-wsr:kn
-imageDigest: sha256:17e35017179669bb7d11624aee3fea7fddf554b95c7404fbe0045c8051760502
+imageDigest: sha256:01ce35e04277d1446352de8941c50ce084c0f26494f7a7161e7b2c7a7f28bc67
 created: 2023-12-03T21:19:25.926672298-06:00
 build:
   builder: pack

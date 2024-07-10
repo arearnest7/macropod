@@ -95,7 +95,6 @@ spec:
       containers:
       - name: pipelined-main
         image: arearnest7/pipelined-main:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -129,7 +128,6 @@ spec:
       containers:
       - name: pipelined-main-2
         image: arearnest7/pipelined-main:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -163,7 +161,6 @@ spec:
       containers:
       - name: pipelined-main-3
         image: arearnest7/pipelined-main:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -197,7 +194,6 @@ spec:
       containers:
       - name: pipelined-checksum
         image: arearnest7/pipelined-checksum:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -223,7 +219,6 @@ spec:
       containers:
       - name: pipelined-zip
         image: arearnest7/pipelined-zip:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -249,7 +244,6 @@ spec:
       containers:
       - name: pipelined-encrypt
         image: arearnest7/pipelined-encrypt:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

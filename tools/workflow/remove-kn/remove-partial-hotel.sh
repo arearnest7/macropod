@@ -1,5 +1,5 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/partial-reduced/hotel-app/hotel-frontend-spgr
-kn func delete -p ../../../benchmarks/$1/partial-reduced/hotel-app/hotel-recommend-partial
-kn func delete -p ../../../benchmarks/$1/partial-reduced/hotel-app/hotel-reserve-partial
-kn func delete -p ../../../benchmarks/$1/partial-reduced/hotel-app/hotel-user-partial
+kubectl delete -f ../kn/yamls/hotel-frontend-spgr.yaml
+kubectl delete -f ../kn/yamls/hotel-recommend-partial.yaml
+kubectl delete -f ../kn/yamls/hotel-reserve-partial.yaml
+kubectl delete -f ../kn/yamls/hotel-user-partial.yaml

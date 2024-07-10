@@ -34,7 +34,6 @@ spec:
       containers:
       - name: sentiment-main
         image: arearnest7/sentiment-main:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -55,7 +54,6 @@ spec:
             value: 127.0.0.1:5001
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5001
         volumeMounts:
@@ -78,7 +76,6 @@ spec:
             value: 127.0.0.1:5002
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5002
         volumeMounts:
@@ -105,7 +102,6 @@ spec:
             value: 127.0.0.1:5009
       - name: sentiment-cfail
         image: arearnest7/sentiment-cfail:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5003
         volumeMounts:
@@ -122,7 +118,6 @@ spec:
             value: "/macropod-pv"
       - name: sentiment-product-sentiment
         image: arearnest7/sentiment-product-sentiment:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5004
         volumeMounts:
@@ -145,7 +140,6 @@ spec:
             value: 127.0.0.1:5005
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5005
         volumeMounts:
@@ -172,7 +166,6 @@ spec:
             value: 127.0.0.1:5008
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5006
         volumeMounts:
@@ -189,7 +182,6 @@ spec:
             value: "/macropod-pv"
       - name: sentiment-sns
         image: arearnest7/sentiment-sns:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5007
         volumeMounts:
@@ -212,7 +204,6 @@ spec:
             value: 127.0.0.1:5008
       - name: sentiment-db
         image: arearnest7/sentiment-db:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5008
         volumeMounts:
@@ -229,7 +220,6 @@ spec:
             value: "/macropod-pv"
       - name: sentiment-service-sentiment
         image: arearnest7/sentiment-service-sentiment:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5009
         volumeMounts:
@@ -252,7 +242,6 @@ spec:
             value: 127.0.0.1:5010
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5010
         volumeMounts:

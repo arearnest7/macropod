@@ -1,2 +1,2 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/full-reduced/video-analytics/video-full
+kubectl delete -f ../kn/yamls/video-full.yaml

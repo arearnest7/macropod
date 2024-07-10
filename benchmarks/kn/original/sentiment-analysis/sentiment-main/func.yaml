@@ -3,7 +3,7 @@ name: sentiment-main
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-main:kn
-imageDigest: sha256:e69c2a3b897851f7c091d476d19f1d33c64d7fb089e5232d3dd37607c9aaaad0
+imageDigest: sha256:819ca07640c2e5bb2df40f4ce8715829cd0477988e1af292c9ff7333ae328827
 created: 2023-12-03T21:00:08.460071908-06:00
 build:
   builder: pack

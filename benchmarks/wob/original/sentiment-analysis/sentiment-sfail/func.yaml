@@ -3,7 +3,7 @@ name: sentiment-sfail
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-sfail:wob
-imageDigest: sha256:c456188452822f6daae87d46b3f44c917f8b0c1acffa6ed5fc468afae9b2d81a
+imageDigest: sha256:da2eb48c11bd0ee16b4c55a2040410507d74c36241eec440fcb6e3153c6fb24e
 created: 2023-12-03T21:00:55.27390088-06:00
 build:
   builder: pack

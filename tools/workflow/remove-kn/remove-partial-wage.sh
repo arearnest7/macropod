@@ -1,4 +1,5 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/partial-reduced/wage-pay/wage-stats-partial
-kn func delete -p ../../../benchmarks/$1/partial-reduced/wage-pay/wage-sum-amw
-kn func delete -p ../../../benchmarks/$1/partial-reduced/wage-pay/wage-validator-fw
+kubectl delete -f ../kn/yamls/wage-stats-partial.yaml
+kubectl delete -f ../kn/yamls/wage-sum-amw.yaml
+kubectl delete -f ../kn/yamls/wage-validator-fw.yaml
+

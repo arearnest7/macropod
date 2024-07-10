@@ -3,7 +3,7 @@ name: feature-status
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/feature-status:kn
-imageDigest: sha256:d2a23b0c7db2793d713d4eb138f5d58dc47b9c2b508492e7439a96f0c38b2340
+imageDigest: sha256:68021be0d909c4d3788bcfebb3d1f0a8d2fc815d5454ee2c08f08dac70435d3e
 created: 2023-12-03T20:51:11.858374137-06:00
 build:
   builder: pack

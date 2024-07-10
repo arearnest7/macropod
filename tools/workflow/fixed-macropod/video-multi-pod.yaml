@@ -56,7 +56,6 @@ spec:
       containers:
       - name: video-streaming
         image: arearnest7/video-streaming:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -88,7 +87,6 @@ spec:
       containers:
       - name: video-decoder
         image: arearnest7/video-decoder:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -120,7 +118,6 @@ spec:
       containers:
       - name: video-recog
         image: arearnest7/video-recog:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

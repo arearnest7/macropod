@@ -1,10 +1,10 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/original/wage-pay/wage-avg
-kn func delete -p ../../../benchmarks/$1/original/wage-pay/wage-format
-kn func delete -p ../../../benchmarks/$1/original/wage-pay/wage-merit
-kn func delete -p ../../../benchmarks/$1/original/wage-pay/wage-stats
-kn func delete -p ../../../benchmarks/$1/original/wage-pay/wage-sum
-kn func delete -p ../../../benchmarks/$1/original/wage-pay/wage-validator
-kn func delete -p ../../../benchmarks/$1/original/wage-pay/wage-write-merit
-kn func delete -p ../../../benchmarks/$1/original/wage-pay/wage-write-raw
+kubectl delete -f ../kn/yamls/wage-avg.yaml
+kubectl delete -f ../kn/yamls/wage-format.yaml
+kubectl delete -f ../kn/yamls/wage-merit.yaml
+kubectl delete -f ../kn/yamls/wage-stats.yaml
+kubectl delete -f ../kn/yamls/wage-sum.yaml
+kubectl delete -f ../kn/yamls/wage-validator.yaml
+kubectl delete -f ../kn/yamls/wage-write-merit.yaml
+kubectl delete -f ../kn/yamls/wage-write-raw.yaml
 

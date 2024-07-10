@@ -160,7 +160,6 @@ spec:
       containers:
       - name: sentiment-main
         image: arearnest7/sentiment-main:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -188,7 +187,6 @@ spec:
       containers:
       - name: sentiment-read-csv
         image: arearnest7/sentiment-read-csv:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -216,7 +214,6 @@ spec:
       containers:
       - name: sentiment-product-or-service
         image: arearnest7/sentiment-product-or-service:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -248,7 +245,6 @@ spec:
       containers:
       - name: sentiment-cfail
         image: arearnest7/sentiment-cfail:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -274,7 +270,6 @@ spec:
       containers:
       - name: sentiment-product-sentiment
         image: arearnest7/sentiment-product-sentiment:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -302,7 +297,6 @@ spec:
       containers:
       - name: sentiment-product-result
         image: arearnest7/sentiment-product-result:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -334,7 +328,6 @@ spec:
       containers:
       - name: sentiment-sfail
         image: arearnest7/sentiment-sfail:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -360,7 +353,6 @@ spec:
       containers:
       - name: sentiment-sns
         image: arearnest7/sentiment-sns:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -388,7 +380,6 @@ spec:
       containers:
       - name: sentiment-db
         image: arearnest7/sentiment-db:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -414,7 +405,6 @@ spec:
       containers:
       - name: sentiment-service-sentiment
         image: arearnest7/sentiment-service-sentiment:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -442,7 +432,6 @@ spec:
       containers:
       - name: sentiment-service-result
         image: arearnest7/sentiment-service-result:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

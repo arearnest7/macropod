@@ -1,7 +1,5 @@
 #!/bin/bash
-BUILD=${2:-false}
-PUSH=${3:-false}
-kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/original/serverless-election/election-gateway
-kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/original/serverless-election/election-get-results
-kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/original/serverless-election/election-vote-enqueuer
-kn func deploy --build=$BUILD --push=$PUSH --path ../../../benchmarks/$1/original/serverless-election/election-vote-processor
+kubectl apply -f ./yamls/election-gateway.yaml
+kubectl apply -f ./yamls/election-get-results.yaml
+kubectl apply -f ./yamls/election-vote-enqueuer.yaml
+kubectl apply -f ./yamls/election-vote-processor.yaml

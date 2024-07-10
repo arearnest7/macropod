@@ -95,7 +95,6 @@ spec:
       containers:
       - name: pipelined-main
         image: arearnest7/pipelined-main:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -133,7 +132,6 @@ spec:
       containers:
       - name: pipelined-main-2
         image: arearnest7/pipelined-main:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -171,7 +169,6 @@ spec:
       containers:
       - name: pipelined-main-3
         image: arearnest7/pipelined-main:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -209,7 +206,6 @@ spec:
       containers:
       - name: pipelined-checksum
         image: arearnest7/pipelined-checksum:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -239,7 +235,6 @@ spec:
       containers:
       - name: pipelined-zip
         image: arearnest7/pipelined-zip:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -269,7 +264,6 @@ spec:
       containers:
       - name: pipelined-encrypt
         image: arearnest7/pipelined-encrypt:macropod
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

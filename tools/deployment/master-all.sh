@@ -13,7 +13,7 @@ sudo chmod 644 ~/.kube/config
 sudo cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
 echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> ~/.profile
 export token=$(sudo cat /var/lib/rancher/k3s/server/node-token)
-for i in ${worker_nodes[@]}; do ssh $user@$i "wget -P /home/$user/ https://raw.githubusercontent.com/arearnest7/macropod/main/tools/deployment/worker.sh && sudo -S /home/$user/worker.sh $host $token"; done;
+for i in ${worker_nodes[@]}; do ssh $user@$i "wget -P /home/$user/ https://raw.githubusercontent.com/arearnest7/macropod/main/tools/deployment/worker.sh -O worker.sh && chmod +x /home/$user/worker.sh && sudo -S /home/$user/worker.sh $host $token"; done;
 sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-crds.yaml
 sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-core.yaml
 sudo k3s kubectl apply -l knative.dev/crd-install=true -f https://github.com/knative/net-istio/releases/download/knative-v1.12.0/istio.yaml
@@ -34,9 +34,10 @@ sudo mv kn-func /usr/local/bin
 sudo apt install hey
 mkdir ~/metrics
 cd ~/metrics
-wget https://go.dev/dl/go1.22.3.src.tar.gz
-rm -rf /usr/local/go && tar -C /usr/local -xzf go1.22.3.linux-amd64.tar.gz
+wget https://go.dev/dl/go1.22.4.linux-amd64.tar.gz -O go1.22.4.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
 echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.profile
-wget https://raw.githubusercontent.com/arearnest7/macropod/main/tools/collection/metrics/go.sum
-wget https://raw.githubusercontent.com/arearnest7/macropod/main/tools/collection/metrics/go.mod
-wget https://raw.githubusercontent.com/arearnest7/macropod/main/tools/collection/metrics/metrics.go
+wget https://raw.githubusercontent.com/arearnest7/macropod/main/tools/collection/metrics/go.sum -O go.sum
+wget https://raw.githubusercontent.com/arearnest7/macropod/main/tools/collection/metrics/go.mod -O go.mod
+wget https://raw.githubusercontent.com/arearnest7/macropod/main/tools/collection/metrics/metrics.go -O metrics.go

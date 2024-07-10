@@ -1,5 +1,5 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/original/serverless-election/election-gateway
-kn func delete -p ../../../benchmarks/$1/original/serverless-election/election-get-results
-kn func delete -p ../../../benchmarks/$1/original/serverless-election/election-vote-enqueuer
-kn func delete -p ../../../benchmarks/$1/original/serverless-election/election-vote-processor
+kubectl delete -f ../kn/yamls/election-gateway.yaml
+kubectl delete -f ../kn/yamls/election-get-results.yaml
+kubectl delete -f ../kn/yamls/election-vote-enqueuer.yaml
+kubectl delete -f ../kn/yamls/election-vote-processor.yaml

@@ -1,0 +1,16 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sentiment-product-sentiment
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
+    spec:
+      containers:
+        - image: docker.io/arearnest7/sentiment-product-sentiment:wob
+          env:
+          - name: SENTIMENT_PRODUCT_RESULT
+            value: http://sentiment-product-result.default.10.125.188.34.sslip.io

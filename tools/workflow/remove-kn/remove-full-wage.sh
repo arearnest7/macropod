@@ -1,3 +1,3 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/full-reduced/wage-pay/wage-full
+kubectl delete -f ../kn/yamls/wage-full.yaml
 

@@ -121,7 +121,6 @@ spec:
       containers:
       - name: wage-validator
         image: arearnest7/wage-validator:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -149,7 +148,6 @@ spec:
       containers:
       - name: wage-format
         image: arearnest7/wage-format:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -177,7 +175,6 @@ spec:
       containers:
       - name: wage-write-raw
         image: arearnest7/wage-write-raw:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -205,7 +202,6 @@ spec:
       containers:
       - name: wage-stats
         image: arearnest7/wage-stats:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -233,7 +229,6 @@ spec:
       containers:
       - name: wage-sum
         image: arearnest7/wage-sum:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -261,7 +256,6 @@ spec:
       containers:
       - name: wage-avg
         image: arearnest7/wage-avg:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -289,7 +283,6 @@ spec:
       containers:
       - name: wage-merit
         image: arearnest7/wage-merit:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
@@ -317,7 +310,6 @@ spec:
       containers:
       - name: wage-write-merit
         image: arearnest7/wage-write-merit:oci
-        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:

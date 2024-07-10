@@ -3,7 +3,7 @@ name: election-vote-enqueuer
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-vote-enqueuer:wob
-imageDigest: sha256:4b3c45f0e742fbecb0c0c4fc644057d19101b0eadd77e533c989cbc0f2fa3b4a
+imageDigest: sha256:17af64c76266cf2f22d73d1f7f491a06713892ff4ac73620dc35ad04b3bb6767
 created: 2023-10-10T14:56:57.264364766-05:00
 build:
   builder: pack

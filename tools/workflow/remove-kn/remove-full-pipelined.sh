@@ -1,3 +1,3 @@
 #!/bin/bash
-kn func delete -p ../../../benchmarks/$1/full-reduced/pipelined-processing/pipelined-full
+kubectl delete -f ../kn/yamls/pipelined-full.yaml
 
