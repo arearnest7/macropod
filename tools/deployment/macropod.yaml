@@ -50,12 +50,13 @@ kind: Deployment
 metadata:
   name: macropod-service
 spec:
-  serviceAccountName: macropod-service-account
   selector:
     matchLabels:
       app: macropod
   replicas: 1
   template:
+    spec:
+      serviceAccountName: macropod-service-account
     metadata:
       labels:
         app: macropod
