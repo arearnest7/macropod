@@ -55,10 +55,10 @@ var (
 		  "name": [{}],
 		  "waitForReady": true,
 		  "retryPolicy": {
-			  "MaxAttempts": 30,
+			  "MaxAttempts": 10,
 			  "InitialBackoff": "1s",
 			  "MaxBackoff": "10s",
-			  "BackoffMultiplier": 2.0,
+			  "BackoffMultiplier": 1.0,
 			  "RetryableStatusCodes": [ "UNAVAILABLE", "UNKNOWN", "DEADLINE_EXCEEDED"]
 		  }
 		}]}`
@@ -113,6 +113,12 @@ func callDepController(existing bool, wf_name string) string {
 	}
 	internal_log("deployer call end with " + wf_name)
 	deployerInProgress = false
+
+
+
+	if !existing {
+		internal_log(resp.Message + " is up")
+	}
 	return resp.Message
 }
 

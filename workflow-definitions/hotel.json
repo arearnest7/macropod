@@ -53,9 +53,9 @@
 }
 
 
-curl -X POST -H "Content-Type: application/json" -d @hotel.json http://localhost:8087/create/hotel
-curl -X POST -H "Content-Type: application/json" -d @hotel.json http://localhost:8083/update/hotel
-curl  http://localhost:8087/delete/hotel
+curl -X POST -H "Content-Type: application/json" -d @hotel.json http://localhost:8082/create/hotel
+curl -X POST -H "Content-Type: application/json" -d @hotel.json http://localhost:8082/update/hotel
+curl  http://localhost:8082/delete/hotel
 [hotel-frontend hotel-search hotel-recommend hotel-reserve hotel-user hotel-profile hotel-geo hotel-rate]
 
 curl --header "Content-Type: application/json"  --request POST --data '{"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}' http://localhost:8082/invoke/hotel
@@ -63,4 +63,13 @@ curl --header "Content-Type: application/json"  --request POST --data '{"Request
 {"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}
 
 
-hey -n 640 -c 128 -m POST -t 0 -H "Content-Type: application/json"  -d '{"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}' http://localhost:8087/invoke/hotel
+hey -n 640 -c 128 -m POST -t 0 -H "Content-Type: application/json"  -d '{"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}' http://localhost:8082/invoke/hotel
+
+
+
+
+hey -n 10 -c 2 -m POST -t 0 -H "Content-Type: application/json"  -d '{"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}' http://localhost:8082/invoke/hotel
+
+
+
+hey -n 640 -c 128 -m POST -t 0 -H "Content-Type: application/json"  -d '{"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}' http://localhost:8082/invoke/hotel

@@ -138,7 +138,7 @@ var (
 	isSorting        bool
 	node_sort        string
 	nodes_list []string
-	deploymentRunning bool
+	deleteActivated bool
 )
 
 func internal_log(message string) {
@@ -149,6 +149,9 @@ func ifPodsAreRunning(deployment_array []string) bool {
 	for _, d_name := range deployment_array {
 		internal_log("Checking " + d_name)
 		for {
+			if deleteActivated {
+				return false
+			}
 			if slices.Contains(ready_deployment, d_name) {
 				break
 			}
@@ -179,11 +182,11 @@ func watchDeployments() {
 		internal_log(pod.Labels["app"])
 		entry_name := pod.Labels["app-version"] + pod.Labels["app"]
 		if pod.Status.Phase == "Running" {
-			if !slices.Contains(ready_deployment, entry_name) {
+			if !deleteActivated && !slices.Contains(ready_deployment, entry_name) {
 				ready_deployment = append(ready_deployment, entry_name)
 			}
 		}else{
-			if slices.Contains(ready_deployment, entry_name) {
+			if !deleteActivated && slices.Contains(ready_deployment, entry_name) {
 				index := slices.Index(ready_deployment,entry_name)
 				ready_deployment[index] =""
 			}			
@@ -194,7 +197,6 @@ func watchDeployments() {
 }
 func manageDeployment(wf_name string, ns string) (string, error) {
 	//log.Print(workflows)
-	deploymentRunning = true
 	var update_deployments []appsv1.Deployment
 	var created_deployment []string
 	var updated_deployment_names []string
@@ -219,7 +221,6 @@ func manageDeployment(wf_name string, ns string) (string, error) {
 		_, err := kclient.CoreV1().Namespaces().Create(context.Background(), namespace_object, metav1.CreateOptions{})
 		if err != nil {
 			internal_log("namespace " + namespace + " unable to be created - " + err.Error())
-			deploymentRunning = false
 			return "", err
 		}
 		internal_log("namespace " + namespace + " has been created")
@@ -335,12 +336,11 @@ func manageDeployment(wf_name string, ns string) (string, error) {
 		// check if deployment with name ecists, if does not make a new one else update the existing lets start with creating new ones and then update the existing ones
 		internal_log("Looking for " + pod[0])
 		_, exists := kclient.AppsV1().Deployments(namespace).Get(context.Background(), pod[0], metav1.GetOptions{})
-		if exists != nil {
+		if !deleteActivated && exists != nil {
 			internal_log("Creating a new deployment " + deployment.Name)
 			_, err := kclient.AppsV1().Deployments(namespace).Create(context.Background(), deployment, metav1.CreateOptions{})
 			if err != nil {
 				internal_log("unable to create deployment " + pod[0] + " for " + namespace + " - " + err.Error())
-				deploymentRunning = false
 				return "", err
 
 			}
@@ -349,15 +349,16 @@ func manageDeployment(wf_name string, ns string) (string, error) {
 			internal_log(label_match)
 			created_deployment = append(created_deployment, entry_name)
 		} else {
+			if !deleteActivated{
 			internal_log("Updating the existing deployment " + deployment.Name)
 			entry_name := label_match + deployment.Spec.Template.ObjectMeta.Labels["app"]
 			update_deployments = append(update_deployments, *deployment)
 			internal_log(label_match)
 			updated_deployment_names = append(updated_deployment_names, entry_name)
+			}
 		}
 	}
 	if !ifPodsAreRunning(created_deployment) {
-		deploymentRunning = false
 		return "", nil
 	}
 	for _, dp := range update_deployments {
@@ -365,7 +366,6 @@ func manageDeployment(wf_name string, ns string) (string, error) {
 		kclient.AppsV1().Deployments(namespace).Update(context.Background(), &dp, metav1.UpdateOptions{})
 	}
 	if !ifPodsAreRunning(updated_deployment_names) {
-		deploymentRunning = false
 		return "", nil
 	}
 	for _, pod := range workflows[wf_name].Pods {
@@ -391,20 +391,20 @@ func manageDeployment(wf_name string, ns string) (string, error) {
 		}
 
 		_, exists := kclient.CoreV1().Services(namespace).Get(context.Background(), pod[0], metav1.GetOptions{})
-		if exists != nil {
+		if !deleteActivated && exists != nil {
 			_, err := kclient.CoreV1().Services(namespace).Create(context.Background(), service, metav1.CreateOptions{})
 			if err != nil {
 				internal_log("unable to create service " + pod[0] + " for " + namespace + " - " + err.Error())
-				deploymentRunning = false
 				return "", err
 			}
 		} else {
+			if !deleteActivated {
 			_, err := kclient.CoreV1().Services(namespace).Update(context.Background(), service, metav1.UpdateOptions{})
 			if err != nil {
 				internal_log("unable to update service " + pod[0] + " for " + namespace + " - " + err.Error())
-				deploymentRunning = false
 				return "", err
 			}
+		}
 		}
 
 	}
@@ -445,22 +445,23 @@ func manageDeployment(wf_name string, ns string) (string, error) {
 		_, err := kclient.NetworkingV1().Ingresses(namespace).Update(context.Background(), ingress, metav1.UpdateOptions{})
 		if err != nil {
 			internal_log("unable to update ingress for " + namespace + " - " + err.Error())
-			deploymentRunning = false
 			return "", err
 		}
 	} else {
 		_, err := kclient.NetworkingV1().Ingresses(namespace).Create(context.Background(), ingress, metav1.CreateOptions{})
 		if err != nil {
 			internal_log("unable to create ingress for " + namespace + " - " + err.Error())
-			deploymentRunning = false
 			return "", err
 		}
 	}
-	deploymentRunning = false
 	return service_name_ingress + "." + namespace + ".svc.cluster.local:5000", nil
 }
 
 func updateDeployments(wf_name string) {
+	if deleteActivated{
+		internal_log("delete in progress")
+		return
+	}
 	if workflows[wf_name].Updating {
 		internal_log("Already updating..........")
 		return
@@ -483,7 +484,7 @@ func updateDeployments(wf_name string) {
 	}
 	internal_log("Cpu is: " + strconv.Itoa(int(cpu_total)))
 	internal_log("Memory is : " + strconv.Itoa(int(memory_total)))
-	if cpu_total > cpu_threshold_1 || memory_total > mem_threshold_1{
+	if (cpu_total > cpu_threshold_1 || memory_total > mem_threshold_1){
 		internal_log("threshold 1 reached - " + wf_name)
 		internal_log("update threshold is " + strconv.Itoa(update_threshold) + " seconds")
 		if time.Since(workflows[wf_name].LastUpdated) > time.Second*time.Duration(update_threshold) && !workflows[wf_name].FullyDisaggregated {
@@ -777,7 +778,20 @@ func deleteWorkflow(wf_name string) {
 	internal_log("DELETE_WORKFLOW_START - " + wf_name)
 	_, exists := workflows[wf_name]
 	if exists {
-		internal_log("workflow " + wf_name + " exists")
+		deleteActivated = true
+
+		for {
+			if !workflows[wf_name].Updating {
+				delete(workflows, wf_name)
+				for {
+					if len(ready_deployment) == 0{
+						internal_log("DELETE_WORKFLOW_END - " + wf_name)
+						return
+					}
+				}
+			}
+		}
+		
 		
 	} else {
 		internal_log("workflow " + wf_name + " does not exist")
@@ -944,7 +958,7 @@ func main() {
 	internal_log("Ingress Controller Started")
 	isSorting = false
 	node_sort = ""
-	deploymentRunning = false
+	deleteActivated = false
 	workflows = make(map[string]*Workflow)
 	config, err := rest.InClusterConfig()
 	if err != nil {
