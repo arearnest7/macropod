@@ -13,7 +13,7 @@ spec:
         - image: docker.io/arearnest7/election-vote-enqueuer:wob
           env:
           - name: ELECTION_VOTE_PROCESSOR
-            value: http://election-vote-processor.default.10.125.188.34.sslip.io
+            value: http://election-vote-processor.default.127.0.0.1.sslip.io
           - name: REDIS_URL
             value: 127.0.0.1
           - name: REDIS_PASSWORD

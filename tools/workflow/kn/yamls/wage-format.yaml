@@ -13,4 +13,4 @@ spec:
         - image: docker.io/arearnest7/wage-format:wob
           env:
           - name: WAGE_WRITE_RAW
-            value: http://wage-write-raw.default.10.125.188.34.sslip.io
+            value: http://wage-write-raw.default.127.0.0.1.sslip.io

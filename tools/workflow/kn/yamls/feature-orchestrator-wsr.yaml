@@ -17,4 +17,4 @@ spec:
           - name: REDIS_PASSWORD
             value: password
           - name: FEATURE_EXTRACTOR_PARTIAL
-            value: http://feature-extractor-partial.default.10.125.188.34.sslip.io
+            value: http://feature-extractor-partial.default.127.0.0.1.sslip.io

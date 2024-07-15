@@ -24,12 +24,12 @@ DIR=${4:-results}
 ./collect-kn.sh $HOST partial-sentiment sentiment-main-rcposc $C ../../payloads/sentiment.json $N
 ./collect-kn.sh $HOST partial-video video-streaming-d $C ../../payloads/video.json $N
 ./collect-kn.sh $HOST partial-wage wage-validator-fw $C ../../payloads/wage.json $N
-./collect-yaml-fixed.sh election $C ../payloads/election.json $N "election-gateway election-get-results election-vote-enqueuer election-vote-processor"
-./collect-yaml-fixed.sh feature $C ../payloads/feature.json $N "feature-orchestrator feature-extractor feature-wait feature-status feature-reducer"
-./collect-yaml-fixed.sh hotel $C ../payloads/hotel.json $N "hotel-frontend hotel-search hotel-recommend hotel-reserve hotel-user hotel-geo hotel-profile hotel-rate"
-./collect-yaml-fixed.sh pipelined $C ../payloads/pipelined.json $N "pipelined-main pipelined-main-2 pipelined-main-3 pipelined-checksum pipelined-zip pipelined-encrypt"
-./collect-yaml-fixed.sh sentiment $C ../payloads/sentiment.json $N "sentiment-cfail sentiment-db sentiment-main sentiment-product-or-service sentiment-product-result sentiment-product-sentiment sentiment-read-csv sentiment-service-result sentiment-service-sentiment sentiment-sfail sentiment-sns"
-./collect-yaml-fixed.sh video $C ../payloads/video.json $N "video-streaming video-decoder video-recog"
-./collect-yaml-fixed.sh wage $C ../payloads/wage.json $N "wage-validator wage-format wage-write-raw wage-stats wage-sum wage-avg wage-merit wage-write-merit"
+./collect-yaml.sh election $C ../payloads/election.json $N "election-gateway election-get-results election-vote-enqueuer election-vote-processor"
+./collect-yaml.sh feature $C ../payloads/feature.json $N "feature-orchestrator feature-extractor feature-wait feature-status feature-reducer"
+./collect-yaml.sh hotel $C ../payloads/hotel.json $N "hotel-frontend hotel-search hotel-recommend hotel-reserve hotel-user hotel-geo hotel-profile hotel-rate"
+./collect-yaml.sh pipelined $C ../payloads/pipelined.json $N "pipelined-main pipelined-main-2 pipelined-main-3 pipelined-checksum pipelined-zip pipelined-encrypt"
+./collect-yaml.sh sentiment $C ../payloads/sentiment.json $N "sentiment-cfail sentiment-db sentiment-main sentiment-product-or-service sentiment-product-result sentiment-product-sentiment sentiment-read-csv sentiment-service-result sentiment-service-sentiment sentiment-sfail sentiment-sns"
+./collect-yaml.sh video $C ../payloads/video.json $N "video-streaming video-decoder video-recog"
+./collect-yaml.sh wage $C ../payloads/wage.json $N "wage-validator wage-format wage-write-raw wage-stats wage-sum wage-avg wage-merit wage-write-merit"
 mkdir $DIR
 mv *.csv $DIR

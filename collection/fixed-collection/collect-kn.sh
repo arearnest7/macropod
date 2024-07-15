@@ -10,7 +10,7 @@ cd ../../tools/workflow/kn/
 sleep 180s
 hey -n $N -c $C -t 1000 -o csv -D $PAYLOAD -m POST -T application/json http://$ENTRY.default.$HOST.sslip.io >> ../../../collection/fixed-collection/kn-$SCRIPT.csv
 logs=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" --sort-by="metadata.name")
-for i in $logs; do kubectl logs $i >> ../../../collection/fixed-collection/kn-$SCRIPT-$i.csv; done;
+for i in $logs; do kubectl logs -c user-container $i >> ../../../collection/fixed-collection/kn-$SCRIPT-$i.csv; done;
 ../remove-kn/remove-$SCRIPT.sh
 cd ../../../collection/fixed-collection/
 sleep 180s

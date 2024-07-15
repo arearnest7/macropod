@@ -13,10 +13,10 @@ spec:
         - image: docker.io/arearnest7/pipelined-main:wob
           env:
           - name: PIPELINED_CHECKSUM
-            value: http://pipelined-checksum.default.10.125.188.34.sslip.io
+            value: http://pipelined-checksum.default.127.0.0.1.sslip.io
           - name: PIPELINED_ZIP
-            value: http://pipelined-zip.default.10.125.188.34.sslip.io
+            value: http://pipelined-zip.default.127.0.0.1.sslip.io
           - name: PIPELINED_ENCRYPT
-            value: http://pipelined-encrypt.default.10.125.188.34.sslip.io
+            value: http://pipelined-encrypt.default.127.0.0.1.sslip.io
           - name: PIPELINED_MAIN
-            value: http://pipelined-main.default.10.125.188.34.sslip.io
+            value: http://pipelined-main.default.127.0.0.1.sslip.io

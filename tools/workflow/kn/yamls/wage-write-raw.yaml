@@ -17,4 +17,4 @@ spec:
           - name: REDIS_PASSWORD
             value: password
           - name: WAGE_STATS
-            value: http://wage-stats.default.10.125.188.34.sslip.io
+            value: http://wage-stats.default.127.0.0.1.sslip.io

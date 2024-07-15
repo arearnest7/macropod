@@ -13,8 +13,8 @@ spec:
         - image: docker.io/arearnest7/sentiment-product-result:wob
           env:
           - name: SENTIMENT_DB
-            value: http://sentiment-db.default.10.125.188.34.sslip.io
+            value: http://sentiment-db.default.127.0.0.1.sslip.io
           - name: SENTIMENT_SNS
-            value: http://sentiment-sns.default.10.125.188.34.sslip.io
+            value: http://sentiment-sns.default.127.0.0.1.sslip.io
           - name: SENTIMENT_SFAIL
-            value: http://sentiment-sfail.default.10.125.188.34.sslip.io
+            value: http://sentiment-sfail.default.127.0.0.1.sslip.io
