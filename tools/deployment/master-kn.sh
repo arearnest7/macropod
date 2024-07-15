@@ -14,13 +14,12 @@ sudo cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
 echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> ~/.profile
 export token=$(sudo cat /var/lib/rancher/k3s/server/node-token)
 for i in ${worker_nodes[@]}; do ssh $user@$i "wget -P /home/$user/ https://raw.githubusercontent.com/arearnest7/macropod/main/tools/deployment/worker.sh -O worker.sh && chmod +x /home/$user/worker.sh && sudo -S /home/$user/worker.sh $host $token"; done;
-sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-crds.yaml
-sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-core.yaml
-sudo k3s kubectl apply -l knative.dev/crd-install=true -f https://github.com/knative/net-istio/releases/download/knative-v1.12.0/istio.yaml
-sudo k3s kubectl apply -f https://github.com/knative/net-istio/releases/download/knative-v1.12.0/istio.yaml
-sudo k3s kubectl apply -f https://github.com/knative/net-istio/releases/download/knative-v1.12.0/net-istio.yaml
-sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-default-domain.yaml
-sudo k3s kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.2/serving-hpa.yaml
+sudo k3s kubectl apply -f knative/serving-crds.yaml
+sudo k3s kubectl apply -f knative/serving-core.yaml
+sudo k3s kubectl apply -f knative/istio.yaml
+sudo k3s kubectl apply -f knative/net-istio.yaml
+sudo k3s kubectl apply -f knative/serving-default-domain.yaml
+sudo k3s kubectl apply -f knative/serving-hpa.yaml
 sudo k3s kubectl apply -f autoscaler.yaml
 wget https://github.com/knative/client/releases/download/knative-v1.11.2/kn-linux-amd64
 mv kn-linux-amd64 kn
