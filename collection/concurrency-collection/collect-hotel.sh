@@ -12,3 +12,6 @@ date -u '+%F %H:%M:%S.%6N %Z'
 ./collect-kn.sh $HOST partial-hotel hotel-frontend-spgr $C ../../payloads/hotel.json $N
 mv kn-partial-hotel.csv kn-partial-hotel-$C.csv
 date -u '+%F %H:%M:%S.%6N %Z'
+./collect-macropod.sh hotel $C ../../payloads/hotel.json $N
+mv macropod-hotel.csv macropod-hotel-$C.csv
+date -u '+%F %H:%M:%S.%6N %Z'

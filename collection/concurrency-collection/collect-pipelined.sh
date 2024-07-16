@@ -12,3 +12,6 @@ date -u '+%F %H:%M:%S.%6N %Z'
 ./collect-kn.sh $HOST partial-pipelined pipelined-main-partial $C ../../payloads/pipelined.json $N
 mv kn-partial-pipelined.csv kn-partial-pipelined-$C.csv
 date -u '+%F %H:%M:%S.%6N %Z'
+./collect-macropod.sh pipelined $C ../../payloads/pipelined.json $N
+mv macropod-pipelined.csv macropod-pipelined-$C.csv
+date -u '+%F %H:%M:%S.%6N %Z'

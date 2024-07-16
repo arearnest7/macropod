@@ -12,3 +12,6 @@ date -u '+%F %H:%M:%S.%6N %Z'
 ./collect-kn.sh $HOST partial-election election-gateway-vevp $C ../../payloads/election.json $N
 mv kn-partial-election.csv kn-partial-election-$C.csv
 date -u '+%F %H:%M:%S.%6N %Z'
+./collect-macropod.sh election $C ../../payloads/election.json $N
+mv macropod-election.csv macropod-election-$C.csv
+date -u '+%F %H:%M:%S.%6N %Z'

@@ -5,7 +5,7 @@ worker_nodes=($3)
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
 sudo apt install docker.io
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --kube-apiserver-arg enable-admission-plugins=PodNodeSelector" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --kube-apiserver-arg enable-admission-plugins=PodNodeSelector -v=10 --log=/var/test-k3s.log --kube-scheduler-arg=v=10" sh -
 sudo chmod 644 /etc/rancher/k3s/k3s.yaml
 mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
