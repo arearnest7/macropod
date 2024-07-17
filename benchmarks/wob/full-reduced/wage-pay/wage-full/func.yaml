@@ -14,6 +14,6 @@ run:
   - name: REDIS_PASSWORD
     value: password
   - name: WAGE_FULL
-    value: http://wage-full.default.127.0.0.1.sslip.io
+    value: http://wage-full.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

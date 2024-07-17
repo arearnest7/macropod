@@ -14,8 +14,8 @@ run:
   - name: REDIS_PASSWORD
     value: password
   - name: FEATURE_REDUCER
-    value: http://feature-reducer.default.127.0.0.1.sslip.io
+    value: http://feature-reducer.knative-functions.127.0.0.1.sslip.io
   - name: FEATURE_WAIT
-    value: http://feature-wait.default.127.0.0.1.sslip.io
+    value: http://feature-wait.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

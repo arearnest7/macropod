@@ -2,7 +2,7 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: wage-stats-partial
-  namespace: default
+  namespace: knative-functions
 spec:
   template:
     metadata:
@@ -17,4 +17,4 @@ spec:
           - name: REDIS_PASSWORD
             value: password
           - name: WAGE_SUM_AMW
-            value: http://wage-sum-amw.default.127.0.0.1.sslip.io
+            value: http://wage-sum-amw.knative-functions.127.0.0.1.sslip.io

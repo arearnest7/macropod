@@ -2,7 +2,7 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: wage-avg
-  namespace: default
+  namespace: knative-functions
 spec:
   template:
     metadata:
@@ -13,4 +13,4 @@ spec:
         - image: docker.io/arearnest7/wage-avg:wob
           env:
           - name: WAGE_MERIT
-            value: http://wage-merit.default.127.0.0.1.sslip.io
+            value: http://wage-merit.knative-functions.127.0.0.1.sslip.io

@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: WAGE_WRITE_RAW
-    value: http://wage-write-raw.default.127.0.0.1.sslip.io
+    value: http://wage-write-raw.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

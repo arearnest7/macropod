@@ -10,10 +10,10 @@ build:
 run:
   envs:
   - name: SENTIMENT_PRODUCT_SENTIMENT
-    value: http://sentiment-product-sentiment.default.127.0.0.1.sslip.io
+    value: http://sentiment-product-sentiment.knative-functions.127.0.0.1.sslip.io
   - name: SENTIMENT_SERVICE_SENTIMENT
-    value: http://sentiment-service-sentiment.default.127.0.0.1.sslip.io
+    value: http://sentiment-service-sentiment.knative-functions.127.0.0.1.sslip.io
   - name: SENTIMENT_CFAIL
-    value: http://sentiment-cfail.default.127.0.0.1.sslip.io
+    value: http://sentiment-cfail.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

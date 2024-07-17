@@ -10,10 +10,10 @@ build:
 run:
   envs:
   - name: PIPELINED_CHECKSUM_PARTIAL
-    value: http://pipelined-checksum-partial.default.127.0.0.1.sslip.io
+    value: http://pipelined-checksum-partial.knative-functions.127.0.0.1.sslip.io
   - name: PIPELINED_ZIP_PARTIAL
-    value: http://pipelined-zip-partial.default.127.0.0.1.sslip.io
+    value: http://pipelined-zip-partial.knative-functions.127.0.0.1.sslip.io
   - name: PIPELINED_ENCRYPT_PARTIAL
-    value: http://pipelined-encrypt-partial.default.127.0.0.1.sslip.io
+    value: http://pipelined-encrypt-partial.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

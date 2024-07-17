@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: FEATURE_STATUS
-    value: http://feature-status.default.127.0.0.1.sslip.io
+    value: http://feature-status.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

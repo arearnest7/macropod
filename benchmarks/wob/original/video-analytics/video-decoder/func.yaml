@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: VIDEO_RECOG
-    value: http://video-recog.default.127.0.0.1.sslip.io
+    value: http://video-recog.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: SENTIMENT_SERVICE_RESULT
-    value: http://sentiment-service-result.default.127.0.0.1.sslip.io
+    value: http://sentiment-service-result.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: WAGE_WRITE_MERIT
-    value: http://wage-write-merit.default.127.0.0.1.sslip.io
+    value: http://wage-write-merit.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

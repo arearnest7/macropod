@@ -2,7 +2,7 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: hotel-frontend-spgr
-  namespace: default
+  namespace: knative-functions
 spec:
   template:
     metadata:
@@ -17,8 +17,8 @@ spec:
           - name: HOTEL_APP_MEMCACHED
             value: 10.42.4.93:11211
           - name: HOTEL_RECOMMEND_PARTIAL
-            value: http://hotel-recommend-partial.default.127.0.0.1.sslip.io
+            value: http://hotel-recommend-partial.knative-functions.127.0.0.1.sslip.io
           - name: HOTEL_RESERVE_PARTIAL
-            value: http://hotel-reserve-partial.default.127.0.0.1.sslip.io
+            value: http://hotel-reserve-partial.knative-functions.127.0.0.1.sslip.io
           - name: HOTEL_USER_PARTIAL
-            value: http://hotel-user-partial.default.127.0.0.1.sslip.io
+            value: http://hotel-user-partial.knative-functions.127.0.0.1.sslip.io

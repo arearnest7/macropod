@@ -10,7 +10,7 @@ build:
 run:
   envs:
   - name: ELECTION_VOTE_PROCESSOR
-    value: http://election-vote-processor.default.127.0.0.1.sslip.io
+    value: http://election-vote-processor.knative-functions.127.0.0.1.sslip.io
   - name: REDIS_URL
     value: 127.0.0.1
   - name: REDIS_PASSWORD

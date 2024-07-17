@@ -10,8 +10,8 @@ build:
 run:
   envs:
   - name: HOTEL_GEO
-    value: http://hotel-geo.default.127.0.0.1.sslip.io
+    value: http://hotel-geo.knative-functions.127.0.0.1.sslip.io
   - name: HOTEL_RATE
-    value: http://hotel-rate.default.127.0.0.1.sslip.io
+    value: http://hotel-rate.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

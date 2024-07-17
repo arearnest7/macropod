@@ -2,7 +2,7 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: sentiment-sns
-  namespace: default
+  namespace: knative-functions
 spec:
   template:
     metadata:
@@ -13,4 +13,4 @@ spec:
         - image: docker.io/arearnest7/sentiment-sns:wob
           env:
           - name: SENTIMENT_DB
-            value: http://sentiment-db.default.127.0.0.1.sslip.io
+            value: http://sentiment-db.knative-functions.127.0.0.1.sslip.io

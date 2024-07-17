@@ -2,7 +2,7 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: wage-write-raw
-  namespace: default
+  namespace: knative-functions
 spec:
   template:
     metadata:
@@ -17,4 +17,4 @@ spec:
           - name: REDIS_PASSWORD
             value: password
           - name: WAGE_STATS
-            value: http://wage-stats.default.127.0.0.1.sslip.io
+            value: http://wage-stats.knative-functions.127.0.0.1.sslip.io

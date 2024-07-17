@@ -14,8 +14,8 @@ run:
   - name: REDIS_PASSWORD
     value: password
   - name: SENTIMENT_PRODUCT_SENTIMENT_PRS
-    value: http://sentiment-product-sentiment-prs.default.127.0.0.1.sslip.io
+    value: http://sentiment-product-sentiment-prs.knative-functions.127.0.0.1.sslip.io
   - name: SENTIMENT_SERVICE_SENTIMENT_SRS
-    value: http://sentiment-service-sentiment-srs.default.127.0.0.1.sslip.io
+    value: http://sentiment-service-sentiment-srs.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

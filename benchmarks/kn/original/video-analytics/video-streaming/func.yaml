@@ -10,6 +10,6 @@ build:
 run:
   envs:
   - name: VIDEO_DECODER
-    value: http://video-decoder.default.127.0.0.1.sslip.io
+    value: http://video-decoder.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default
