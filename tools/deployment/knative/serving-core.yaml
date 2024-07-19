@@ -27,8 +27,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: knative-functions
-  annotations:
-    scheduler.alpha.kubernetes.io/node-selector: node-role.kubernetes.io/worker=true
+#  annotations:
+#    scheduler.alpha.kubernetes.io/node-selector: node-role.kubernetes.io/worker=true
   labels:
     app.kubernetes.io/name: knative-functions
     app.kubernetes.io/version: "1.12.0"
