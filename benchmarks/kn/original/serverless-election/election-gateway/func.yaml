@@ -3,7 +3,7 @@ name: election-gateway
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-gateway:kn
-imageDigest: sha256:452d8f1f34b7481c6cfa0d26697edd69a2b1f5de81d7f29d39162b773d0d2d19
+imageDigest: sha256:4edbea95a981b0fc2eb6d7cc8ef4b3554bcb1f3304dfbe7d77067b88b1e8906c
 created: 2023-10-10T14:56:35.552619558-05:00
 build:
   builder: pack

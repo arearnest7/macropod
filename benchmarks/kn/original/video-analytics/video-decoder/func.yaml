@@ -3,7 +3,7 @@ name: video-decoder
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/video-decoder:kn
-imageDigest: sha256:762cbe2cc055227e8ee5c1659b09d036997813bc474f5fe5a057082f7a1f9703
+imageDigest: sha256:edf813b9168137311ecd1bc9c73c73eb6f1d1e0f254c8a2df8407f4dcf35afbc
 created: 2023-10-26T19:40:26.563671274-05:00
 build:
   builder: pack

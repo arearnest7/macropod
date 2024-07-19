@@ -3,7 +3,7 @@ name: wage-merit
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-merit:kn
-imageDigest: sha256:274289cb75a16b23e57b8a07cc2dbb9654272c83eed4f4e6181a9ba29614393a
+imageDigest: sha256:470089d00fa58eb0954209a4e92800da3c07121385141b23a3e4836ff5121684
 created: 2023-12-03T21:04:40.388331242-06:00
 build:
   builder: pack

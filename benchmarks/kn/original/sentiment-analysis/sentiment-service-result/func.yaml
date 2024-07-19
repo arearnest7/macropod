@@ -3,7 +3,7 @@ name: sentiment-service-result
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-service-result:kn
-imageDigest: sha256:da6608c22f3a20e2227f326f3c1e9fc65d57990cd5383187857ce1eca5e2d644
+imageDigest: sha256:f1d08734d02c9e6b0c56a9ecef700bf26afe370fc7d94ff6bc46e4fd9e556408
 created: 2023-12-03T21:00:45.838624707-06:00
 build:
   builder: pack

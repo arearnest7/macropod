@@ -3,7 +3,7 @@ name: election-gateway-vevp
 runtime: node
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/election-gateway-vevp:wob
-imageDigest: sha256:5e00a355fd2a7883ffa07c059724d226e013934105364c996759571a229d3c1e
+imageDigest: sha256:6cfe5d96ce7f8edc0eb24285a38511793f5dc70b4367fcafe19b6521df8b777b
 created: 2023-10-20T10:09:34.92768829-05:00
 build:
   builder: pack

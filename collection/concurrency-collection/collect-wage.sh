@@ -12,6 +12,6 @@ date -u '+%F %H:%M:%S.%6N %Z'
 ./collect-kn.sh $HOST partial-wage wage-validator-fw $C ../../payloads/wage.json $N
 mv kn-partial-wage.csv kn-partial-wage-$C.csv
 date -u '+%F %H:%M:%S.%6N %Z'
-./collect-macropod.sh wage $C ../../payloads/wage.json $N
-mv macropod-wage.csv macropod-wage-$C.csv
-date -u '+%F %H:%M:%S.%6N %Z'
+#./collect-macropod.sh wage $C ../../payloads/wage.json $N
+#mv macropod-wage.csv macropod-wage-$C.csv
+#date -u '+%F %H:%M:%S.%6N %Z'
