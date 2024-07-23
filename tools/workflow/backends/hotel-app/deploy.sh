@@ -1,3 +1,3 @@
 #!/bin/bash
-sudo k3s kubectl apply -f database.yaml
-sudo k3s kubectl apply -f memcached.yaml
+sudo kubectl apply -f database.yaml
+sudo kubectl apply -f memcached.yaml
