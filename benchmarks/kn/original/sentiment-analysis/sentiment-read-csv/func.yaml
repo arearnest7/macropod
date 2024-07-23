@@ -3,7 +3,7 @@ name: sentiment-read-csv
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-read-csv:kn
-imageDigest: sha256:a664f1466e2430744b84b405be13cbd4545365f22428b30529164bafd2adf79f
+imageDigest: sha256:2f056375bc1ca3e08545ee4ff613f85fae5359e47936dfa4ea36e2f073791a16
 created: 2023-12-03T21:00:37.907039642-06:00
 build:
   builder: pack
@@ -14,6 +14,6 @@ run:
   - name: REDIS_PASSWORD
     value: password
   - name: SENTIMENT_PRODUCT_OR_SERVICE
-    value: http://sentiment-product-or-service.default.127.0.0.1.sslip.io
+    value: http://sentiment-product-or-service.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

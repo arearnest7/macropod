@@ -1,2 +1,2 @@
 #!/bin/bash
-kubectl delete -f ../kn/yamls/video-full.yaml
+sudo kubectl delete -f ../kn/yamls/video-full.yaml

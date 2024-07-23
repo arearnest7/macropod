@@ -1,2 +1,2 @@
 #!/bin/bash
-kubectl apply -f ./yamls/video-full.yaml
+sudo kubectl apply -f ./yamls/video-full.yaml 2> /dev/null

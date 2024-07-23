@@ -3,7 +3,7 @@ name: wage-validator-fw
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-validator-fw:kn
-imageDigest: sha256:380271cdef5e17c967707a67caed6af795bb2929330877b5ac9915130c9ccb4b
+imageDigest: sha256:396cc27383acb57e65ba000014505b9fc6e6c4b8291e2a80332d6a6c288cdf93
 created: 2023-12-03T21:32:43.759166982-06:00
 build:
   builder: pack
@@ -14,6 +14,6 @@ run:
   - name: REDIS_PASSWORD
     value: password
   - name: WAGE_STATS_PARTIAL
-    value: http://wage-stats-partial.default.127.0.0.1.sslip.io
+    value: http://wage-stats-partial.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

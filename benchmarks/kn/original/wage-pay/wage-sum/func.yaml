@@ -3,7 +3,7 @@ name: wage-sum
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/wage-sum:kn
-imageDigest: sha256:a82dc7436b6fad744f30f85d34629bd9992808aedeff366388aa65bcee8898ec
+imageDigest: sha256:7a218fe243462c98e11602bf346f1442def531f3f91b04904ed12e2adfc7f022
 created: 2023-12-03T21:04:46.885982026-06:00
 build:
   builder: pack
@@ -14,6 +14,6 @@ run:
   - name: REDIS_PASSWORD
     value: password
   - name: WAGE_AVG
-    value: http://wage-avg.default.127.0.0.1.sslip.io
+    value: http://wage-avg.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

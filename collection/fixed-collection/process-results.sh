@@ -15,63 +15,63 @@ go run ../../tools/processing-scripts/process-metrics.go $METRIC_RESULTS $METRIC
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-oci-election-processed-log.csv multi-oci-election gateway vote-enqueuer vote-processor
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-pod-election-processed-log.csv multi-pod-election gateway vote-enqueuer vote-processor
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-election-processed-log.csv single-mmap-election gateway vote-enqueuer vote-processor
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-election-processed-log.csv single-oci-election gateway vote-enqueuer vote-processor
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-election-processed-log.csv single-pod-election gateway vote-enqueuer vote-processor
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-election-processed-log.csv single-mmap-election election-single-mmap
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-election-processed-log.csv single-oci-election election-single-oci
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-election-processed-log.csv single-pod-election election-single-pod
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-election-processed-log.csv kn-full-election-election full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-election-processed-log.csv kn-original-election-election gateway vote-enqueuer vote-processor
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-election-processed-log.csv kn-partial-election-election gateway-vevp
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-oci-feature-processed-log.csv multi-oci-feature orchestrator extractor wait status reducer
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-pod-feature-processed-log.csv multi-pod-feature orchestrator extractor wait status reducer
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-feature-processed-log.csv single-mmap-feature orchestrator extractor wait status reducer
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-feature-processed-log.csv single-oci-feature orchestrator extractor wait status reducer
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-feature-processed-log.csv single-pod-feature orchestrator extractor wait status reducer
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-feature-processed-log.csv single-mmap-feature feature-single-mmap
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-feature-processed-log.csv single-oci-feature feature-single-oci
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-feature-processed-log.csv single-pod-feature feature-single-pod
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-feature-processed-log.csv kn-full-feature-feature full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-feature-processed-log.csv kn-original-feature-feature orchestrator extractor wait status reducer
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-feature-processed-log.csv kn-partial-feature-feature orchestrator-wsr extractor-partial
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-oci-hotel-processed-log.csv multi-oci-hotel frontend search geo rate
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-pod-hotel-processed-log.csv multi-pod-hotel frontend search geo rate
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-hotel-processed-log.csv single-mmap-hotel frontend search geo rate
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-hotel-processed-log.csv single-oci-hotel frontend search geo rate
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-hotel-processed-log.csv single-pod-hotel frontend search geo rate
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-hotel-processed-log.csv single-mmap-hotel hotel-single-mmap
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-hotel-processed-log.csv single-oci-hotel hotel-single-oci
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-hotel-processed-log.csv single-pod-hotel hotel-single-pod
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-hotel-processed-log.csv kn-full-hotel-hotel full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-hotel-processed-log.csv kn-original-hotel-hotel frontend search geo rate
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-hotel-processed-log.csv kn-partial-hotel-hotel frontend-spgr
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-oci-pipelined-processed-log.csv multi-oci-pipelined main checksum zip encrypt
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-pod-pipelined-processed-log.csv multi-pod-pipelined main checksum zip encrypt
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-pipelined-processed-log.csv single-mmap-pipelined main checksum zip encrypt
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-pipelined-processed-log.csv single-oci-pipelined main checksum zip encrypt
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-pipelined-processed-log.csv single-pod-pipelined main checksum zip encrypt
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-pipelined-processed-log.csv single-mmap-pipelined pipelined-single-mmap
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-pipelined-processed-log.csv single-oci-pipelined pipelined-single-oci
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-pipelined-processed-log.csv single-pod-pipelined pipelined-single-mmap
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-pipelined-processed-log.csv kn-full-pipelined-pipelined full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-pipelined-processed-log.csv kn-original-pipelined-pipelined main checksum zip encrypt
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-pipelined-processed-log.csv kn-partial-pipelined-pipelined main-partial checksum-partial zip-partial encrypt-partial
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-oci-sentiment-processed-log.csv multi-oci-sentiment main read-csv product-or-service product-sentiment product-result sns db
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-pod-sentiment-processed-log.csv multi-pod-sentiment main read-csv product-or-service product-sentiment product-result sns db
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-sentiment-processed-log.csv single-mmap-sentiment main read-csv product-or-service product-sentiment product-result sns db
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-sentiment-processed-log.csv single-oci-sentiment main read-csv product-or-service product-sentiment product-result sns db
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-sentiment-processed-log.csv single-pod-sentiment main read-csv product-or-service product-sentiment product-result sns db
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-sentiment-processed-log.csv single-mmap-sentiment sentiment-single-mmap
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-sentiment-processed-log.csv single-oci-sentiment sentiment-single-oci
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-sentiment-processed-log.csv single-pod-sentiment sentiment-single-pod
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-sentiment-processed-log.csv kn-full-sentiment-sentiment full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-sentiment-processed-log.csv kn-original-sentiment-sentiment main read-csv product-or-service product-sentiment product-result sns db
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-sentiment-processed-log.csv kn-partial-sentiment-sentiment main-rcposc product-sentiment-prs db-s
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-oci-video-processed-log.csv multi-oci-video streaming decoder recog
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-pod-video-processed-log.csv multi-pod-video streaming decoder recog
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-video-processed-log.csv single-mmap-video streaming decoder recog
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-video-processed-log.csv single-oci-video streaming decoder recog
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-video-processed-log.csv single-pod-video streaming decoder recog
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-video-processed-log.csv single-mmap-video video-single-mmap
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-video-processed-log.csv single-oci-video video-single-oci
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-video-processed-log.csv single-pod-video video-single-pod
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-video-processed-log.csv kn-full-video-video full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-video-processed-log.csv kn-original-video-video streaming decoder recog
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-video-processed-log.csv kn-partial-video-video streaming-d recog-partial
 
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-oci-wage-processed-log.csv multi-oci-wage validator format write-raw stats sum avg merit write-merit
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR multi-pod-wage-processed-log.csv multi-pod-wage validator format write-raw stats sum avg merit write-merit
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-wage-processed-log.csv single-mmap-wage validator format write-raw stats sum avg merit write-merit
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-wage-processed-log.csv single-oci-wage validator format write-raw stats sum avg merit write-merit
-go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-wage-processed-log.csv single-pod-wage validator format write-raw stats sum avg merit write-merit
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-mmap-wage-processed-log.csv single-mmap-wage wage-single-mmap
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-oci-wage-processed-log.csv single-oci-wage wage-single-oci
+go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR single-pod-wage-processed-log.csv single-pod-wage wage-single-pod
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-full-wage-processed-log.csv kn-full-wage-wage full
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-original-wage-processed-log.csv kn-original-wage-wage validator format write-raw stats sum avg merit write-merit
 go run ../../tools/processing-scripts/process-logs.go "0:0:0" $LOGS_DIR kn-partial-wage-processed-log.csv kn-partial-wage-wage validator-fw stats-partial sum-amw

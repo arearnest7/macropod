@@ -62,8 +62,7 @@ spec:
           - name: DEST
             value: "10.43.190.2:80"
           - name: LEN
-            value: "1000000"
-            value: micro-rpc-a
+            value: "10000000"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -101,5 +100,4 @@ spec:
           - name: GRPC_THREAD
             value: "10"
           - name: LEN
-            value: "1000000"
-            value: micro-rpc-b
+            value: "10000000"

@@ -26,14 +26,14 @@ spec:
         app: macropod-python
     spec:
       nodeSelector:
-        kubernetes.io/hostname: earnest-vm-3
+        kubernetes.io/hostname: sys-dev-vm-3
       volumes:
       - name: macropod-pv
         emptyDir:
           medium: Memory
       containers:
       - name: macropod-python-1
-        image: arearnest7/macropod-python:latest
+        image: arsys-dev7/macropod-python:latest
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -52,7 +52,7 @@ spec:
             value: "127.0.0.1:5001"
             value: macropod-python-1
       - name: macropod-python-2
-        image: arearnest7/macropod-python:latest
+        image: arsys-dev7/macropod-python:latest
         ports:
         - containerPort: 5001
         volumeMounts:

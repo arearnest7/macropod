@@ -1,4 +1,4 @@
 #!/bin/bash
-kubectl apply -f ./yamls/video-streaming.yaml
-kubectl apply -f ./yamls/video-decoder.yaml
-kubectl apply -f ./yamls/video-recog.yaml
+sudo kubectl apply -f ./yamls/video-streaming.yaml 2> /dev/null
+sudo kubectl apply -f ./yamls/video-decoder.yaml 2> /dev/null
+sudo kubectl apply -f ./yamls/video-recog.yaml 2> /dev/null

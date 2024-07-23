@@ -3,19 +3,19 @@ name: hotel-frontend
 runtime: go
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/hotel-frontend:kn
-imageDigest: sha256:f3344725d59dcd10d05c495eb046ac2eb7316877e726b3fce02d8e3d680a55e5
+imageDigest: sha256:6c4dd3a7bc83fdbc361fc2f570b8d0aac6007cf4bf886f17014ff14c18fb926e
 created: 2023-10-26T19:30:15.504368653-05:00
 build:
   builder: pack
 run:
   envs:
   - name: HOTEL_SEARCH
-    value: http://hotel-search.default.127.0.0.1.sslip.io
+    value: http://hotel-search.knative-functions.127.0.0.1.sslip.io
   - name: HOTEL_RECOMMEND
-    value: http://hotel-recommend.default.127.0.0.1.sslip.io
+    value: http://hotel-recommend.knative-functions.127.0.0.1.sslip.io
   - name: HOTEL_RESERVE
-    value: http://hotel-reserve.default.127.0.0.1.sslip.io
+    value: http://hotel-reserve.knative-functions.127.0.0.1.sslip.io
   - name: HOTEL_USER
-    value: http://hotel-user.default.127.0.0.1.sslip.io
+    value: http://hotel-user.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

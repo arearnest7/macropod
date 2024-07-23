@@ -2,7 +2,7 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: election-vote-processor
-  namespace: default
+  namespace: knative-functions
 spec:
   template:
     metadata:

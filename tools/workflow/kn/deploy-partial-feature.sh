@@ -1,4 +1,4 @@
 #!/bin/bash
-kubectl apply -f ./yamls/feature-extractor-partial.yaml
-kubectl apply -f ./yamls/feature-orchestrator-wsr.yaml
+sudo kubectl apply -f ./yamls/feature-extractor-partial.yaml 2> /dev/null
+sudo kubectl apply -f ./yamls/feature-orchestrator-wsr.yaml 2> /dev/null
 

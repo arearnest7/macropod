@@ -50,7 +50,6 @@ spec:
             value: "127.0.0.1:5001"
           - name: LEN
             value: "1000000"
-            value: micro-rpc-a
       - name: micro-rpc-b
         image: arearnest7/micro-rpc-b:macropod
         ports:
@@ -67,4 +66,3 @@ spec:
             value: "10"
           - name: LEN
             value: "1000000"
-            value: micro-rpc-b

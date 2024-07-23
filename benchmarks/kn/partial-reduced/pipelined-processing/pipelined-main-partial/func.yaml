@@ -3,17 +3,17 @@ name: pipelined-main-partial
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/pipelined-main-partial:kn
-imageDigest: sha256:f7ea8fe81b8d5b0a367ce1723b5ce20a0385f4dbda76923243ff0d71f540d3f8
+imageDigest: sha256:94115f94e165e4f90ece665ea5f065bb24e7bb9e86017210b63a9e0a61adce20
 created: 2023-12-03T21:21:53.008269067-06:00
 build:
   builder: pack
 run:
   envs:
   - name: PIPELINED_CHECKSUM_PARTIAL
-    value: http://pipelined-checksum-partial.default.127.0.0.1.sslip.io
+    value: http://pipelined-checksum-partial.knative-functions.127.0.0.1.sslip.io
   - name: PIPELINED_ZIP_PARTIAL
-    value: http://pipelined-zip-partial.default.127.0.0.1.sslip.io
+    value: http://pipelined-zip-partial.knative-functions.127.0.0.1.sslip.io
   - name: PIPELINED_ENCRYPT_PARTIAL
-    value: http://pipelined-encrypt-partial.default.127.0.0.1.sslip.io
+    value: http://pipelined-encrypt-partial.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

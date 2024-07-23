@@ -88,9 +88,16 @@ func main() {
                         }
                     }
                     if len(wf_latency) > 0 {
-                        m, _ := stats.Median(wf_latency)
+                        len_idx := len(wf_latency)
+                        for i, latency := range wf_latency {
+                            if latency == 0 {
+                                len_idx = i
+                                break
+                            }
+                        }
+                        m, _ := stats.Median(wf_latency[:len_idx])
                         median = strconv.FormatFloat(m, 'f', -1, 64)
-                        p, _ := stats.Percentile(wf_latency, 99)
+                        p, _ := stats.Percentile(wf_latency[:len_idx], 99)
                         percentile99 = strconv.FormatFloat(p, 'f', -1, 64)
                     } else {
                         median = "0"

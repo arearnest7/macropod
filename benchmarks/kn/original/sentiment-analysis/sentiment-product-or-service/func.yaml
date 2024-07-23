@@ -3,17 +3,17 @@ name: sentiment-product-or-service
 runtime: python
 registry: docker.io/arearnest7
 image: docker.io/arearnest7/sentiment-product-or-service:kn
-imageDigest: sha256:81fb84b526c4325eff450665d956824432b7870acc12cc6088ae29debe03405a
+imageDigest: sha256:4f05c957421f6167257fd7f2e934c5b0724dbb2b35879e89fc50e987e7054db0
 created: 2023-12-03T21:00:18.001527034-06:00
 build:
   builder: pack
 run:
   envs:
   - name: SENTIMENT_PRODUCT_SENTIMENT
-    value: http://sentiment-product-sentiment.default.127.0.0.1.sslip.io
+    value: http://sentiment-product-sentiment.knative-functions.127.0.0.1.sslip.io
   - name: SENTIMENT_SERVICE_SENTIMENT
-    value: http://sentiment-service-sentiment.default.127.0.0.1.sslip.io
+    value: http://sentiment-service-sentiment.knative-functions.127.0.0.1.sslip.io
   - name: SENTIMENT_CFAIL
-    value: http://sentiment-cfail.default.127.0.0.1.sslip.io
+    value: http://sentiment-cfail.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default
