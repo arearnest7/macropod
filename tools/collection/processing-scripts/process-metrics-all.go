@@ -43,7 +43,7 @@ func main() {
                     }
                 }
                 if exists && !prev_set {
-                    for i, entry := range line[1:] {
+                    for i, entry := range line[1:4] {
                         temp1, _ := strconv.ParseFloat(metrics_total[timestamp_s][i], 64)
                         temp2, _ := strconv.ParseFloat(entry, 64)
                         metrics_total[timestamp_s][i] = strconv.FormatFloat(temp1 + temp2, 'f', -1, 64)
@@ -52,13 +52,13 @@ func main() {
                     prev = append(prev, timestamp_s)
                 } else if !prev_set {
                     keys = append(keys, timestamp_s)
-                    metrics_total[timestamp_s] = line[1:]
+                    metrics_total[timestamp_s] = line[1:4]
                     for range(j) {
                         metrics_total[timestamp_s] = append(metrics_total[timestamp_s], "0")
                         metrics_total[timestamp_s] = append(metrics_total[timestamp_s], "0")
                         metrics_total[timestamp_s] = append(metrics_total[timestamp_s], "0")
                     }
-                    for _, entry := range line[1:] {
+                    for _, entry := range line[1:4] {
                         metrics_total[timestamp_s] = append(metrics_total[timestamp_s], entry)
                     }
                     prev = append(prev, timestamp_s)
@@ -70,9 +70,9 @@ func main() {
         defer r.Close()
         results := csv.NewWriter(r)
         defer results.Flush()
-        headers := []string{"timestamp", "cpu_load_1_total", "used_memory_total", "bytes_sent_total"}
+        headers := []string{"timestamp", "cpu_total_wo_idle", "used_memory_total", "bytes_sent_total"}
         for i := range(len(os.Args[2:])) {
-            headers = append(headers, "cpu_load_1_" + strconv.Itoa(i+1))
+            headers = append(headers, "cpu_total_wo_idle_" + strconv.Itoa(i+1))
             headers = append(headers, "user_memory_" + strconv.Itoa(i+1))
             headers = append(headers, "bytes_sent_" + strconv.Itoa(i+1))
         }
