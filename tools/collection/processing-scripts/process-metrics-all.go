@@ -70,9 +70,9 @@ func main() {
         defer r.Close()
         results := csv.NewWriter(r)
         defer results.Flush()
-        headers := []string{"timestamp", "cpu_total_wo_idle", "used_memory_total", "bytes_sent_total"}
+        headers := []string{"timestamp", "cpu_steal", "used_memory_total", "bytes_sent_total"}
         for i := range(len(os.Args[2:])) {
-            headers = append(headers, "cpu_total_wo_idle_" + strconv.Itoa(i+1))
+            headers = append(headers, "cpu_steal_" + strconv.Itoa(i+1))
             headers = append(headers, "user_memory_" + strconv.Itoa(i+1))
             headers = append(headers, "bytes_sent_" + strconv.Itoa(i+1))
         }

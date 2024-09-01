@@ -41,7 +41,7 @@ func main() {
         defer r.Close()
         results := csv.NewWriter(r)
         defer results.Flush()
-        headers := []string{"timestamp", "cpu_total_wo_idle", "used_memory", "bytes_sent"}
+        headers := []string{"timestamp", "cpu_steal", "used_memory", "bytes_sent"}
         results.Write(headers)
         for _, timestamp := range keys {
             line := metrics_total[timestamp]

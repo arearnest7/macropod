@@ -31,10 +31,10 @@ DIR=${2:-results}
 ./collect-election.sh $HOST 240 500 >> election-240.out
 ./collect-election.sh $HOST 250 500 >> election-250.out
 
-#./collect-feature.sh $HOST 1 500 >> feature-1.out
-#./collect-feature.sh $HOST 2 500 >> feature-2.out
-#./collect-feature.sh $HOST 4 500 >> feature-4.out
-#./collect-feature.sh $HOST 8 500 >> feature-8.out
+./collect-feature.sh $HOST 1 500 >> feature-1.out
+./collect-feature.sh $HOST 2 500 >> feature-2.out
+./collect-feature.sh $HOST 4 500 >> feature-4.out
+./collect-feature.sh $HOST 8 500 >> feature-8.out
 
 ./collect-hotel.sh $HOST 1 500 >> hotel-1.out
 ./collect-hotel.sh $HOST 2 500 >> hotel-2.out
@@ -114,6 +114,7 @@ DIR=${2:-results}
 #./collect-wage.sh $HOST 16 500 >> wage-16.out
 
 mkdir $DIR
+chmod 777 $DIR
 mv *.csv $DIR
 mv *.out $DIR
 mv cold-start $DIR

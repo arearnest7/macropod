@@ -36,7 +36,7 @@ func main() {
                 var tags []string
                 tags = append(tags, wf_name)
                 tags = append(tags, "E2E Workflow Latency")
-                tags = append(tags, "Peak Used CPU")
+                tags = append(tags, "Peak CPU Contention")
                 tags = append(tags, "Peak Used Memory")
                 tags = append(tags, "Peak Bytes Sent")
                 for _, tag := range temp {

@@ -30,4 +30,5 @@ DIR=${2:-results}
 ./collect-yaml.sh video 1 ../payloads/video.json 500 "video-streaming video-decoder video-recog"
 ./collect-yaml.sh wage 1 ../payloads/wage.json 500 "wage-validator wage-format wage-write-raw wage-stats wage-sum wage-avg wage-merit wage-write-merit"
 mkdir $DIR
+chmod 777 $DIR
 mv *.csv $DIR

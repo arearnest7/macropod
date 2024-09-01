@@ -28,7 +28,7 @@ func main() {
         tags = append(tags, "Workflow")
         tags = append(tags, "E2E Workflow Latency median")
         tags = append(tags, "E2E Workflow Latency 99 percentile")
-        tags = append(tags, "Peak Used CPU")
+        tags = append(tags, "Peak CPU Contention")
         tags = append(tags, "Peak Used Memory")
         tags = append(tags, "Peak Bytes Sent")
         for i := range((len(metrics_record[0]) - 4) / 3) {
