@@ -1,7 +1,8 @@
 #!/bin/bash
 MASTER_IP=$1
-TOKEN=$2
-curl -sfL https://get.k3s.io | K3S_URL=https://$MASTER_IP:6443 K3S_TOKEN=$TOKEN sh -
+iface=$2
+TOKEN=$3
+curl -sfL https://get.k3s.io | K3S_URL=https://$MASTER_IP:6443 K3S_TOKEN=$TOKEN sh --flannel-iface=$iface -
 mkdir metrics
 chmod 777 metrics
 cd metrics
