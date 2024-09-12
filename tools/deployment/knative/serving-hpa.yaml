@@ -34,7 +34,11 @@ spec:
         app.kubernetes.io/name: knative-serving
         app.kubernetes.io/version: "1.12.2"
     spec:
-      # To avoid node becoming SPOF, spread our replicas to different nodes.
+      tolerations:
+      - effect: NoSchedule
+        key: taint_key
+        operator: Equal
+        value: master_node
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

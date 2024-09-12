@@ -9322,6 +9322,11 @@ spec:
         service.istio.io/canonical-revision: latest
         sidecar.istio.io/inject: "false"
     spec:
+      tolerations:
+        - effect: NoSchedule
+          key: taint_key
+          operator: Equal
+          value: master_node
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution: null
@@ -9537,6 +9542,11 @@ spec:
         operator.istio.io/component: Pilot
         sidecar.istio.io/inject: "false"
     spec:
+      tolerations:
+        - effect: NoSchedule
+          key: taint_key
+          operator: Equal
+          value: master_node
       containers:
         - args:
             - discovery
