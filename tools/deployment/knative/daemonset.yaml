@@ -1,0 +1,8 @@
+spec:
+  template:
+    spec:
+      tolerations:
+        - effect: NoSchedule
+          key: taint_key
+          operator: Equal
+          value: master_node

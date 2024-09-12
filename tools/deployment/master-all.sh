@@ -15,11 +15,14 @@ host_name=$(hostname)
 kubectl taint nodes $host_name taint_key=master_node:NoSchedule
 sudo kubectl apply -f knative/serving-crds.yaml
 sudo kubectl apply -f knative/serving-core.yaml
+sudo kubectl apply -f knative/istio-ns.yaml
 sudo kubectl apply -f knative/istio.yaml
 sudo kubectl apply -f knative/net-istio.yaml
 sudo kubectl apply -f knative/serving-default-domain.yaml
 sudo kubectl apply -f knative/autoscaler.yaml
 sudo kubectl apply -f macropod.yaml
+sleep 60s
+sudo kubectl get daemonset -A -o jsonpath='{range .items[*]}{.metadata.name}{" -n "}{.metadata.namespace}{"\n"}{end}' | while read -r line; do sudo kubectl patch daemonset $line --patch-file knative/daemonset.yaml; done
 wget https://github.com/knative/client/releases/download/knative-v1.11.2/kn-linux-amd64
 mv kn-linux-amd64 kn
 chmod +x kn

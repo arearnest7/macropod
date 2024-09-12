@@ -5297,7 +5297,6 @@ data:
     example.org: |
       selector:
         app: nonprofit
-
 ---
 # Copyright 2020 The Knative Authors
 #
