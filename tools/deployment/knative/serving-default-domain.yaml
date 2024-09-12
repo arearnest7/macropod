@@ -34,6 +34,11 @@ spec:
         app.kubernetes.io/version: "1.12.0"
     spec:
       serviceAccountName: controller
+      tolerations:
+      - effect: NoSchedule
+        key: taint_key
+        operator: Equal
+        value: master_node
       containers:
         - name: default-domain
           # This is the Go import path for the binary that is containerized
