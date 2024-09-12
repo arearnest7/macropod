@@ -28,13 +28,8 @@ func main() {
         tags = append(tags, "Workflow")
         tags = append(tags, "E2E Workflow Latency median")
         tags = append(tags, "E2E Workflow Latency 99 percentile")
-        tags = append(tags, "Peak CPU Contention")
-        tags = append(tags, "Peak Used Memory")
-        tags = append(tags, "Peak Bytes Sent")
-        for i := range((len(metrics_record[0]) - 4) / 3) {
-            tags = append(tags, "Peak Used CPU " + strconv.Itoa(i+1))
-            tags = append(tags, "Peak Used Memory " + strconv.Itoa(i+1))
-            tags = append(tags, "Peak Bytes Sent " + strconv.Itoa(i+1))
+        for _, tag := range metrics_record[0] {
+            tags = append(tags, "Peak " + tag)
         }
         results.Write(tags)
         for _, latency_pair := range os.Args[4:] {
@@ -103,7 +98,7 @@ func main() {
                         median = "0"
                         percentile99 = "0"
                     }
-                    for i := range(len(metrics[0])) {
+                    for i := range(len(metrics[0]) - 1) {
                         var values []float64
                         for _, entry := range metrics {
                             values = append(values, entry[i])

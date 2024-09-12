@@ -31,10 +31,10 @@ DIR=${2:-results}
 ./collect-election.sh $HOST 240 500 >> election-240.out
 ./collect-election.sh $HOST 250 500 >> election-250.out
 
-./collect-feature.sh $HOST 1 500 >> feature-1.out
-./collect-feature.sh $HOST 2 500 >> feature-2.out
-./collect-feature.sh $HOST 4 500 >> feature-4.out
-./collect-feature.sh $HOST 8 500 >> feature-8.out
+#./collect-feature.sh $HOST 1 500 >> feature-1.out
+#./collect-feature.sh $HOST 2 500 >> feature-2.out
+#./collect-feature.sh $HOST 4 500 >> feature-4.out
+#./collect-feature.sh $HOST 8 500 >> feature-8.out
 
 ./collect-hotel.sh $HOST 1 500 >> hotel-1.out
 ./collect-hotel.sh $HOST 2 500 >> hotel-2.out
@@ -65,12 +65,6 @@ DIR=${2:-results}
 ./collect-hotel.sh $HOST 230 500 >> hotel-230.out
 ./collect-hotel.sh $HOST 240 500 >> hotel-240.out
 ./collect-hotel.sh $HOST 250 500 >> hotel-250.out
-
-#./collect-pipelined.sh $HOST 1 500 >> pipelined-1.out
-#./collect-pipelined.sh $HOST 2 500 >> pipelined-2.out
-#./collect-pipelined.sh $HOST 4 500 >> pipelined-4.out
-#./collect-pipelined.sh $HOST 8 500 >> pipelined-8.out
-#./collect-pipelined.sh $HOST 16 500 >> pipelined-16.out
 
 ./collect-sentiment.sh $HOST 1 500 >> sentiment-1.out
 ./collect-sentiment.sh $HOST 2 500 >> sentiment-2.out
@@ -106,12 +100,31 @@ DIR=${2:-results}
 ./collect-video.sh $HOST 2 500 >> video-2.out
 ./collect-video.sh $HOST 4 500 >> video-4.out
 ./collect-video.sh $HOST 8 500 >> video-8.out
-
-#./collect-wage.sh $HOST 1 500 >> wage-1.out
-#./collect-wage.sh $HOST 2 500 >> wage-2.out
-#./collect-wage.sh $HOST 4 500 >> wage-4.out
-#./collect-wage.sh $HOST 8 500 >> wage-8.out
-#./collect-wage.sh $HOST 16 500 >> wage-16.out
+./collect-video.sh $HOST 16 500 >> video-16.out
+./collect-video.sh $HOST 20 500 >> video-20.out
+./collect-video.sh $HOST 30 500 >> video-30.out
+./collect-video.sh $HOST 40 500 >> video-40.out
+./collect-video.sh $HOST 50 500 >> video-50.out
+./collect-video.sh $HOST 60 500 >> video-60.out
+./collect-video.sh $HOST 70 500 >> video-70.out
+./collect-video.sh $HOST 80 500 >> video-80.out
+./collect-video.sh $HOST 90 500 >> video-90.out
+./collect-video.sh $HOST 100 500 >> video-100.out
+./collect-video.sh $HOST 110 500 >> video-110.out
+./collect-video.sh $HOST 120 500 >> video-120.out
+./collect-video.sh $HOST 130 500 >> video-130.out
+./collect-video.sh $HOST 140 500 >> video-140.out
+./collect-video.sh $HOST 150 500 >> video-150.out
+./collect-video.sh $HOST 160 500 >> video-160.out
+./collect-video.sh $HOST 170 500 >> video-170.out
+./collect-video.sh $HOST 180 500 >> video-180.out
+./collect-video.sh $HOST 190 500 >> video-190.out
+./collect-video.sh $HOST 200 500 >> video-200.out
+./collect-video.sh $HOST 210 500 >> video-210.out
+./collect-video.sh $HOST 220 500 >> video-220.out
+./collect-video.sh $HOST 230 500 >> video-230.out
+./collect-video.sh $HOST 240 500 >> video-240.out
+./collect-video.sh $HOST 250 500 >> video-250.out
 
 mkdir $DIR
 chmod 777 $DIR

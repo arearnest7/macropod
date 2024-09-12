@@ -33,12 +33,7 @@ func main() {
             log_record, _ := log_reader.ReadAll()
             if len(log_record) > 0 {
                 temp := log_record[0]
-                var tags []string
-                tags = append(tags, wf_name)
-                tags = append(tags, "E2E Workflow Latency")
-                tags = append(tags, "Peak CPU Contention")
-                tags = append(tags, "Peak Used Memory")
-                tags = append(tags, "Peak Bytes Sent")
+                tags := []string{wf_name, "E2E Workflow Latency", "Peak CPU Contention", "Peak Used Memory", "Peak Bytes Sent"}
                 for _, tag := range temp {
                     tags = append(tags, tag)
                 }

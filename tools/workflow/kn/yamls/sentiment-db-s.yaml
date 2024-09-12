@@ -5,9 +5,6 @@ metadata:
   namespace: knative-functions
 spec:
   template:
-    metadata:
-      annotations:
-        autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
     spec:
       containers:
         - image: docker.io/arearnest7/sentiment-db-s:wob
