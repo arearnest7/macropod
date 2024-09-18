@@ -15,17 +15,17 @@ LATENCY_RESULTS_4="$DIR/latency-results-4.csv"
 LATENCY_FILES_8="kn-full-election-8.csv kn-original-election-8.csv kn-partial-election-8.csv kn-full-hotel-8.csv kn-original-hotel-8.csv kn-partial-hotel-8.csv kn-full-sentiment-8.csv kn-original-sentiment-8.csv kn-partial-sentiment-8.csv kn-full-video-8.csv kn-original-video-8.csv kn-partial-video-8.csv"
 LATENCY_OUT_8="election-8.out;hotel-8.out;sentiment-8.out;video-8.out"
 LATENCY_RESULTS_8="$DIR/latency-results-8.csv"
-LATENCY_FILES_16="kn-full-election-16.csv kn-original-election-16.csv kn-partial-election-16.csv kn-full-hotel-16.csv kn-original-hotel-16.csv kn-partial-hotel-16.csv kn-full-sentiment-16.csv kn-original-sentiment-16.csv kn-partial-sentiment-16.csv"
-LATENCY_OUT_16="election-16.out;hotel-16.out;sentiment-16.out"
+LATENCY_FILES_16="kn-full-election-16.csv kn-original-election-16.csv kn-partial-election-16.csv kn-full-hotel-16.csv kn-original-hotel-16.csv kn-partial-hotel-16.csv kn-full-sentiment-16.csv kn-original-sentiment-16.csv kn-partial-sentiment-16.csv kn-full-video-16.csv kn-original-video-16.csv kn-partial-video-16.csv"
+LATENCY_OUT_16="election-16.out;hotel-16.out;sentiment-16.out;video-16.out"
 LATENCY_RESULTS_16="$DIR/latency-results-16.csv"
-LATENCY_FILES_20="kn-full-election-20.csv kn-original-election-20.csv kn-partial-election-20.csv kn-full-hotel-20.csv kn-original-hotel-20.csv kn-partial-hotel-20.csv kn-full-sentiment-20.csv kn-original-sentiment-20.csv kn-partial-sentiment-20.csv"
-LATENCY_OUT_20="election-20.out;hotel-20.out;sentiment-20.out"
+LATENCY_FILES_20="kn-full-election-20.csv kn-original-election-20.csv kn-partial-election-20.csv kn-full-hotel-20.csv kn-original-hotel-20.csv kn-partial-hotel-20.csv kn-full-sentiment-20.csv kn-original-sentiment-20.csv kn-partial-sentiment-20.csv kn-full-video-20.csv kn-original-video-20.csv kn-partial-video-20.csv"
+LATENCY_OUT_20="election-20.out;hotel-20.out;sentiment-20.out;video-20.out"
 LATENCY_RESULTS_20="$DIR/latency-results-20.csv"
-LATENCY_FILES_30="kn-full-election-30.csv kn-original-election-30.csv kn-partial-election-30.csv kn-full-hotel-30.csv kn-original-hotel-30.csv kn-partial-hotel-30.csv kn-full-sentiment-30.csv kn-original-sentiment-30.csv kn-partial-sentiment-30.csv"
-LATENCY_OUT_30="election-30.out;hotel-30.out;sentiment-30.out"
+LATENCY_FILES_30="kn-full-election-30.csv kn-original-election-30.csv kn-partial-election-30.csv kn-full-hotel-30.csv kn-original-hotel-30.csv kn-partial-hotel-30.csv kn-full-sentiment-30.csv kn-original-sentiment-30.csv kn-partial-sentiment-30.csv kn-full-video-30.csv kn-original-video-30.csv kn-partial-video-30.csv"
+LATENCY_OUT_30="election-30.out;hotel-30.out;sentiment-30.out;video-30.out"
 LATENCY_RESULTS_30="$DIR/latency-results-30.csv"
-LATENCY_FILES_40="kn-full-election-40.csv kn-original-election-40.csv kn-partial-election-40.csv kn-full-hotel-40.csv kn-original-hotel-40.csv kn-partial-hotel-40.csv kn-full-sentiment-40.csv kn-original-sentiment-40.csv kn-partial-sentiment-40.csv"
-LATENCY_OUT_40="election-40.out;hotel-40.out;sentiment-40.out"
+LATENCY_FILES_40="kn-full-election-40.csv kn-original-election-40.csv kn-partial-election-40.csv kn-full-hotel-40.csv kn-original-hotel-40.csv kn-partial-hotel-40.csv kn-full-sentiment-40.csv kn-original-sentiment-40.csv kn-partial-sentiment-40.csv kn-full-video-40.csv kn-original-video-40.csv kn-partial-video-40.csv"
+LATENCY_OUT_40="election-40.out;hotel-40.out;sentiment-40.out;video-40.out"
 LATENCY_RESULTS_40="$DIR/latency-results-40.csv"
 LATENCY_FILES_50="kn-full-election-50.csv kn-original-election-50.csv kn-partial-election-50.csv kn-full-hotel-50.csv kn-original-hotel-50.csv kn-partial-hotel-50.csv kn-full-sentiment-50.csv kn-original-sentiment-50.csv kn-partial-sentiment-50.csv"
 LATENCY_OUT_50="election-50.out;hotel-50.out;sentiment-50.out"
@@ -120,6 +120,6 @@ go run ../../tools/collection/processing-scripts/process-latency.go 500 $LATENCY
 go run ../../tools/collection/processing-scripts/process-latency.go 500 $LATENCY_RESULTS_240 $DIR $LATENCY_FILES_240
 go run ../../tools/collection/processing-scripts/process-latency.go 500 $LATENCY_RESULTS_250 $DIR $LATENCY_FILES_250
 
-go run ../../tools/collection/processing-scripts/process-metrics-all.go $METRIC_RESULTS $METRIC_FILES
+go run ../../tools/collection/processing-scripts/process-metrics-multi.go $METRIC_RESULTS $METRIC_FILES
 
-go run ../../tools/collection/processing-scripts/process-multi-stats.go $STATS_RESULTS $METRIC_RESULTS $DIR "$LATENCY_RESULTS_1;$LATENCY_OUT_1" "$LATENCY_RESULTS_2;$LATENCY_OUT_2" "$LATENCY_RESULTS_4;$LATENCY_OUT_4" "$LATENCY_RESULTS_8;$LATENCY_OUT_8" "$LATENCY_RESULTS_16;$LATENCY_OUT_16" "$LATENCY_RESULTS_20;$LATENCY_OUT_20" "$LATENCY_RESULTS_30;$LATENCY_OUT_30" "$LATENCY_RESULTS_40;$LATENCY_OUT_40" "$LATENCY_RESULTS_50;$LATENCY_OUT_50" "$LATENCY_RESULTS_60;$LATENCY_OUT_60" "$LATENCY_RESULTS_70;$LATENCY_OUT_70" "$LATENCY_RESULTS_80;$LATENCY_OUT_80" "$LATENCY_RESULTS_90;$LATENCY_OUT_90" "$LATENCY_RESULTS_100;$LATENCY_OUT_100" "$LATENCY_RESULTS_110;$LATENCY_OUT_110" "$LATENCY_RESULTS_120;$LATENCY_OUT_120" "$LATENCY_RESULTS_130;$LATENCY_OUT_130" "$LATENCY_RESULTS_140;$LATENCY_OUT_140" "$LATENCY_RESULTS_150;$LATENCY_OUT_150" "$LATENCY_RESULTS_160;$LATENCY_OUT_160" "$LATENCY_RESULTS_170;$LATENCY_OUT_170" "$LATENCY_RESULTS_180;$LATENCY_OUT_180" "$LATENCY_RESULTS_190;$LATENCY_OUT_190" "$LATENCY_RESULTS_200;$LATENCY_OUT_200" "$LATENCY_RESULTS_210;$LATENCY_OUT_210" "$LATENCY_RESULTS_220;$LATENCY_OUT_220" "$LATENCY_RESULTS_230;$LATENCY_OUT_230" "$LATENCY_RESULTS_240;$LATENCY_OUT_240" "$LATENCY_RESULTS_250;$LATENCY_OUT_250"
+go run ../../tools/collection/processing-scripts/process-stats-multi.go $STATS_RESULTS $METRIC_RESULTS $DIR "$LATENCY_RESULTS_1;$LATENCY_OUT_1" "$LATENCY_RESULTS_2;$LATENCY_OUT_2" "$LATENCY_RESULTS_4;$LATENCY_OUT_4" "$LATENCY_RESULTS_8;$LATENCY_OUT_8" "$LATENCY_RESULTS_16;$LATENCY_OUT_16" "$LATENCY_RESULTS_20;$LATENCY_OUT_20" "$LATENCY_RESULTS_30;$LATENCY_OUT_30" "$LATENCY_RESULTS_40;$LATENCY_OUT_40" "$LATENCY_RESULTS_50;$LATENCY_OUT_50" "$LATENCY_RESULTS_60;$LATENCY_OUT_60" "$LATENCY_RESULTS_70;$LATENCY_OUT_70" "$LATENCY_RESULTS_80;$LATENCY_OUT_80" "$LATENCY_RESULTS_90;$LATENCY_OUT_90" "$LATENCY_RESULTS_100;$LATENCY_OUT_100" "$LATENCY_RESULTS_110;$LATENCY_OUT_110" "$LATENCY_RESULTS_120;$LATENCY_OUT_120" "$LATENCY_RESULTS_130;$LATENCY_OUT_130" "$LATENCY_RESULTS_140;$LATENCY_OUT_140" "$LATENCY_RESULTS_150;$LATENCY_OUT_150" "$LATENCY_RESULTS_160;$LATENCY_OUT_160" "$LATENCY_RESULTS_170;$LATENCY_OUT_170" "$LATENCY_RESULTS_180;$LATENCY_OUT_180" "$LATENCY_RESULTS_190;$LATENCY_OUT_190" "$LATENCY_RESULTS_200;$LATENCY_OUT_200" "$LATENCY_RESULTS_210;$LATENCY_OUT_210" "$LATENCY_RESULTS_220;$LATENCY_OUT_220" "$LATENCY_RESULTS_230;$LATENCY_OUT_230" "$LATENCY_RESULTS_240;$LATENCY_OUT_240" "$LATENCY_RESULTS_250;$LATENCY_OUT_250"

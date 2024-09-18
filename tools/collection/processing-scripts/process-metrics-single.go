@@ -25,7 +25,7 @@ func main() {
             for _, line := range record[1:] {
                 _, exists := metrics_total[line[0]]
                 if exists {
-                    for i, entry := range line[1:4] {
+                    for i, entry := range line[1:] {
                         temp1, _ := strconv.ParseFloat(metrics_total[line[0]][i], 64)
                         temp2, _ := strconv.ParseFloat(entry, 64)
                         metrics_total[line[0]][i] = strconv.FormatFloat(temp1 + temp2, 'f', -1, 64)

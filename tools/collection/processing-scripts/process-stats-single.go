@@ -25,6 +25,13 @@ func main() {
         metrics_reader := csv.NewReader(metrics_file)
         metrics_record, _ := metrics_reader.ReadAll()
         for _, wf_raw := range os.Args[4:] {
+            var tags []string
+            tags = append(tags, "Workflow")
+            tags = append(tags, "E2E Workflow Latency median")
+            tags = append(tags, "E2E Workflow Latency 99 percentile")
+            for _, tag := range metrics_record[0][1:] {
+                tags = append(tags, "Peak " + tag)
+            }
             s := strings.Split(wf_raw, ";")
             wf_name := s[0]
             log_name := s[1]
@@ -33,19 +40,14 @@ func main() {
             log_record, _ := log_reader.ReadAll()
             if len(log_record) > 0 {
                 temp := log_record[0]
-                tags := []string{wf_name, "E2E Workflow Latency", "Peak CPU Contention", "Peak Used Memory", "Peak Bytes Sent"}
                 for _, tag := range temp {
-                    tags = append(tags, tag)
+                    tags = append(tags, "Peak " + tag)
                 }
-                results.Write(tags)
-                var median []string
-                var percentile99 []string
-                median = append(median, "median")
-                percentile99 = append(percentile99, "99 percentile")
+                var median string
+                var percentile99 string
+                var peaks []string
                 var wf_latency []float64
-                var cpu []float64
-                var memory []float64
-                var bytes_sent []float64
+                var metrics [][]float64
                 var log_record_nano [][]int64
                 timestamp_name := s[1] + ".mts"
                 timestamp_file, _ := os.Open(timestamp_name)
@@ -66,51 +68,39 @@ func main() {
                     wf_latency = append(wf_latency, l)
                 }
                 for _, line := range metrics_record[1:] {
-                    timestamp, _ := time.Parse("2006-01-02 15:04:05 UTC", line[0])
-                    cpu_load_1, _ := strconv.ParseFloat(line[1], 64)
-                    used_memory, _ := strconv.ParseFloat(line[2], 64)
-                    bytes_sent_entry, _ := strconv.ParseFloat(line[3], 64)
+                    timestamp, _ := time.Parse("2006-01-02 15:04:05 +0000 UTC", line[0])
+                    var metrics_line []float64
+                    for _, v := range line[1:] {
+                        v_p, _ := strconv.ParseFloat(v, 64)
+                        metrics_line = append(metrics_line, v_p)
+                    }
                     if timestamp.After(timestamp_start) && timestamp.Before(timestamp_end) {
-                       cpu = append(cpu, cpu_load_1)
-                        memory = append(memory, used_memory)
-                        bytes_sent = append(bytes_sent, bytes_sent_entry)
+                        metrics = append(metrics, metrics_line)
                     }
                 }
                 if len(wf_latency) > 0 {
-                    m, _ := stats.Median(wf_latency)
-                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
-                    p, _ := stats.Percentile(wf_latency, 99)
-                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
+                    len_idx := len(wf_latency)
+                    for i, latency := range wf_latency {
+                        if latency == 0 {
+                            len_idx = i
+                            break
+                        }
+                    }
+                    m, _ := stats.Median(wf_latency[:len_idx])
+                    median = strconv.FormatFloat(m, 'f', -1, 64)
+                    p, _ := stats.Percentile(wf_latency[:len_idx], 99)
+                    percentile99 = strconv.FormatFloat(p, 'f', -1, 64)
                 } else {
-                    median = append(median, "0")
-                    percentile99 = append(percentile99, "0")
+                    median = "0"
+                    percentile99 = "0"
                 }
-                if len(cpu) > 0 {
-                    m, _ := stats.Median(cpu)
-                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
-                    p, _ := stats.Percentile(cpu, 99)
-                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
-                } else {
-                    median = append(median, "0")
-                    percentile99 = append(percentile99, "0")
-                }
-                if len(memory) > 0 {
-                    m, _ := stats.Median(memory)
-                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
-                    p, _ := stats.Percentile(memory, 99)
-                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
-                } else {
-                    median = append(median, "0")
-                    percentile99 = append(percentile99, "0")
-                }
-                if len(bytes_sent) > 0 {
-                    m, _ := stats.Median(bytes_sent)
-                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
-                    p, _ := stats.Percentile(bytes_sent, 99)
-                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
-                } else {
-                    median = append(median, "0")
-                    percentile99 = append(percentile99, "0")
+                for i := range(len(metrics[0])) {
+                    var values []float64
+                    for _, entry := range metrics {
+                        values = append(values, entry[i])
+                    }
+                    peak, _ := stats.Max(values)
+                    peaks = append(peaks, strconv.FormatFloat(peak, 'f', -1, 64))
                 }
                 for _, line := range log_record[1:] {
                     var newline []int64
@@ -130,13 +120,18 @@ func main() {
                             temp2 = append(temp2, 0)
                         }
                     }
-                    m, _ := stats.Median(temp2)
-                    median = append(median, strconv.FormatFloat(m, 'f', -1, 64))
-                    p, _ := stats.Percentile(temp2, 99)
-                    percentile99 = append(percentile99, strconv.FormatFloat(p, 'f', -1, 64))
+                    peak, _ := stats.Max(temp2)
+                    peaks = append(peaks, strconv.FormatFloat(peak, 'f', -1, 64))
                 }
-                results.Write(median)
-                results.Write(percentile99)
+                results.Write(tags)
+                stats_line := make([]string, 0)
+                stats_line = append(stats_line, wf_name)
+                stats_line = append(stats_line, median)
+                stats_line = append(stats_line, percentile99)
+                for _, peak := range peaks {
+                    stats_line = append(stats_line, peak)
+                }
+                results.Write(stats_line)
             }
         }
     }

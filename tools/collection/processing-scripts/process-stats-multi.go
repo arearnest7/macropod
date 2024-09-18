@@ -28,7 +28,7 @@ func main() {
         tags = append(tags, "Workflow")
         tags = append(tags, "E2E Workflow Latency median")
         tags = append(tags, "E2E Workflow Latency 99 percentile")
-        for _, tag := range metrics_record[0] {
+        for _, tag := range metrics_record[0][1:] {
             tags = append(tags, "Peak " + tag)
         }
         results.Write(tags)
@@ -98,7 +98,7 @@ func main() {
                         median = "0"
                         percentile99 = "0"
                     }
-                    for i := range(len(metrics[0]) - 1) {
+                    for i := range(len(metrics[0])) {
                         var values []float64
                         for _, entry := range metrics {
                             values = append(values, entry[i])
