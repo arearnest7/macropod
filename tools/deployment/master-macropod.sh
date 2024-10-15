@@ -6,7 +6,7 @@ host=$(/sbin/ifconfig $iface | grep -i mask | awk '{print $2}'| cut -f2 -d:)
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
 sudo apt install docker.io
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --flannel-iface=$iface --node-external-ip $host --kube-apiserver-arg enable-admission-plugins=PodNodeSelector,PodTolerationRestriction -v=10 --log=/var/test-k3s.log --kube-scheduler-arg=v=10" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --flannel-iface=$iface --node-external-ip $host --kube-apiserver-arg enable-admission-plugins=PodNodeSelector,PodTolerationRestriction -v=1 --log=/var/test-k3s.log" sh -
 sleep 30s
 sudo cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
 echo "export KUBECONFIG=/root/.kube/config" | sudo tee -a /root/.profile >> /dev/null

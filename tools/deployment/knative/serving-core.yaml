@@ -5010,6 +5010,7 @@ metadata:
   annotations:
     knative.dev/example-checksum: "e7973912"
 data:
+  container-concurrency: "5"
   _example: |
     ################################
     #                              #
@@ -5591,60 +5592,17 @@ metadata:
   annotations:
     knative.dev/example-checksum: "53fda05f"
 data:
-  _example: |
-    ################################
-    #                              #
-    #    EXAMPLE CONFIGURATION     #
-    #                              #
-    ################################
-
-    # This block is not actually functional configuration,
-    # but serves to illustrate the available configuration
-    # options and document them in a way that is accessible
-    # to users that `kubectl edit` this config map.
-    #
-    # These sample configuration options may be copied out of
-    # this example block and unindented to be in the data block
-    # to actually change the configuration.
-
-    # Common configuration for all Knative codebase
-    zap-logger-config: |
-      {
-        "level": "info",
-        "development": false,
-        "outputPaths": ["stdout"],
-        "errorOutputPaths": ["stderr"],
-        "encoding": "json",
-        "encoderConfig": {
-          "timeKey": "timestamp",
-          "levelKey": "severity",
-          "nameKey": "logger",
-          "callerKey": "caller",
-          "messageKey": "message",
-          "stacktraceKey": "stacktrace",
-          "lineEnding": "",
-          "levelEncoder": "",
-          "timeEncoder": "iso8601",
-          "durationEncoder": "",
-          "callerEncoder": ""
-        }
-      }
-
-    # Log level overrides
-    # For all components except the queue proxy,
-    # changes are picked up immediately.
-    # For queue proxy, changes require recreation of the pods.
-    loglevel.controller: "info"
-    loglevel.autoscaler: "info"
-    loglevel.queueproxy: "info"
-    loglevel.webhook: "info"
-    loglevel.activator: "info"
-    loglevel.hpaautoscaler: "info"
-    loglevel.net-certmanager-controller: "info"
-    loglevel.net-istio-controller: "info"
-    loglevel.net-contour-controller: "info"
-    loglevel.net-kourier-controller: "info"
-    loglevel.net-gateway-api-controller: "info"
+  loglevel.controller: "warn"
+  loglevel.autoscaler: "warn"
+  loglevel.queueproxy: "warn"
+  loglevel.webhook: "warn"
+  loglevel.activator: "warn"
+  loglevel.hpaautoscaler: "warn"
+  loglevel.net-certmanager-controller: "warn"
+  loglevel.net-istio-controller: "warn"
+  loglevel.net-contour-controller: "warn"
+  loglevel.net-kourier-controller: "warn"
+  loglevel.net-gateway-api-controller: "warn"
 
 ---
 # Copyright 2018 The Knative Authors

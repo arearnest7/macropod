@@ -6,7 +6,7 @@ host=$(/sbin/ifconfig $iface | grep -i mask | awk '{print $2}'| cut -f2 -d:)
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
 sudo apt install docker.io
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --flannel-iface=$iface --node-external-ip $host --flannel-external-ip --kube-apiserver-arg enable-admission-plugins=PodNodeSelector,PodTolerationRestriction -v=10 --log=/var/test-k3s.log --kube-scheduler-arg=v=10" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --flannel-iface=$iface --node-external-ip $host --flannel-external-ip --kube-apiserver-arg enable-admission-plugins=PodNodeSelector,PodTolerationRestriction -v=1 --log=/var/test-k3s.log" sh -
 sleep 30s
 sudo cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
 echo "export KUBECONFIG=/root/.kube/config" | sudo tee -a /root/.profile >> /dev/null
@@ -19,10 +19,11 @@ sudo kubectl apply -f knative/serving-core.yaml
 sudo kubectl apply -f knative/istio-ns.yaml
 sudo kubectl apply -f knative/istio.yaml
 sudo kubectl apply -f knative/net-istio.yaml
-sudo kubectl apply -f knative/serving-default-domain.yaml
 sudo kubectl apply -f knative/autoscaler.yaml
 sleep 60s
 sudo kubectl get daemonset -A -o jsonpath='{range .items[*]}{.metadata.name}{" -n "}{.metadata.namespace}{"\n"}{end}' | while read -r line; do sudo kubectl patch daemonset $line --patch-file knative/daemonset.yaml; done
+sleep 60s
+sudo kubectl apply -f knative/serving-default-domain.yaml
 wget https://github.com/knative/client/releases/download/knative-v1.11.2/kn-linux-amd64
 mv kn-linux-amd64 kn
 chmod +x kn

@@ -17,7 +17,10 @@ func main() {
         for _, file_name := range os.Args[2:] {
             file, _ := os.Open(file_name)
             reader := csv.NewReader(file)
-            record, _ := reader.ReadAll()
+            record, err := reader.ReadAll()
+            if err != nil {
+                fmt.Println(err)
+            }
             records = append(records, record)
         }
         metrics_total := make(map[string][]string)
