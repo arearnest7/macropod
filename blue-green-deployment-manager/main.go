@@ -510,9 +510,6 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 				Name: namespace,
 			},
 			Spec: appsv1.DeploymentSpec{
-				Selector: &metav1.LabelSelector{
-					MatchLabels: map[string]string{"app": namespace},
-				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
 						Labels: map[string]string{"app": namespace},
@@ -899,9 +896,6 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 				},
 				Spec: appsv1.DeploymentSpec{
 					Replicas: &replicaCount,
-					Selector: &metav1.LabelSelector{
-						MatchLabels: labels,
-					},
 					Template: corev1.PodTemplateSpec{
 						ObjectMeta: metav1.ObjectMeta{
 							Labels: labels,
@@ -1028,7 +1022,7 @@ func DeleteNamespace(namespace string) error {
 	return err
 }
 
-func metricEvalHandler(func_name string) string {
+func metricEvalHandler(func_name string, replicaNumber int32) string {
 	log.Printf("Evaluation metrics of %s", func_name)
 	version := version_function[func_name]
 	versionStr := strconv.Itoa(version)
@@ -1093,7 +1087,7 @@ func metricEvalHandler(func_name string) string {
 }
 
 // this will look into the function name and check if version 0 is available - if yes, move ahead and deploy - this will also keep track of the versions and functions that are being handled
-func makeNewFunctionHandler(func_name string) string {
+func makeNewFunctionHandler(func_name string, replicaNumber int32) string {
 	log.Printf("Deploying new function.....%s", func_name)
 	version := 0
 	versionStr := strconv.Itoa(version)
@@ -1154,14 +1148,17 @@ func getLogs(func_name string) string {
 func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceRequest) (*pb.DeploymentServiceReply, error) {
 	func_name := req.Name
 	var result string
+	replicaNumber := req.ReplicaNumber
+	log.Print(replicaNumber)
+	log.Print(req.FunctionCall)
 	if req.FunctionCall == "logs" {
 		result = getLogs(func_name)
 	}
 	if req.FunctionCall == "new_invoke" {
-		result = makeNewFunctionHandler(func_name)
+		result = makeNewFunctionHandler(func_name, replicaNumber)
 	}
 	if req.FunctionCall == "existing_invoke" {
-		result = metricEvalHandler(func_name)
+		result = metricEvalHandler(func_name, replicaNumber)
 	}
 	return &pb.DeploymentServiceReply{
 		Message: fmt.Sprintf("%s", result),
