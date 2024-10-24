@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: hotel-reserve
 runtime: go
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/hotel-reserve:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/hotel-reserve:kn
 imageDigest: sha256:98ca837090a86b25e02f86b9319fa0a545dcbd36408e62db35096c2acbd88931
 created: 2023-10-26T19:54:47.835967387-05:00
 build:

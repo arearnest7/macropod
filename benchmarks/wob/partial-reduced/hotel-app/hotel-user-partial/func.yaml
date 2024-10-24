@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: hotel-user-partial
 runtime: go
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/hotel-user-partial:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/hotel-user-partial:wob
 imageDigest: sha256:e8e9414b69bce171f23942e82831e55dc54842824536b777bde54f24075d6537
 created: 2023-10-26T19:54:52.836777088-05:00
 build:

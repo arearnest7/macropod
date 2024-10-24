@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: wage-avg
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/wage-avg:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/wage-avg:wob
 imageDigest: sha256:75f22e4f5fbdf6f7b24f61745ad8d78eefa910c64c1433a18beef39b4e5aab97
 created: 2023-12-03T21:04:30.364238593-06:00
 build:

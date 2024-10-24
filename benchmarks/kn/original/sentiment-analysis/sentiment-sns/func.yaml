@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: sentiment-sns
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/sentiment-sns:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/sentiment-sns:kn
 imageDigest: sha256:4c48a611d4060486efa615670a88864b34740375df7dcdb3fffce9ffd438fe58
 created: 2023-12-03T21:01:12.622271734-06:00
 build:

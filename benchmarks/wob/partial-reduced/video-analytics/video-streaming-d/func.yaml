@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: video-streaming-d
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/video-streaming-d:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/video-streaming-d:wob
 imageDigest: sha256:2f4c5a9d59111cce0d2829dc233ebdb487bbcb659850992bc0241bb8375181cf
 created: 2023-11-05T16:52:48.093508325-06:00
 build:

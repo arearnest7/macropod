@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: sentiment-main
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/sentiment-main:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/sentiment-main:kn
 imageDigest: sha256:aaebc47813547293056e985ab1e94f3df8216b065bec909cd7294213d562a837
 created: 2023-12-03T21:00:08.460071908-06:00
 build:

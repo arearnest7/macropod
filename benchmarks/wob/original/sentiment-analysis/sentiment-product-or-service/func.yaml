@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: sentiment-product-or-service
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/sentiment-product-or-service:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/sentiment-product-or-service:wob
 imageDigest: sha256:f64f99172c24b1c5398e6302b493a5bcc8225e9dcb0c7962fb13dd2aa5ea797e
 created: 2023-12-03T21:00:18.001527034-06:00
 build:

@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: feature-orchestrator-wsr
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/feature-orchestrator-wsr:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/feature-orchestrator-wsr:wob
 imageDigest: sha256:2800f1cb5db2220ad8431789eb817ec6e0b2cf0b2e2c5d4bbb8c2ab37854910c
 created: 2023-12-03T21:19:25.926672298-06:00
 build:

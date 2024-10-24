@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: pipelined-main-partial
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/pipelined-main-partial:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/pipelined-main-partial:kn
 imageDigest: sha256:94115f94e165e4f90ece665ea5f065bb24e7bb9e86017210b63a9e0a61adce20
 created: 2023-12-03T21:21:53.008269067-06:00
 build:

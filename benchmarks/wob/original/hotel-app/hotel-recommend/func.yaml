@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: hotel-recommend
 runtime: go
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/hotel-recommend:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/hotel-recommend:wob
 imageDigest: sha256:f84e4174dc4f1f697b71308607cbdc871d18a04d6a777b7c8fd47b69b8b79c8a
 created: 2023-10-26T19:54:40.164310055-05:00
 build:

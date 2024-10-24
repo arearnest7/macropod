@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: wage-write-raw
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/wage-write-raw:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/wage-write-raw:kn
 imageDigest: sha256:74955f849b3867f9f0f70b9623a0b415d439b877a1bee601b62522498d99773c
 created: 2023-12-03T21:05:04.943050344-06:00
 build:

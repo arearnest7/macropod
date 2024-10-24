@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: wage-merit
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/wage-merit:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/wage-merit:wob
 imageDigest: sha256:04077996592d1b3016e3ddaff691b166fff02f68ff5457085dc310f2e389455a
 created: 2023-12-03T21:04:40.388331242-06:00
 build:

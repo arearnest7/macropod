@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: sentiment-product-sentiment
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/sentiment-product-sentiment:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/sentiment-product-sentiment:kn
 imageDigest: sha256:c09b25136d08290d2ec90272276e70a7f479710d09fe0ff845658a5633c099b9
 created: 2023-12-03T21:00:31.444133847-06:00
 build:

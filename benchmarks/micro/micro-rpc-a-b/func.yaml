@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: micro-rpc-a-b
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/micro-rpc-a-b:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/micro-rpc-a-b:kn
 imageDigest: sha256:2f333dd8a9d993aad82839a3d3037acac63d34f1761cfa4cf425e65556451ed9
 created: 2023-12-21T15:23:28.091437588-06:00
 build:

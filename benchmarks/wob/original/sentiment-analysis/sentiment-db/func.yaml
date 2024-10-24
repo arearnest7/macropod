@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: sentiment-db
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/sentiment-db:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/sentiment-db:wob
 imageDigest: sha256:946405b7579a1124c2391fd1bf1161041dd65947dd7bf722e4ac5d543ec0caf7
 created: 2023-12-03T21:00:05.343906893-06:00
 build:

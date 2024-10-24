@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: video-recog
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/video-recog:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/video-recog:wob
 imageDigest: sha256:8ec9c3b0cb466cd89621a6f222a6d070262b48fa1924b93814eb292fc0333fa3
 created: 2023-10-26T19:41:13.284986551-05:00
 build:

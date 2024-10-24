@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: election-vote-enqueuer
 runtime: node
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/election-vote-enqueuer:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/election-vote-enqueuer:wob
 imageDigest: sha256:5bc90fca6f0c907570091d89dcea13e0ad5e3fc116ace2f7b44c56e6b1135e8f
 created: 2023-10-10T14:56:57.264364766-05:00
 build:

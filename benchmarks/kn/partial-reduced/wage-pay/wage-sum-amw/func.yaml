@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: wage-sum-amw
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/wage-sum-amw:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/wage-sum-amw:kn
 imageDigest: sha256:6ba6bb2cf9966b209ac369015c85a1b4efe14ef7638b256d03c2a1a038e27aeb
 created: 2023-12-03T21:32:24.803571082-06:00
 build:

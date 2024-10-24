@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: video-decoder
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/video-decoder:wob
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/video-decoder:wob
 imageDigest: sha256:67cd2d46798376ac6e8f02a50e7ccb86b08f3b75e22d464e28f447a621ad88d8
 created: 2023-10-26T19:40:26.563671274-05:00
 build:

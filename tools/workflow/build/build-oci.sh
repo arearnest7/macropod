@@ -1,5 +1,5 @@
 #!/bin/bash
-ID=${1:-arearnest7}
+ID=${1:-sysdevtamu}
 sudo docker build ../../../benchmarks/oci/original/feature-generation/feature-extractor -t $ID/feature-extractor:oci && sudo docker push $ID/feature-extractor:oci
 sudo docker build ../../../benchmarks/oci/original/feature-generation/feature-orchestrator -t $ID/feature-orchestrator:oci && sudo docker push $ID/feature-orchestrator:oci
 sudo docker build ../../../benchmarks/oci/original/feature-generation/feature-reducer -t $ID/feature-reducer:oci && sudo docker push $ID/feature-reducer:oci

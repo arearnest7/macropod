@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: sentiment-main-rcposc
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/sentiment-main-rcposc:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/sentiment-main-rcposc:kn
 imageDigest: sha256:95f9a9bac87f028c6973be01691910c92cd85f229a6431f6b4b001959929c959
 created: 2023-12-03T21:27:22.752749433-06:00
 build:

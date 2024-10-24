@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: feature-wait
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/feature-wait:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/feature-wait:kn
 imageDigest: sha256:fee929a31461357a3946f4723f95c57339904214a2518ae95db38385f9adfb3f
 created: 2023-12-03T20:51:14.796019377-06:00
 build:

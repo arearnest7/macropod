@@ -1,8 +1,8 @@
 specVersion: 0.35.0
 name: sentiment-product-sentiment-prs
 runtime: python
-registry: docker.io/arearnest7
-image: docker.io/arearnest7/sentiment-product-sentiment-prs:kn
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/sentiment-product-sentiment-prs:kn
 imageDigest: sha256:a857ccd21e5113a63f9deff8f502c73a95a55f288a62133b7eaa5733e041aa32
 created: 2023-12-03T21:29:45.765241789-06:00
 build:
