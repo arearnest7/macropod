@@ -5,24 +5,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"google.golang.org/grpc"
-	pb "main/pb"
 	"io"
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"log"
+	pb "main/pb"
 	"math"
 	"net"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"google.golang.org/grpc"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 type server struct {
@@ -108,10 +108,10 @@ type Metrics struct {
 }
 
 var (
-	clientset          *kubernetes.Clientset
-	err                error
-	namesapce_ingress  string
-	version_function   map[string]int
+	clientset         *kubernetes.Clientset
+	err               error
+	namesapce_ingress string
+	version_function  map[string]int
 )
 
 func init() {
@@ -162,8 +162,6 @@ func convertCPUUsage(cpuUsage string) (float64, error) {
 		return 0, fmt.Errorf("unsupported CPU usage format %s", cpuUsage)
 	}
 }
-
-
 
 // convert memory given by metric server to float for comaprisions
 func convertMemoryUsage(memoryUsage string) (float64, error) {
@@ -331,116 +329,29 @@ func getKind(configMapName string) string {
 
 }
 
-// check for changes in config map configurations provided by uiser -> if the user update sthe existing depkoyment it needs to be changed toooo
-// keep running continuously
-func watchConfigMaps() {
-	for {
-		watcher, err := clientset.CoreV1().ConfigMaps(namesapce_ingress).Watch(context.TODO(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatalf("Failed to set up watch: %s", err)
-		}
-
-		for event := range watcher.ResultChan() {
-			configmap, ok := event.Object.(*corev1.ConfigMap)
-			if !ok {
-				continue
-			}
-
-			switch event.Type {
-			case watch.Modified:
-				//log.Printf("Updated host targets: %+v", configmap)
-				updateDeployment(configmap)
-			}
-
-		}
-	}
-}
-
-
-
-
-func watchNamespaces() {
-	for {
-		watcher, err := clientset.CoreV1().Namespaces().Watch(context.TODO(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatalf("Failed to set up watch: %s", err)
-		}
-
-		for event := range watcher.ResultChan() {
-			namespace, ok := event.Object.(*corev1.Namespace)
-			if !ok {
-				continue
-			}
-
-			switch event.Type {
-			case watch.Deleted:
-				updateDeletedNamespace(namespace.Name)
-			}
-
-		}
-	}
-}
-
-
-
-func updateDeletedNamespace(namespace string){
-	for key, version := range version_function{
+func updateDeletedNamespace(namespace string) {
+	for key, version := range version_function {
 		versionStr := strconv.Itoa(version)
-		ns := key+versionStr
-		if ns == namespace{
-			log.Printf("Deleting log of function of %s because the namespace has been externally deleted",namespace)
-			delete(version_function,key)
+		ns := key + versionStr
+		if ns == namespace {
+			log.Printf("Deleting log of function of %s because the namespace has been externally deleted", namespace)
+			delete(version_function, key)
 			return
 		}
 
 	}
 	return
 }
-func updateDeployment(configMap *corev1.ConfigMap) {
-	namespace := configMap.Name
-	func_name := configMap.Labels["function_name"]
-	log.Printf("ConfigMap for %s updates", namespace)
-	_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
-	if exists != nil {
-		//does not exist so ignore
-		return
-	} else {
-		log.Printf("ConfigMap for %s updates", namespace)
-		MakeDeployment(namespace, func_name, false, true)
-		MakeDeployment(namespace, func_name, true, true)
-		return
 
-	}
-
-}
-
-func MakeDeploymentSinglePod(kind string, namespace string, func_name string, ingress bool, update bool) error {
+func MakeDeploymentSinglePod(kind string, name_main string, func_name string, ingress bool, update bool, configMapName string) error {
 
 	log.Print("Deploying Single pod")
-
-	configMapName := namespace
 
 	configDataArray, err := getConfigMapData(namesapce_ingress, configMapName)
 	if err != nil {
 		log.Printf("Falied to delete deployment: %v\n", err)
 	}
 
-	// first lets make deplouyment and then service
-
-	namespace_object := &corev1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: namespace,
-		},
-	}
-
-	_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
-	if exists != nil {
-		_, err = clientset.CoreV1().Namespaces().Create(context.Background(), namespace_object, metav1.CreateOptions{})
-		if err != nil {
-			panic(err.Error())
-		}
-		log.Print("Namespace created successfuly")
-	}
 	if ingress == false {
 		// deployment := appsv1.Deployment{
 		// 	ObjectMeta: metav1.ObjectMeta{
@@ -462,12 +373,12 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 		// }
 		service := &corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      namespace,
-				Namespace: namespace,
+				Name:      name_main,
+				Namespace: "macropod-functions",
 			},
 			Spec: corev1.ServiceSpec{
 				Selector: map[string]string{
-					"app": namespace,
+					"app": name_main,
 				},
 				Ports: []corev1.ServicePort{},
 			},
@@ -507,12 +418,15 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 
 		deployment := appsv1.Deployment{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: namespace,
+				Name: name_main,
 			},
 			Spec: appsv1.DeploymentSpec{
+				Selector: &metav1.LabelSelector{
+					MatchLabels: map[string]string{"app": name_main},
+				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
-						Labels: map[string]string{"app": namespace},
+						Labels: map[string]string{"app": name_main},
 					},
 					Spec: corev1.PodSpec{
 						Containers: make([]corev1.Container, len(configDataArray)),
@@ -635,38 +549,30 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 
 		}
 
-		node_name := nodeCPUSort()
-		if node_name != "" {
-			log.Printf("Assigning node %s", node_name)
-			deployment.Spec.Template.Spec.NodeSelector = map[string]string{
-				"kubernetes.io/hostname": node_name,
-			}
-		}
-
 		// log.Print("Deploying...............")
 		// log.Print(deployment)
 		// log.Print("..............................")
 
 		if update == false {
-			log.Printf("Creating deployment and service %s in %s", namespace, namespace)
-			_, err = clientset.AppsV1().Deployments(namespace).Create(context.Background(), &deployment, metav1.CreateOptions{})
+			log.Printf("Creating deployment and service %s", name_main)
+			_, err = clientset.AppsV1().Deployments("macropod-functions").Create(context.Background(), &deployment, metav1.CreateOptions{})
 			if err != nil {
 				panic(err.Error())
 			}
 		} else {
-			log.Print("Updating deployment and service %s in %s", namespace, namespace)
-			_, err = clientset.AppsV1().Deployments(namespace).Update(context.Background(), &deployment, metav1.UpdateOptions{})
+			log.Printf("Updating deployment and service %s", name_main)
+			_, err = clientset.AppsV1().Deployments("macropod-functions").Update(context.Background(), &deployment, metav1.UpdateOptions{})
 			if err != nil {
 				panic(err.Error())
 			}
 		}
 		if update == false {
-			_, err = clientset.CoreV1().Services(namespace).Create(context.Background(), service, metav1.CreateOptions{})
+			_, err = clientset.CoreV1().Services("macropod-functions").Create(context.Background(), service, metav1.CreateOptions{})
 			if err != nil {
 				panic(err.Error())
 			}
 		} else {
-			_, err = clientset.CoreV1().Services(namespace).Update(context.Background(), service, metav1.UpdateOptions{})
+			_, err = clientset.CoreV1().Services("macropod-functions").Update(context.Background(), service, metav1.UpdateOptions{})
 			if err != nil {
 				panic(err.Error())
 			}
@@ -699,7 +605,7 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 				ingress := &networkingv1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      name,
-						Namespace: namespace,
+						Namespace: "macropod-functions",
 						Labels:    labels,
 					},
 					Spec: networkingv1.IngressSpec{
@@ -714,7 +620,7 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 												PathType: &pathType,
 												Backend: networkingv1.IngressBackend{
 													Service: &networkingv1.IngressServiceBackend{
-														Name: namespace,
+														Name: name_main,
 														Port: networkingv1.ServiceBackendPort{
 															Number: servicePort,
 														},
@@ -729,14 +635,14 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 					},
 				}
 				if update == false {
-					log.Printf("Creating ingress for %s in %s", name, namespace)
-					_, err = clientset.NetworkingV1().Ingresses(namespace).Create(context.Background(), ingress, metav1.CreateOptions{})
+					log.Printf("Creating ingress for %s", name_main)
+					_, err = clientset.NetworkingV1().Ingresses("macropod-functions").Create(context.Background(), ingress, metav1.CreateOptions{})
 					if err != nil {
 						panic(err.Error())
 					}
 				} else {
-					log.Printf("Updating ingress for %s in %s", name, namespace)
-					_, err = clientset.NetworkingV1().Ingresses(namespace).Update(context.Background(), ingress, metav1.UpdateOptions{})
+					log.Printf("Updating ingress for %s", name_main)
+					_, err = clientset.NetworkingV1().Ingresses("macropod-functions").Update(context.Background(), ingress, metav1.UpdateOptions{})
 					if err != nil {
 						panic(err.Error())
 					}
@@ -751,8 +657,7 @@ func MakeDeploymentSinglePod(kind string, namespace string, func_name string, in
 
 }
 
-func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ingress bool, update bool) error {
-	configMapName := namespace
+func MakeDeploymentMultiPod(kind string, name string, func_name string, ingress bool, update bool, configMapName string) error {
 
 	configDataArray, err := getConfigMapData(namesapce_ingress, configMapName)
 	if err != nil {
@@ -808,7 +713,7 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 
 		if endpoints != "" {
 			for _, endpoint := range endpointList {
-				service_name := endpoint + "." + namespace + "." + "svc.cluster.local"
+				service_name := endpoint + "." + name + "." + "svc.cluster.local"
 				name_key := strings.ToUpper(endpoint)
 				final_name := strings.ReplaceAll(name_key, "-", "_")
 				env = append(env, corev1.EnvVar{
@@ -816,20 +721,6 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 					Value: service_name,
 				})
 			}
-		}
-		namespace_object := &corev1.Namespace{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: namespace,
-			},
-		}
-
-		_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
-		if exists != nil {
-			_, err = clientset.CoreV1().Namespaces().Create(context.Background(), namespace_object, metav1.CreateOptions{})
-			if err != nil {
-				panic(err.Error())
-			}
-			log.Print("Namespace created successfuly")
 		}
 
 		// create deployment and service if ingress is false else make ingress resource
@@ -841,7 +732,7 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 				ingress := &networkingv1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      name,
-						Namespace: namespace,
+						Namespace: "macropod-functions",
 						Labels:    labels,
 					},
 					Spec: networkingv1.IngressSpec{
@@ -871,14 +762,14 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 					},
 				}
 				if update == false {
-					log.Printf("Creating ingress for %s in %s", name, namespace)
-					_, err = clientset.NetworkingV1().Ingresses(namespace).Create(context.Background(), ingress, metav1.CreateOptions{})
+					log.Printf("Creating ingress for %s", name)
+					_, err = clientset.NetworkingV1().Ingresses("macropod-functions").Create(context.Background(), ingress, metav1.CreateOptions{})
 					if err != nil {
 						panic(err.Error())
 					}
 				} else {
-					log.Printf("Updating ingress for %s in %s", name, namespace)
-					_, err = clientset.NetworkingV1().Ingresses(namespace).Update(context.Background(), ingress, metav1.UpdateOptions{})
+					log.Printf("Updating ingress for %s", name)
+					_, err = clientset.NetworkingV1().Ingresses("macropod-functions").Update(context.Background(), ingress, metav1.UpdateOptions{})
 					if err != nil {
 						panic(err.Error())
 					}
@@ -887,8 +778,8 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 			}
 		} else {
 
-			log.Print("Creating deployment and service %s in %s", name, namespace)
-			node_name := nodeCPUSort()
+			log.Print("Creating deployment and service %s", name)
+			// node_name := nodeCPUSort()
 			deployment := &appsv1.Deployment{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:   name,
@@ -896,6 +787,9 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 				},
 				Spec: appsv1.DeploymentSpec{
 					Replicas: &replicaCount,
+					Selector: &metav1.LabelSelector{
+						MatchLabels: labels,
+					},
 					Template: corev1.PodTemplateSpec{
 						ObjectMeta: metav1.ObjectMeta{
 							Labels: labels,
@@ -937,22 +831,15 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 
 			}
 
-			if node_name != "" {
-				log.Printf("Assigning node %s", node_name)
-				deployment.Spec.Template.Spec.NodeSelector = map[string]string{
-					"kubernetes.io/hostname": node_name,
-				}
-			}
-
 			if update == false {
-				log.Printf("Creating deployment and service %s in %s", name, namespace)
-				_, err = clientset.AppsV1().Deployments(namespace).Create(context.Background(), deployment, metav1.CreateOptions{})
+				log.Printf("Creating deployment and service %s", name)
+				_, err = clientset.AppsV1().Deployments("macropod-functions").Create(context.Background(), deployment, metav1.CreateOptions{})
 				if err != nil {
 					panic(err.Error())
 				}
 			} else {
-				log.Print("Updating deployment and service %s in %s", name, namespace)
-				_, err = clientset.AppsV1().Deployments(namespace).Update(context.Background(), deployment, metav1.UpdateOptions{})
+				log.Print("Updating deployment and service %s", name)
+				_, err = clientset.AppsV1().Deployments("macropod-functions").Update(context.Background(), deployment, metav1.UpdateOptions{})
 				if err != nil {
 					panic(err.Error())
 				}
@@ -963,7 +850,7 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 			service := &corev1.Service{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      name,
-					Namespace: namespace,
+					Namespace: "macropod-functions",
 				},
 				Spec: corev1.ServiceSpec{
 					Selector: map[string]string{
@@ -979,12 +866,12 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 				},
 			}
 			if update == false {
-				_, err = clientset.CoreV1().Services(namespace).Create(context.Background(), service, metav1.CreateOptions{})
+				_, err = clientset.CoreV1().Services("macropod-functions").Create(context.Background(), service, metav1.CreateOptions{})
 				if err != nil {
 					panic(err.Error())
 				}
 			} else {
-				_, err = clientset.CoreV1().Services(namespace).Update(context.Background(), service, metav1.UpdateOptions{})
+				_, err = clientset.CoreV1().Services("macropod-functions").Update(context.Background(), service, metav1.UpdateOptions{})
 				if err != nil {
 					panic(err.Error())
 				}
@@ -997,19 +884,18 @@ func MakeDeploymentMultiPod(kind string, namespace string, func_name string, ing
 	return nil
 
 }
-func MakeDeployment(namespace string, func_name string, ingress bool, update bool) error {
+func MakeDeployment(name string, func_name string, ingress bool, update bool, configMapName string) error {
 
-	configMapName := namespace
 	kind := getKind(configMapName)
 
 	if kind == "mmap" || kind == "single-pod" {
 		log.Print("Single Pod")
-		err := MakeDeploymentSinglePod(kind, namespace, func_name, ingress, update)
+		err := MakeDeploymentSinglePod(kind, name, func_name, ingress, update, configMapName)
 		return err
 
 	} else {
 		log.Print("Multi-Pod")
-		err := MakeDeploymentMultiPod(kind, namespace, func_name, ingress, update)
+		err := MakeDeploymentMultiPod(kind, name, func_name, ingress, update, configMapName)
 		return err
 
 	}
@@ -1017,86 +903,88 @@ func MakeDeployment(namespace string, func_name string, ingress bool, update boo
 }
 
 func DeleteNamespace(namespace string) error {
-	log.Print("Deleteing namespace %s\n", namespace)
+	log.Printf("Deleteing namespace %s\n", namespace)
 	err = clientset.CoreV1().Namespaces().Delete(context.TODO(), namespace, metav1.DeleteOptions{})
 	return err
 }
 
-func metricEvalHandler(func_name string, replicaNumber int32) string {
-	log.Printf("Evaluation metrics of %s", func_name)
-	version := version_function[func_name]
-	versionStr := strconv.Itoa(version)
-	namespace_existing := func_name + "-" + versionStr
-	// we have config maps stores in same namesapce as ingress and with name <func_name>-<version>
-	cpu_threshold1, cpu_threshold2, mm_threshold1, mm_threshold2, _ := getConfigMapThreshold(namesapce_ingress, namespace_existing)
-	var cpu_usage, mm_usage float64
-	for {
-		cpu_usage, mm_usage, err = getPodMetricsAndChanges(namespace_existing)
-		if err == nil {
-			break
-		}
-	}
-	if cpu_usage > cpu_threshold1 || mm_usage > mm_threshold1 {
-		log.Print("Threshold 1 reached")
-		version_update := version + 1
-		namespace_update := func_name + "-" + strconv.Itoa(version_update)
-		_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace_update, metav1.GetOptions{})
-		if exists != nil {
-			//namespace is not there
-			err := MakeDeployment(namespace_update, func_name, false, false)
-			if err != nil {
-				log.Printf("Falied to install deployment: %v\n", err)
-			}
-		}
-		if cpu_usage > cpu_threshold2 || mm_usage > mm_threshold2 {
-			log.Print("Threshold 2 reached")
+// func metricEvalHandler(func_name string, replicaNumber int32) string {
+// 	log.Printf("Evaluation metrics of %s", func_name)
+// 	version := version_function[func_name]
+// 	versionStr := strconv.Itoa(version)
+// 	namespace_existing := func_name + "-" + versionStr
+// 	// we have config maps stores in same namesapce as ingress and with name <func_name>-<version>
+// 	cpu_threshold1, cpu_threshold2, mm_threshold1, mm_threshold2, _ := getConfigMapThreshold(namesapce_ingress, namespace_existing)
+// 	var cpu_usage, mm_usage float64
+// 	for {
+// 		cpu_usage, mm_usage, err = getPodMetricsAndChanges(namespace_existing)
+// 		if err == nil {
+// 			break
+// 		}
+// 	}
+// 	if cpu_usage > cpu_threshold1 || mm_usage > mm_threshold1 {
+// 		log.Print("Threshold 1 reached")
+// 		version_update := version + 1
+// 		namespace_update := func_name + "-" + strconv.Itoa(version_update)
+// 		_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace_update, metav1.GetOptions{})
+// 		if exists != nil {
+// 			//namespace is not there
+// 			err := MakeDeployment(namespace_update, func_name, false, false)
+// 			if err != nil {
+// 				log.Printf("Falied to install deployment: %v\n", err)
+// 			}
+// 		}
+// 		if cpu_usage > cpu_threshold2 || mm_usage > mm_threshold2 {
+// 			log.Print("Threshold 2 reached")
 
-			// lets check if the deploymnets are up then only sfift ingress
-			deployments, err := clientset.AppsV1().Deployments(namespace_update).List(context.TODO(), metav1.ListOptions{})
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error listing deployments: %v\n", err)
-			}
-			//log.Print(deployments)
-			allRunning := true
-			for _, deployment := range deployments.Items {
-				if deployment.Status.ReadyReplicas == 0 {
-					fmt.Printf("Deployment %s is not running\n", deployment.Name)
-					allRunning = false
-					break
-				}
-			}
+// 			// lets check if the deploymnets are up then only sfift ingress
+// 			deployments, err := clientset.AppsV1().Deployments(namespace_update).List(context.TODO(), metav1.ListOptions{})
+// 			if err != nil {
+// 				fmt.Fprintf(os.Stderr, "Error listing deployments: %v\n", err)
+// 			}
+// 			//log.Print(deployments)
+// 			allRunning := true
+// 			for _, deployment := range deployments.Items {
+// 				if deployment.Status.ReadyReplicas == 0 {
+// 					fmt.Printf("Deployment %s is not running\n", deployment.Name)
+// 					allRunning = false
+// 					break
+// 				}
+// 			}
 
-			if allRunning {
+// 			if allRunning {
 
-				err = MakeDeployment(namespace_update, func_name, true, false)
-				if err != nil {
-					log.Printf("Falied to install ingress: %v\n", err)
-				}
-				err = DeleteNamespace(namespace_existing)
-				if err != nil {
-					log.Printf("Falied to delete older version: %v\n", err)
-				}
-				version_function[func_name] = version_update
-			}
+// 				err = MakeDeployment(namespace_update, func_name, true, false)
+// 				if err != nil {
+// 					log.Printf("Falied to install ingress: %v\n", err)
+// 				}
+// 				err = DeleteNamespace(namespace_existing)
+// 				if err != nil {
+// 					log.Printf("Falied to delete older version: %v\n", err)
+// 				}
+// 				version_function[func_name] = version_update
+// 			}
 
-		}
-	}
+// 		}
+// 	}
 
-	return "Evaluated metrics"
+// 	return "Evaluated metrics"
 
-}
+// }
 
 // this will look into the function name and check if version 0 is available - if yes, move ahead and deploy - this will also keep track of the versions and functions that are being handled
 func makeNewFunctionHandler(func_name string, replicaNumber int32) string {
 	log.Printf("Deploying new function.....%s", func_name)
 	version := 0
 	versionStr := strconv.Itoa(version)
-	namespace := func_name + "-" + versionStr
-	err := MakeDeployment(namespace, func_name, false, false)
+	replicaString := strconv.Itoa(int(replicaNumber))
+	configMapName := func_name + "-" + versionStr
+	name := func_name + "-" + versionStr + "-" + replicaString
+	err := MakeDeployment(name, func_name, false, false, configMapName)
 	if err != nil {
 		log.Printf("Falied to install deployment: %v\n", err)
 	}
-	err = MakeDeployment(namespace, func_name, true, false)
+	err = MakeDeployment(name, func_name, true, false, configMapName)
 	if err != nil {
 		log.Printf("Falied to install ingress: %v\n", err)
 	}
@@ -1150,15 +1038,11 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 	var result string
 	replicaNumber := req.ReplicaNumber
 	log.Print(replicaNumber)
-	log.Print(req.FunctionCall)
 	if req.FunctionCall == "logs" {
 		result = getLogs(func_name)
 	}
 	if req.FunctionCall == "new_invoke" {
 		result = makeNewFunctionHandler(func_name, replicaNumber)
-	}
-	if req.FunctionCall == "existing_invoke" {
-		result = metricEvalHandler(func_name, replicaNumber)
 	}
 	return &pb.DeploymentServiceReply{
 		Message: fmt.Sprintf("%s", result),
@@ -1166,15 +1050,14 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 }
 
 func main() {
-	go watchConfigMaps()
-	go watchNamespaces()
+
 	//http
 	// http.HandleFunc("/metric_eval", metricEvalHandler) //after first invokation
 	// http.HandleFunc("/make_new_function", makeNewFunctionHandler)
 	// http.HandleFunc("/get_logs", getLogs)
 	// log.Print("Server listening on :8080...")
 	//grpc
-	listener, err := net.Listen("tcp", ":8080")
+	listener, err := net.Listen("tcp", ":8082")
 	if err != nil {
 		panic(err)
 	}
