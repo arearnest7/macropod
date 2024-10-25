@@ -3,7 +3,7 @@ name: election-get-results-partial
 runtime: node
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/election-get-results-partial:wob
-imageDigest: sha256:cd37e8d419dc9fe136ea8356a0ae106fb9e7e33919e0b18cebc57956a56afd84
+imageDigest: sha256:3812267d35941e2ed06ccba5edaabc026dbe7383619ef0e879b072e5eb8db6d6
 created: 2023-10-20T10:09:21.067803343-05:00
 build:
   builder: pack

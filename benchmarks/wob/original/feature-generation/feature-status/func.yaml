@@ -3,7 +3,7 @@ name: feature-status
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-status:wob
-imageDigest: sha256:4d3b9a315735318a02e939bdafa9c0726cd6065fa40fe47918f7a703add79b01
+imageDigest: sha256:efc68a3d3b1269872ce478439175ccf951699020099a029ae7ea58008577d1d3
 created: 2023-12-03T20:51:11.858374137-06:00
 build:
   builder: pack

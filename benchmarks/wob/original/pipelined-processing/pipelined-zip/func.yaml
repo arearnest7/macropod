@@ -3,7 +3,7 @@ name: pipelined-zip
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/pipelined-zip:wob
-imageDigest: sha256:90f5d6dbc41b5973f0f509bfd837e9dac1e1139f65f2774c579c281591d216e2
+imageDigest: sha256:482377062fc38eb3c35106ca4cc4041a81426c9304ae2d524db0b01b383207c9
 created: 2023-12-03T20:55:20.453042627-06:00
 build:
   builder: pack

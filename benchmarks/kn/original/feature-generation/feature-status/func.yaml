@@ -3,7 +3,7 @@ name: feature-status
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-status:kn
-imageDigest: sha256:49d33041d31804f3936e1221fb42e22d778f859aca82fc20b16aab57c97584b4
+imageDigest: sha256:2541da5082802ce3372e0dc04037067ffd16d90de21639209075b7c0b28fc9ed
 created: 2023-12-03T20:51:11.858374137-06:00
 build:
   builder: pack

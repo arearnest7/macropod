@@ -3,7 +3,7 @@ name: pipelined-encrypt-partial
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/pipelined-encrypt-partial:wob
-imageDigest: sha256:9bdcf32104889e70e11142b48938ef85f016d3c87b033632b4208192f593130b
+imageDigest: sha256:ffebac5640dd8d6f7eef52ab9e40dda0123065bcab222f1fa19883872c888658
 created: 2023-12-03T21:21:47.577703094-06:00
 build:
   builder: pack

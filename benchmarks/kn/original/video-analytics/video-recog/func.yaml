@@ -3,7 +3,7 @@ name: video-recog
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/video-recog:kn
-imageDigest: sha256:4f2d2bebe5ed46d80c712c18c3fe70268c73bc69ec7f88bfe0c0f8067b260e75
+imageDigest: sha256:cb6ad750c140019e7491e57c2eefa72b4e2543eb32dfe8696ea45bfff0dbf89c
 created: 2023-10-26T19:41:13.284986551-05:00
 build:
   builder: pack

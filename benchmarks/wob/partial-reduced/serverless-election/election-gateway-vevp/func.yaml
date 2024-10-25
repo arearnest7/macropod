@@ -3,7 +3,7 @@ name: election-gateway-vevp
 runtime: node
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/election-gateway-vevp:wob
-imageDigest: sha256:6cfe5d96ce7f8edc0eb24285a38511793f5dc70b4367fcafe19b6521df8b777b
+imageDigest: sha256:be9926fdb927e8246f40ce8fff02cf048fec1730757f0ba95183530ba02ead2e
 created: 2023-10-20T10:09:34.92768829-05:00
 build:
   builder: pack

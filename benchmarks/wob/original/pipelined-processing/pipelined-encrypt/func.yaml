@@ -3,7 +3,7 @@ name: pipelined-encrypt
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/pipelined-encrypt:wob
-imageDigest: sha256:4d5914d264453b008c564f372619d23cc1f0a0c416126e7f7923c3a8a622d6a3
+imageDigest: sha256:cc1c7b16fcea937ba8835664ee67b123766743b2b07a4ff27e898c668f506388
 created: 2023-12-03T20:55:12.172495531-06:00
 build:
   builder: pack

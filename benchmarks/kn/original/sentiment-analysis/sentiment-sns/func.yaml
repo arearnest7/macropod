@@ -3,7 +3,7 @@ name: sentiment-sns
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-sns:kn
-imageDigest: sha256:4c48a611d4060486efa615670a88864b34740375df7dcdb3fffce9ffd438fe58
+imageDigest: sha256:db7af8bdfc43a5af79579e33a020743c1bce7668679e1882a8676380ef628c76
 created: 2023-12-03T21:01:12.622271734-06:00
 build:
   builder: pack

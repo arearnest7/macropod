@@ -3,7 +3,7 @@ name: video-recog-partial
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/video-recog-partial:kn
-imageDigest: sha256:a1bc9f35ffbcf14fe131dc7d4007d355cbcb2f8f5c1d38ff2b3efbf900b4fc67
+imageDigest: sha256:bb5de47d28556f374ab04903416803bd60034342b943ecf89c6bd5fc4691ba98
 created: 2023-10-26T19:57:23.290722971-05:00
 build:
   builder: pack

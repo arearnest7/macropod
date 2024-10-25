@@ -3,7 +3,7 @@ name: feature-reducer
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-reducer:wob
-imageDigest: sha256:d1fd0b3640b39f903a661af725b48f7311a78a4493d8051a656e762883b7980b
+imageDigest: sha256:b130b06ee8951ea73727b71b36571cd161444e865680f8a0eb2ba1a8bec5e379
 created: 2023-12-03T20:51:07.694206765-06:00
 build:
   builder: pack
