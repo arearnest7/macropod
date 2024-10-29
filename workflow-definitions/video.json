@@ -2,19 +2,19 @@
 	"workflow": "video",
 	"functions": {
 		"VIDEO_DECODER": {
-			"registry": "arearnest7/video-decoder:macropod",
+			"registry": "sysdevtamu/video-decoder:macropod",
 			"endpoints": ["VIDEO_RECOG"],
 			"envs": {},
 			"secrets": {}
 		},
 		"VIDEO_RECOG": {
-			"registry": "arearnest7/video-recog:macropod",
+			"registry": "sysdevtamu/video-recog:macropod",
 			"endpoints": [],
 			"envs": {},
 			"secrets": {}
 		},
 		"VIDEO_STREAMING": {
-			"registry": "arearnest7/video-streaming:macropod",
+			"registry": "sysdevtamu/video-streaming:macropod",
 			"endpoints": ["VIDEO_DECODER"],
 			"envs": {},
 			"secrets": {}

@@ -2,49 +2,49 @@
 	"workflow": "wage",
 	"functions": {
 		"WAGE_AVG": {
-			"registry": "arearnest7/wage-avg:macropod",
+			"registry": "sysdevtamu/wage-avg:macropod",
 			"endpoints": ["WAGE_MERIT"],
 			"envs": {},
 			"secrets": {}
 		},
 		"WAGE_FORMAT": {
-			"registry": "arearnest7/wage-format:macropod",
+			"registry": "sysdevtamu/wage-format:macropod",
 			"endpoints": ["WAGE_WRITE_RAW"],
 			"envs": {},
 			"secrets": {}
 		},
 		"WAGE_MERIT": {
-			"registry": "arearnest7/wage-merit:macropod",
+			"registry": "sysdevtamu/wage-merit:macropod",
 			"endpoints": ["WAGE_WRITE_MERIT"],
 			"envs": {},
 			"secrets": {}
 		},
 		"WAGE_STATS": {
-			"registry": "arearnest7/wage-stats:macropod",
+			"registry": "sysdevtamu/wage-stats:macropod",
 			"endpoints": ["WAGE_SUM"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"WAGE_SUM": {
-			"registry": "arearnest7/wage-sum:macropod",
+			"registry": "sysdevtamu/wage-sum:macropod",
 			"endpoints": ["WAGE_AVG"],
 			"envs": {},
 			"secrets": {}
 		},
 		"WAGE_VALIDATOR": {
-			"registry": "arearnest7/wage-validator:macropod",
+			"registry": "sysdevtamu/wage-validator:macropod",
 			"endpoints": ["WAGE_FORMAT"],
 			"envs": {},
 			"secrets": {}
 		},
 		"WAGE_WRITE_MERIT": {
-			"registry": "arearnest7/wage-write-merit:macropod",
+			"registry": "sysdevtamu/wage-write-merit:macropod",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"WAGE_WRITE_RAW": {
-			"registry": "arearnest7/wage-write-raw:macropod",
+			"registry": "sysdevtamu/wage-write-raw:macropod",
 			"endpoints": ["WAGE_STATS"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
