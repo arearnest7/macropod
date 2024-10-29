@@ -7,9 +7,9 @@ service DeploymentService {
 }
 
 message DeploymentServiceRequest {
-    string WorkflowName = 1;
-    string RequestType = 2;
-    optional string Data = 3;
+    string name = 1;
+    string functionCall = 2;
+    int32 replicaNumber = 3;
 }
 
 message DeploymentServiceReply {

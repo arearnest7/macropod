@@ -9,7 +9,7 @@ service DeploymentService {
 message DeploymentServiceRequest {
     string name = 1;
     string functionCall = 2;
-    optional string workflow = 3;
+    int32 replicaNumber = 3;
 }
 
 message DeploymentServiceReply {

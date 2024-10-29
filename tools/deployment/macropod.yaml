@@ -7,7 +7,7 @@ spec:
     app: macropod
   ports:
   - port: 80
-    targetPort: 8080
+    targetPort: 8081
   type: LoadBalancer
   clusterIP: 10.43.190.1
 ---
@@ -28,9 +28,9 @@ kind: ClusterRole
 metadata:
   name: macropod-role
 rules:
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingresses"]
-  verbs: ["get", "list", "watch"]
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -61,36 +61,27 @@ spec:
       labels:
         app: macropod
     spec:
-      containers:
+     serviceAccountName: macropod-service-account
+     containers:
       - name: macropod-ingress
-        image: arearnest7/macropod-ingress:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
-        env:
-        - name: SERVICE_PORT
-          value: "8080"
-        - name: TTL
-          value: "180"
-        - name: DEP_CONTROLLER_ADD
-          value: "127.0.0.1:8081"
-      - name: macropod-deployer
-        image: arearnest7/macropod-deployer:latest
+        image: sysdevtamu/macropod-ingress:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
         env:
         - name: SERVICE_PORT
           value: "8081"
+        - name: TTL
+          value: "300"
+        - name: DEP_CONTROLLER_ADD
+          value: "127.0.0.1:8082"
+      - name: macropod-deployer
+        image: sysdevtamu/macropod-deployer:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8082
+        env:
+        - name: SERVICE_PORT
+          value: "8082"
         - name: NAMESPACE_INGRESS
           value: "macropod"
-        - name: CPU_THRESHOLD_1
-          value: "100"
-        - name: CPU_THRESHOLD_2
-          value: "300"
-        - name: MEM_THRESHOLD_1
-          value: "100000000"
-        - name: MEM_THRESHOLD_2
-          value: "10000000000"
-        - name: UPDATE_THRESHOLD
-          value: "5"
