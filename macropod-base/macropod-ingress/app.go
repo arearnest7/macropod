@@ -37,12 +37,6 @@ type Workflow struct {
 	Functions map[string]Function `json:"functions"`
 }
 
-type WorkflowMetadata struct {
-	IngressList map[string]string
-	InUse       map[string]bool
-	LastUsed    map[string]time.Time
-}
-
 var (
 	workflows                   map[string]Workflow
 	kclient                     *kubernetes.Clientset
@@ -50,7 +44,6 @@ var (
 	serviceCount                = make(map[string]int)
 	serviceTimeStamp            = make(map[string]time.Time)
 	runningDeploymentController = make(map[string]bool) // this can be used for lock mechanism
-	clientset                   *kubernetes.Clientset
 	ttl_seconds                 int // time in seconds
 	max_concurrency             int
 	countLock                   sync.Mutex
@@ -67,7 +60,7 @@ func init() {
 		panic(err.Error())
 	}
 	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
-	clientset, err = kubernetes.NewForConfig(config)
+	kclient, err = kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -117,9 +110,9 @@ func checkTTL() {
 				service_name := strings.Split(name, ".")[0]
 				log.Print("deleting because of TTL %s", service_name)
 				log.Printf("Deleting service and deployment of %s because of TTL\n", service_name)
-				clientset.CoreV1().Services("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
-				clientset.AppsV1().Deployments("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
-				clientset.NetworkingV1().Ingresses("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
+				kclient.CoreV1().Services("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
+				kclient.AppsV1().Deployments("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
+				kclient.NetworkingV1().Ingresses("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
 			}
 			time.Sleep(time.Second)
 		}
@@ -177,8 +170,8 @@ func deleteHostTargets(ingress *networkingv1.Ingress) {
 
 }
 
-func watchIngress(clientset *kubernetes.Clientset) {
-        watcher, err := clientset.NetworkingV1().Ingresses("").Watch(context.TODO(), metav1.ListOptions{})
+func watchIngress(kclient *kubernetes.Clientset) {
+        watcher, err := kclient.NetworkingV1().Ingresses("").Watch(context.TODO(), metav1.ListOptions{})
         if err != nil {
                 log.Fatalf("Failed to set up watch: %s", err)
         }
@@ -213,10 +206,9 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 }
 
 func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
-	pathParts := strings.Split(req.URL.Path, "/")
-        func_name := pathParts[1]
+        func_name := req.PathValue("wf_name")
         results := ""
-        fmt.Printf("function name: %s", func_name)
+        internal_log("function name: " + func_name)
         target := ""
         triggered := false
         for target == "" {
@@ -236,7 +228,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
                 }
 
         }
-        log.Printf("forwarding request to %s", target)
+        internal_log("forwarding request to " + target)
 
         opts := grpc.WithInsecure()
         cc, err := grpc.Dial(target, opts)
@@ -275,10 +267,9 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 		internal_log("create grpc - " + err.Error())
 	}
 	defer cc.Close()
-	//workflow := string(body)
+	workflow := string(body)
 	client := pb.NewDeploymentServiceClient(cc)
-	request := &pb.DeploymentServiceRequest{Name: req.PathValue("wf_name"), FunctionCall: "create"}
-	//dialPrePuller(workflow)
+	request := &pb.DeploymentServiceRequest{Name: req.PathValue("wf_name"), FunctionCall: "create", Workflow: &workflow}
 	internal_log("requesting create for " + req.PathValue("wf_name"))
 	_, err = client.Deployment(context.Background(), request)
 	internal_log("returned create for " + req.PathValue("wf_name"))
@@ -305,10 +296,9 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 		internal_log("update grpc - " + err.Error())
 	}
 	defer cc.Close()
-	//workflow := string(body)
+	workflow := string(body)
 	client := pb.NewDeploymentServiceClient(cc)
-	request := &pb.DeploymentServiceRequest{Name: req.PathValue("wf_name"), FunctionCall: "update"}
-	//dialPrePuller(workflow)
+	request := &pb.DeploymentServiceRequest{Name: req.PathValue("wf_name"), FunctionCall: "update", Workflow: &workflow}
 	internal_log("requesting update for " + req.PathValue("wf_name"))
 	_, err = client.Deployment(context.Background(), request)
 	internal_log("returned update for " + req.PathValue("wf_name"))
@@ -337,15 +327,6 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 		internal_log("delete return - " + err.Error())
 	}
 	delete(workflows, req.PathValue("wf_name"))
-	wf_name := req.PathValue("wf_name")
-	namespaces, _ := kclient.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
-	for _, ns := range namespaces.Items {
-
-		if strings.Contains(ns.Name, wf_name) {
-			kclient.CoreV1().Namespaces().Delete(context.Background(), ns.Name, metav1.DeleteOptions{})
-		}
-	}
-
 	internal_log("WF_DELETE_END " + req.PathValue("wf_name"))
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("wf_name")+"\" has been deleted successfully.")
 }
@@ -358,13 +339,13 @@ func main() {
 		log.Fatalf("Failed to get in-cluster config: %s", err)
 	}
 
-	clientset, err := kubernetes.NewForConfig(config)
+	kclient, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		log.Fatalf("Failed to create clientset: %s", err)
+		log.Fatalf("Failed to create kclient: %s", err)
 	}
 	max_concurrency = 3
 	log.Print("watch ingress")
-	watchIngress(clientset)
+	watchIngress(kclient)
 	h := http.NewServeMux()
 	h.HandleFunc("/", Serve_Help)
 	h.HandleFunc("/invoke/{wf_name}", Serve_WF_Invoke)
