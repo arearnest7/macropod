@@ -89,7 +89,8 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 		}
 		defer cc.Close()
 		client := pb.NewDeploymentServiceClient(cc)
-		request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: type_call, ReplicaNumber: int32(replicaNumber)}
+		rn := int32(replicaNumber)
+		request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: type_call, ReplicaNumber: rn}
 		resp, err := client.Deployment(context.Background(), request)
 		if err != nil {
 			log.Fatal(err)
@@ -102,6 +103,7 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 }
 
 func checkTTL() {
+	internal_log("Checking TTL")
 	for {
 		currentTime := time.Now()
 		for name, timestamp := range serviceTimeStamp {
@@ -252,6 +254,9 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
         fmt.Fprint(res, results)
 }
 
+
+
+
 func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	internal_log("WF_CREATE_START " + req.PathValue("wf_name"))
 	body, err := ioutil.ReadAll(req.Body)
@@ -331,6 +336,49 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("wf_name")+"\" has been deleted successfully.")
 }
 
+func Serve_Logs(res http.ResponseWriter, req *http.Request) {
+	internal_log("LOGS_START " + req.PathValue("wf_name"))
+	opts := grpc.WithInsecure()
+	cc, err := grpc.Dial(os.Getenv("DEP_CONTROLLER_ADD"), opts)
+	if err != nil {
+		internal_log("logs grpc - " + err.Error())
+	}
+	defer cc.Close()
+	client := pb.NewDeploymentServiceClient(cc)
+	request := &pb.DeploymentServiceRequest{Name: req.PathValue("wf_name"), FunctionCall: "logs"}
+	internal_log("requesting logs for " + req.PathValue("wf_name"))
+	response, err := client.Deployment(context.Background(), request)
+	internal_log("returned logs for " + req.PathValue("wf_name"))
+	if err != nil {
+		internal_log("logs return - " + err.Error())
+	}
+	internal_log("LOGS_END " + req.PathValue("wf_name"))
+	fmt.Fprintf(res, response.Message)
+}
+
+func Serve_Metrics(res http.ResponseWriter, req *http.Request) {
+	internal_log("METRICS_START")
+	opts := grpc.WithInsecure()
+	cc, err := grpc.Dial(os.Getenv("DEP_CONTROLLER_ADD"), opts)
+	if err != nil {
+		internal_log("metrics grpc - " + err.Error())
+	}
+	defer cc.Close()
+	client := pb.NewDeploymentServiceClient(cc)
+	request := &pb.DeploymentServiceRequest{Name: "", FunctionCall: "metrics"}
+	internal_log("requesting metrics")
+	response, err := client.Deployment(context.Background(), request)
+	internal_log("returned metrics")
+	if err != nil {
+		internal_log("metrics return - " + err.Error())
+	}
+	internal_log("METRICS_END")
+	fmt.Fprintf(res, response.Message)
+}
+
+
+
+
 func main() {
 	log.Print("Ingress controller started")
 	go checkTTL()
@@ -343,6 +391,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create kclient: %s", err)
 	}
+	workflows = make(map[string]Workflow)
 	max_concurrency = 3
 	log.Print("watch ingress")
 	watchIngress(kclient)
