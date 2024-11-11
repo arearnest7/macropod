@@ -108,8 +108,8 @@ func checkTTL() {
 			elapsedTime := currentTime.Sub(timestamp)
 			if elapsedTime.Seconds() > float64(ttl_seconds) {
 				service_name := strings.Split(name, ".")[0]
-				log.Print("deleting because of TTL %s", service_name)
-				log.Printf("Deleting service and deployment of %s because of TTL\n", service_name)
+				internal_log("deleting because of TTL " + service_name)
+				internal_log("Deleting service and deployment of " + service_name + " because of TTL\n")
 				kclient.CoreV1().Services("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
 				kclient.AppsV1().Deployments("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
 				kclient.NetworkingV1().Ingresses("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
@@ -135,7 +135,7 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
                                         hostTargets[func_name] = append(hostTargets[func_name], hostname)
                                         fmt.Print(hostname)
                                         countLock.Unlock()
-                                        log.Print("hostname found : %v ", hostTargets)
+                                        internal_log("hostname found : " + hostname)
                                 }
                         }
                 }
@@ -156,7 +156,7 @@ func deleteHostTargets(ingress *networkingv1.Ingress) {
                         }
                 }
         }
-        log.Print("deleting %s\n", hostname_deleted)
+        internal_log("deleting " + hostname_deleted)
         for i, val := range hostTargets[func_name] {
                 if val == hostname_deleted {
                         countLock.Lock()
@@ -186,7 +186,7 @@ func watchIngress(kclient *kubernetes.Clientset) {
 
                         switch event.Type {
                         case watch.Added, watch.Modified:
-                                log.Printf("Updated host targets: %+v", hostTargets)
+                                internal_log("Updating host targets")
                                 updateHostTargets(ingress)
                         case watch.Deleted:
                                 deleteHostTargets(ingress)
@@ -224,7 +224,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
                 if target == "" && !triggered {
                         triggered = true
                         go callDepController(false, func_name, len(hostTargets[func_name]))
-                        log.Print(target)
+                        internal_log(target)
                 }
 
         }
@@ -332,7 +332,7 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	log.Print("Ingress controller started")
+	internal_log("Ingress controller started")
 	go checkTTL()
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -344,7 +344,7 @@ func main() {
 		log.Fatalf("Failed to create kclient: %s", err)
 	}
 	max_concurrency = 3
-	log.Print("watch ingress")
+	internal_log("watch ingress")
 	watchIngress(kclient)
 	h := http.NewServeMux()
 	h.HandleFunc("/", Serve_Help)

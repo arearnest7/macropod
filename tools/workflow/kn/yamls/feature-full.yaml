@@ -7,4 +7,4 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/arearnest7/feature-full:wob
+        - image: docker.io/sysdevtamu/feature-full:wob

@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	pb "app/deployer_pb"
 	"math"
@@ -31,7 +29,7 @@ type server struct {
 
 // // this will also take the ping metrics for latancy in pod to pod communication and
 
-// // we will retrievce 2 things - metrics and then ping results from pod to pod communication and build on that
+// // we will retrieve 2 things - metrics and then ping results from pod to pod communication and build on that
 type PodMetricsList struct {
 	Kind       string           `json:"kind"`
 	APIVersion string           `json:"apiVersion"`
@@ -357,24 +355,6 @@ func MakeDeploymentSinglePod(kind string, name_main string, func_name string, in
 	}
 
 	if ingress == false {
-		// deployment := appsv1.Deployment{
-		// 	ObjectMeta: metav1.ObjectMeta{
-		// 		Name: namespace,
-		// 	},
-		// 	Spec: appsv1.DeploymentSpec{
-		// 		Selector: &metav1.LabelSelector{
-		// 			MatchLabels: map[string]string{"app": namespace},
-		// 		},
-		// 		Template: corev1.PodTemplateSpec{
-		// 			ObjectMeta: metav1.ObjectMeta{
-		// 				Labels: map[string]string{"app": namespace},
-		// 			},
-		// 			Spec: corev1.PodSpec{
-		// 				Containers: make([]corev1.Container, len(configDataArray)),
-		// 			},
-		// 		},
-		// 	},
-		// }
 		service := &corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name_main,
@@ -387,25 +367,6 @@ func MakeDeploymentSinglePod(kind string, name_main string, func_name string, in
 				Ports: []corev1.ServicePort{},
 			},
 		}
-		// if kind == "mmap" {
-		// 	volume := corev1.Volume{
-		// 		Name: "macropod-pv",
-		// 		VolumeSource: corev1.VolumeSource{
-		// 			EmptyDir: &corev1.EmptyDirVolumeSource{
-		// 				Medium: corev1.StorageMediumMemory,
-		// 			},
-		// 		},
-		// 	}
-
-		// 	if deployment.Spec.Template.Spec.Volumes == nil {
-		// 		deployment.Spec.Template.Spec.Volumes = make([]corev1.Volume, 0)
-		// 	}
-
-		// 	deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, volume)
-
-		// }
-
-		// log.Print(configDataArray)
 
 		for _, configMapData := range configDataArray {
 			name := configMapData["name"].(string)
@@ -457,11 +418,8 @@ func MakeDeploymentSinglePod(kind string, name_main string, func_name string, in
 
 		}
 
-		// log.Print(configDataArray)
-
 		for i, configMapData := range configDataArray {
 			name := configMapData["name"].(string)
-			//log.Print(name)
 			replicaCount := int32(configMapData["replicaCount"].(float64))
 
 			envVariables, _ := configMapData["env"].([]interface{})
@@ -474,7 +432,6 @@ func MakeDeploymentSinglePod(kind string, name_main string, func_name string, in
 			}
 			containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
 
-			//log.Printf("EndpointsList %s", endpoints)
 			imagePullPolicy := corev1.PullPolicy(imageData["pullPolicy"].(string))
 
 			var env []corev1.EnvVar
@@ -553,10 +510,6 @@ func MakeDeploymentSinglePod(kind string, name_main string, func_name string, in
 
 		}
 
-		// log.Print("Deploying...............")
-		// log.Print(deployment)
-		// log.Print("..............................")
-
 		if update == false {
 			log.Printf("Creating deployment and service %s", name_main)
 			_, err = clientset.AppsV1().Deployments("macropod-functions").Create(context.Background(), &deployment, metav1.CreateOptions{})
@@ -591,16 +544,9 @@ func MakeDeploymentSinglePod(kind string, name_main string, func_name string, in
 			"app":           name,
 		}
 
-		// log.Print(labels)
-		//containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
-		// log.Print(containerPort)
 		servicePort := int32(configMapData["service"].(map[string]interface{})["port"].(float64))
-		// log.Print(servicePort)
 
 		pathType := networkingv1.PathTypePrefix
-		// create namespace first
-
-		// create deployment and service if ingress is false else make ingress resource
 
 		if ingress {
 			if _, ok := configMapData["ingress"]; ok {
@@ -667,26 +613,19 @@ func MakeDeploymentMultiPod(kind string, name string, func_name string, ingress 
 	if err != nil {
 		log.Printf("Falied to delete deployment: %v\n", err)
 	}
-	//log.Print(configDataArray)
 	for _, configMapData := range configDataArray {
 
 		name := configMapData["name"].(string)
-		// log.Print(name)
 		replicaCount := int32(configMapData["replicaCount"].(float64))
-		// log.Print(replicaCount)
 		envVariables, _ := configMapData["env"].([]interface{})
-		// log.Print(envVariables)
 		imageData := configMapData["image"].(map[string]interface{})
-		// log.Print(imageData)
 		imageName := imageData["image"].(string)
 		endpoints, ok := configMapData["endpoints"].(string)
 		if !ok {
 			endpoints = ""
 		}
 		log.Printf("EndpointsList %s", endpoints)
-		// log.Print(imageName)
 		imagePullPolicy := corev1.PullPolicy(imageData["pullPolicy"].(string))
-		// log.Print(imagePullPolicy)
 		var env []corev1.EnvVar
 		for _, item := range envVariables {
 			envData, _ := item.(map[string]interface{})
@@ -699,17 +638,13 @@ func MakeDeploymentMultiPod(kind string, name string, func_name string, ingress 
 				Value: value,
 			})
 		}
-		// log.Print(env)
 		labels := map[string]string{
 			"function_name": func_name,
 			"app":           name,
 		}
 
-		// log.Print(labels)
 		containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
-		// log.Print(containerPort)
 		servicePort := int32(configMapData["service"].(map[string]interface{})["port"].(float64))
-		// log.Print(servicePort)
 
 		pathType := networkingv1.PathTypePrefix
 		// create namespace first
@@ -783,7 +718,6 @@ func MakeDeploymentMultiPod(kind string, name string, func_name string, ingress 
 		} else {
 
 			log.Print("Creating deployment and service %s", name)
-			// node_name := nodeCPUSort()
 			deployment := &appsv1.Deployment{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:   name,
@@ -912,70 +846,6 @@ func DeleteNamespace(namespace string) error {
 	return err
 }
 
-func metricEvalHandler(func_name string, replicaNumber int32) string {
- 	/*log.Printf("Evaluation metrics of %s", func_name)
- 	version := version_function[func_name]
- 	versionStr := strconv.Itoa(version)
- 	namespace_existing := func_name + "-" + versionStr
- 	// we have config maps stores in same namesapce as ingress and with name <func_name>-<version>
- 	cpu_threshold1, cpu_threshold2, mm_threshold1, mm_threshold2, _ := getConfigMapThreshold(namesapce_ingress, namespace_existing)
- 	var cpu_usage, mm_usage float64
- 	for {
- 		cpu_usage, mm_usage, err = getPodMetricsAndChanges(namespace_existing)
- 		if err == nil {
- 			break
- 		}
- 	}
- 	if cpu_usage > cpu_threshold1 || mm_usage > mm_threshold1 {
- 		log.Print("Threshold 1 reached")
- 		version_update := version + 1
- 		namespace_update := func_name + "-" + strconv.Itoa(version_update)
- 		_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace_update, metav1.GetOptions{})
- 		if exists != nil {
- 			//namespace is not there
- 			err := MakeDeployment(namespace_update, func_name, false, false)
- 			if err != nil {
- 				log.Printf("Falied to install deployment: %v\n", err)
- 			}
- 		}
- 		if cpu_usage > cpu_threshold2 || mm_usage > mm_threshold2 {
- 			log.Print("Threshold 2 reached")
-
- 			// lets check if the deploymnets are up then only sfift ingress
- 			deployments, err := clientset.AppsV1().Deployments(namespace_update).List(context.TODO(), metav1.ListOptions{})
- 			if err != nil {
- 				fmt.Fprintf(os.Stderr, "Error listing deployments: %v\n", err)
- 			}
- 			//log.Print(deployments)
- 			allRunning := true
- 			for _, deployment := range deployments.Items {
- 				if deployment.Status.ReadyReplicas == 0 {
- 					fmt.Printf("Deployment %s is not running\n", deployment.Name)
- 					allRunning = false
- 					break
- 				}
- 			}
-
- 			if allRunning {
-
- 				err = MakeDeployment(namespace_update, func_name, true, false)
- 				if err != nil {
- 					log.Printf("Falied to install ingress: %v\n", err)
- 				}
- 				err = DeleteNamespace(namespace_existing)
- 				if err != nil {
- 					log.Printf("Falied to delete older version: %v\n", err)
- 				}
- 				version_function[func_name] = version_update
- 			}
-
- 		}
- 	}*/
-
- 	return "Evaluated metrics"
-
-}
-
 // this will look into the function name and check if version 0 is available - if yes, move ahead and deploy - this will also keep track of the versions and functions that are being handled
 func makeNewFunctionHandler(func_name string, replicaNumber int32) string {
 	log.Printf("Deploying new function.....%s", func_name)
@@ -997,54 +867,12 @@ func makeNewFunctionHandler(func_name string, replicaNumber int32) string {
 	return "Deployed"
 
 }
-func getLogs(func_name string) string {
-	log.Printf("getting logs of %s\n", func_name)
-	logs_arr := make(map[string]string)
-	version := version_function[func_name]
-	versionStr := strconv.Itoa(version)
-	namespace := func_name + "-" + versionStr
-	pods, _ := clientset.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{})
-	for _, pod := range pods.Items {
-		for _, container_name := range pod.Spec.Containers {
-			// log.Print(container_name.Name)
-			podLogOpts := corev1.PodLogOptions{
-				Container: container_name.Name,
-			}
-			req := clientset.CoreV1().Pods(namespace).GetLogs(pod.Name, &podLogOpts)
-			log.Print("req success")
-			logs, err := req.Stream(context.TODO())
-			if err != nil {
-				log.Print("error in opening stream")
-			}
-			defer logs.Close()
-			b := new(bytes.Buffer)
-			io.Copy(b, logs)
-			// log.Print("\n-----------------------------------------------------\n")
-			// log.Print(pod.Name)
-			// log.Print(b.String())
-			// log.Print("\n-----------------------------------------------------\n")
-			logs_arr[container_name.Name] = b.String()
-		}
-	}
-	result := ""
-	for container_name, logs := range logs_arr {
-		result += container_name + "\n" + logs + "\n"
-	}
-	log.Print("\n-----------------------------------------------------\n")
-	log.Print(result)
-	log.Print("\n-----------------------------------------------------\n")
-	return result
-
-}
 
 func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceRequest) (*pb.DeploymentServiceReply, error) {
 	func_name := req.Name
 	var result string
 	replicaNumber := req.ReplicaNumber
 	log.Print(replicaNumber)
-	if req.FunctionCall == "logs" {
-		result = getLogs(func_name)
-	}
 	if req.FunctionCall == "new_invoke" {
 		result = makeNewFunctionHandler(func_name, replicaNumber)
 	}

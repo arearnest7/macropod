@@ -68,7 +68,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: election-gateway
-        image: arearnest7/election-gateway:oci
+        image: sysdevtamu/election-gateway:oci
         ports:
         - containerPort: 5000
         env:
@@ -97,7 +97,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: election-get-results
-        image: arearnest7/election-get-results:oci
+        image: sysdevtamu/election-get-results:oci
         ports:
         - containerPort: 5000
         env:
@@ -122,7 +122,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: election-vote-enqueuer
-        image: arearnest7/election-vote-enqueuer:oci
+        image: sysdevtamu/election-vote-enqueuer:oci
         ports:
         - containerPort: 5000
         env:
@@ -149,7 +149,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: election-vote-processor
-        image: arearnest7/election-vote-processor:oci
+        image: sysdevtamu/election-vote-processor:oci
         ports:
         - containerPort: 5000
         env:

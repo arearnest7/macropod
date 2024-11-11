@@ -33,7 +33,7 @@ spec:
           medium: Memory
       containers:
       - name: sentiment-main
-        image: arearnest7/sentiment-main:macropod
+        image: sysdevtamu/sentiment-main:macropod
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -53,7 +53,7 @@ spec:
           - name: SENTIMENT_READ_CSV
             value: 127.0.0.1:5001
       - name: sentiment-read-csv
-        image: arearnest7/sentiment-read-csv:macropod
+        image: sysdevtamu/sentiment-read-csv:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
@@ -75,7 +75,7 @@ spec:
           - name: SENTIMENT_PRODUCT_OR_SERVICE
             value: 127.0.0.1:5002
       - name: sentiment-product-or-service
-        image: arearnest7/sentiment-product-or-service:macropod
+        image: sysdevtamu/sentiment-product-or-service:macropod
         ports:
         - containerPort: 5002
         volumeMounts:
@@ -101,7 +101,7 @@ spec:
           - name: SENTIMENT_SERVICE_SENTIMENT
             value: 127.0.0.1:5009
       - name: sentiment-cfail
-        image: arearnest7/sentiment-cfail:macropod
+        image: sysdevtamu/sentiment-cfail:macropod
         ports:
         - containerPort: 5003
         volumeMounts:
@@ -117,7 +117,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
       - name: sentiment-product-sentiment
-        image: arearnest7/sentiment-product-sentiment:macropod
+        image: sysdevtamu/sentiment-product-sentiment:macropod
         ports:
         - containerPort: 5004
         volumeMounts:
@@ -139,7 +139,7 @@ spec:
           - name: SENTIMENT_PRODUCT_RESULT
             value: 127.0.0.1:5005
       - name: sentiment-product-result
-        image: arearnest7/sentiment-product-result:macropod
+        image: sysdevtamu/sentiment-product-result:macropod
         ports:
         - containerPort: 5005
         volumeMounts:
@@ -165,7 +165,7 @@ spec:
           - name: SENTIMENT_DB
             value: 127.0.0.1:5008
       - name: sentiment-sfail
-        image: arearnest7/sentiment-sfail:macropod
+        image: sysdevtamu/sentiment-sfail:macropod
         ports:
         - containerPort: 5006
         volumeMounts:
@@ -181,7 +181,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
       - name: sentiment-sns
-        image: arearnest7/sentiment-sns:macropod
+        image: sysdevtamu/sentiment-sns:macropod
         ports:
         - containerPort: 5007
         volumeMounts:
@@ -203,7 +203,7 @@ spec:
           - name: SENTIMENT_DB
             value: 127.0.0.1:5008
       - name: sentiment-db
-        image: arearnest7/sentiment-db:macropod
+        image: sysdevtamu/sentiment-db:macropod
         ports:
         - containerPort: 5008
         volumeMounts:
@@ -219,7 +219,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
       - name: sentiment-service-sentiment
-        image: arearnest7/sentiment-service-sentiment:macropod
+        image: sysdevtamu/sentiment-service-sentiment:macropod
         ports:
         - containerPort: 5009
         volumeMounts:
@@ -241,7 +241,7 @@ spec:
           - name: SENTIMENT_SERVICE_RESULT
             value: 127.0.0.1:5010
       - name: sentiment-service-result
-        image: arearnest7/sentiment-service-result:macropod
+        image: sysdevtamu/sentiment-service-result:macropod
         ports:
         - containerPort: 5010
         volumeMounts:

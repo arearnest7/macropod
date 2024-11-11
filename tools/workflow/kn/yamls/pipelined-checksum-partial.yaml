@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/arearnest7/pipelined-checksum-partial:wob
+        - image: docker.io/sysdevtamu/pipelined-checksum-partial:wob
           env:
           - name: REDIS_URL
             value: 127.0.0.1

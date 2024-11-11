@@ -12,6 +12,6 @@ date -u '+%F %H:%M:%S.%6N %Z'
 ./collect-kn.sh $HOST partial-video video-streaming-d $C ../../payloads/video.json $N
 mv kn-partial-video.csv kn-partial-video-$C.csv
 date -u '+%F %H:%M:%S.%6N %Z'
-#./collect-macropod.sh video $C ../../payloads/video.json $N
-#mv macropod-video.csv macropod-video-$C.csv
-#date -u '+%F %H:%M:%S.%6N %Z'
+./collect-macropod.sh video $C ../../payloads/video.json $N
+mv macropod-video.csv macropod-video-$C.csv
+date -u '+%F %H:%M:%S.%6N %Z'

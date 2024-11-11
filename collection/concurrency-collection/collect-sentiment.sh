@@ -12,6 +12,6 @@ date -u '+%F %H:%M:%S.%6N %Z'
 ./collect-kn.sh $HOST partial-sentiment sentiment-main-rcposc $C ../../payloads/sentiment.json $N
 mv kn-partial-sentiment.csv kn-partial-sentiment-$C.csv
 date -u '+%F %H:%M:%S.%6N %Z'
-#./collect-macropod.sh sentiment $C ../../payloads/sentiment.json $N
-#mv macropod-sentiment.csv macropod-sentiment-$C.csv
-#date -u '+%F %H:%M:%S.%6N %Z'
+./collect-macropod.sh sentiment $C ../../payloads/sentiment.json $N
+mv macropod-sentiment.csv macropod-sentiment-$C.csv
+date -u '+%F %H:%M:%S.%6N %Z'

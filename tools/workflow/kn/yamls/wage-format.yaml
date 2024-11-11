@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/arearnest7/wage-format:wob
+        - image: docker.io/sysdevtamu/wage-format:wob
           env:
           - name: WAGE_WRITE_RAW
             value: http://wage-write-raw.knative-functions.127.0.0.1.sslip.io

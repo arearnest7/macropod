@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: hotel-frontend
-        image: arearnest7/hotel-frontend:macropod
+        image: sysdevtamu/hotel-frontend:macropod
         ports:
         - containerPort: 5000
         env:
@@ -48,7 +48,7 @@ spec:
           - name: HOTEL_USER
             value: 127.0.0.1:5004
       - name: hotel-search
-        image: arearnest7/hotel-search:macropod
+        image: sysdevtamu/hotel-search:macropod
         ports:
         - containerPort: 5001
         env:
@@ -63,7 +63,7 @@ spec:
           - name: HOTEL_RATE
             value: 127.0.0.1:5007
       - name: hotel-recommend
-        image: arearnest7/hotel-recommend:macropod
+        image: sysdevtamu/hotel-recommend:macropod
         ports:
         - containerPort: 5002
         env:
@@ -74,7 +74,7 @@ spec:
           - name: FUNC_PORT
             value: "5002"
       - name: hotel-reserve
-        image: arearnest7/hotel-reserve:macropod
+        image: sysdevtamu/hotel-reserve:macropod
         ports:
         - containerPort: 5003
         env:
@@ -85,7 +85,7 @@ spec:
           - name: FUNC_PORT
             value: "5003"
       - name: hotel-user
-        image: arearnest7/hotel-user:macropod
+        image: sysdevtamu/hotel-user:macropod
         ports:
         - containerPort: 5004
         env:
@@ -96,7 +96,7 @@ spec:
           - name: FUNC_PORT
             value: "5004"
       - name: hotel-geo
-        image: arearnest7/hotel-geo:macropod
+        image: sysdevtamu/hotel-geo:macropod
         ports:
         - containerPort: 5005
         env:
@@ -107,7 +107,7 @@ spec:
           - name: FUNC_PORT
             value: "5005"
       - name: hotel-profile
-        image: arearnest7/hotel-profile:macropod
+        image: sysdevtamu/hotel-profile:macropod
         ports:
         - containerPort: 5006
         env:
@@ -118,7 +118,7 @@ spec:
           - name: FUNC_PORT
             value: "5006"
       - name: hotel-rate
-        image: arearnest7/hotel-rate:macropod
+        image: sysdevtamu/hotel-rate:macropod
         ports:
         - containerPort: 5007
         env:

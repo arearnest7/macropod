@@ -7,4 +7,4 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/arearnest7/sentiment-db-s:wob
+        - image: docker.io/sysdevtamu/sentiment-db-s:wob

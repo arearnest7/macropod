@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: election-gateway
-        image: arearnest7/election-gateway:oci
+        image: sysdevtamu/election-gateway:oci
         ports:
         - containerPort: 5000
         env:
@@ -40,14 +40,14 @@ spec:
           - name: ELECTION_VOTE_ENQUEUER
             value: http://127.0.0.1:5002
       - name: election-get-results
-        image: arearnest7/election-get-results:oci
+        image: sysdevtamu/election-get-results:oci
         ports:
         - containerPort: 5001
         env:
           - name: PORT
             value: "5001"
       - name: election-vote-enqueuer
-        image: arearnest7/election-vote-enqueuer:oci
+        image: sysdevtamu/election-vote-enqueuer:oci
         ports:
         - containerPort: 5002
         env:
@@ -56,7 +56,7 @@ spec:
           - name: ELECTION_VOTE_PROCESSOR
             value: http://127.0.0.1:5003
       - name: election-vote-processor
-        image: arearnest7/election-vote-processor:oci
+        image: sysdevtamu/election-vote-processor:oci
         ports:
         - containerPort: 5003
         env:

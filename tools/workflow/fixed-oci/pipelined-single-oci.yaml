@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: pipelined-main
-        image: arearnest7/pipelined-main:oci
+        image: sysdevtamu/pipelined-main:oci
         ports:
         - containerPort: 5000
         env:
@@ -44,7 +44,7 @@ spec:
           - name: PIPELINED_ENCRYPT
             value: http://127.0.0.1:5005
       - name: pipelined-main-2
-        image: arearnest7/pipelined-main:oci
+        image: sysdevtamu/pipelined-main:oci
         ports:
         - containerPort: 5001
         env:
@@ -59,7 +59,7 @@ spec:
           - name: PIPELINED_ENCRYPT
             value: http://127.0.0.1:5005
       - name: pipelined-main-3
-        image: arearnest7/pipelined-main:oci
+        image: sysdevtamu/pipelined-main:oci
         ports:
         - containerPort: 5002
         env:
@@ -74,21 +74,21 @@ spec:
           - name: PIPELINED_ENCRYPT
             value: http://127.0.0.1:5005
       - name: pipelined-checksum
-        image: arearnest7/pipelined-checksum:oci
+        image: sysdevtamu/pipelined-checksum:oci
         ports:
         - containerPort: 5003
         env:
           - name: PORT
             value: "5003"
       - name: pipelined-zip
-        image: arearnest7/pipelined-zip:oci
+        image: sysdevtamu/pipelined-zip:oci
         ports:
         - containerPort: 5004
         env:
           - name: PORT
             value: "5004"
       - name: pipelined-encrypt
-        image: arearnest7/pipelined-encrypt:oci
+        image: sysdevtamu/pipelined-encrypt:oci
         ports:
         - containerPort: 5005
         env:

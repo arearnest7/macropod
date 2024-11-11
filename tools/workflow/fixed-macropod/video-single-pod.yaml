@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: video-streaming
-        image: arearnest7/video-streaming:macropod
+        image: sysdevtamu/video-streaming:macropod
         ports:
         - containerPort: 5000
         env:
@@ -42,7 +42,7 @@ spec:
           - name: VIDEO_DECODER
             value: 127.0.0.1:5001
       - name: video-decoder
-        image: arearnest7/video-decoder:macropod
+        image: sysdevtamu/video-decoder:macropod
         ports:
         - containerPort: 5001
         env:
@@ -55,7 +55,7 @@ spec:
           - name: VIDEO_RECOG
             value: 127.0.0.1:5002
       - name: video-recog
-        image: arearnest7/video-recog:macropod
+        image: sysdevtamu/video-recog:macropod
         ports:
         - containerPort: 5002
         env:

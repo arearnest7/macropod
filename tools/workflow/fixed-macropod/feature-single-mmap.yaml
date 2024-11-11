@@ -33,7 +33,7 @@ spec:
           medium: Memory
       containers:
       - name: feature-orchestrator
-        image: arearnest7/feature-orchestrator:macropod
+        image: sysdevtamu/feature-orchestrator:macropod
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -55,7 +55,7 @@ spec:
           - name: FEATURE_WAIT
             value: 127.0.0.1:5002
       - name: feature-extractor
-        image: arearnest7/feature-extractor:macropod
+        image: sysdevtamu/feature-extractor:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
@@ -71,7 +71,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
       - name: feature-wait
-        image: arearnest7/feature-wait:macropod
+        image: sysdevtamu/feature-wait:macropod
         ports:
         - containerPort: 5002
         volumeMounts:
@@ -93,7 +93,7 @@ spec:
           - name: FEATURE_STATUS
             value: 127.0.0.1:5003
       - name: feature-status
-        image: arearnest7/feature-status:macropod
+        image: sysdevtamu/feature-status:macropod
         ports:
         - containerPort: 5003
         volumeMounts:
@@ -117,7 +117,7 @@ spec:
           - name: FEATURE_REDUCER
             value: 127.0.0.1:5004
       - name: feature-reducer
-        image: arearnest7/feature-reducer:macropod
+        image: sysdevtamu/feature-reducer:macropod
         ports:
         - containerPort: 5004
         volumeMounts:

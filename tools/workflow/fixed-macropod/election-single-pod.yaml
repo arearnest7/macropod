@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: election-gateway
-        image: arearnest7/election-gateway:macropod
+        image: sysdevtamu/election-gateway:macropod
         ports:
         - containerPort: 5000
         env:
@@ -44,7 +44,7 @@ spec:
           - name: ELECTION_VOTE_ENQUEUER
             value: 127.0.0.1:5002
       - name: election-get-results
-        image: arearnest7/election-get-results:macropod
+        image: sysdevtamu/election-get-results:macropod
         ports:
         - containerPort: 5001
         env:
@@ -55,7 +55,7 @@ spec:
           - name: FUNC_PORT
             value: "5001"
       - name: election-vote-enqueuer
-        image: arearnest7/election-vote-enqueuer:macropod
+        image: sysdevtamu/election-vote-enqueuer:macropod
         ports:
         - containerPort: 5002
         env:
@@ -68,7 +68,7 @@ spec:
           - name: ELECTION_VOTE_PROCESSOR
             value: 127.0.0.1:5003
       - name: election-vote-processor
-        image: arearnest7/election-vote-processor:macropod
+        image: sysdevtamu/election-vote-processor:macropod
         ports:
         - containerPort: 5003
         env:

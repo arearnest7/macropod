@@ -12,6 +12,6 @@ date -u '+%F %H:%M:%S.%6N %Z'
 ./collect-kn.sh $HOST partial-feature feature-orchestrator-wsr $C ../../payloads/feature.json $N
 mv kn-partial-feature.csv kn-partial-feature-$C.csv
 date -u '+%F %H:%M:%S.%6N %Z'
-#./collect-macropod.sh feature $C ../../payloads/feature.json $N
-#mv macropod-feature.csv macropod-feature-$C.csv
-#date -u '+%F %H:%M:%S.%6N %Z'
+./collect-macropod.sh feature $C ../../payloads/feature.json $N
+mv macropod-feature.csv macropod-feature-$C.csv
+date -u '+%F %H:%M:%S.%6N %Z'
