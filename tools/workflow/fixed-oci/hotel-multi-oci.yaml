@@ -120,7 +120,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: hotel-frontend
-        image: arearnest7/hotel-frontend:oci
+        image: sysdevtamu/hotel-frontend:oci
         ports:
         - containerPort: 5000
         env:
@@ -153,7 +153,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: hotel-search
-        image: arearnest7/hotel-search:oci
+        image: sysdevtamu/hotel-search:oci
         ports:
         - containerPort: 5000
         env:
@@ -182,7 +182,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: hotel-recommend
-        image: arearnest7/hotel-recommend:oci
+        image: sysdevtamu/hotel-recommend:oci
         ports:
         - containerPort: 5000
         env:
@@ -207,7 +207,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-4
       containers:
       - name: hotel-reserve
-        image: arearnest7/hotel-reserve:oci
+        image: sysdevtamu/hotel-reserve:oci
         ports:
         - containerPort: 5000
         env:
@@ -232,7 +232,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-5
       containers:
       - name: hotel-user
-        image: arearnest7/hotel-user:oci
+        image: sysdevtamu/hotel-user:oci
         ports:
         - containerPort: 5000
         env:
@@ -257,7 +257,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: hotel-geo
-        image: arearnest7/hotel-geo:oci
+        image: sysdevtamu/hotel-geo:oci
         ports:
         - containerPort: 5000
         env:
@@ -282,7 +282,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: hotel-profile
-        image: arearnest7/hotel-profile:oci
+        image: sysdevtamu/hotel-profile:oci
         ports:
         - containerPort: 5000
         env:
@@ -307,7 +307,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-3
       containers:
       - name: hotel-rate
-        image: arearnest7/hotel-rate:oci
+        image: sysdevtamu/hotel-rate:oci
         ports:
         - containerPort: 5000
         env:

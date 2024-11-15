@@ -2,25 +2,25 @@
 	"workflow": "pipelined",
 	"functions": {
 		"PIPELINED_CHECKSUM": {
-			"registry": "arearnest7/pipelined-checksum:macropod",
+			"registry": "sysdevtamu/pipelined-checksum:macropod",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"PIPELINED_ENCRYPT": {
-			"registry": "arearnest7/pipelined-encrypt:macropod",
+			"registry": "sysdevtamu/pipelined-encrypt:macropod",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"PIPELINED_MAIN": {
-			"registry": "arearnest7/pipelined-main:macropod",
+			"registry": "sysdevtamu/pipelined-main:macropod",
 			"endpoints": ["PIPELINED_MAIN", "PIPELINED_CHECKSUM", "PIPELINED_ZIP", "PIPELINED_ENCRYPT"],
 			"envs": {},
 			"secrets": {}
 		},
 		"PIPELINED_ZIP": {
-			"registry": "arearnest7/pipelined-zip:macropod",
+			"registry": "sysdevtamu/pipelined-zip:macropod",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}

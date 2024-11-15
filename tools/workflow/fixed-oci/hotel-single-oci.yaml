@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: hotel-frontend
-        image: arearnest7/hotel-frontend:oci
+        image: sysdevtamu/hotel-frontend:oci
         ports:
         - containerPort: 5000
         env:
@@ -44,7 +44,7 @@ spec:
           - name: HOTEL_USER
             value: http://127.0.0.1:5004
       - name: hotel-search
-        image: arearnest7/hotel-search:oci
+        image: sysdevtamu/hotel-search:oci
         ports:
         - containerPort: 5001
         env:
@@ -55,42 +55,42 @@ spec:
           - name: HOTEL_RATE
             value: http://127.0.0.1:5007
       - name: hotel-recommend
-        image: arearnest7/hotel-recommend:oci
+        image: sysdevtamu/hotel-recommend:oci
         ports:
         - containerPort: 5002
         env:
           - name: PORT
             value: "5002"
       - name: hotel-reserve
-        image: arearnest7/hotel-reserve:oci
+        image: sysdevtamu/hotel-reserve:oci
         ports:
         - containerPort: 5003
         env:
           - name: PORT
             value: "5003"
       - name: hotel-user
-        image: arearnest7/hotel-user:oci
+        image: sysdevtamu/hotel-user:oci
         ports:
         - containerPort: 5004
         env:
           - name: PORT
             value: "5004"
       - name: hotel-geo
-        image: arearnest7/hotel-geo:oci
+        image: sysdevtamu/hotel-geo:oci
         ports:
         - containerPort: 5005
         env:
           - name: PORT
             value: "5005"
       - name: hotel-profile
-        image: arearnest7/hotel-profile:oci
+        image: sysdevtamu/hotel-profile:oci
         ports:
         - containerPort: 5006
         env:
           - name: PORT
             value: "5006"
       - name: hotel-rate
-        image: arearnest7/hotel-rate:oci
+        image: sysdevtamu/hotel-rate:oci
         ports:
         - containerPort: 5007
         env:

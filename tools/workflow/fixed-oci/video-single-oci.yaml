@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: video-streaming
-        image: arearnest7/video-streaming:oci
+        image: sysdevtamu/video-streaming:oci
         ports:
         - containerPort: 5000
         env:
@@ -38,7 +38,7 @@ spec:
           - name: VIDEO_DECODER
             value: http://127.0.0.1:5001
       - name: video-decoder
-        image: arearnest7/video-decoder:oci
+        image: sysdevtamu/video-decoder:oci
         ports:
         - containerPort: 5001
         env:
@@ -47,7 +47,7 @@ spec:
           - name: VIDEO_RECOG
             value: http://127.0.0.1:5002
       - name: video-recog
-        image: arearnest7/video-recog:oci
+        image: sysdevtamu/video-recog:oci
         ports:
         - containerPort: 5002
         env:

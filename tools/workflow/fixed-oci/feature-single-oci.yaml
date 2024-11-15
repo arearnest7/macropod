@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: feature-orchestrator
-        image: arearnest7/feature-orchestrator:oci
+        image: sysdevtamu/feature-orchestrator:oci
         ports:
         - containerPort: 5000
         env:
@@ -40,14 +40,14 @@ spec:
           - name: FEATURE_WAIT
             value: http://127.0.0.1:5002
       - name: feature-extractor
-        image: arearnest7/feature-extractor:oci
+        image: sysdevtamu/feature-extractor:oci
         ports:
         - containerPort: 5001
         env:
           - name: PORT
             value: "5001"
       - name: feature-wait
-        image: arearnest7/feature-wait:oci
+        image: sysdevtamu/feature-wait:oci
         ports:
         - containerPort: 5002
         env:
@@ -56,7 +56,7 @@ spec:
           - name: FEATURE_STATUS
             value: http://127.0.0.1:5003
       - name: feature-status
-        image: arearnest7/feature-status:oci
+        image: sysdevtamu/feature-status:oci
         ports:
         - containerPort: 5003
         env:
@@ -67,7 +67,7 @@ spec:
           - name: FEATURE_REDUCER
             value: http://127.0.0.1:5004
       - name: feature-reducer
-        image: arearnest7/feature-reducer:oci
+        image: sysdevtamu/feature-reducer:oci
         ports:
         - containerPort: 5004
         env:

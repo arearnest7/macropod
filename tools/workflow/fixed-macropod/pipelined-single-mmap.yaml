@@ -33,7 +33,7 @@ spec:
           medium: Memory
       containers:
       - name: pipelined-main
-        image: arearnest7/pipelined-main:macropod
+        image: sysdevtamu/pipelined-main:macropod
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -59,7 +59,7 @@ spec:
           - name: PIPELINED_ENCRYPT
             value: 127.0.0.1:5005
       - name: pipelined-main-2
-        image: arearnest7/pipelined-main:macropod
+        image: sysdevtamu/pipelined-main:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
@@ -87,7 +87,7 @@ spec:
           - name: PIPELINED_ENCRYPT
             value: 127.0.0.1:5005
       - name: pipelined-main-3
-        image: arearnest7/pipelined-main:macropod
+        image: sysdevtamu/pipelined-main:macropod
         ports:
         - containerPort: 5002
         volumeMounts:
@@ -115,7 +115,7 @@ spec:
           - name: PIPELINED_ENCRYPT
             value: 127.0.0.1:5005
       - name: pipelined-checksum
-        image: arearnest7/pipelined-checksum:macropod
+        image: sysdevtamu/pipelined-checksum:macropod
         ports:
         - containerPort: 5003
         volumeMounts:
@@ -131,7 +131,7 @@ spec:
           - name: APP_PV
             value: "/macropod-pv"
       - name: pipelined-zip
-        image: arearnest7/pipelined-zip:macropod
+        image: sysdevtamu/pipelined-zip:macropod
         ports:
         - containerPort: 5004
         volumeMounts:
@@ -145,7 +145,7 @@ spec:
           - name: FUNC_PORT
             value: "5004"
       - name: pipelined-encrypt
-        image: arearnest7/pipelined-encrypt:macropod
+        image: sysdevtamu/pipelined-encrypt:macropod
         ports:
         - containerPort: 5005
         volumeMounts:

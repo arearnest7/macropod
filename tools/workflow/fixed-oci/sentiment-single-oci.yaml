@@ -29,7 +29,7 @@ spec:
         kubernetes.io/hostname: sys-dev-vm-2
       containers:
       - name: sentiment-main
-        image: arearnest7/sentiment-main:oci
+        image: sysdevtamu/sentiment-main:oci
         ports:
         - containerPort: 5000
         env:
@@ -38,7 +38,7 @@ spec:
           - name: SENTIMENT_READ_CSV
             value: http://127.0.0.1:5001
       - name: sentiment-read-csv
-        image: arearnest7/sentiment-read-csv:oci
+        image: sysdevtamu/sentiment-read-csv:oci
         ports:
         - containerPort: 5001
         env:
@@ -47,7 +47,7 @@ spec:
           - name: SENTIMENT_PRODUCT_OR_SERVICE
             value: http://127.0.0.1:5002
       - name: sentiment-product-or-service
-        image: arearnest7/sentiment-product-or-service:oci
+        image: sysdevtamu/sentiment-product-or-service:oci
         ports:
         - containerPort: 5002
         env:
@@ -60,14 +60,14 @@ spec:
           - name: SENTIMENT_SERVICE_SENTIMENT
             value: http://127.0.0.1:5009
       - name: sentiment-cfail
-        image: arearnest7/sentiment-cfail:oci
+        image: sysdevtamu/sentiment-cfail:oci
         ports:
         - containerPort: 5003
         env:
           - name: PORT
             value: "5003"
       - name: sentiment-product-sentiment
-        image: arearnest7/sentiment-product-sentiment:oci
+        image: sysdevtamu/sentiment-product-sentiment:oci
         ports:
         - containerPort: 5004
         env:
@@ -76,7 +76,7 @@ spec:
           - name: SENTIMENT_PRODUCT_RESULT
             value: http://127.0.0.1:5005
       - name: sentiment-product-result
-        image: arearnest7/sentiment-product-result:oci
+        image: sysdevtamu/sentiment-product-result:oci
         ports:
         - containerPort: 5005
         env:
@@ -89,14 +89,14 @@ spec:
           - name: SENTIMENT_DB
             value: http://127.0.0.1:5008
       - name: sentiment-sfail
-        image: arearnest7/sentiment-sfail:oci
+        image: sysdevtamu/sentiment-sfail:oci
         ports:
         - containerPort: 5006
         env:
           - name: PORT
             value: "5006"
       - name: sentiment-sns
-        image: arearnest7/sentiment-sns:oci
+        image: sysdevtamu/sentiment-sns:oci
         ports:
         - containerPort: 5007
         env:
@@ -105,14 +105,14 @@ spec:
           - name: SENTIMENT_DB
             value: http://127.0.0.1:5008
       - name: sentiment-db
-        image: arearnest7/sentiment-db:oci
+        image: sysdevtamu/sentiment-db:oci
         ports:
         - containerPort: 5008
         env:
           - name: PORT
             value: "5008"
       - name: sentiment-service-sentiment
-        image: arearnest7/sentiment-service-sentiment:oci
+        image: sysdevtamu/sentiment-service-sentiment:oci
         ports:
         - containerPort: 5009
         env:
@@ -121,7 +121,7 @@ spec:
           - name: SENTIMENT_SERVICE_RESULT
             value: http://127.0.0.1:5010
       - name: sentiment-service-result
-        image: arearnest7/sentiment-service-result:oci
+        image: sysdevtamu/sentiment-service-result:oci
         ports:
         - containerPort: 5010
         env:

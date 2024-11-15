@@ -2,49 +2,49 @@
 	"workflow": "hotel",
 	"functions": {
 		"HOTEL_FRONTEND": {
-			"registry": "arearnest7/hotel-frontend:macropod",
+			"registry": "sysdevtamu/hotel-frontend:macropod",
 			"endpoints": ["HOTEL_SEARCH", "HOTEL_RECOMMEND", "HOTEL_RESERVE", "HOTEL_USER"],
 			"envs": {},
 			"secrets": {}
 		},
 		"HOTEL_GEO": {
-			"registry": "arearnest7/hotel-geo:macropod",
+			"registry": "sysdevtamu/hotel-geo:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_PROFILE": {
-			"registry": "arearnest7/hotel-profile:macropod",
+			"registry": "sysdevtamu/hotel-profile:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_RATE": {
-			"registry": "arearnest7/hotel-rate:macropod",
+			"registry": "sysdevtamu/hotel-rate:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_RECOMMEND": {
-			"registry": "arearnest7/hotel-recommend:macropod",
+			"registry": "sysdevtamu/hotel-recommend:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_RESERVE": {
-			"registry": "arearnest7/hotel-reserve:macropod",
+			"registry": "sysdevtamu/hotel-reserve:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_SEARCH": {
-			"registry": "arearnest7/hotel-search:macropod",
+			"registry": "sysdevtamu/hotel-search:macropod",
 			"endpoints": ["HOTEL_PROFILE", "HOTEL_GEO", "HOTEL_RATE"],
 			"envs": {},
 			"secrets": {}
 		},
 		"HOTEL_USER": {
-			"registry": "arearnest7/hotel-user:macropod",
+			"registry": "sysdevtamu/hotel-user:macropod",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}

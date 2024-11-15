@@ -33,7 +33,7 @@ spec:
           medium: Memory
       containers:
       - name: macropod-python-1
-        image: arsys-dev7/macropod-python:latest
+        image: sysdevtamu/macropod-python:latest
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -52,7 +52,7 @@ spec:
             value: "127.0.0.1:5001"
             value: macropod-python-1
       - name: macropod-python-2
-        image: arsys-dev7/macropod-python:latest
+        image: sysdevtamu/macropod-python:latest
         ports:
         - containerPort: 5001
         volumeMounts:
