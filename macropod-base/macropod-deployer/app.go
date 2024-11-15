@@ -311,15 +311,32 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 }
 
 func updateDeployments(func_name string) {
-	if workflows[func_name].Updating {
+	if workflows[wf_name].Updating {
 		internal_log("Already updating..........")
 		return
 	}
 
-	for ns, version := range workflows[func_name].IngressVersion {
+	for ns, version := range workflows[wf_name].IngressVersion {
 		internal_log("version running in " + ns + " is " + strconv.Itoa(version))
 	}
-	workflows[func_name].Updating = true
+	workflows[wf_name].Updating = true
+
+	// get the percentage of the node utilisation
+	var nodes NodeMetricList
+	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
+	if err != nil {
+		internal_log("unable to retrieve metrics from nodes API - " + err.Error())
+		return
+	}
+	err = json.Unmarshal(data, &nodes)
+	if err != nil {
+		internal_log("unable to unmarshal metrics from nodes API - " + err.Error())
+		return
+	}
+
+	log.Print()
+
+	//TODO
 	// var cpu_total float64
 	// var memory_total float64
 
@@ -499,8 +516,8 @@ func createInitialPod(func_name string) {
 	initial_pod = bfs_initial_pod(initial_pod, func_name, pod_list)
 	workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
 	workflows[func_name].InitialPods = initial_pod
-	log.Print(len(initial_pod))
-	log.Print(workflows[func_name].InitialPods)
+	//log.Print(len(initial_pod))
+	//log.Print(workflows[func_name].InitialPods)
 }
 
 func createWorkflow(func_name string, func_str string) {
@@ -640,7 +657,6 @@ func main() {
 	isSorting = false
 	node_sort = ""
 	deploymentRunning = false
-	workflows = make(map[string]*Workflow)
 	nodeCapacityCPU = make(map[string]float64)
 	nodeCapacityMemory = make(map[string]float64)
 	config, err := rest.InClusterConfig()

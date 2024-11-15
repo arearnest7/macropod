@@ -115,12 +115,12 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
                                 port := path.Backend.Service.Port.Number
                                 func_name := ingress.Labels["workflow_name"]
                                 hostname := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
-								internal_log("service found: " + hostname)
+				internal_log("service found: " + hostname)
                                 if func_name != "" {
-										countLock.Lock()
+					countLock.Lock()
                                         serviceCount[hostname] = 0
                                         hostTargets[func_name] = append(hostTargets[func_name], hostname)
-										countLock.Unlock()
+					countLock.Unlock()
                                 }
                         }
                 }
@@ -319,46 +319,6 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	delete(workflows, req.PathValue("func_name"))
 	internal_log("WF_DELETE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been deleted successfully.")
-}
-
-/*func Serve_Logs(res http.ResponseWriter, req *http.Request) {
-	internal_log("LOGS_START " + req.PathValue("func_name"))
-	opts := grpc.WithInsecure()
-	cc, err := grpc.Dial(os.Getenv("DEP_CONTROLLER_ADD"), opts)
-	if err != nil {
-		internal_log("logs grpc - " + err.Error())
-	}
-	defer cc.Close()
-	client := pb.NewDeploymentServiceClient(cc)
-	request := &pb.DeploymentServiceRequest{Name: req.PathValue("func_name"), FunctionCall: "logs"}
-	internal_log("requesting logs for " + req.PathValue("func_name"))
-	response, err := client.Deployment(context.Background(), request)
-	internal_log("returned logs for " + req.PathValue("func_name"))
-	if err != nil {
-		internal_log("logs return - " + err.Error())
-	}
-	internal_log("LOGS_END " + req.PathValue("func_name"))
-	fmt.Fprintf(res, response.Message)
-}*/
-
-func Serve_Metrics(res http.ResponseWriter, req *http.Request) {
-	internal_log("METRICS_START")
-	opts := grpc.WithInsecure()
-	cc, err := grpc.Dial(os.Getenv("DEP_CONTROLLER_ADD"), opts)
-	if err != nil {
-		internal_log("metrics grpc - " + err.Error())
-	}
-	defer cc.Close()
-	client := pb.NewDeploymentServiceClient(cc)
-	request := &pb.DeploymentServiceRequest{Name: "", FunctionCall: "metrics"}
-	internal_log("requesting metrics")
-	response, err := client.Deployment(context.Background(), request)
-	internal_log("returned metrics")
-	if err != nil {
-		internal_log("metrics return - " + err.Error())
-	}
-	internal_log("METRICS_END")
-	fmt.Fprintf(res, response.Message)
 }
 
 func main() {
