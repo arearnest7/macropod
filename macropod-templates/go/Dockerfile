@@ -1,4 +1,4 @@
-FROM arearnest7/macropod-go:latest
+FROM sysdevtamu/macropod-go:latest
 WORKDIR /app
 COPY go.mod .
 COPY func.go ./function

@@ -33,7 +33,7 @@ spec:
           medium: Memory
       containers:
       - name: micro-rpc-a
-        image: arearnest7/micro-rpc-a:macropod
+        image: sysdevtamu/micro-rpc-a:macropod
         ports:
         - containerPort: 5000
         volumeMounts:
@@ -51,7 +51,7 @@ spec:
           - name: LEN
             value: "1000000"
       - name: micro-rpc-b
-        image: arearnest7/micro-rpc-b:macropod
+        image: sysdevtamu/micro-rpc-b:macropod
         ports:
         - containerPort: 5001
         volumeMounts:
