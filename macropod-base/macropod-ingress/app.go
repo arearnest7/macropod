@@ -44,7 +44,7 @@ var (
 	serviceCount                = make(map[string]int)
 	serviceTimeStamp            = make(map[string]time.Time)
 	runningDeploymentController = make(map[string]bool) // this can be used for lock mechanism
-	ttl_seconds                 int 
+	ttl_seconds                 int
 	max_concurrency             int
 	countLock                   sync.Mutex
 	replicaCout = make(map[string]int)
@@ -54,14 +54,6 @@ func internal_log(message string) {
 	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message)
 }
 
-<<<<<<< HEAD
-=======
-// TODO - if deploymnet controller for a fucntion is already running dont run it again
-func init() {
-	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
-}
-
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 func callDepController(func_found bool, func_name string, replicaNumber int) error {
 		depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
 		if depControllerAddr == "" {
@@ -91,8 +83,6 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 			return err
 		}
 		fmt.Printf("Receive response => %s ", resp.Message)
-
-	
 	return nil
 }
 
@@ -200,31 +190,25 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(res, help_print)
 }
 
-<<<<<<< HEAD
 func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
         func_name := req.PathValue("func_name")
-        results := ""
-=======
-func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request){
-        func_name := req.PathValue("wf_name")
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
         internal_log("function name: " + func_name)
         target := ""
         triggered := false
         for target == "" {
-				countLock.Lock()
+		countLock.Lock()
                 for _, service := range hostTargets[func_name] {
                         if serviceCount[service] < max_concurrency {
                                 target = service
                                 serviceCount[service]++
                                 serviceTimeStamp[service] = time.Now()
-								break
+				break
                         }
                 }
-				countLock.Unlock()
+		countLock.Unlock()
                 if target == "" && !triggered {
                         triggered = true
-						replicaCout[func_name] = replicaCout[func_name] + 1
+			replicaCout[func_name] = replicaCout[func_name] + 1
                         go callDepController(false, func_name, replicaCout[func_name])
                         log.Print(target)
                 }
@@ -236,7 +220,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request){
                 log.Fatal(err)
         }
         defer cc.Close()
-		go callDepController(true, func_name, len(hostTargets[func_name]))
+	go callDepController(true, func_name, len(hostTargets[func_name]))
         payload, _ := ioutil.ReadAll(req.Body)
         workflow_id := strconv.Itoa(rand.Intn(100000))
         channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -246,21 +230,17 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request){
         defer cancel()
         request_type := "gg"
         response, _ := stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
-		status := response.GetCode()
+	status := response.GetCode()
         countLock.Lock()
-		serviceCount[target]--
-		internal_log("decreasing the count for"+target)
+	serviceCount[target]--
+	internal_log("decreasing the count for"+target)
         countLock.Unlock()
-		if (status == 200){
+	if (status == 200){
         	fmt.Fprint(res, response)
-			
-		}else {
-			http.Error(res,"Non 200 status code", http.StatusBadGateway)
-		}
+	} else {
+		http.Error(res,"Non 200 status code", http.StatusBadGateway)
+	}
 }
-
-
-
 
 func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	internal_log("WF_CREATE_START " + req.PathValue("func_name"))
@@ -341,7 +321,7 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been deleted successfully.")
 }
 
-func Serve_Logs(res http.ResponseWriter, req *http.Request) {
+/*func Serve_Logs(res http.ResponseWriter, req *http.Request) {
 	internal_log("LOGS_START " + req.PathValue("func_name"))
 	opts := grpc.WithInsecure()
 	cc, err := grpc.Dial(os.Getenv("DEP_CONTROLLER_ADD"), opts)
@@ -359,7 +339,7 @@ func Serve_Logs(res http.ResponseWriter, req *http.Request) {
 	}
 	internal_log("LOGS_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, response.Message)
-}
+}*/
 
 func Serve_Metrics(res http.ResponseWriter, req *http.Request) {
 	internal_log("METRICS_START")
@@ -380,9 +360,6 @@ func Serve_Metrics(res http.ResponseWriter, req *http.Request) {
 	internal_log("METRICS_END")
 	fmt.Fprintf(res, response.Message)
 }
-
-
-
 
 func main() {
 	log.Print("Ingress controller started")

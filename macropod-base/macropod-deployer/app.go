@@ -44,7 +44,6 @@ type Workflow struct {
 	LastUpdated        time.Time
 	Updating           bool
 	InitialPods        []string
-	FullyDisaggregated bool
 }
 
 type NodeMetricList struct {
@@ -73,65 +72,9 @@ type Usage struct {
 	Memory string `json:"memory"`
 }
 
-<<<<<<< HEAD
-type ContainerMetrics struct {
-	Name   string `json:"name"`
-	CPU    string `json:"cpu"`
-	Memory string `json:"memory"`
-}
-
-type PodMetrics struct {
-	Name       string             `json:"name"`
-	Namespace  string             `json:"namespace"`
-	Containers []ContainerMetrics `json:"containers"`
-}
-
-type NodeMetrics struct {
-	Name   string `json:"name"`
-	CPU    string `json:"cpu"`
-	Memory string `json:"memory"`
-}
-
-type Metrics struct {
-	Pods  []PodMetrics  `json:"pods"`
-	Nodes []NodeMetrics `json:"nodes"`
-}
-
-type Function struct {
-	Registry  string            `json:"registry"`
-	Endpoints []string          `json:"endpoints,omitempty"`
-	Envs      map[string]string `json:"envs,omitempty"`
-	Secrets   map[string]string `json:"secrets,omitempty"`
-}
-
-type Workflow struct {
-	Name               string              `json:"name,omitempty"`
-	Functions          map[string]Function `json:"functions"`
-	Pods               [][]string
-	IngressVersion     map[string]int
-	LatestVersion      int
-	LastUpdated        time.Time
-	Updating           bool
-	InitialPods        []string
-}
-
-var (
-	kclient          *kubernetes.Clientset
-	workflows        = make(map[string]*Workflow)
-	cpu_threshold_1  float64
-	cpu_threshold_2  float64
-	mem_threshold_1  float64
-	mem_threshold_2  float64
-	update_threshold int
-	ready_deployment []string
-	isSorting        bool
-	node_sort        string
-	nodes_list []string
-	deploymentRunning bool
-=======
 var (
 	kclient            *kubernetes.Clientset
-	workflows          map[string]*Workflow
+	workflows          = make(map[string]*Workflow)
 	cpu_threshold_1    float64
 	cpu_threshold_2    float64
 	mem_threshold_1    float64
@@ -145,94 +88,28 @@ var (
 	nodeCapacityCPU    map[string]float64
 	nodeCapacityMemory map[string]float64
 	countLock          sync.Mutex
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 )
 
 func internal_log(message string) {
 	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message)
 }
 
-<<<<<<< HEAD
-func ifPodsAreRunning(deployment_array []string) bool {
-	for _, d_name := range deployment_array {
-		internal_log("Checking " + d_name)
-		for {
-			if slices.Contains(ready_deployment, d_name) {
-				break
-			}
-		}
-
-	}
-
-	return true
-}
-
-// func watchDeployments() {
-
-// 	internal_log("WATCH_WORKFLOW_START")
-// 	watcher, err := kclient.CoreV1().Pods("").Watch(context.TODO(), metav1.ListOptions{
-// 		LabelSelector: "workflow_name",
-// 	})
-// 	internal_log("teststttt")
-// 	if err != nil {
-// 		internal_log("Failed to set up watcher - " + err.Error())
-// 	}
-// 	for event := range watcher.ResultChan() {
-// 		pod, ok := event.Object.(*corev1.Pod)
-// 		if !ok {
-// 			internal_log("Invalid Deployment Event")
-// 			continue
-// 		}
-// 		internal_log(pod.Labels["app-version"])
-// 		internal_log(pod.Labels["app"])
-// 		entry_name := pod.Labels["app-version"] + pod.Labels["app"]
-// 		if pod.Status.Phase == "Running" {
-// 			if !slices.Contains(ready_deployment, entry_name) {
-// 				ready_deployment = append(ready_deployment, entry_name)
-// 			}
-// 		}else{
-// 			if slices.Contains(ready_deployment, entry_name) {
-// 				index := slices.Index(ready_deployment,entry_name)
-// 				ready_deployment[index] =""
-// 			}			
-// 		}
-// 		log.Print(ready_deployment)
-// 	}
-// 	internal_log("WATCH_WORKFLOW_END")
-// }
 func manageDeployment(func_name string, replicaNumber string) (string, error) {
-=======
-func manageDeployment(wf_name string, replicaNumber string) (string, error) {
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 	//log.Print(workflows)
 	deploymentRunning = true
 	var update_deployments []appsv1.Deployment
 	namespace := "macropod-functions"
-<<<<<<< HEAD
-	update := true
 	if workflows[func_name].IngressVersion == nil {
 		workflows[func_name].IngressVersion = make(map[string]int)
 	}
 	labels_ingress := map[string]string{
-		"workflow_name":     func_name,
-=======
-	if workflows[wf_name].IngressVersion == nil {
-		workflows[wf_name].IngressVersion = make(map[string]int)
-	}
-	labels_ingress := map[string]string{
-		"workflow_name": wf_name,
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
+		"workflow_name": func_name,
 	}
 	// log.Print(workflows[func_name].Pods)
 	pathType := networkingv1.PathTypePrefix
-<<<<<<< HEAD
-	service_name_ingress := workflows[func_name].Pods[0][0] + "-" + replicaNumber
+	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
 	for _, pod := range workflows[func_name].Pods {
-=======
-	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[wf_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
-	for _, pod := range workflows[wf_name].Pods {
 		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 		service := &corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      pod_name + "-" + replicaNumber,
@@ -247,13 +124,8 @@ func manageDeployment(wf_name string, replicaNumber string) (string, error) {
 		}
 
 		labels := map[string]string{
-<<<<<<< HEAD
 			"workflow_name": func_name,
-			"app":           pod[0]+ "-"+ replicaNumber,
-=======
-			"workflow_name": wf_name,
 			"app":           pod_name + "-" + replicaNumber,
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 		}
 		replicaCount := int32(1)
 		deployment := &appsv1.Deployment{
@@ -276,14 +148,9 @@ func manageDeployment(wf_name string, replicaNumber string) (string, error) {
 			},
 		}
 		for i, container := range pod {
-<<<<<<< HEAD
+			container_name := strings.ToLower(strings.ReplaceAll(container, "_", "-")) + "-" + replicaNumber
 			func_port := 5000 + slices.Index(workflows[func_name].InitialPods, container)
 			function := workflows[func_name].Functions[container]
-=======
-			container_name := strings.ToLower(strings.ReplaceAll(container, "_", "-")) + "-" + replicaNumber
-			func_port := 5000 + slices.Index(workflows[wf_name].InitialPods, container)
-			function := workflows[wf_name].Functions[container]
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 			registry := function.Registry
 			var env []corev1.EnvVar
 			for name, value := range function.Envs {
@@ -356,17 +223,8 @@ func manageDeployment(wf_name string, replicaNumber string) (string, error) {
 		log.Print(dp)
 		kclient.AppsV1().Deployments(namespace).Update(context.Background(), &dp, metav1.UpdateOptions{})
 	}
-<<<<<<< HEAD
-	if !ifPodsAreRunning(updated_deployment_names) {
-		deploymentRunning = false
-		return "", nil
-	}
 	for _, pod := range workflows[func_name].Pods {
-=======
-
-	for _, pod := range workflows[wf_name].Pods {
 		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 		service := &corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      pod_name + "-" + replicaNumber,
@@ -380,12 +238,8 @@ func manageDeployment(wf_name string, replicaNumber string) (string, error) {
 			},
 		}
 		for _, container := range pod {
-<<<<<<< HEAD
-			container_port := int32(5000 + slices.Index(workflows[func_name].InitialPods, container))
-=======
 			container_name := strings.ToLower(strings.ReplaceAll(container, "_", "-")) + "-" + replicaNumber
-			container_port := int32(5000 + slices.Index(workflows[wf_name].InitialPods, container))
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
+			container_port := int32(5000 + slices.Index(workflows[func_name].InitialPods, container))
 			service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
 				Name:       container_name,
 				Port:       container_port,
@@ -456,13 +310,8 @@ func manageDeployment(wf_name string, replicaNumber string) (string, error) {
 	return service_name_ingress + "." + namespace + ".svc.cluster.local:5000", nil
 }
 
-<<<<<<< HEAD
 func updateDeployments(func_name string) {
 	if workflows[func_name].Updating {
-=======
-func updateDeployments(wf_name string, replicaNumber int) {
-	if workflows[wf_name].Updating {
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 		internal_log("Already updating..........")
 		return
 	}
@@ -470,7 +319,6 @@ func updateDeployments(wf_name string, replicaNumber int) {
 	for ns, version := range workflows[func_name].IngressVersion {
 		internal_log("version running in " + ns + " is " + strconv.Itoa(version))
 	}
-<<<<<<< HEAD
 	workflows[func_name].Updating = true
 	// var cpu_total float64
 	// var memory_total float64
@@ -483,25 +331,6 @@ func updateDeployments(wf_name string, replicaNumber int) {
 	// 		memory_total += memory
 	// 	}
 	// }
-=======
-	workflows[wf_name].Updating = true
-
-	// get the percentage of the node utilisation
-	var nodes NodeMetricList
-	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
-	if err != nil {
-		internal_log("unable to retrieve metrics from nodes API - " + err.Error())
-		return
-	}
-	err = json.Unmarshal(data, &nodes)
-	if err != nil {
-		internal_log("unable to unmarshal metrics from nodes API - " + err.Error())
-		return
-	}
-
-	log.Print()
-
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 	// internal_log("Cpu is: " + strconv.Itoa(int(cpu_total)))
 	// internal_log("Memory is : " + strconv.Itoa(int(memory_total)))
 	// if cpu_total > cpu_threshold_1 || memory_total > mem_threshold_1{
@@ -621,13 +450,7 @@ func cpu_raw_to_float(cpu_str string) (float64, error) {
 
 }
 
-<<<<<<< HEAD
-
-
 func bfs_initial_pod(pod []string, func_name string, pod_list []string) []string {
-=======
-func bfs_initial_pod(pod []string, wf_name string, pod_list []string) []string {
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 	if len(pod_list) == 0 {
 		return pod
 	}
@@ -664,12 +487,7 @@ func createInitialPod(func_name string) {
 			}
 		}
 	}
-<<<<<<< HEAD
-
 	for func_name := range workflows[func_name].Functions {
-=======
-	for func_name := range workflows[wf_name].Functions {
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 		if !slices.Contains(endpoints, func_name) {
 			frontend_func = func_name
 			break
@@ -678,20 +496,11 @@ func createInitialPod(func_name string) {
 	}
 	var pod_list []string
 	pod_list = append(pod_list, frontend_func)
-<<<<<<< HEAD
 	initial_pod = bfs_initial_pod(initial_pod, func_name, pod_list)
 	workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
 	workflows[func_name].InitialPods = initial_pod
 	log.Print(len(initial_pod))
 	log.Print(workflows[func_name].InitialPods)
-=======
-	initial_pod = bfs_initial_pod(initial_pod, wf_name, pod_list)
-	workflows[wf_name].Pods = append(workflows[wf_name].Pods, initial_pod)
-	workflows[wf_name].InitialPods = initial_pod
-	// log.Print(len(initial_pod))
-	// log.Print(workflows[wf_name].InitialPods)
-	// log.Print(workflows[wf_name].Pods)
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 }
 
 func createWorkflow(func_name string, func_str string) {
@@ -708,16 +517,9 @@ func createWorkflow(func_name string, func_str string) {
 	internal_log("CREATE_WORKFLOW_END - " + func_name)
 }
 
-<<<<<<< HEAD
-
-//to do 
+//to do
 func updateWorkflow(func_name string, func_str string) {
 	internal_log("UPDATE_WORKFLOW_START - " + func_name)
-=======
-// to do
-func updateWorkflow(wf_name string, workflow_str string) {
-	internal_log("UPDATE_WORKFLOW_START - " + wf_name)
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 	workflow := Workflow{}
 	json.Unmarshal([]byte(func_str), &workflow)
 	_, exists := workflows[func_name]
@@ -733,32 +535,18 @@ func deleteWorkflow(func_name string) {
 	internal_log("DELETE_WORKFLOW_START - " + func_name)
 	_, exists := workflows[func_name]
 	if exists {
-<<<<<<< HEAD
 		internal_log("workflow " + func_name + " exists")
-=======
-		internal_log("workflow " + wf_name + " exists")
-
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 	} else {
 		internal_log("workflow " + func_name + " does not exist")
 	}
 	internal_log("DELETE_WORKFLOW_END - " + func_name)
 }
 
-<<<<<<< HEAD
-
-//to-do 
+//to-do
 func updateExistingIngress(func_name string) {
 	internal_log("UPDATE_EXISTING_START - " + func_name)
 	//updateDeployments(func_name) //TODO
 	internal_log("UPDATE_EXISTING_END - " + func_name)
-=======
-// to-do
-func updateExistingIngress(wf_name string, replicaNumber int) {
-	internal_log("UPDATE_EXISTING_START - " + wf_name)
-	updateDeployments(wf_name, replicaNumber)
-	internal_log("UPDATE_EXISTING_END - " + wf_name)
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 }
 
 func createNewIngress(func_name string, rn int) string {
@@ -769,13 +557,8 @@ func createNewIngress(func_name string, rn int) string {
 		return ""
 	}
 	replicaNumber := strconv.Itoa(rn)
-<<<<<<< HEAD
 	internal_log("deploying replica number " + replicaNumber + " for workflow "+func_name)
 	ingress, err := manageDeployment(func_name, replicaNumber)
-=======
-	internal_log("deploying replica number " + replicaNumber + " for workflow " + wf_name)
-	ingress, err := manageDeployment(wf_name, replicaNumber)
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 	if err != nil {
 		internal_log("Failed to deploy new ingress - " + err.Error())
 		return ""
@@ -838,15 +621,9 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 		deleteWorkflow(func_name)
 		internal_log("delete workflow request end - " + func_name)
 	} else if request_type == "existing_invoke" {
-<<<<<<< HEAD
 		internal_log("existing invoke request start - " + func_name)
 		updateExistingIngress(func_name)
 		internal_log("existing invoke request end - " + func_name)
-=======
-		internal_log("existing invoke request start - " + wf_name)
-		updateExistingIngress(wf_name, int(replicaNumber))
-		internal_log("existing invoke request end - " + wf_name)
->>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 	} else if request_type == "new_invoke" {
 		internal_log("new invoke request start - " + func_name)
 		result = createNewIngress(func_name, int(replicaNumber))
