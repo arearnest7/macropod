@@ -44,29 +44,37 @@ var (
 	serviceCount                = make(map[string]int)
 	serviceTimeStamp            = make(map[string]time.Time)
 	runningDeploymentController = make(map[string]bool) // this can be used for lock mechanism
-	ttl_seconds                 int // time in seconds
+	ttl_seconds                 int 
 	max_concurrency             int
 	countLock                   sync.Mutex
+	replicaCout = make(map[string]int)
 )
 
 func internal_log(message string) {
 	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message)
 }
 
+<<<<<<< HEAD
+=======
+// TODO - if deploymnet controller for a fucntion is already running dont run it again
+func init() {
+	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
+}
+
+>>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
 func callDepController(func_found bool, func_name string, replicaNumber int) error {
-	if !runningDeploymentController[func_name] {
-		runningDeploymentController[func_name] = true
 		depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
 		if depControllerAddr == "" {
 			fmt.Println("DEP_CONTROLLER_ADD environment variable not set")
-			runningDeploymentController[func_name] = false
 			return nil
 		}
 		var type_call string
 		if func_found {
 			type_call = "existing_invoke"
+			internal_log("getting metrics from deployment controller")
 		} else {
 			type_call = "new_invoke"
+			internal_log("invoking new replica")
 		}
 		opts := grpc.WithInsecure()
 		cc, err := grpc.Dial(depControllerAddr, opts)
@@ -84,7 +92,7 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 		}
 		fmt.Printf("Receive response => %s ", resp.Message)
 
-	}
+	
 	return nil
 }
 
@@ -96,11 +104,11 @@ func checkTTL() {
 			elapsedTime := currentTime.Sub(timestamp)
 			if elapsedTime.Seconds() > float64(ttl_seconds) {
 				service_name := strings.Split(name, ".")[0]
-				log.Print("deleting because of TTL %s", service_name)
+				log.Printf("deleting because of TTL %s", service_name)
 				log.Printf("Deleting service and deployment of %s because of TTL\n", service_name)
-				kclient.CoreV1().Services("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
-				kclient.AppsV1().Deployments("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
-				kclient.NetworkingV1().Ingresses("").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
+				kclient.CoreV1().Services("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
+				kclient.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
+				kclient.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
 			}
 			time.Sleep(time.Second)
 		}
@@ -115,15 +123,14 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
                                 serviceName := path.Backend.Service.Name
                                 namespace := ingress.Namespace
                                 port := path.Backend.Service.Port.Number
-                                func_name := ingress.Labels["function_name"]
+                                func_name := ingress.Labels["workflow_name"]
                                 hostname := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+								internal_log("service found: " + hostname)
                                 if func_name != "" {
-                                        countLock.Lock()
+										countLock.Lock()
                                         serviceCount[hostname] = 0
                                         hostTargets[func_name] = append(hostTargets[func_name], hostname)
-                                        fmt.Print(hostname)
-                                        countLock.Unlock()
-                                        log.Print("hostname found : %v ", hostTargets)
+										countLock.Unlock()
                                 }
                         }
                 }
@@ -193,37 +200,43 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(res, help_print)
 }
 
+<<<<<<< HEAD
 func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
         func_name := req.PathValue("func_name")
         results := ""
+=======
+func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request){
+        func_name := req.PathValue("wf_name")
+>>>>>>> c77fab0b4156469cd81664cde600ced6ba4e4db8
         internal_log("function name: " + func_name)
         target := ""
         triggered := false
         for target == "" {
-                countLock.Lock()
+				countLock.Lock()
                 for _, service := range hostTargets[func_name] {
                         if serviceCount[service] < max_concurrency {
                                 target = service
                                 serviceCount[service]++
                                 serviceTimeStamp[service] = time.Now()
+								break
                         }
                 }
-                countLock.Unlock()
+				countLock.Unlock()
                 if target == "" && !triggered {
                         triggered = true
-                        go callDepController(false, func_name, len(hostTargets[func_name]))
+						replicaCout[func_name] = replicaCout[func_name] + 1
+                        go callDepController(false, func_name, replicaCout[func_name])
                         log.Print(target)
                 }
-
         }
         internal_log("forwarding request to " + target)
-
         opts := grpc.WithInsecure()
         cc, err := grpc.Dial(target, opts)
         if err != nil {
                 log.Fatal(err)
         }
         defer cc.Close()
+		go callDepController(true, func_name, len(hostTargets[func_name]))
         payload, _ := ioutil.ReadAll(req.Body)
         workflow_id := strconv.Itoa(rand.Intn(100000))
         channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -233,11 +246,17 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
         defer cancel()
         request_type := "gg"
         response, _ := stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
-        results = response.GetReply()
+		status := response.GetCode()
         countLock.Lock()
-	serviceCount[target]--
+		serviceCount[target]--
+		internal_log("decreasing the count for"+target)
         countLock.Unlock()
-        fmt.Fprint(res, results)
+		if (status == 200){
+        	fmt.Fprint(res, response)
+			
+		}else {
+			http.Error(res,"Non 200 status code", http.StatusBadGateway)
+		}
 }
 
 
@@ -373,7 +392,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to get in-cluster config: %s", err)
 	}
-
 	kclient, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Fatalf("Failed to create kclient: %s", err)
