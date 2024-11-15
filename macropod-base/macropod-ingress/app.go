@@ -38,7 +38,7 @@ type Workflow struct {
 }
 
 var (
-	workflows                   map[string]Workflow
+	workflows                   = make(map[string]Workflow)
 	kclient                     *kubernetes.Clientset
 	hostTargets                 = make(map[string][]string)
 	serviceCount                = make(map[string]int)
@@ -53,19 +53,6 @@ func internal_log(message string) {
 	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message)
 }
 
-// TODO - if deploymnet controller for a fucntion is already running dont run it again
-func init() {
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		panic(err.Error())
-	}
-	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
-	kclient, err = kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
-}
-
 func callDepController(func_found bool, func_name string, replicaNumber int) error {
 	if !runningDeploymentController[func_name] {
 		runningDeploymentController[func_name] = true
@@ -75,7 +62,6 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 			runningDeploymentController[func_name] = false
 			return nil
 		}
-		//depControllerAddr = "http://" + depControllerAddr
 		var type_call string
 		if func_found {
 			type_call = "existing_invoke"
@@ -208,7 +194,7 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 }
 
 func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
-        func_name := req.PathValue("wf_name")
+        func_name := req.PathValue("func_name")
         results := ""
         internal_log("function name: " + func_name)
         target := ""
@@ -258,7 +244,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 
 
 func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
-	internal_log("WF_CREATE_START " + req.PathValue("wf_name"))
+	internal_log("WF_CREATE_START " + req.PathValue("func_name"))
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		internal_log("create body - " + err.Error())
@@ -274,20 +260,20 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	defer cc.Close()
 	workflow := string(body)
 	client := pb.NewDeploymentServiceClient(cc)
-	request := &pb.DeploymentServiceRequest{Name: req.PathValue("wf_name"), FunctionCall: "create", Workflow: &workflow}
-	internal_log("requesting create for " + req.PathValue("wf_name"))
+	request := &pb.DeploymentServiceRequest{Name: req.PathValue("func_name"), FunctionCall: "create", Workflow: &workflow}
+	internal_log("requesting create for " + req.PathValue("func_name"))
 	_, err = client.Deployment(context.Background(), request)
-	internal_log("returned create for " + req.PathValue("wf_name"))
+	internal_log("returned create for " + req.PathValue("func_name"))
 	if err != nil {
 		internal_log("create return - " + err.Error())
 	}
-	workflows[req.PathValue("wf_name")] = body_u
-	internal_log("WF_CREATE_END " + req.PathValue("wf_name"))
-	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("wf_name"))
+	workflows[req.PathValue("func_name")] = body_u
+	internal_log("WF_CREATE_END " + req.PathValue("func_name"))
+	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name"))
 }
 
 func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
-	internal_log("WF_UPDATE_START " + req.PathValue("wf_name"))
+	internal_log("WF_UPDATE_START " + req.PathValue("func_name"))
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		internal_log("update body - " + err.Error())
@@ -303,20 +289,20 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	defer cc.Close()
 	workflow := string(body)
 	client := pb.NewDeploymentServiceClient(cc)
-	request := &pb.DeploymentServiceRequest{Name: req.PathValue("wf_name"), FunctionCall: "update", Workflow: &workflow}
-	internal_log("requesting update for " + req.PathValue("wf_name"))
+	request := &pb.DeploymentServiceRequest{Name: req.PathValue("func_name"), FunctionCall: "update", Workflow: &workflow}
+	internal_log("requesting update for " + req.PathValue("func_name"))
 	_, err = client.Deployment(context.Background(), request)
-	internal_log("returned update for " + req.PathValue("wf_name"))
+	internal_log("returned update for " + req.PathValue("func_name"))
 	if err != nil {
 		internal_log("update return - " + err.Error())
 	}
-	workflows[req.PathValue("wf_name")] = body_u
-	internal_log("WF_UPDATE_END " + req.PathValue("wf_name"))
-	fmt.Fprintf(res, "Workflow \""+req.PathValue("wf_name")+"\" has been updated successfully.")
+	workflows[req.PathValue("func_name")] = body_u
+	internal_log("WF_UPDATE_END " + req.PathValue("func_name"))
+	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been updated successfully.")
 }
 
 func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
-	internal_log("WF_DELETE_START " + req.PathValue("wf_name"))
+	internal_log("WF_DELETE_START " + req.PathValue("func_name"))
 	opts := grpc.WithInsecure()
 	cc, err := grpc.Dial(os.Getenv("DEP_CONTROLLER_ADD"), opts)
 	if err != nil {
@@ -324,20 +310,20 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	}
 	defer cc.Close()
 	client := pb.NewDeploymentServiceClient(cc)
-	request := &pb.DeploymentServiceRequest{Name: req.PathValue("wf_name"), FunctionCall: "delete"}
-	internal_log("requesting delete for " + req.PathValue("wf_name"))
+	request := &pb.DeploymentServiceRequest{Name: req.PathValue("func_name"), FunctionCall: "delete"}
+	internal_log("requesting delete for " + req.PathValue("func_name"))
 	_, err = client.Deployment(context.Background(), request)
-	internal_log("returned delete for " + req.PathValue("wf_name"))
+	internal_log("returned delete for " + req.PathValue("func_name"))
 	if err != nil {
 		internal_log("delete return - " + err.Error())
 	}
-	delete(workflows, req.PathValue("wf_name"))
-	internal_log("WF_DELETE_END " + req.PathValue("wf_name"))
-	fmt.Fprintf(res, "Workflow \""+req.PathValue("wf_name")+"\" has been deleted successfully.")
+	delete(workflows, req.PathValue("func_name"))
+	internal_log("WF_DELETE_END " + req.PathValue("func_name"))
+	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been deleted successfully.")
 }
 
 func Serve_Logs(res http.ResponseWriter, req *http.Request) {
-	internal_log("LOGS_START " + req.PathValue("wf_name"))
+	internal_log("LOGS_START " + req.PathValue("func_name"))
 	opts := grpc.WithInsecure()
 	cc, err := grpc.Dial(os.Getenv("DEP_CONTROLLER_ADD"), opts)
 	if err != nil {
@@ -345,14 +331,14 @@ func Serve_Logs(res http.ResponseWriter, req *http.Request) {
 	}
 	defer cc.Close()
 	client := pb.NewDeploymentServiceClient(cc)
-	request := &pb.DeploymentServiceRequest{Name: req.PathValue("wf_name"), FunctionCall: "logs"}
-	internal_log("requesting logs for " + req.PathValue("wf_name"))
+	request := &pb.DeploymentServiceRequest{Name: req.PathValue("func_name"), FunctionCall: "logs"}
+	internal_log("requesting logs for " + req.PathValue("func_name"))
 	response, err := client.Deployment(context.Background(), request)
-	internal_log("returned logs for " + req.PathValue("wf_name"))
+	internal_log("returned logs for " + req.PathValue("func_name"))
 	if err != nil {
 		internal_log("logs return - " + err.Error())
 	}
-	internal_log("LOGS_END " + req.PathValue("wf_name"))
+	internal_log("LOGS_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, response.Message)
 }
 
@@ -382,6 +368,7 @@ func Serve_Metrics(res http.ResponseWriter, req *http.Request) {
 func main() {
 	log.Print("Ingress controller started")
 	go checkTTL()
+	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		log.Fatalf("Failed to get in-cluster config: %s", err)
@@ -397,9 +384,9 @@ func main() {
 	watchIngress(kclient)
 	h := http.NewServeMux()
 	h.HandleFunc("/", Serve_Help)
-	h.HandleFunc("/invoke/{wf_name}", Serve_WF_Invoke)
-	h.HandleFunc("/create/{wf_name}", Serve_WF_Create)
-	h.HandleFunc("/update/{wf_name}", Serve_WF_Update)
-	h.HandleFunc("/delete/{wf_name}", Serve_WF_Delete)
+	h.HandleFunc("/invoke/{func_name}", Serve_WF_Invoke)
+	h.HandleFunc("/create/{func_name}", Serve_WF_Create)
+	h.HandleFunc("/update/{func_name}", Serve_WF_Update)
+	h.HandleFunc("/delete/{func_name}", Serve_WF_Delete)
 	http.ListenAndServe(":"+os.Getenv("SERVICE_PORT"), h)
 }

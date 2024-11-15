@@ -8,10 +8,6 @@ spec:
   ports:
   - port: 80
     targetPort: 8081
-    name: ingress
-  - port: 8082
-    targetPort: 8082
-    name: deployer
   type: LoadBalancer
   clusterIP: 10.43.190.1
 ---
@@ -23,9 +19,9 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: macropod
+  name: macropod-functions
   labels:
-    name: macropod
+    name: macropod-functions
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -78,7 +74,7 @@ spec:
         - name: TTL
           value: "300"
         - name: DEP_CONTROLLER_ADD
-          value: "macropod-service.default.svc.cluster.local:8082"
+          value: "127.0.0.1:8082"
       - name: macropod-deployer
         image: sysdevtamu/macropod-deployer:latest
         imagePullPolicy: Always
@@ -89,5 +85,3 @@ spec:
           value: "8082"
         - name: NAMESPACE_INGRESS
           value: "macropod"
-
-
