@@ -129,6 +129,14 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 
 func checkTTL() {
 	internal_log("Checking TTL")
+	config, err := rest.InClusterConfig()
+        if err != nil {
+                log.Fatalf("Failed to get in-cluster config: %s", err)
+        }
+        k, err := kubernetes.NewForConfig(config) // added to show what I was talking about regarding the nil return. change back to kclient and see the difference
+        if err != nil {
+                log.Fatalf("Failed to create kclient: %s", err)
+        }
 	for {
 		currentTime := time.Now()
 		for name, timestamp := range serviceTimeStamp {
@@ -137,12 +145,13 @@ func checkTTL() {
 				service_name := strings.Split(name, ".")[0]
 				log.Printf("deleting because of TTL %s", service_name)
 				log.Printf("Deleting service and deployment of %s because of TTL\n", service_name)
-				kclient.CoreV1().Services("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
-				log.Print("deelted service") // there was a nil error here when I was looking at yesterday, so lets verify if TTL is working correctly
-				kclient.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
-				log.Print("deelted deployment") 
-				kclient.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
-				log.Print("deelted ingress") 
+				k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
+				log.Print("deleted service") // there was a nil error here when I was looking at yesterday, so lets verify if TTL is working correctly
+				k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
+				log.Print("deleted deployment")
+				k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
+				log.Print("deleted ingress")
+				delete(serviceTimeStamp, name)
 			}
 			time.Sleep(time.Second)
 		}
@@ -188,12 +197,12 @@ func deleteHostTargets(ingress *networkingv1.Ingress) {
 			}
 		}
 	}
-	
 	log.Print("deleting %s\n", hostname_deleted)
 	for i, val := range hostTargets[func_name] {
 		if val == hostname_deleted {
 			countLock.Lock()
-			hostTargets[func_name] = append(hostTargets[func_name][:i], hostTargets[func_name][i+1:]...) 
+			hostTargets[func_name] = append(hostTargets[func_name][:i], hostTargets[func_name][i+1:]...)
+			fmt.Println(hostTargets[func_name])
 			delete(serviceCount, hostname_deleted)
 			delete(serviceTimeStamp, hostname_deleted)
 			workflow_deployments[func_name]--
@@ -224,6 +233,7 @@ func watchIngress(kclient *kubernetes.Clientset) {
 				log.Printf("Updated host targets: %+v", hostTargets)
 				updateHostTargets(ingress)
 			case watch.Deleted:
+				log.Printf("Deleted host targets")
 				deleteHostTargets(ingress)
 			}
 
