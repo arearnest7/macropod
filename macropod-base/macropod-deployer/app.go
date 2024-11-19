@@ -44,6 +44,7 @@ type Workflow struct {
 	LastUpdated        time.Time
 	Updating           bool
 	InitialPods        []string
+	FullyDisaggregated bool
 }
 
 type NodeMetricList struct {
@@ -74,7 +75,7 @@ type Usage struct {
 
 var (
 	kclient            *kubernetes.Clientset
-	workflows          = make(map[string]*Workflow)
+	workflows          map[string]*Workflow
 	cpu_threshold_1    float64
 	cpu_threshold_2    float64
 	mem_threshold_1    float64
@@ -104,6 +105,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 	}
 	labels_ingress := map[string]string{
 		"workflow_name": func_name,
+		"workflow_replica": func_name+"-"+replicaNumber,
 	}
 	// log.Print(workflows[func_name].Pods)
 	pathType := networkingv1.PathTypePrefix
@@ -126,6 +128,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 		labels := map[string]string{
 			"workflow_name": func_name,
 			"app":           pod_name + "-" + replicaNumber,
+			"workflow_replica": func_name+"-"+replicaNumber,
 		}
 		replicaCount := int32(1)
 		deployment := &appsv1.Deployment{
@@ -223,6 +226,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 		log.Print(dp)
 		kclient.AppsV1().Deployments(namespace).Update(context.Background(), &dp, metav1.UpdateOptions{})
 	}
+
 	for _, pod := range workflows[func_name].Pods {
 		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
 		service := &corev1.Service{
@@ -310,16 +314,16 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 	return service_name_ingress + "." + namespace + ".svc.cluster.local:5000", nil
 }
 
-func updateDeployments(func_name string) {
-	if workflows[wf_name].Updating {
+func updateDeployments(func_name string, replicaNumber int) {
+	if workflows[func_name].Updating {
 		internal_log("Already updating..........")
 		return
 	}
 
-	for ns, version := range workflows[wf_name].IngressVersion {
+	for ns, version := range workflows[func_name].IngressVersion {
 		internal_log("version running in " + ns + " is " + strconv.Itoa(version))
 	}
-	workflows[wf_name].Updating = true
+	workflows[func_name].Updating = true
 
 	// get the percentage of the node utilisation
 	var nodes NodeMetricList
@@ -336,18 +340,6 @@ func updateDeployments(func_name string) {
 
 	log.Print()
 
-	//TODO
-	// var cpu_total float64
-	// var memory_total float64
-
-	// // this is across all clusters, Question? Why are we thinking its because of the invoked ? We should check namepsaces belonging  to func_name only right ?
-	// for _, wf := range workflows {
-	// 	for namespace := range wf.IngressVersion {
-	// 		cpu, memory := getNamespaceMetrics(namespace)
-	// 		cpu_total += cpu
-	// 		memory_total += memory
-	// 	}
-	// }
 	// internal_log("Cpu is: " + strconv.Itoa(int(cpu_total)))
 	// internal_log("Memory is : " + strconv.Itoa(int(memory_total)))
 	// if cpu_total > cpu_threshold_1 || memory_total > mem_threshold_1{
@@ -516,14 +508,16 @@ func createInitialPod(func_name string) {
 	initial_pod = bfs_initial_pod(initial_pod, func_name, pod_list)
 	workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
 	workflows[func_name].InitialPods = initial_pod
-	//log.Print(len(initial_pod))
-	//log.Print(workflows[func_name].InitialPods)
+	// log.Print(len(initial_pod))
+	// log.Print(workflows[func_name].InitialPods)
+	// log.Print(workflows[func_name].Pods)
 }
 
 func createWorkflow(func_name string, func_str string) {
 	internal_log("CREATE_WORKFLOW_START - " + func_name)
 	workflow := Workflow{}
 	json.Unmarshal([]byte(func_str), &workflow)
+	log.Printf("%v",workflow)
 	_, exists := workflows[func_name]
 	if exists {
 		internal_log("workflow " + func_name + " already exists. If you are updating it please use update instead.")
@@ -534,14 +528,17 @@ func createWorkflow(func_name string, func_str string) {
 	internal_log("CREATE_WORKFLOW_END - " + func_name)
 }
 
-//to do
-func updateWorkflow(func_name string, func_str string) {
+// to do
+func updateWorkflow(func_name string, workflow_str string) {
 	internal_log("UPDATE_WORKFLOW_START - " + func_name)
 	workflow := Workflow{}
-	json.Unmarshal([]byte(func_str), &workflow)
-	_, exists := workflows[func_name]
+	json.Unmarshal([]byte(workflow_str), &workflow)
+	existing_workflow, exists := workflows[func_name]
 	if exists {
-		//TODO
+		for namespace, _ := range existing_workflow.IngressVersion {
+			kclient.CoreV1().Namespaces().Delete(context.TODO(), namespace, metav1.DeleteOptions{})
+		}
+		delete(workflows, func_name)
 	}
 	workflows[func_name] = &workflow
 	createInitialPod(func_name)
@@ -553,16 +550,17 @@ func deleteWorkflow(func_name string) {
 	_, exists := workflows[func_name]
 	if exists {
 		internal_log("workflow " + func_name + " exists")
+
 	} else {
 		internal_log("workflow " + func_name + " does not exist")
 	}
 	internal_log("DELETE_WORKFLOW_END - " + func_name)
 }
 
-//to-do
-func updateExistingIngress(func_name string) {
+// to-do
+func updateExistingIngress(func_name string, replicaNumber int) {
 	internal_log("UPDATE_EXISTING_START - " + func_name)
-	//updateDeployments(func_name) //TODO
+	updateDeployments(func_name, replicaNumber)
 	internal_log("UPDATE_EXISTING_END - " + func_name)
 }
 
@@ -574,7 +572,7 @@ func createNewIngress(func_name string, rn int) string {
 		return ""
 	}
 	replicaNumber := strconv.Itoa(rn)
-	internal_log("deploying replica number " + replicaNumber + " for workflow "+func_name)
+	internal_log("deploying replica number " + replicaNumber + " for workflow " + func_name)
 	ingress, err := manageDeployment(func_name, replicaNumber)
 	if err != nil {
 		internal_log("Failed to deploy new ingress - " + err.Error())
@@ -639,7 +637,7 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 		internal_log("delete workflow request end - " + func_name)
 	} else if request_type == "existing_invoke" {
 		internal_log("existing invoke request start - " + func_name)
-		updateExistingIngress(func_name)
+		updateExistingIngress(func_name, int(replicaNumber))
 		internal_log("existing invoke request end - " + func_name)
 	} else if request_type == "new_invoke" {
 		internal_log("new invoke request start - " + func_name)
@@ -657,6 +655,7 @@ func main() {
 	isSorting = false
 	node_sort = ""
 	deploymentRunning = false
+	workflows = make(map[string]*Workflow)
 	nodeCapacityCPU = make(map[string]float64)
 	nodeCapacityMemory = make(map[string]float64)
 	config, err := rest.InClusterConfig()
