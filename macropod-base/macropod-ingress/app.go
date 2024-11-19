@@ -47,42 +47,62 @@ var (
 	ttl_seconds                 int
 	max_concurrency             int
 	countLock                   sync.Mutex
-	replicaCout = make(map[string]int)
+	macropod_namespace          string
+	replicaCount = make(map[string]int)
 )
 
 func internal_log(message string) {
 	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message)
 }
 
+func ifPodsAreRunning(workflow_replica string, k *kubernetes.Clientset) (bool) {
+	label_replica := "workflow_replica=" + workflow_replica
+	pods, err := k.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_replica})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, pod := range pods.Items {
+		if pod.Status.Phase != "Running" {
+			return false;
+		}
+		for _, container_status := range pod.Status.ContainerStatuses {
+			if container_status.State.Running == nil {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 func callDepController(func_found bool, func_name string, replicaNumber int) error {
-		depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
-		if depControllerAddr == "" {
-			fmt.Println("DEP_CONTROLLER_ADD environment variable not set")
-			return nil
-		}
-		var type_call string
-		if func_found {
-			type_call = "existing_invoke"
-			internal_log("getting metrics from deployment controller")
-		} else {
-			type_call = "new_invoke"
-			internal_log("invoking new replica")
-		}
-		opts := grpc.WithInsecure()
-		cc, err := grpc.Dial(depControllerAddr, opts)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer cc.Close()
-		client := pb.NewDeploymentServiceClient(cc)
-		rn := int32(replicaNumber)
-		request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: type_call, ReplicaNumber: rn}
-		resp, err := client.Deployment(context.Background(), request)
-		if err != nil {
-			log.Fatal(err)
-			return err
-		}
-		fmt.Printf("Receive response => %s ", resp.Message)
+	depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
+	if depControllerAddr == "" {
+		fmt.Println("DEP_CONTROLLER_ADD environment variable not set")
+		return nil
+	}
+	var type_call string
+	if func_found {
+		type_call = "existing_invoke"
+		internal_log("getting metrics from deployment controller")
+	} else {
+		type_call = "new_invoke"
+		internal_log("invoking new replica")
+	}
+	opts := grpc.WithInsecure()
+	cc, err := grpc.Dial(depControllerAddr, opts)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cc.Close()
+	client := pb.NewDeploymentServiceClient(cc)
+	rn := int32(replicaNumber)
+	request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: type_call, ReplicaNumber: rn}
+	resp, err := client.Deployment(context.Background(), request)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	fmt.Printf("Receive response => %s ", resp.Message)
 	return nil
 }
 
@@ -192,7 +212,9 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 
 func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
         func_name := req.PathValue("func_name")
-        internal_log("function name: " + func_name)
+        c, _ := rest.InClusterConfig()
+        k, _ := kubernetes.NewForConfig(c)
+	internal_log("function name: " + func_name)
         target := ""
         triggered := false
         for target == "" {
@@ -206,13 +228,24 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
                         }
                 }
 		countLock.Unlock()
-                if target == "" && !triggered {
+                if target == "" && !triggered && !runningDeploymentController[func_name] {
+			runningDeploymentController[func_name] = true
                         triggered = true
-			replicaCout[func_name] = replicaCout[func_name] + 1
-                        go callDepController(false, func_name, replicaCout[func_name])
+			replicaCount[func_name] = replicaCount[func_name] + 1
+                        callDepController(false, func_name, replicaCount[func_name])
                         log.Print(target)
+			runningDeploymentController[func_name] = false
                 }
         }
+	fmt.Println(target)
+	target_strip1 := target[:strings.Index(target, ".")]
+	fmt.Println(target_strip1)
+	target_strip2 := target_strip1[strings.LastIndex(target_strip1, "-"):]
+	fmt.Println(target_strip2)
+	workflow_replica := func_name + target_strip2
+	for !ifPodsAreRunning(workflow_replica, k) {
+		time.Sleep(100 * time.Millisecond)
+	}
         internal_log("forwarding request to " + target)
         opts := grpc.WithInsecure()
         cc, err := grpc.Dial(target, opts)
@@ -221,6 +254,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
         }
         defer cc.Close()
 	go callDepController(true, func_name, len(hostTargets[func_name]))
+
         payload, _ := ioutil.ReadAll(req.Body)
         workflow_id := strconv.Itoa(rand.Intn(100000))
         channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -267,8 +301,9 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 		internal_log("create return - " + err.Error())
 	}
 	workflows[req.PathValue("func_name")] = body_u
+	runningDeploymentController[req.PathValue("func_name")] = false
 	internal_log("WF_CREATE_END " + req.PathValue("func_name"))
-	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name"))
+	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name")+"\n")
 }
 
 func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
@@ -296,8 +331,9 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 		internal_log("update return - " + err.Error())
 	}
 	workflows[req.PathValue("func_name")] = body_u
+	runningDeploymentController[req.PathValue("func_name")] = false
 	internal_log("WF_UPDATE_END " + req.PathValue("func_name"))
-	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been updated successfully.")
+	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been updated successfully.\n")
 }
 
 func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
@@ -317,13 +353,13 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 		internal_log("delete return - " + err.Error())
 	}
 	delete(workflows, req.PathValue("func_name"))
+	delete(runningDeploymentController, req.PathValue("func_name"))
 	internal_log("WF_DELETE_END " + req.PathValue("func_name"))
-	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been deleted successfully.")
+	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been deleted successfully.\n")
 }
 
 func main() {
 	log.Print("Ingress controller started")
-	go checkTTL()
 	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -333,8 +369,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create kclient: %s", err)
 	}
+	go checkTTL()
 	workflows = make(map[string]Workflow)
 	max_concurrency = 3
+	macropod_namespace = "macropod-functions"
 	log.Print("watch ingress")
 	watchIngress(kclient)
 	h := http.NewServeMux()
