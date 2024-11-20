@@ -192,17 +192,20 @@ func deleteHostTargets(ingress *networkingv1.Ingress) {
 				serviceName := path.Backend.Service.Name
 				namespace := ingress.Namespace
 				port := path.Backend.Service.Port.Number
-				func_name = ingress.Labels["function_name"]
+				//fix
+				func_name = ingress.Labels["workflow_name"]
 				hostname_deleted = fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
 			}
 		}
 	}
-	log.Print("deleting %s\n", hostname_deleted)
+	log.Printf("deleting %s\n", hostname_deleted)
+	log.Printf("hosttargets %v",hostTargets[func_name])
 	for i, val := range hostTargets[func_name] {
+		log.Printf("valuessssss: %s", val)
 		if val == hostname_deleted {
 			countLock.Lock()
 			hostTargets[func_name] = append(hostTargets[func_name][:i], hostTargets[func_name][i+1:]...)
-			fmt.Println(hostTargets[func_name])
+			log.Printf("deletingggggggg%v", hostTargets)
 			delete(serviceCount, hostname_deleted)
 			delete(serviceTimeStamp, hostname_deleted)
 			workflow_deployments[func_name]--
