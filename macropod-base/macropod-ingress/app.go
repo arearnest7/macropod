@@ -298,7 +298,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 	defer cc.Close()
-	go callDepController(true, func_name, len(hostTargets[func_name]))
+	go callDepController(true, func_name, max_concurrency)
 	payload, _ := ioutil.ReadAll(req.Body)
 	workflow_id := strconv.Itoa(rand.Intn(100000))
 	status := int32(0)

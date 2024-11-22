@@ -4,17 +4,15 @@ import (
 	pb "app/deployer_pb"
 	"context"
 	"encoding/json"
+
 	"fmt"
 	"log"
 	"math"
 	"net"
 	"os"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
-
-	// "sync"
 	"time"
 
 	"google.golang.org/grpc"
@@ -79,6 +77,7 @@ type Usage struct {
 var (
 	kclient   *kubernetes.Clientset
 	workflows map[string]*Workflow
+	versionFunction map[string]int
 	// cpu_threshold_1	float64
 	// cpu_threshold_2	float64
 	// mem_threshold_1	float64
@@ -92,69 +91,50 @@ var (
 	nodeCapacityCPU    map[string]float64
 	nodeCapacityMemory map[string]float64
 	// countLock			sync.Mutex
-	activeNodes     map[string][]string
-	max_concurrency int
+	standbyNodeMap    map[string]string
+	
 )
 
 func internal_log(message string) {
 	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message)
 }
 
-func getNodes(func_name string, num_values int) []string {
+func getNodes() string {
 	var nodes NodeMetricList
-	values_node := make(map[float64]string)
-	var mem_usages []float64
-	var returnNodes []string
 	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
 	if err != nil {
 		internal_log("unable to retrieve metrics from nodes API - " + err.Error())
-		return returnNodes
+		return ""
 	}
-	err = json.Unmarshal(data, &nodes)
-	if err != nil {
-		internal_log("unable to unmarshal metrics from nodes API - " + err.Error())
-		return returnNodes
-	}
+	_ = json.Unmarshal(data, &nodes)
 	for _, node := range nodes.Items {
-		node_name := node.Metadata.Name
-		usage_mem, _ := memory_raw_to_float(node.Usage.Memory)
-		percentage_mem := (usage_mem / nodeCapacityMemory[node_name]) * 100
-		values_node[percentage_mem] = node_name
-		mem_usages = append(mem_usages, percentage_mem)
-	}
+		pods, _ := kclient.CoreV1().Pods("macropod-functions").List(context.Background(),metav1.ListOptions{FieldSelector: "spec.nodeName="+node.Metadata.Name})
+		log.Printf("%d",len(pods.Items))
+		if len(pods.Items) == 0{
+			return node.Metadata.Name
+		}
 
-	sort.Float64s(mem_usages)
-	var i int
-	i = 0
-	for i < num_values {
-		perce_usage := mem_usages[i%len(nodes.Items)]
-		returnNodes = append(returnNodes, values_node[perce_usage])
-		i += 1
 	}
-	activeNodes[func_name] = returnNodes
-	return returnNodes
+	return ""
 }
 
-func manageDeployment(func_name string, replicaNumber string, update bool) (string, error) {
+func manageDeployment(func_name string, replicaNumber string) (string, error) {
+	log.Printf("deploying the workflow of version %d", workflows[func_name].LatestVersion)
 	// deploymentRunning = true
 	var update_deployments []appsv1.Deployment
 	namespace := "macropod-functions"
-	if workflows[func_name].IngressVersion == nil {
-		workflows[func_name].IngressVersion = make(map[string]int)
-	}
+	// if workflows[func_name].IngressVersion == nil {
+	// 	workflows[func_name].IngressVersion = make(map[string]int)
+	// }
 	labels_ingress := map[string]string{
 		"workflow_name":    func_name,
 		"workflow_replica": func_name + "-" + replicaNumber,
+		"current-version": strconv.Itoa(workflows[func_name].LatestVersion),
 	}
 	// log.Print(workflows[func_name].Pods)
 	pathType := networkingv1.PathTypePrefix
 	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
-	activeNodesList, activeNodesExist := activeNodes[func_name]
-	if !activeNodesExist {
-		activeNodesList = getNodes(func_name, len(workflows[func_name].Pods))
-	}
-	for idx, pod := range workflows[func_name].Pods {
-		node_name := activeNodesList[idx]
+	for _, pod := range workflows[func_name].Pods {
 		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
 		service := &corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
@@ -173,6 +153,7 @@ func manageDeployment(func_name string, replicaNumber string, update bool) (stri
 			"workflow_name":    func_name,
 			"app":              pod_name + "-" + replicaNumber,
 			"workflow_replica": func_name + "-" + replicaNumber,
+			"current-version": strconv.Itoa(workflows[func_name].LatestVersion),
 		}
 		replicaCount := int32(1)
 		deployment := &appsv1.Deployment{
@@ -190,9 +171,6 @@ func manageDeployment(func_name string, replicaNumber string, update bool) (stri
 						Labels: labels,
 					},
 					Spec: corev1.PodSpec{
-						NodeSelector: map[string]string{
-							"kubernetes.io/hostname": node_name,
-						},
 						Containers: make([]corev1.Container, len(pod)),
 					},
 				},
@@ -281,6 +259,7 @@ func manageDeployment(func_name string, replicaNumber string, update bool) (stri
 			"workflow_name":    func_name,
 			"app":              pod_name + "-" + replicaNumber,
 			"workflow_replica": func_name + "-" + replicaNumber,
+			"current-version": strconv.Itoa(workflows[func_name].LatestVersion),
 		}
 		service := &corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
@@ -323,7 +302,6 @@ func manageDeployment(func_name string, replicaNumber string, update bool) (stri
 		}
 
 	}
-	if update {
 
 		ingress := &networkingv1.Ingress{
 			ObjectMeta: metav1.ObjectMeta{
@@ -364,14 +342,14 @@ func manageDeployment(func_name string, replicaNumber string, update bool) (stri
 			// deploymentRunning = false
 			return "", err
 		}
-	}
+	
 
 	// deploymentRunning = false
 	return service_name_ingress + "." + namespace + ".svc.cluster.local:5000", nil
 }
 
 // TODO
-func updateDeployments(func_name string) int { //, replicaNumber int
+func updateDeployments(func_name string, max_concurrency int) int { //, replicaNumber int
 	if workflows[func_name].Updating {
 		internal_log("Already updating..........")
 		return -1
@@ -382,9 +360,11 @@ func updateDeployments(func_name string) int { //, replicaNumber int
 		return -1
 	}
 
-	for ns, version := range workflows[func_name].IngressVersion {
-		internal_log("version running in " + ns + " is " + strconv.Itoa(version))
-	}
+	//VD:- do we need this ?
+
+	// for ns, version := range workflows[func_name].IngressVersion {
+	// 	internal_log("version running in " + ns + " is " + strconv.Itoa(version))
+	// }
 	workflows[func_name].Updating = true
 
 	// get the percentage of the node utilisation
@@ -403,12 +383,10 @@ func updateDeployments(func_name string) int { //, replicaNumber int
 	// log.Printf("%s",data)
 
 	for _, node := range nodes.Items {
-		if slices.Contains(activeNodes[func_name], node.Metadata.Name) {
 			node_name := node.Metadata.Name
 			usage_mem, _ := memory_raw_to_float(node.Usage.Memory)
 			percentage_mem := (usage_mem / nodeCapacityMemory[node_name]) * 100
 			if percentage_mem > 70 {
-				delete(activeNodes, func_name)
 				workflows[func_name].LatestVersion += 1
 				internal_log("workflow " + func_name + " updated to version " + strconv.Itoa(workflows[func_name].LatestVersion))
 				var pods_updated [][]string
@@ -429,7 +407,6 @@ func updateDeployments(func_name string) int { //, replicaNumber int
 				return max_concurrency
 			}
 		}
-	}
 	workflows[func_name].Updating = false
 	return max_concurrency
 }
@@ -527,6 +504,17 @@ func bfs_initial_pod(pod []string, func_name string, pod_list []string) []string
 	return bfs_initial_pod(pod, func_name, pod_list)
 }
 func createInitialPod(func_name string) {
+	standbyNode := getNodes()
+	standbyNodeMap[func_name] = standbyNode
+	node, _ := kclient.CoreV1().Nodes().Get(context.Background(), standbyNode, metav1.GetOptions{})
+	node.Spec.Taints = append(node.Spec.Taints, corev1.Taint{
+		Key: "workflow",
+		Value: func_name,
+		Effect: "NoSchedule",
+	})
+
+	log.Printf("Tainting %s for %s", standbyNode, func_name)
+	kclient.CoreV1().Nodes().Update(context.Background(), node, metav1.UpdateOptions{})
 	var initial_pod []string
 	var frontend_func string
 	var endpoints []string
@@ -553,6 +541,7 @@ func createInitialPod(func_name string) {
 	initial_pod = bfs_initial_pod(initial_pod, func_name, pod_list)
 	workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
 	workflows[func_name].InitialPods = initial_pod
+	workflows[func_name].LatestVersion = 1
 	// log.Print(len(initial_pod))
 	// log.Print(workflows[func_name].InitialPods)
 	// log.Print(workflows[func_name].Pods)
@@ -584,6 +573,7 @@ func updateWorkflow(func_name string, workflow_str string) {
 		}
 		delete(workflows, func_name)
 	}
+	
 	workflows[func_name] = &workflow
 	createInitialPod(func_name)
 	internal_log("UPDATE_WORKFLOW_END - " + func_name)
@@ -602,9 +592,9 @@ func deleteWorkflow(func_name string) {
 }
 
 // to-do
-func updateExistingIngress(func_name string) int { //, replicaNumber int
+func updateExistingIngress(func_name string, current_concurrency int) int { //, replicaNumber int
 	internal_log("UPDATE_EXISTING_START - " + func_name)
-	concurrency := updateDeployments(func_name) //, replicaNumber
+	concurrency := updateDeployments(func_name, current_concurrency) //, replicaNumber
 	internal_log("UPDATE_EXISTING_END - " + func_name)
 	return concurrency
 }
@@ -618,7 +608,7 @@ func createNewIngress(func_name string, rn int) string {
 	}
 	replicaNumber := strconv.Itoa(rn)
 	internal_log("deploying replica number " + replicaNumber + " for workflow " + func_name)
-	ingress, err := manageDeployment(func_name, replicaNumber, false)
+	ingress, err := manageDeployment(func_name, replicaNumber)
 	if err != nil {
 		internal_log("Failed to deploy new ingress - " + err.Error())
 		return ""
@@ -684,7 +674,7 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 		internal_log("delete workflow request end - " + func_name)
 	} else if request_type == "existing_invoke" {
 		internal_log("existing invoke request start - " + func_name)
-		result = strconv.Itoa(updateExistingIngress(func_name)) //, int(replicaNumber)
+		result = strconv.Itoa(updateExistingIngress(func_name, int(replicaNumber))) //replicaNumber here is the currentc_concurrency 
 		internal_log("existing invoke request end - " + func_name)
 	} else if request_type == "new_invoke" {
 		internal_log("new invoke request start - " + func_name)
@@ -703,9 +693,10 @@ func main() {
 	// node_sort = ""
 	// deploymentRunning = false
 	workflows = make(map[string]*Workflow)
+	standbyNodeMap = make(map[string]string)
+	versionFunction = make(map[string]int)
 	nodeCapacityCPU = make(map[string]float64)
 	nodeCapacityMemory = make(map[string]float64)
-	max_concurrency = 5
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		internal_log("error config - " + err.Error())
