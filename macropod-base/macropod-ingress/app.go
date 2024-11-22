@@ -25,32 +25,32 @@ import (
 )
 
 type Function struct {
-	Registry  string            `json:"registry"`
-	Endpoints []string          `json:"endpoints,omitempty"`
-	Envs      map[string]string `json:"envs,omitempty"`
+	Registry  string			`json:"registry"`
+	Endpoints []string		  `json:"endpoints,omitempty"`
+	Envs	  map[string]string `json:"envs,omitempty"`
 	Secrets   map[string]string `json:"secrets,omitempty"`
 }
 
 type Workflow struct {
-	Name      string              `json:"name,omitempty"`
+	Name	  string			  `json:"name,omitempty"`
 	Functions map[string]Function `json:"functions"`
 }
 
 var (
-	workflows                   = make(map[string]Workflow)
-	kclient                     *kubernetes.Clientset
-	hostTargets                 = make(map[string][]string)
-	serviceCount                = make(map[string]int)
-	serviceTimeStamp            = make(map[string]time.Time)
+	workflows				   = make(map[string]Workflow)
+	kclient					 *kubernetes.Clientset
+	hostTargets				 = make(map[string][]string)
+	serviceCount				= make(map[string]int)
+	serviceTimeStamp			= make(map[string]time.Time)
 	runningDeploymentController = make(map[string]bool) // this can be used for lock mechanism
-	ttl_seconds                 int
-	max_concurrency             int
-	countLock                   sync.Mutex
-	macropod_namespace          string
-	workflow_invocations        = make(map[string]int)
-	replicaCount                = make(map[string]int)
-	workflow_deployments        = make(map[string]int)
-	retrypolicy        = `{
+	ttl_seconds				 int
+	max_concurrency			 int
+	countLock				   sync.Mutex
+	macropod_namespace		  string
+	workflow_invocations		= make(map[string]int)
+	replicaCount				= make(map[string]int)
+	workflow_deployments		= make(map[string]int)
+	retrypolicy		= `{
 		"methodConfig": [{
 		  "name": [{}],
 		  "waitForReady": true,
@@ -74,7 +74,7 @@ func ifPodsAreRunning(workflow_replica string) bool {
 	if err != nil {
 		log.Fatalf("Failed to get in-cluster config: %s", err)
 	}
-	k, err := kubernetes.NewForConfig(config) // added to show what I was talking about regarding the nil return. change back to kclient and see the difference
+	k, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Fatalf("Failed to create kclient: %s", err)
 	}
@@ -123,6 +123,11 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 		log.Fatal(err)
 		return err
 	}
+	if type_call == "existing_invoke" {
+		countLock.Lock()
+		max_concurrency, _ = strconv.Atoi(resp.Message)
+		countLock.Unlock()
+	}
 	fmt.Printf("Receive response => %s ", resp.Message)
 	return nil
 }
@@ -130,13 +135,13 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 func checkTTL() {
 	internal_log("Checking TTL")
 	config, err := rest.InClusterConfig()
-        if err != nil {
-                log.Fatalf("Failed to get in-cluster config: %s", err)
-        }
-        k, err := kubernetes.NewForConfig(config) // added to show what I was talking about regarding the nil return. change back to kclient and see the difference
-        if err != nil {
-                log.Fatalf("Failed to create kclient: %s", err)
-        }
+		if err != nil {
+				log.Fatalf("Failed to get in-cluster config: %s", err)
+		}
+		k, err := kubernetes.NewForConfig(config)
+		if err != nil {
+				log.Fatalf("Failed to create kclient: %s", err)
+		}
 	for {
 		currentTime := time.Now()
 		for name, timestamp := range serviceTimeStamp {
@@ -146,12 +151,11 @@ func checkTTL() {
 				log.Printf("deleting because of TTL %s", service_name)
 				log.Printf("Deleting service and deployment of %s because of TTL\n", service_name)
 				k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
-				log.Print("deleted service") // there was a nil error here when I was looking at yesterday, so lets verify if TTL is working correctly
+				log.Print("deleted service")
 				k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
 				log.Print("deleted deployment")
 				k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), service_name, metav1.DeleteOptions{})
 				log.Print("deleted ingress")
-				delete(serviceTimeStamp, name)
 			}
 			time.Sleep(time.Second)
 		}
@@ -192,7 +196,6 @@ func deleteHostTargets(ingress *networkingv1.Ingress) {
 				serviceName := path.Backend.Service.Name
 				namespace := ingress.Namespace
 				port := path.Backend.Service.Port.Number
-				//fix
 				func_name = ingress.Labels["workflow_name"]
 				hostname_deleted = fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
 			}
@@ -267,7 +270,8 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	}
 	for target == "" {
 		countLock.Lock()
-		for _, service := range hostTargets[func_name] {
+		for idx := range len(hostTargets[func_name]) {
+			service := hostTargets[func_name][len(hostTargets[func_name])-1-idx]
 			if serviceCount[service] < max_concurrency {
 				target = service
 				serviceCount[service]++
@@ -294,21 +298,20 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 	defer cc.Close()
-	// go callDepController(true, func_name, len(hostTargets[func_name]))
+	go callDepController(true, func_name, len(hostTargets[func_name]))
 	payload, _ := ioutil.ReadAll(req.Body)
 	workflow_id := strconv.Itoa(rand.Intn(100000))
 	status := int32(0)
 	var response *wf_pb.ResponseBody
 	for status == 0 {
-	channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()),grpc.WithDefaultServiceConfig(retrypolicy))
-	defer channel.Close()
-	stub := wf_pb.NewGRPCFunctionClient(channel)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	request_type := "gg"
-	response, _ = stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
-	status = response.GetCode()
-	// log.Printf("status for this is %d, %s", status, response.GetReply())
+		channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()),grpc.WithDefaultServiceConfig(retrypolicy))
+		defer channel.Close()
+		stub := wf_pb.NewGRPCFunctionClient(channel)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		request_type := "gg"
+		response, _ = stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
+		status = response.GetCode()
 	}
 	countLock.Lock()
 	serviceCount[target]--
@@ -378,6 +381,45 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		internal_log("update return - " + err.Error())
 	}
+
+	label_workflow := "workflow_name=" + req.PathValue("func_name")
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Fatalf("Failed to get in-cluster config: %s", err)
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatalf("Failed to create kclient: %s", err)
+	}
+	services, err := k.CoreV1().Services("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, service := range services.Items {
+		delete(serviceTimeStamp, service.Name)
+		fmt.Println(service.ObjectMeta.Name)
+	   	k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	log.Print("deleted service for update")
+	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, deployment := range deployments.Items {
+		fmt.Println(deployment.ObjectMeta.Name)
+		k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	log.Print("deleted deployment for update")
+	ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, ingress := range ingresses.Items {
+		fmt.Println(ingress.ObjectMeta.Name)
+		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	log.Print("deleted ingress for update")
+
 	workflows[req.PathValue("func_name")] = body_u
 	runningDeploymentController[req.PathValue("func_name")] = false
 	workflow_invocations[req.PathValue("func_name")] = 0
@@ -402,6 +444,44 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		internal_log("delete return - " + err.Error())
 	}
+	label_workflow := "workflow_name=" + req.PathValue("func_name")
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Fatalf("Failed to get in-cluster config: %s", err)
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatalf("Failed to create kclient: %s", err)
+	}
+	services, err := k.CoreV1().Services("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, service := range services.Items {
+		delete(serviceTimeStamp, service.Name)
+		fmt.Println(service.ObjectMeta.Name)
+	   	k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	log.Print("deleted service for delete")
+	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, deployment := range deployments.Items {
+		fmt.Println(deployment.ObjectMeta.Name)
+		k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	log.Print("deleted deployment for delete")
+	ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, ingress := range ingresses.Items {
+		fmt.Println(ingress.ObjectMeta.Name)
+		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	log.Print("deleted ingress for delete")
+
 	delete(workflows, req.PathValue("func_name"))
 	delete(runningDeploymentController, req.PathValue("func_name"))
 	delete(workflow_invocations, req.PathValue("func_name"))
@@ -423,7 +503,7 @@ func main() {
 	}
 	go checkTTL()
 	workflows = make(map[string]Workflow)
-	max_concurrency = 3
+	max_concurrency = 5
 	macropod_namespace = "macropod-functions"
 	log.Print("watch ingress")
 	watchIngress(kclient)
