@@ -78,15 +78,7 @@ var (
 	kclient			*kubernetes.Clientset
 	workflows		map[string]*Workflow
 	versionFunction		map[string]int
-	//cpu_threshold_1	float64
-	//cpu_threshold_2	float64
-	//mem_threshold_1	float64
-	//mem_threshold_2	float64
 	update_threshold	int
-	//ready_deployment	[]string
-	//isSorting		bool
-	//node_sort		string
-	//nodes_list		[]string
 	//deploymentRunning	bool
 	nodeCapacityCPU		map[string]float64
 	nodeCapacityMemory	map[string]float64
@@ -534,7 +526,7 @@ func createInitialPod(func_name string) {
 }
 
 //TODO
-func createWorkflow(func_name string, func_str string) string {
+func createWorkflow(func_name string, func_str string) {
 	internal_log("CREATE_WORKFLOW_START - " + func_name)
 	workflow := Workflow{}
 	json.Unmarshal([]byte(func_str), &workflow)
@@ -542,16 +534,15 @@ func createWorkflow(func_name string, func_str string) string {
 	_, exists := workflows[func_name]
 	if exists {
 		internal_log("workflow " + func_name + " already exists. If you are updating it please use update instead.")
-		return "TODO"
+		return
 	}
 	workflows[func_name] = &workflow
 	createInitialPod(func_name)
 	internal_log("CREATE_WORKFLOW_END - " + func_name)
-	return "TODO"
 }
 
 //TODO
-func updateWorkflow(func_name string, workflow_str string) string {
+func updateWorkflow(func_name string, workflow_str string) {
 	internal_log("UPDATE_WORKFLOW_START - " + func_name)
 	workflow := Workflow{}
 	json.Unmarshal([]byte(workflow_str), &workflow)
@@ -563,9 +554,9 @@ func updateWorkflow(func_name string, workflow_str string) string {
 	workflows[func_name] = &workflow
 	createInitialPod(func_name)
 	internal_log("UPDATE_WORKFLOW_END - " + func_name)
-	return "TODO"
 }
 
+//TODO
 func deleteWorkflow(func_name string) {
 	internal_log("DELETE_WORKFLOW_START - " + func_name)
 	_, exists := workflows[func_name]
@@ -647,11 +638,11 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 	var result string
 	if request_type == "create" {
 		internal_log("create workflow request start - " + func_name)
-		result = createWorkflow(func_name, *req.Workflow)
+		createWorkflow(func_name, *req.Workflow)
 		internal_log("create workflow request end - " + func_name)
 	} else if request_type == "update" {
 		internal_log("update workflow request start - " + func_name)
-		result = updateWorkflow(func_name, *req.Workflow)
+		updateWorkflow(func_name, *req.Workflow)
 		internal_log("update workflow request end - " + func_name)
 	} else if request_type == "delete" {
 		internal_log("delete workflow request start - " + func_name)
@@ -674,8 +665,6 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 func main() {
 	internal_log("Deployer Started")
 
-	// isSorting = false
-	// node_sort = ""
 	// deploymentRunning = false
 	workflows = make(map[string]*Workflow)
 	standbyNodeMap = make(map[string]string)

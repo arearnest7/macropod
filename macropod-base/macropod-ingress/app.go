@@ -164,7 +164,6 @@ func checkTTL() {
 
 }
 
-//TODO
 func updateHostTargets(ingress *networkingv1.Ingress) {
 	for _, rule := range ingress.Spec.Rules {
 		if rule.HTTP != nil {
@@ -174,14 +173,18 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
 				port := path.Backend.Service.Port.Number
 				func_name := ingress.Labels["workflow_name"]
 				replica_name := ingress.Labels["workflow_replica"]
-				for !ifPodsAreRunning(replica_name) {
-				}
+				for !ifPodsAreRunning(replica_name) {}
 				hostname := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
 				internal_log("service found: " + hostname)
 				if func_name != "" {
 					countLock.Lock()
-					serviceCount[hostname] = 0
-					hostTargets[func_name] = append(hostTargets[func_name], hostname)
+					_, exists := standbyTargets[func_name]
+					if !exists {
+						standbyTargets[func_name] = hostname
+					} else {
+						serviceCount[hostname] = 0
+						hostTargets[func_name] = append(hostTargets[func_name], hostname)
+					}
 					countLock.Unlock()
 				}
 			}
@@ -258,7 +261,6 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(res, help_print)
 }
 
-//TODO
 func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	func_name := req.PathValue("func_name")
 	internal_log("function name: " + func_name)
@@ -266,33 +268,33 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	workflow_invocations[func_name]++
 	countLock.Unlock()
 	target := ""
-	triggered := false
 	_, exists := runningDeploymentController[func_name]
 	if !exists {
 		runningDeploymentController[func_name] = false
 	}
-	for target == "" {
-		countLock.Lock()
-		for idx := range len(hostTargets[func_name]) {
-			service := hostTargets[func_name][len(hostTargets[func_name])-1-idx]
-			if serviceCount[service] < max_concurrency {
-				target = service
-				serviceCount[service]++
-				serviceTimeStamp[service] = time.Now()
-				break
-			}
-		}
-		if target == "" && !triggered && !runningDeploymentController[func_name] && workflow_invocations[func_name] > max_concurrency * workflow_deployments[func_name] {
-			runningDeploymentController[func_name] = true
-			triggered = true
-			replicaCount[func_name] = replicaCount[func_name] + 1
-			go callDepController(false, func_name, replicaCount[func_name])
-			workflow_deployments[func_name]++
-			runningDeploymentController[func_name] = false
-		}
-		countLock.Unlock()
 
+	countLock.Lock()
+	for idx := range len(hostTargets[func_name]) {
+		service := hostTargets[func_name][len(hostTargets[func_name])-1-idx]
+		if serviceCount[service] < max_concurrency {
+			target = service
+			serviceCount[service]++
+			serviceTimeStamp[service] = time.Now()
+			break
+		}
 	}
+	if target == "" {
+		target = standbyTargets[func_name]
+	}
+	if !runningDeploymentController[func_name] && workflow_invocations[func_name] > max_concurrency * workflow_deployments[func_name] {
+		runningDeploymentController[func_name] = true
+		replicaCount[func_name] = replicaCount[func_name] + 1
+		go callDepController(false, func_name, replicaCount[func_name])
+		workflow_deployments[func_name]++
+		runningDeploymentController[func_name] = false
+	}
+	countLock.Unlock()
+
 	fmt.Println(target)
 	internal_log("forwarding request to " + target)
 	opts := grpc.WithInsecure()
@@ -328,7 +330,6 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//TODO
 func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	internal_log("WF_CREATE_START " + req.PathValue("func_name"))
 	body, err := ioutil.ReadAll(req.Body)
@@ -357,11 +358,11 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	runningDeploymentController[req.PathValue("func_name")] = false
 	workflow_invocations[req.PathValue("func_name")] = 0
 	workflow_deployments[req.PathValue("func_name")] = 0
+	for ifPodsAreRunning(req.PathValue("func_name")+"-standby") {}
 	internal_log("WF_CREATE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name")+"\n")
 }
 
-//TODO
 func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	internal_log("WF_UPDATE_START " + req.PathValue("func_name"))
 	body, err := ioutil.ReadAll(req.Body)
@@ -387,6 +388,7 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 		internal_log("update return - " + err.Error())
 	}
 
+	delete(standbyTargets, req.PathValue("func_name"))
 	label_workflow := "workflow_name=" + req.PathValue("func_name")
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -429,11 +431,11 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	runningDeploymentController[req.PathValue("func_name")] = false
 	workflow_invocations[req.PathValue("func_name")] = 0
 	workflow_deployments[req.PathValue("func_name")] = 0
+	for ifPodsAreRunning(req.PathValue("func_name")+"-standby") {}
 	internal_log("WF_UPDATE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been updated successfully.\n")
 }
 
-//TODO
 func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	internal_log("WF_DELETE_START " + req.PathValue("func_name"))
 	opts := grpc.WithInsecure()
@@ -492,6 +494,7 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	delete(runningDeploymentController, req.PathValue("func_name"))
 	delete(workflow_invocations, req.PathValue("func_name"))
 	delete(workflow_deployments, req.PathValue("func_name"))
+	delete(standbyTargets, req.PathValue("func_name"))
 	internal_log("WF_DELETE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been deleted successfully.\n")
 }
