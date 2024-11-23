@@ -25,43 +25,44 @@ import (
 )
 
 type Function struct {
-	Registry  string			`json:"registry"`
-	Endpoints []string		  `json:"endpoints,omitempty"`
-	Envs	  map[string]string `json:"envs,omitempty"`
-	Secrets   map[string]string `json:"secrets,omitempty"`
+	Registry	string			`json:"registry"`
+	Endpoints	[]string		`json:"endpoints,omitempty"`
+	Envs		map[string]string	`json:"envs,omitempty"`
+	Secrets		map[string]string	`json:"secrets,omitempty"`
 }
 
 type Workflow struct {
-	Name	  string			  `json:"name,omitempty"`
-	Functions map[string]Function `json:"functions"`
+	Name		string			`json:"name,omitempty"`
+	Functions	map[string]Function	`json:"functions"`
 }
 
 var (
-	workflows				   = make(map[string]Workflow)
-	kclient					 *kubernetes.Clientset
-	hostTargets				 = make(map[string][]string)
+	workflows				= make(map[string]Workflow)
+	kclient					*kubernetes.Clientset
+	hostTargets				= make(map[string][]string)
+	standbyTargets				= make(map[string]string)
 	serviceCount				= make(map[string]int)
 	serviceTimeStamp			= make(map[string]time.Time)
-	runningDeploymentController = make(map[string]bool) // this can be used for lock mechanism
-	ttl_seconds				 int
-	max_concurrency			 int
-	countLock				   sync.Mutex
-	macropod_namespace		  string
-	workflow_invocations		= make(map[string]int)
+	runningDeploymentController		= make(map[string]bool) // this can be used for lock mechanism
+	ttl_seconds				int
+	max_concurrency			 	int
+	countLock				sync.Mutex
+	macropod_namespace			string
+	workflow_invocations			= make(map[string]int)
 	replicaCount				= make(map[string]int)
-	workflow_deployments		= make(map[string]int)
-	retrypolicy		= `{
-		"methodConfig": [{
-		  "name": [{}],
-		  "waitForReady": true,
-		  "retryPolicy": {
-			  "MaxAttempts": 30,
-			  "InitialBackoff": "1s",
-			  "MaxBackoff": "10s",
-			  "BackoffMultiplier": 2.0,
-			  "RetryableStatusCodes": [ "UNAVAILABLE", "UNKNOWN"]
-		  }
-		}]}`
+	workflow_deployments			= make(map[string]int)
+	retrypolicy				= `{
+							"methodConfig": [{
+							"name": [{}],
+							"waitForReady": true,
+							"retryPolicy": {
+								"MaxAttempts": 30,
+								"InitialBackoff": "1s",
+								"MaxBackoff": "10s",
+								"BackoffMultiplier": 2.0,
+								"RetryableStatusCodes": [ "UNAVAILABLE", "UNKNOWN"]
+							}
+						}]}`
 )
 
 func internal_log(message string) {
@@ -135,13 +136,13 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 func checkTTL() {
 	internal_log("Checking TTL")
 	config, err := rest.InClusterConfig()
-		if err != nil {
-				log.Fatalf("Failed to get in-cluster config: %s", err)
-		}
-		k, err := kubernetes.NewForConfig(config)
-		if err != nil {
-				log.Fatalf("Failed to create kclient: %s", err)
-		}
+	if err != nil {
+		log.Fatalf("Failed to get in-cluster config: %s", err)
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatalf("Failed to create kclient: %s", err)
+	}
 	for {
 		currentTime := time.Now()
 		for name, timestamp := range serviceTimeStamp {
@@ -163,6 +164,7 @@ func checkTTL() {
 
 }
 
+//TODO
 func updateHostTargets(ingress *networkingv1.Ingress) {
 	for _, rule := range ingress.Spec.Rules {
 		if rule.HTTP != nil {
@@ -256,6 +258,7 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(res, help_print)
 }
 
+//TODO
 func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	func_name := req.PathValue("func_name")
 	internal_log("function name: " + func_name)
@@ -325,6 +328,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+//TODO
 func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	internal_log("WF_CREATE_START " + req.PathValue("func_name"))
 	body, err := ioutil.ReadAll(req.Body)
@@ -357,6 +361,7 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name")+"\n")
 }
 
+//TODO
 func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	internal_log("WF_UPDATE_START " + req.PathValue("func_name"))
 	body, err := ioutil.ReadAll(req.Body)
@@ -398,7 +403,7 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	for _, service := range services.Items {
 		delete(serviceTimeStamp, service.Name)
 		fmt.Println(service.ObjectMeta.Name)
-	   	k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 	log.Print("deleted service for update")
 	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
@@ -428,6 +433,7 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been updated successfully.\n")
 }
 
+//TODO
 func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	internal_log("WF_DELETE_START " + req.PathValue("func_name"))
 	opts := grpc.WithInsecure()
@@ -460,7 +466,7 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	for _, service := range services.Items {
 		delete(serviceTimeStamp, service.Name)
 		fmt.Println(service.ObjectMeta.Name)
-	   	k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 	log.Print("deleted service for delete")
 	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
