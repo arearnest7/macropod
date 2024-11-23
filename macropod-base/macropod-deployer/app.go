@@ -110,20 +110,16 @@ func getNodes() string {
 }
 
 //TODO
-func manageDeployment(func_name string, replicaNumber string) (string, error) {
+func manageDeployment(func_name string, replicaNumber string, standby bool) (string, error) {
 	log.Printf("deploying the workflow of version %d", workflows[func_name].LatestVersion)
 	// deploymentRunning = true
 	var update_deployments []appsv1.Deployment
 	namespace := "macropod-functions"
-	// if workflows[func_name].IngressVersion == nil {
-	// 	workflows[func_name].IngressVersion = make(map[string]int)
-	// }
 	labels_ingress := map[string]string{
 		"workflow_name":func_name,
 		"workflow_replica": func_name + "-" + replicaNumber,
 		"current-version": strconv.Itoa(workflows[func_name].LatestVersion),
 	}
-	// log.Print(workflows[func_name].Pods)
 	pathType := networkingv1.PathTypePrefix
 	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
 	for _, pod := range workflows[func_name].Pods {
@@ -168,6 +164,18 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 				},
 			},
 		}
+
+		if standby {
+			deployment.Spec.Template.Spec.Tolerations = []corev1.Toleration{
+				corev1.Toleration{
+					Key: "workflow_standby",
+					Value: func_name,
+					Operator: "Equal",
+					Effect: "NoSchedule",
+				},
+			}
+		}
+
 		for i, container := range pod {
 			container_name := strings.ToLower(strings.ReplaceAll(container, "_", "-")) + "-" + replicaNumber
 			func_port := 5000 + slices.Index(workflows[func_name].InitialPods, container)
@@ -489,10 +497,11 @@ func createInitialPod(func_name string) {
 	standbyNodeMap[func_name] = standbyNode
 	node, _ := kclient.CoreV1().Nodes().Get(context.Background(), standbyNode, metav1.GetOptions{})
 	node.Spec.Taints = append(node.Spec.Taints, corev1.Taint{
-		Key: "workflow",
+		Key: "workflow_standby",
 		Value: func_name,
 		Effect: "NoSchedule",
 	})
+	manageDeployment(func_name, "standby", true)
 
 	log.Printf("Tainting %s for %s", standbyNode, func_name)
 	kclient.CoreV1().Nodes().Update(context.Background(), node, metav1.UpdateOptions{})
@@ -584,7 +593,7 @@ func createNewIngress(func_name string, rn int) string {
 	}
 	replicaNumber := strconv.Itoa(rn)
 	internal_log("deploying replica number " + replicaNumber + " for workflow " + func_name)
-	ingress, err := manageDeployment(func_name, replicaNumber)
+	ingress, err := manageDeployment(func_name, replicaNumber, false)
 	if err != nil {
 		internal_log("Failed to deploy new ingress - " + err.Error())
 		return ""
