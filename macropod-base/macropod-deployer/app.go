@@ -491,7 +491,6 @@ func bfs_initial_pod(pod []string, func_name string, pod_list []string) []string
 	return bfs_initial_pod(pod, func_name, pod_list)
 }
 
-//TODO
 func createInitialPod(func_name string) {
 	standbyNode := getNodes()
 	standbyNodeMap[func_name] = standbyNode
@@ -501,7 +500,6 @@ func createInitialPod(func_name string) {
 		Value: func_name,
 		Effect: "NoSchedule",
 	})
-	manageDeployment(func_name, "standby", true)
 
 	log.Printf("Tainting %s for %s", standbyNode, func_name)
 	kclient.CoreV1().Nodes().Update(context.Background(), node, metav1.UpdateOptions{})
@@ -532,9 +530,9 @@ func createInitialPod(func_name string) {
 	workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
 	workflows[func_name].InitialPods = initial_pod
 	workflows[func_name].LatestVersion = 1
+	manageDeployment(func_name, "standby", true)
 }
 
-//TODO
 func createWorkflow(func_name string, func_str string) {
 	internal_log("CREATE_WORKFLOW_START - " + func_name)
 	workflow := Workflow{}
@@ -550,7 +548,6 @@ func createWorkflow(func_name string, func_str string) {
 	internal_log("CREATE_WORKFLOW_END - " + func_name)
 }
 
-//TODO
 func updateWorkflow(func_name string, workflow_str string) {
 	internal_log("UPDATE_WORKFLOW_START - " + func_name)
 	workflow := Workflow{}
@@ -565,7 +562,6 @@ func updateWorkflow(func_name string, workflow_str string) {
 	internal_log("UPDATE_WORKFLOW_END - " + func_name)
 }
 
-//TODO
 func deleteWorkflow(func_name string) {
 	internal_log("DELETE_WORKFLOW_START - " + func_name)
 	_, exists := workflows[func_name]
@@ -576,7 +572,6 @@ func deleteWorkflow(func_name string) {
 	internal_log("DELETE_WORKFLOW_END - " + func_name)
 }
 
-//TODO
 func updateExistingIngress(func_name string, current_concurrency int) int { //, replicaNumber int
 	internal_log("UPDATE_EXISTING_START - " + func_name)
 	concurrency := updateDeployments(func_name, current_concurrency) //, replicaNumber
