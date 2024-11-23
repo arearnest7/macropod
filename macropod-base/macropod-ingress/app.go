@@ -358,7 +358,7 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	runningDeploymentController[req.PathValue("func_name")] = false
 	workflow_invocations[req.PathValue("func_name")] = 0
 	workflow_deployments[req.PathValue("func_name")] = 0
-	for ifPodsAreRunning(req.PathValue("func_name")+"-standby") {}
+	for !ifPodsAreRunning(req.PathValue("func_name")+"-standby") {}
 	internal_log("WF_CREATE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name")+"\n")
 }
@@ -431,7 +431,7 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	runningDeploymentController[req.PathValue("func_name")] = false
 	workflow_invocations[req.PathValue("func_name")] = 0
 	workflow_deployments[req.PathValue("func_name")] = 0
-	for ifPodsAreRunning(req.PathValue("func_name")+"-standby") {}
+	for !ifPodsAreRunning(req.PathValue("func_name")+"-standby") {}
 	internal_log("WF_UPDATE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been updated successfully.\n")
 }
