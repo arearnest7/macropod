@@ -22,6 +22,17 @@ metadata:
   name: macropod-functions
   labels:
     name: macropod-functions
+
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: standby-functions
+  labels:
+    name: standby-functions
+
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

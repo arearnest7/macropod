@@ -6,7 +6,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"io/ioutil"
+	networkingv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"log"
 	"math/rand"
 	"net/http"
@@ -15,43 +22,36 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	networkingv1 "k8s.io/api/networking/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 )
 
 type Function struct {
-	Registry	string			`json:"registry"`
-	Endpoints	[]string		`json:"endpoints,omitempty"`
-	Envs		map[string]string	`json:"envs,omitempty"`
-	Secrets		map[string]string	`json:"secrets,omitempty"`
+	Registry  string            `json:"registry"`
+	Endpoints []string          `json:"endpoints,omitempty"`
+	Envs      map[string]string `json:"envs,omitempty"`
+	Secrets   map[string]string `json:"secrets,omitempty"`
 }
 
 type Workflow struct {
-	Name		string			`json:"name,omitempty"`
-	Functions	map[string]Function	`json:"functions"`
+	Name      string              `json:"name,omitempty"`
+	Functions map[string]Function `json:"functions"`
 }
 
 var (
-	workflows				= make(map[string]Workflow)
-	kclient					*kubernetes.Clientset
-	hostTargets				= make(map[string][]string)
-	standbyTargets				= make(map[string]string)
-	serviceCount				= make(map[string]int)
-	serviceTimeStamp			= make(map[string]time.Time)
-	runningDeploymentController		= make(map[string]bool) // this can be used for lock mechanism
-	ttl_seconds				int
-	max_concurrency			 	int
-	countLock				sync.Mutex
-	macropod_namespace			string
-	workflow_invocations			= make(map[string]int)
-	replicaCount				= make(map[string]int)
-	workflow_deployments			= make(map[string]int)
-	retrypolicy				= `{
+	workflows                   = make(map[string]Workflow)
+	kclient                     *kubernetes.Clientset
+	hostTargets                 = make(map[string][]string)
+	standbyTargets              = make(map[string]string)
+	serviceCount                = make(map[string]int)
+	serviceTimeStamp            = make(map[string]time.Time)
+	runningDeploymentController = make(map[string]bool) // this can be used for lock mechanism
+	ttl_seconds                 int
+	max_concurrency             int
+	countLock                   sync.Mutex
+	macropod_namespace          string
+	workflow_invocations        = make(map[string]int)
+	replicaCount                = make(map[string]int)
+	workflow_deployments        = make(map[string]int)
+	retrypolicy                 = `{
 							"methodConfig": [{
 							"name": [{}],
 							"waitForReady": true,
@@ -69,7 +69,7 @@ func internal_log(message string) {
 	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message)
 }
 
-func ifPodsAreRunning(workflow_replica string) bool {
+func ifPodsAreRunning(workflow_replica string, namespace string) bool {
 	label_replica := "workflow_replica=" + workflow_replica
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -79,7 +79,7 @@ func ifPodsAreRunning(workflow_replica string) bool {
 	if err != nil {
 		log.Fatalf("Failed to create kclient: %s", err)
 	}
-	pods, err := k.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_replica})
+	pods, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_replica})
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -92,6 +92,9 @@ func ifPodsAreRunning(workflow_replica string) bool {
 				return false
 			}
 		}
+	}
+	if namespace == "standby-functions" {
+		log.Printf("Pods in standby are up")
 	}
 	return true
 }
@@ -129,7 +132,7 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 		max_concurrency, _ = strconv.Atoi(resp.Message)
 		countLock.Unlock()
 	}
-	fmt.Printf("Receive response => %s ", resp.Message)
+	log.Printf("Receive response => %s ", resp.Message)
 	return nil
 }
 
@@ -173,20 +176,20 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
 				port := path.Backend.Service.Port.Number
 				func_name := ingress.Labels["workflow_name"]
 				replica_name := ingress.Labels["workflow_replica"]
-				for !ifPodsAreRunning(replica_name) {}
+				for !ifPodsAreRunning(replica_name, namespace) {
+				}
 				hostname := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
 				internal_log("service found: " + hostname)
-				if func_name != "" {
-					countLock.Lock()
-					_, exists := standbyTargets[func_name]
-					if !exists {
-						standbyTargets[func_name] = hostname
-					} else {
-						serviceCount[hostname] = 0
-						hostTargets[func_name] = append(hostTargets[func_name], hostname)
-					}
-					countLock.Unlock()
+				countLock.Lock()
+				if namespace == "standby-functions" {
+					standbyTargets[func_name] = hostname
+					log.Print("Adding to standby.........")
+
+				} else {
+					serviceCount[hostname] = 0
+					hostTargets[func_name] = append(hostTargets[func_name], hostname)
 				}
+				countLock.Unlock()
 			}
 		}
 	}
@@ -207,7 +210,7 @@ func deleteHostTargets(ingress *networkingv1.Ingress) {
 		}
 	}
 	log.Printf("deleting %s\n", hostname_deleted)
-	log.Printf("hosttargets %v",hostTargets[func_name])
+	log.Printf("hosttargets %v", hostTargets[func_name])
 	for i, val := range hostTargets[func_name] {
 		log.Printf("valuessssss: %s", val)
 		if val == hostname_deleted {
@@ -221,7 +224,6 @@ func deleteHostTargets(ingress *networkingv1.Ingress) {
 			break
 		}
 	}
-
 
 }
 
@@ -261,55 +263,135 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(res, help_print)
 }
 
-func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
-	func_name := req.PathValue("func_name")
-	internal_log("function name: " + func_name)
-	countLock.Lock()
-	workflow_invocations[func_name]++
-	countLock.Unlock()
-	target := ""
-	_, exists := runningDeploymentController[func_name]
-	if !exists {
-		runningDeploymentController[func_name] = false
-	}
-
+func getTargets(standby bool, triggered bool, func_name string, target string) (string, bool, bool) {
 	countLock.Lock()
 	for idx := range len(hostTargets[func_name]) {
 		service := hostTargets[func_name][len(hostTargets[func_name])-1-idx]
 		if serviceCount[service] < max_concurrency {
 			target = service
 			serviceCount[service]++
+			standby = false
 			serviceTimeStamp[service] = time.Now()
 			break
 		}
 	}
-	if target == "" {
-		target = standbyTargets[func_name]
-	}
-	if !runningDeploymentController[func_name] && workflow_invocations[func_name] > max_concurrency * workflow_deployments[func_name] {
+	if target == "" && !triggered && !runningDeploymentController[func_name] && workflow_invocations[func_name] > max_concurrency*workflow_deployments[func_name] {
 		runningDeploymentController[func_name] = true
+		triggered = true
 		replicaCount[func_name] = replicaCount[func_name] + 1
 		go callDepController(false, func_name, replicaCount[func_name])
 		workflow_deployments[func_name]++
 		runningDeploymentController[func_name] = false
 	}
+	if target == "" && len(hostTargets[func_name]) == 0 {
+		target = standbyTargets[func_name]
+		standby = true
+	}
 	countLock.Unlock()
+	return target, standby, triggered
+}
 
+// func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
+// 	func_name := req.PathValue("func_name")
+// 	internal_log("function name: " + func_name)
+// 	countLock.Lock()
+// 	workflow_invocations[func_name]++
+// 	countLock.Unlock()
+// 	target := ""
+// 	triggered := false
+// 	_, exists := runningDeploymentController[func_name]
+// 	if !exists {
+// 		runningDeploymentController[func_name] = false
+// 	}
+// 	for target == "" {
+// 		countLock.Lock()
+// 		for idx := range len(hostTargets[func_name]) {
+// 			service := hostTargets[func_name][len(hostTargets[func_name])-1-idx]
+// 			if serviceCount[service] < max_concurrency {
+// 				target = service
+// 				serviceCount[service]++
+// 				serviceTimeStamp[service] = time.Now()
+// 				break
+// 			}
+// 		}
+// 		if target == "" && !triggered && !runningDeploymentController[func_name] && workflow_invocations[func_name] > max_concurrency * workflow_deployments[func_name] {
+// 			runningDeploymentController[func_name] = true
+// 			triggered = true
+// 			replicaCount[func_name] = replicaCount[func_name] + 1
+// 			go callDepController(false, func_name, replicaCount[func_name])
+// 			workflow_deployments[func_name]++
+// 			runningDeploymentController[func_name] = false
+// 		}
+// 		countLock.Unlock()
+
+// 	}
+// 	fmt.Println(target)
+// 	internal_log("forwarding request to " + target)
+// 	opts := grpc.WithInsecure()
+// 	cc, err := grpc.Dial(target, opts)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer cc.Close()
+// 	go callDepController(true, func_name, max_concurrency)
+// 	payload, _ := ioutil.ReadAll(req.Body)
+// 	workflow_id := strconv.Itoa(rand.Intn(100000))
+// 	status := int32(0)
+// 	var response *wf_pb.ResponseBody
+// 	for status == 0 {
+// 		channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()),grpc.WithDefaultServiceConfig(retrypolicy))
+// 		defer channel.Close()
+// 		stub := wf_pb.NewGRPCFunctionClient(channel)
+// 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+// 		defer cancel()
+// 		request_type := "gg"
+// 		response, _ = stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
+// 		status = response.GetCode()
+// 	}
+// 	countLock.Lock()
+// 	serviceCount[target]--
+// 	internal_log("decreasing the count for" + target)
+// 	workflow_invocations[func_name]--
+// 	countLock.Unlock()
+// 	if status == 200 {
+// 		fmt.Fprint(res, response)
+// 	} else {
+// 		http.Error(res, "Non 200 status code", http.StatusBadRequest)
+// 	}
+// }
+
+func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
+	func_name := req.PathValue("func_name")
+	countLock.Lock()
+	workflow_invocations[func_name]++
+	countLock.Unlock()
+	target := ""
+	triggered := false
+	standby := false
+	_, exists := runningDeploymentController[func_name]
+	if !exists {
+		runningDeploymentController[func_name] = false
+	}
+	for target == "" {
+		target, standby, triggered = getTargets(standby, triggered, func_name, target)
+	}
 	fmt.Println(target)
-	internal_log("forwarding request to " + target)
+	// internal_log("forwarding request to " + target)
 	opts := grpc.WithInsecure()
 	cc, err := grpc.Dial(target, opts)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer cc.Close()
-	go callDepController(true, func_name, max_concurrency)
+	// if !standby {
+	// 	go callDepController(true, func_name, max_concurrency)
+	// }
 	payload, _ := ioutil.ReadAll(req.Body)
 	workflow_id := strconv.Itoa(rand.Intn(100000))
 	status := int32(0)
 	var response *wf_pb.ResponseBody
 	for status == 0 {
-		channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()),grpc.WithDefaultServiceConfig(retrypolicy))
+		channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
 		defer channel.Close()
 		stub := wf_pb.NewGRPCFunctionClient(channel)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -317,12 +399,18 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 		request_type := "gg"
 		response, _ = stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
 		status = response.GetCode()
+		if status == 0 {
+			time.Sleep(100*time.Millisecond)
+		}
 	}
+
 	countLock.Lock()
-	serviceCount[target]--
-	internal_log("decreasing the count for" + target)
+	if !standby {
+		serviceCount[target]--
+	}
 	workflow_invocations[func_name]--
 	countLock.Unlock()
+
 	if status == 200 {
 		fmt.Fprint(res, response)
 	} else {
@@ -358,8 +446,9 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	runningDeploymentController[req.PathValue("func_name")] = false
 	workflow_invocations[req.PathValue("func_name")] = 0
 	workflow_deployments[req.PathValue("func_name")] = 0
-	for !ifPodsAreRunning(req.PathValue("func_name")+"-standby") {}
 	internal_log("WF_CREATE_END " + req.PathValue("func_name"))
+	for !ifPodsAreRunning(req.PathValue("func_name"), "standby-functions") {
+	}
 	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name")+"\n")
 }
 
@@ -431,7 +520,7 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	runningDeploymentController[req.PathValue("func_name")] = false
 	workflow_invocations[req.PathValue("func_name")] = 0
 	workflow_deployments[req.PathValue("func_name")] = 0
-	for !ifPodsAreRunning(req.PathValue("func_name")+"-standby") {}
+
 	internal_log("WF_UPDATE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been updated successfully.\n")
 }
