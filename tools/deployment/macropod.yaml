@@ -73,9 +73,15 @@ spec:
         app: macropod
     spec:
      serviceAccountName: macropod-service-account
+     nodeSelector: 
+        kubernetes.io/hostname: sys-dev-vm-1
+     tolerations:
+      - key: "master-node"
+        value: "master-node"
+        effect: "NoSchedule"
      containers:
       - name: macropod-ingress
-        image: sysdevtamu/macropod-ingress:latest
+        image: sysdevtamu/macropod-ingress:latest2
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
@@ -87,7 +93,7 @@ spec:
         - name: DEP_CONTROLLER_ADD
           value: "127.0.0.1:8082"
       - name: macropod-deployer
-        image: sysdevtamu/macropod-deployer:latest
+        image: sysdevtamu/macropod-deployer:latest2
         imagePullPolicy: Always
         ports:
         - containerPort: 8082

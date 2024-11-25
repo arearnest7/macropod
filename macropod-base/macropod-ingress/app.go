@@ -51,18 +51,6 @@ var (
 	workflow_invocations        = make(map[string]int)
 	replicaCount                = make(map[string]int)
 	workflow_deployments        = make(map[string]int)
-	retrypolicy                 = `{
-							"methodConfig": [{
-							"name": [{}],
-							"waitForReady": true,
-							"retryPolicy": {
-								"MaxAttempts": 30,
-								"InitialBackoff": "1s",
-								"MaxBackoff": "10s",
-								"BackoffMultiplier": 2.0,
-								"RetryableStatusCodes": [ "UNAVAILABLE", "UNKNOWN"]
-							}
-						}]}`
 )
 
 func internal_log(message string) {
@@ -285,6 +273,7 @@ func getTargets(standby bool, triggered bool, func_name string, target string) (
 	}
 	if target == "" && len(hostTargets[func_name]) == 0 {
 		target = standbyTargets[func_name]
+		log.Print("Fowarding to standby")
 		standby = true
 	}
 	countLock.Unlock()
@@ -376,46 +365,40 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 		target, standby, triggered = getTargets(standby, triggered, func_name, target)
 	}
 	fmt.Println(target)
-	// internal_log("forwarding request to " + target)
-	opts := grpc.WithInsecure()
-	cc, err := grpc.Dial(target, opts)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer cc.Close()
-	// if !standby {
-	// 	go callDepController(true, func_name, max_concurrency)
-	// }
 	payload, _ := ioutil.ReadAll(req.Body)
 	workflow_id := strconv.Itoa(rand.Intn(100000))
 	status := int32(0)
 	var response *wf_pb.ResponseBody
+	channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	stub := wf_pb.NewGRPCFunctionClient(channel)
+	request_type := "gg"
+	response, _ = stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
+	status = response.GetCode()
 	for status == 0 {
-		channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
-		defer channel.Close()
-		stub := wf_pb.NewGRPCFunctionClient(channel)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
+		time.Sleep(10*time.Millisecond) // backoff 
 		request_type := "gg"
 		response, _ = stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
 		status = response.GetCode()
-		if status == 0 {
-			time.Sleep(100*time.Millisecond)
-		}
 	}
-
 	countLock.Lock()
 	if !standby {
 		serviceCount[target]--
 	}
 	workflow_invocations[func_name]--
 	countLock.Unlock()
-
+	channel.Close()
+	cancel()
 	if status == 200 {
 		fmt.Fprint(res, response)
 	} else {
-		http.Error(res, "Non 200 status code", http.StatusBadRequest)
+		http.Error(res, "Non 200 status code", http.StatusBadGateway)
 	}
+
+
+
+
+	
 }
 
 func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
@@ -601,7 +584,7 @@ func main() {
 	}
 	go checkTTL()
 	workflows = make(map[string]Workflow)
-	max_concurrency = 5
+	max_concurrency = 40
 	macropod_namespace = "macropod-functions"
 	log.Print("watch ingress")
 	watchIngress(kclient)

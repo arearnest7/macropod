@@ -748,7 +748,7 @@ func createInitialPod(func_name string) {
 	workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
 	workflows[func_name].InitialPods = initial_pod
 	workflows[func_name].LatestVersion = 1
-	//createStandByDeployment(func_name, standbyNode)
+	createStandByDeployment(func_name, standbyNode)
 }
 
 func createWorkflow(func_name string, func_str string) {
