@@ -47,10 +47,12 @@ var (
 	ttl_seconds                 int
 	max_concurrency             int
 	countLock                   sync.Mutex
+	existingInvokeLock          sync.Mutex
 	macropod_namespace          string
 	workflow_invocations        = make(map[string]int)
 	replicaCount                = make(map[string]int)
 	workflow_deployments        = make(map[string]int)
+	runningExistingDeployment   = make(map[string]bool)
 )
 
 func internal_log(message string) {
@@ -88,6 +90,18 @@ func ifPodsAreRunning(workflow_replica string, namespace string) bool {
 }
 
 func callDepController(func_found bool, func_name string, replicaNumber int) error {
+	if func_found {
+		existingInvokeLock.Lock()
+		if runningExistingDeployment[func_name] {
+			log.Print("Already running existing node")
+			existingInvokeLock.Unlock()
+			return nil
+		} else {
+			runningExistingDeployment[func_name] = true
+			existingInvokeLock.Unlock()
+		}
+	}
+
 	depControllerAddr := os.Getenv("DEP_CONTROLLER_ADD")
 	if depControllerAddr == "" {
 		fmt.Println("DEP_CONTROLLER_ADD environment variable not set")
@@ -117,10 +131,23 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 	}
 	if type_call == "existing_invoke" {
 		countLock.Lock()
-		max_concurrency, _ = strconv.Atoi(resp.Message)
+		return_Concurrecny, _ := strconv.Atoi(resp.Message)
+		if return_Concurrecny != -1 {
+			max_concurrency = return_Concurrecny
+			log.Printf("updating the max_concurreny to %d", max_concurrency)
+		}
 		countLock.Unlock()
 	}
-	log.Printf("Receive response => %s ", resp.Message)
+	if !func_found {
+		log.Printf("waiting for a new replica %s to be up ", resp.Message)
+	}
+
+	if func_found {
+		existingInvokeLock.Lock()
+		runningExistingDeployment[func_name] = false
+		existingInvokeLock.Unlock()
+	}
+
 	return nil
 }
 
@@ -280,75 +307,6 @@ func getTargets(standby bool, triggered bool, func_name string, target string) (
 	return target, standby, triggered
 }
 
-// func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
-// 	func_name := req.PathValue("func_name")
-// 	internal_log("function name: " + func_name)
-// 	countLock.Lock()
-// 	workflow_invocations[func_name]++
-// 	countLock.Unlock()
-// 	target := ""
-// 	triggered := false
-// 	_, exists := runningDeploymentController[func_name]
-// 	if !exists {
-// 		runningDeploymentController[func_name] = false
-// 	}
-// 	for target == "" {
-// 		countLock.Lock()
-// 		for idx := range len(hostTargets[func_name]) {
-// 			service := hostTargets[func_name][len(hostTargets[func_name])-1-idx]
-// 			if serviceCount[service] < max_concurrency {
-// 				target = service
-// 				serviceCount[service]++
-// 				serviceTimeStamp[service] = time.Now()
-// 				break
-// 			}
-// 		}
-// 		if target == "" && !triggered && !runningDeploymentController[func_name] && workflow_invocations[func_name] > max_concurrency * workflow_deployments[func_name] {
-// 			runningDeploymentController[func_name] = true
-// 			triggered = true
-// 			replicaCount[func_name] = replicaCount[func_name] + 1
-// 			go callDepController(false, func_name, replicaCount[func_name])
-// 			workflow_deployments[func_name]++
-// 			runningDeploymentController[func_name] = false
-// 		}
-// 		countLock.Unlock()
-
-// 	}
-// 	fmt.Println(target)
-// 	internal_log("forwarding request to " + target)
-// 	opts := grpc.WithInsecure()
-// 	cc, err := grpc.Dial(target, opts)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer cc.Close()
-// 	go callDepController(true, func_name, max_concurrency)
-// 	payload, _ := ioutil.ReadAll(req.Body)
-// 	workflow_id := strconv.Itoa(rand.Intn(100000))
-// 	status := int32(0)
-// 	var response *wf_pb.ResponseBody
-// 	for status == 0 {
-// 		channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()),grpc.WithDefaultServiceConfig(retrypolicy))
-// 		defer channel.Close()
-// 		stub := wf_pb.NewGRPCFunctionClient(channel)
-// 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-// 		defer cancel()
-// 		request_type := "gg"
-// 		response, _ = stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
-// 		status = response.GetCode()
-// 	}
-// 	countLock.Lock()
-// 	serviceCount[target]--
-// 	internal_log("decreasing the count for" + target)
-// 	workflow_invocations[func_name]--
-// 	countLock.Unlock()
-// 	if status == 200 {
-// 		fmt.Fprint(res, response)
-// 	} else {
-// 		http.Error(res, "Non 200 status code", http.StatusBadRequest)
-// 	}
-// }
-
 func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	func_name := req.PathValue("func_name")
 	countLock.Lock()
@@ -369,14 +327,21 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	workflow_id := strconv.Itoa(rand.Intn(100000))
 	status := int32(0)
 	var response *wf_pb.ResponseBody
+	go callDepController(true, func_name, max_concurrency)
 	channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	stub := wf_pb.NewGRPCFunctionClient(channel)
 	request_type := "gg"
 	response, _ = stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
 	status = response.GetCode()
+	retryCount := 0 
 	for status == 0 {
-		time.Sleep(10*time.Millisecond) // backoff 
+		log.Printf("Retrying")
+		time.Sleep(100 * time.Millisecond) // backoff
+		retryCount +=1 
+		if retryCount == 10{
+			break
+		}
 		request_type := "gg"
 		response, _ = stub.GRPCFunctionHandler(ctx, &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
 		status = response.GetCode()
@@ -394,11 +359,6 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	} else {
 		http.Error(res, "Non 200 status code", http.StatusBadGateway)
 	}
-
-
-
-
-	
 }
 
 func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
@@ -584,7 +544,7 @@ func main() {
 	}
 	go checkTTL()
 	workflows = make(map[string]Workflow)
-	max_concurrency = 40
+	max_concurrency = 3
 	macropod_namespace = "macropod-functions"
 	log.Print("watch ingress")
 	watchIngress(kclient)
