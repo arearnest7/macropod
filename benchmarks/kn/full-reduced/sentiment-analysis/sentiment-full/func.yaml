@@ -3,7 +3,7 @@ name: sentiment-full
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-full:kn
-imageDigest: sha256:ceb9e0bab31719c3b2a2234f2bbc508b77e9e2632b7e54aa8fc1ea6cf60bf947
+imageDigest: sha256:9964dd283f93a0dfe27dbc7da24c92f08514b3b612ccf75f20d65531b4a84330
 created: 2023-12-03T21:08:33.226898249-06:00
 build:
   builder: pack

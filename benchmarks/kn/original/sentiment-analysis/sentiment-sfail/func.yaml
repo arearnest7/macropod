@@ -3,7 +3,7 @@ name: sentiment-sfail
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-sfail:kn
-imageDigest: sha256:aeda3865384151f27700ec22442e99e7e722a2d37d73526c0e3ee47088cdbad5
+imageDigest: sha256:92588662b88e2ba4239043767e8d2009a9a9a97947233dfe52d805326e5801c9
 created: 2023-12-03T21:00:55.27390088-06:00
 build:
   builder: pack

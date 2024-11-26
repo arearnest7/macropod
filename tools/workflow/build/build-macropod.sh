@@ -3,8 +3,8 @@ ID=${1:-sysdevtamu}
 sudo docker build ../../../macropod-base/macropod-go -t $ID/macropod-go:latest && sudo docker push $ID/macropod-go:latest
 sudo docker build ../../../macropod-base/macropod-node -t $ID/macropod-node:latest && sudo docker push $ID/macropod-node:latest
 sudo docker build ../../../macropod-base/macropod-python -t $ID/macropod-python:latest && sudo docker push $ID/macropod-python:latest
-sudo docker build ../../../benchmarks/micro/micro-rpc-a-macropod -t $ID/micro-rpc-a:macropod && sudo docker push $ID/micro-rpc-a:macropod
-sudo docker build ../../../benchmarks/micro/micro-rpc-b-macropod -t $ID/micro-rpc-b:macropod && sudo docker push $ID/micro-rpc-b:macropod
+sudo docker build ../../../benchmarks/macropod/original/micro/micro-rpc-a -t $ID/micro-rpc-a:macropod && sudo docker push $ID/micro-rpc-a:macropod
+sudo docker build ../../../benchmarks/macropod/original/micro/micro-rpc-b -t $ID/micro-rpc-b:macropod && sudo docker push $ID/micro-rpc-b:macropod
 sudo docker build ../../../benchmarks/macropod/original/feature-generation/feature-extractor -t $ID/feature-extractor:macropod && sudo docker push $ID/feature-extractor:macropod
 sudo docker build ../../../benchmarks/macropod/original/feature-generation/feature-orchestrator -t $ID/feature-orchestrator:macropod && sudo docker push $ID/feature-orchestrator:macropod
 sudo docker build ../../../benchmarks/macropod/original/feature-generation/feature-reducer -t $ID/feature-reducer:macropod && sudo docker push $ID/feature-reducer:macropod

@@ -10,7 +10,7 @@ import os
 import json
 import random
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 cleanup_re = re.compile('[^a-z]+')
@@ -36,7 +36,7 @@ def main(context: Context):
         dest = params['dest']
         path = bucket + "-" + key
         with open("/tmp/" + key, "w") as f:
-            f.write(redisClient.get(key).decode())
+            f.write(open(key, 'r').read())
         f.close()
         df = pd.read_csv("/tmp/" + key)
 
@@ -54,7 +54,7 @@ def main(context: Context):
         print(latency)
 
         write_key = params['key'].split('.')[0] + ".txt"
-        redisClient.set(dest + "-" + write_key, feature)
+        #redisClient.set(dest + "-" + write_key, feature)
         print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
         return str(latency), 200
     else:

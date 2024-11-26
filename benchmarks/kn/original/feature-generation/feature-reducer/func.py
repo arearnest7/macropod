@@ -9,7 +9,7 @@ import os
 import json
 import random
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 def main(context: Context):
@@ -28,8 +28,8 @@ def main(context: Context):
         result = []
         latency = 0
 
-        for key in redisClient.scan_iter(bucket + "-*"):
-            body = redisClient.get(key).decode()
+        for key in ["reviews100mb.txt", "reviews10mb.txt", "reviews20mb.txt", "reviews50mb.txt"]:
+            body = open(key, 'r').read()
             start = time.time()
             word = body.replace("'", '').split(',')
             result.extend(word)
@@ -42,8 +42,7 @@ def main(context: Context):
         feature = feature.lstrip('[').rstrip(']').replace(' ' , '')
 
         feature_key = 'feature.txt'
-        redisClient.set(bucket + "-" + feature_key, str(feature))
-
+        #redisClient.set(bucket + "-" + feature_key, str(feature))
         print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
         return str(latency), 200
     else:

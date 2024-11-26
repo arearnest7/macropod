@@ -6,11 +6,9 @@ import (
 	"net/http"
 	"os"
 	"bytes"
-	"strings"
 	"encoding/json"
 	"io/ioutil"
         "sort"
-        "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
         "strconv"
         "math/rand"
@@ -173,14 +171,14 @@ func GetProfiles(req RequestBody) string {
         res := make([]Hotel2, 0)
         hotels := make([]Hotel2, 0)
 
-        MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
-        var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
+        //MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        //var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
 
 	// one hotel should only have one profile
 
         for _, i := range req.HotelIds {
                 // first check memcached
-                item, err := MemcClient.Get(i)
+                _, err := "not nil", memcache.ErrCacheMiss
                 if err == nil {
                         // memcached hit
                         // profile_str := string(item.Value)
@@ -189,21 +187,28 @@ func GetProfiles(req RequestBody) string {
                         // fmt.Println(profile_str)
 
                         hotel_prof := new(Hotel2)
-                        if err = json.Unmarshal(item.Value, hotel_prof); err != nil {
-                                log.Warn(err)
-                        }
+                        //if err = json.Unmarshal(item.Value, hotel_prof); err != nil {
+                        //        log.Warn(err)
+                        //}
                         hotels = append(hotels, *hotel_prof)
 
                 } else if err == memcache.ErrCacheMiss {
                         // memcached miss, set up mongo connection
-                        session := MongoSession.Copy()
-                        defer session.Close()
-                        c := session.DB("profile-db").C("hotels")
+                        //session := MongoSession.Copy()
+                        //defer session.Close()
+                        f, _ := os.Open("profile_db.json")
+                        c, _ := ioutil.ReadAll(f)
 
                         hotel_prof := new(Hotel2)
-                        err := c.Find(bson.M{"id": i}).One(&hotel_prof)
+                        hotel_prof_temp := make([]Hotel2, 0)
+                        err := json.Unmarshal(c, &hotel_prof_temp)
+                        for _, h := range hotel_prof_temp {
+                                if h.id == i {
+                                        hotel_prof = &h
+                                }
+                        }
 
-                        if err != nil {
+			if err != nil {
                                 log.Println("Hotel data not found in memcached: ", err)
                         }
 
@@ -212,17 +217,17 @@ func GetProfiles(req RequestBody) string {
                         // }
                         hotels = append(hotels, *hotel_prof)
 
-                        prof_json, err := json.Marshal(hotel_prof)
+                        _, err = json.Marshal(hotel_prof)
                         if err != nil {
                                 log.Warn(err)
                         }
-                        memc_str := string(prof_json)
+                        //memc_str := string(prof_json)
 
                         // write to memcached
-                        err = MemcClient.Set(&memcache.Item{Key: i, Value: []byte(memc_str)})
-                        if err != nil {
-                                log.Warn("MMC error: ", err)
-                        }
+                        //err = MemcClient.Set(&memcache.Item{Key: i, Value: []byte(memc_str)})
+                        //if err != nil {
+                        //        log.Warn("MMC error: ", err)
+                        //}
                 } else {
                         fmt.Printf("Memmcached error = %s\n", err)
                         panic(err)
@@ -246,27 +251,27 @@ func GetRates(req Request) string {
 
         ratePlans := make(RatePlans, 0)
 
-        MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
-        var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
+        //MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        //var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
 
         // fmt.Printf("Hotel Ids: %+v\n", req.HotelIds)
 
         for _, hotelID := range req.HotelIds {
                 // first check memcached
-                item, err := MemcClient.Get(hotelID)
+                _, err := "not nil", memcache.ErrCacheMiss
                 if err == nil {
                         // memcached hit
-                        rate_strs := strings.Split(string(item.Value), "\n")
-
+                        //rate_strs := strings.Split(string(item.Value), "\n")
+                        rate_strs := make([]string, 0)
                         // fmt.Printf("memc hit, hotelId = %s\n", hotelID)
-                        fmt.Println(rate_strs)
+                        //fmt.Println(rate_strs)
 
                         for _, rate_str := range rate_strs {
                                 if len(rate_str) != 0 {
                                         rate_p := new(RatePlan)
-                                        if err = json.Unmarshal(item.Value, rate_p); err != nil {
-                                                log.Warn(err)
-                                        }
+                                        //if err = json.Unmarshal(item.Value, rate_p); err != nil {
+                                        //        log.Warn(err)
+                                        //}
                                         ratePlans = append(ratePlans, rate_p)
                                 }
                         }
@@ -275,15 +280,21 @@ func GetRates(req Request) string {
                         // fmt.Printf("memc miss, hotelId = %s\n", hotelID)
 
                         // memcached miss, set up mongo connection
-                        session := MongoSession.Copy()
-                        defer session.Close()
-                        c := session.DB("rate-db").C("inventory")
+                        //session := MongoSession.Copy()
+                        //defer session.Close()
+                        f, _ := os.Open("rate_db.json")
+                        c, _ := ioutil.ReadAll(f)
 
                         memc_str := ""
 
                         tmpRatePlans := make(RatePlans, 0)
-
-                        err = c.Find(&bson.M{"hotelid": hotelID}).All(&tmpRatePlans)
+                        tmpRatePlans_temp := make(RatePlans, 0)
+                        err := json.Unmarshal(c, &tmpRatePlans_temp)
+                        for _, h := range tmpRatePlans_temp {
+                                if h.hotelId == hotelID {
+                                        tmpRatePlans = append(tmpRatePlans, h)
+                                }
+                        }
                         // fmt.Printf("Rate Plans %+v\n", tmpRatePlans)
 			if err != nil {
                                 panic(err)
@@ -299,10 +310,10 @@ func GetRates(req Request) string {
                         }
 
                         // write to memcached
-                        err = MemcClient.Set(&memcache.Item{Key: hotelID, Value: []byte(memc_str)})
-                        if err != nil {
-                                log.Warn("MMC error: ", err)
-                        }
+                        //err = memcache.ErrCacheMiss
+                        //if err != nil {
+                        //        log.Warn("MMC error: ", err)
+                        //}
                 } else {
                         fmt.Printf("Memmcached error = %s\n", err)
                         panic(err)
@@ -318,14 +329,14 @@ func GetRates(req Request) string {
 }
 
 // newGeoIndex returns a geo index with points loaded
-func newGeoIndex(session *mgo.Session) *geoindex.ClusteringIndex {
-
-        s := session.Copy()
-        defer s.Close()
-        c := s.DB("geo-db").C("geo")
+func newGeoIndex() *geoindex.ClusteringIndex {
+        //s := session.Copy()
+        //defer s.Close()
+        f, _ := os.Open("geo_db.json")
+        c, _ := ioutil.ReadAll(f)
 
         points := make([]*Point, 0)
-        err := c.Find(bson.M{}).All(&points)
+        err := json.Unmarshal(c, &points)
         if err != nil {
                 log.Println("Failed get geo data: ", err)
         }
@@ -350,8 +361,8 @@ func getNearbyPoints(lat, lon float64) []geoindex.Point {
                 Plon: lon,
         }
 
-        MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
-        return newGeoIndex(MongoSession).KNearest(
+        //MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        return newGeoIndex().KNearest(
                 center,
                 maxSearchResults,
                 geoindex.Km(maxSearchRadius), func(p geoindex.Point) bool {

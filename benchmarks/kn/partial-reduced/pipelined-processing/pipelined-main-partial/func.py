@@ -38,7 +38,9 @@ def handle_handler(req):
             fs.append(executor.submit(requests.post, url=os.environ["PIPELINED_ZIP_PARTIAL"], json={"event": to_zip, "workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0}))
         if to_encrypt:
             fs.append(executor.submit(requests.post, url=os.environ["PIPELINED_ENCRYPT_PARTIAL"], json={"event": to_encrypt, "workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0}))
+    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "5" + "\n", flush=True)
     results = [f.result().text for f in fs]
+    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "6" + "\n", flush=True)
     if to_checksum or to_zip:
         if to_checksum and "success" not in results[0]:
             to_checksum = []

@@ -9,7 +9,7 @@ import datetime
 import redis
 import random
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 def main(context: Context):
@@ -27,9 +27,9 @@ def main(context: Context):
         bucket_name = event['bucket_name']
         file_key = event['file_key']
 
-        response = redisClient.get(file_key)
+        response = open(file_key, 'r').read()
 
-        lines = response.decode('utf-8').split('\n')
+        lines = response.split('\n')
 
         print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
         for row in csv.DictReader(lines):

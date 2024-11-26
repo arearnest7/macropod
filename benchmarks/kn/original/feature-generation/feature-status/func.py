@@ -8,7 +8,7 @@ import redis
 import random
 import json
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 def main(context: Context):
@@ -27,20 +27,20 @@ def main(context: Context):
         bucket = params['input_bucket']
         all_keys = []
 
-        for key in redisClient.scan_iter(bucket + "-*"):
+        for key in ["reviews100mb.txt", "reviews10mb.txt", "reviews20mb.txt", "reviews50mb.txt"]:
             all_keys.append(key)
         print("Number of File : " + str(len(all_keys)))
 
-        ret = ""
         if num_of_file == len(all_keys):
             print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
             ret = requests.post(url=os.environ["FEATURE_REDUCER"], json=params).text
             print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "2" + "\n", flush=True)
+            return ret, 200
         else:
             print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "3" + "\n", flush=True)
             ret = requests.post(url=os.environ["FEATURE_WAIT"], json=params).text
             print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "4" + "\n", flush=True)
-        return ret, 200
+            return ret, 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

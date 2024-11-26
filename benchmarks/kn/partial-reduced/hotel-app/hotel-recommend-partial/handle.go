@@ -11,7 +11,6 @@ import (
         "strconv"
         "math/rand"
 
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
 	log "github.com/sirupsen/logrus"
@@ -50,20 +49,21 @@ type Hotel struct {
 }
 
 // loadRecommendations loads hotel recommendations from mongodb.
-func loadRecommendations(session *mgo.Session) map[string]Hotel {
+func loadRecommendations() map[string]Hotel {
 	// session, err := mgo.Dial("mongodb-recommendation")
 	// if err != nil {
 	// 	panic(err)
 	// }
 	// defer session.Close()
-	s := session.Copy()
-	defer s.Close()
+	//s := session.Copy()
+        //defer s.Close()
 
-	c := s.DB("recommendation-db").C("recommendation")
+        f, _ := os.Open("recommend_db.json")
+        c, _ := ioutil.ReadAll(f)
 
 	// unmarshal json profiles
 	var hotels []Hotel
-	err := c.Find(bson.M{}).All(&hotels)
+	err := json.Unmarshal(c, &hotels)
 	if err != nil {
 		log.Println("Failed get hotels data: ", err)
 	}
@@ -78,9 +78,9 @@ func loadRecommendations(session *mgo.Session) map[string]Hotel {
 
 // GiveRecommendation returns recommendations within a given requirement.
 func GetRecommendations(req RequestBody) string {
-	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
-	var hotels map[string]Hotel
-	hotels = loadRecommendations(MongoSession)
+	//MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        var hotels map[string]Hotel
+        hotels = loadRecommendations()
 
 	res := make([]string, 0)
 	// fmt.Printf("GetRecommendations:\n")

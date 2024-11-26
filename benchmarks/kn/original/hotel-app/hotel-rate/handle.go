@@ -4,17 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"encoding/json"
 	"sort"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"os"
 	"io/ioutil"
         "strconv"
         "math/rand"
-
-	log "github.com/sirupsen/logrus"
 
 	"time"
 
@@ -82,27 +77,27 @@ func GetRates(req RequestBody) string {
 
 	ratePlans := make(RatePlans, 0)
 
-	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
-        var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
+	//MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+        //var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
 
 	// fmt.Printf("Hotel Ids: %+v\n", req.HotelIds)
 
 	for _, hotelID := range req.HotelIds {
 		// first check memcached
-		item, err := MemcClient.Get(hotelID)
+		_, err := "not nil", memcache.ErrCacheMiss
 		if err == nil {
 			// memcached hit
-			rate_strs := strings.Split(string(item.Value), "\n")
-
+			//rate_strs := strings.Split(string(item.Value), "\n")
+                        rate_strs := make([]string, 0)
 			// fmt.Printf("memc hit, hotelId = %s\n", hotelID)
-			fmt.Println(rate_strs)
+			//fmt.Println(rate_strs)
 
 			for _, rate_str := range rate_strs {
 				if len(rate_str) != 0 {
 					rate_p := new(RatePlan)
-					if err = json.Unmarshal(item.Value, rate_p); err != nil {
-						log.Warn(err)
-					}
+					//if err = json.Unmarshal(item.Value, rate_p); err != nil {
+					//	log.Warn(err)
+					//}
 					ratePlans = append(ratePlans, rate_p)
 				}
 			}
@@ -111,15 +106,21 @@ func GetRates(req RequestBody) string {
 			// fmt.Printf("memc miss, hotelId = %s\n", hotelID)
 
 			// memcached miss, set up mongo connection
-			session := MongoSession.Copy()
-			defer session.Close()
-			c := session.DB("rate-db").C("inventory")
+			//session := MongoSession.Copy()
+                        //defer session.Close()
+                        f, _ := os.Open("rate_db.json")
+                        c, _ := ioutil.ReadAll(f)
 
 			memc_str := ""
 
-			var tmpRatePlans RatePlans
-
-			err = c.Find(&bson.M{"hotelid": hotelID}).All(&tmpRatePlans)
+			tmpRatePlans := make(RatePlans, 0)
+                        tmpRatePlans_temp := make(RatePlans, 0)
+                        err := json.Unmarshal(c, &tmpRatePlans_temp)
+                        for _, h := range tmpRatePlans_temp {
+                                if h.hotelId == hotelID {
+                                        tmpRatePlans = append(tmpRatePlans, h)
+                                }
+                        }
 			// fmt.Printf("Rate Plans %+v\n", tmpRatePlans)
 			if err != nil {
 				panic(err)
@@ -135,10 +136,10 @@ func GetRates(req RequestBody) string {
 			}
 
 			// write to memcached
-			err = MemcClient.Set(&memcache.Item{Key: hotelID, Value: []byte(memc_str)})
-			if err != nil {
-				log.Warn("MMC error: ", err)
-			}
+			//err = memcache.ErrCacheMiss
+			//if err != nil {
+			//	log.Warn("MMC error: ", err)
+			//}
 		} else {
 			fmt.Printf("Memmcached error = %s\n", err)
 			panic(err)

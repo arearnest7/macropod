@@ -10,11 +10,11 @@ from multiprocessing.dummy import Pool as ThreadPool
 import os
 import random
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 def invoke_lambda(bucket, dest, workflow_id, workflow_depth, key):
-    requests.post(url=os.environ["FEATURE_EXTRACTOR"], json={"input_bucket": bucket, "key": key.decode(), "dest": dest, "workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0})
+    requests.post(url=os.environ["FEATURE_EXTRACTOR"], json={"input_bucket": bucket, "key": key, "dest": dest, "workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0})
 
 def main(context: Context):
     if 'request' in context.keys():
@@ -31,7 +31,7 @@ def main(context: Context):
         dest = str(random.randint(0, 10000000)) + "-" + bucket
         all_keys = []
 
-        for key in redisClient.scan_iter(bucket + "-*"):
+        for key in ["reviews100mb.csv", "reviews10mb.csv", "reviews20mb.csv", "reviews50mb.csv"]:
             all_keys.append(key)
         print("Number of File : " + str(len(all_keys)))
         print("File : " + str(all_keys))

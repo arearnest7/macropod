@@ -3,7 +3,7 @@ name: sentiment-main-rcposc
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-main-rcposc:kn
-imageDigest: sha256:89a612513a831a6dd2bce16cba24f577ba63dcc505cc7d5b2f7cba959e76495b
+imageDigest: sha256:4f30292855412537fbb8c055ffc4e8f605bcbe8eb78ba60e57ffb161641ec341
 created: 2023-12-03T21:27:22.752749433-06:00
 build:
   builder: pack
@@ -16,6 +16,6 @@ run:
   - name: SENTIMENT_PRODUCT_SENTIMENT_PRS
     value: http://sentiment-product-sentiment-prs.knative-functions.127.0.0.1.sslip.io
   - name: SENTIMENT_SERVICE_SENTIMENT_SRS
-    value: http://sentiment-service-sentiment-srs.knative-functions.127.0.0.1.sslio.io
+    value: http://sentiment-service-sentiment-srs.knative-functions.127.0.0.1.sslip.io
 deploy:
   namespace: default

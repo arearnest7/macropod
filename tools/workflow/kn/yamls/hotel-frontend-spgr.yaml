@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/arearnest7/hotel-frontend-spgr:wob
+        - image: docker.io/arearnest7/hotel-frontend-spgr:kn
           env:
           - name: HOTEL_APP_DATABASE
             value: mongodb://10.42.2.96:27017

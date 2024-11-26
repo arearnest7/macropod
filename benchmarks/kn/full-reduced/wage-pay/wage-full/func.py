@@ -14,12 +14,12 @@ TAX = 0.0387
 INSURANCE = 1500
 ROLES = ['staff', 'teamleader', 'manager']
 
-redisClient = redis.Redis(host=os.environ["REDIS_URL"],password=os.environ["REDIS_PASSWORD"])
+#redisClient = redis.Redis(host=os.environ["REDIS_URL"],password=os.environ["REDIS_PASSWORD"])
 
 
 def write_merit_handler(req):
     params = req
-    redisClient.set("merit-" + str(params["id"]), json.dumps(req))
+    #redisClient.set("merit-" + str(params["id"]), json.dumps(req))
 
     return str(params["id"]) + " statistics uploaded/updated"
 
@@ -51,7 +51,7 @@ def wage_avg_handler(req):
 
 def wage_sum_handler(req):
     params = json.loads(req)
-    temp = json.loads(redisClient.get(params["operator"]))
+    temp = json.loads(open(params["operator"], 'r').read())
     params["operator"] = temp["operator"]
     params["id"] = temp["id"]
     stats = {'total': params['total']['statistics']['total'] }
@@ -66,13 +66,13 @@ def stats_handler(req):
     base = {'statistics': {'staff': 0, 'teamleader': 0, 'manager': 0}}
     merit = {'statistics': {'staff': 0, 'teamleader': 0, 'manager': 0}}
 
-    for key in redisClient.scan_iter("raw-*"):
-        doc = json.loads(redisClient.get(key.decode("utf-8")))
+    for key in range(0,100):
+        doc = json.loads(open(str(key), 'r').read())
         total['statistics']['total'] += doc['total']
         total['statistics'][doc['role']+'-number'] += 1
         base['statistics'][doc['role']] += doc['base']
         merit['statistics'][doc['role']] += doc['merit']
-        manifest.append(key.decode("utf-8"))
+        manifest.append(str(key))
 
     fs = []
     with ThreadPoolExecutor(max_workers=len(manifest)) as executor:
@@ -84,7 +84,7 @@ def stats_handler(req):
 
 def write_raw_handler(req):
     params = req
-    redisClient.set("raw-" + str(params["id"]), json.dumps(req))
+    #redisClient.set("raw-" + str(params["id"]), json.dumps(req))
     response = requests.post(url=os.environ["WAGE_FULL"], json={"workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0})
     return response.text
 

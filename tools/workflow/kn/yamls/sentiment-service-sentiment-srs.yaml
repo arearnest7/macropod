@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/arearnest7/sentiment-service-sentiment-srs:wob
+        - image: docker.io/arearnest7/sentiment-service-sentiment-srs:kn
           env:
           - name: SENTIMENT_DB_S
             value: http://sentiment-db-s.knative-functions.127.0.0.1.sslip.io

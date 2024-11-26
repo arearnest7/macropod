@@ -9,19 +9,19 @@ import datetime
 import redis
 import random
 
+
 TAX = 0.0387
 INSURANCE = 1500
 ROLES = ['staff', 'teamleader', 'manager']
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
-
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def write_raw_handler(req):
     workflow_id = req["workflow_id"]
     workflow_depth = req["workflow_depth"]
     workflow_width = req["workflow_width"]
     params = req
-    redisClient.set("raw-" + str(params["id"]), json.dumps(req))
+    #redisClient.set("raw-" + str(params["id"]), json.dumps(req))
     print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "7" + "\n", flush=True)
     response = requests.post(url=os.environ["WAGE_STATS_PARTIAL"], json={"workflow_id": req["workflow_id"], "workflow_depth": req["workflow_depth"] + 1, "workflow_width": 0})
     print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "8" + "\n", flush=True)
@@ -51,7 +51,7 @@ def main(context: Context):
         print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "0" + "\n", flush=True)
         event = context.request.json
         event["workflow_id"] = workflow_id
-        event["workflow_depth"] = workflow_depth + 1
+        event["workflow_depth"] = workflow_depth
         event["workflow_width"] = 0
         for param in ['id', 'name', 'role', 'base', 'merit', 'operator']:
             if param in ['name', 'role']:

@@ -4,17 +4,15 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"os"
 	"io/ioutil"
 	"encoding/json"
         "strconv"
         "math/rand"
 
-	"time"
-
 	log "github.com/sirupsen/logrus"
+
+	"time"
 
 	"github.com/hailocab/go-geoindex"
 )
@@ -55,14 +53,15 @@ func (p *Point) Lon() float64 { return p.Plon }
 func (p *Point) Id() string   { return p.Pid }
 
 // newGeoIndex returns a geo index with points loaded
-func newGeoIndex(session *mgo.Session) *geoindex.ClusteringIndex {
+func newGeoIndex() *geoindex.ClusteringIndex {
 
-	s := session.Copy()
-	defer s.Close()
-	c := s.DB("geo-db").C("geo")
+	//s := session.Copy()
+        //defer s.Close()
+        f, _ := os.Open("geo_db.json")
+        c, _ := ioutil.ReadAll(f)
 
 	points := make([]*Point, 0)
-	err := c.Find(bson.M{}).All(&points)
+	err := json.Unmarshal(c, &points)
 	if err != nil {
 		log.Println("Failed get geo data: ", err)
 	}
@@ -87,8 +86,8 @@ func getNearbyPoints(lat, lon float64) []geoindex.Point {
 		Plon: lon,
 	}
 
-	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
-	return newGeoIndex(MongoSession).KNearest(
+	//MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+	return newGeoIndex().KNearest(
 		center,
 		maxSearchResults,
 		geoindex.Km(maxSearchRadius), func(p geoindex.Point) bool {

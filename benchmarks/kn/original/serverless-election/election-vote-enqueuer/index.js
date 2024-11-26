@@ -21,7 +21,7 @@ const axios = require('axios');
 const exec = require('child_process').execSync;
 const moment = require('moment');
 
-const client = redis.createClient({url: 'redis://' + process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
+//const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const handle = async (context, body) => {
 	var workflow_id = Math.floor(Math.random() * 10000000).toString();
@@ -38,11 +38,11 @@ const handle = async (context, body) => {
                 newbody["workflow_width"] = workflow_width;
         }
         console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "0");
-	client.on('error', err => console.log('Redis Client Error', err));
-        await client.connect();
-	reply = await client.exists("voter-" + body['id']);
+	//client.on('error', err => console.log('Redis Client Error', err));
+        //await client.connect();
+	reply = 1; //await client.exists("voter-" + body['id']);
 	if (reply == 1) {
-		const g_val = await client.get("voter-" + body['id']);
+		const g_val = "Not Voted"; //await client.get("voter-" + body['id']);
 		if (g_val != "Not Voted") {
 			console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "1");
 			return {"isBase64Encoded": false, "statusCode": 409, "body": {"success": false, "message": (body['id'] + " already submitted a vote.")}};
@@ -54,7 +54,7 @@ const handle = async (context, body) => {
 				.then( (response) => {
                                 	data = response.data;
 				});
-        		console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "3");
+			console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "3");
 			return {"isBase64Encoded": false, "statusCode": 201, "body": {"success": true, "message": ("Vote " + body['id'] + " registered")}};
 		}
 	}

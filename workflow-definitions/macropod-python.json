@@ -1,0 +1,17 @@
+{
+	"workflow": "macropod-python",
+	"functions": {
+		"TEST1": {
+			"registry": "sysdevtamu/macropod-python:latest",
+			"endpoints": ["TEST2"],
+			"envs": {},
+			"secrets": {}
+		},
+		"TEST2": {
+			"registry": "sysdevtamu/macropod-python:latest",
+			"endpoints": [],
+			"envs": {},
+			"secrets": {}
+		}
+	}
+}

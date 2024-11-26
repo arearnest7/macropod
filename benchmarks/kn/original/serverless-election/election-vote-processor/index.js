@@ -20,7 +20,7 @@ const redis = require('redis');
 const exec = require('child_process').execSync;
 const moment = require('moment');
 
-const client = redis.createClient({url: 'redis://' + process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
+//const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const handle = async (context, body) => {
 	var workflow_id = Math.floor(Math.random() * 10000000).toString();
@@ -37,22 +37,22 @@ const handle = async (context, body) => {
                 newbody["workflow_width"] = workflow_width;
         }
         console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "0");
-	client.on('error', err => console.log('Redis Client Error', err));
-        await client.connect();
-	await client.set("voter-" + body['id'], JSON.stringify(body));
+	//client.on('error', err => console.log('Redis Client Error', err));
+        //await client.connect();
+	//await client.set("voter-" + body['id'], JSON.stringify(body));
 
 	var state = body['state'];
 	var candidate = body['candidate'];
 
-	reply = await client.exists("election-results-" + state + "-" + candidate);
+	reply = 1; //await client.exists("election-results-" + state + "-" + candidate);
         if (reply == 1) {
-                var cnt = parseInt(await client.get("election-results-" + state + "-" + candidate));
+                var cnt = 1; //parseInt(await client.get("election-results-" + state + "-" + candidate));
                 cnt = cnt + 1;
-                await client.set("election-results-" + state + "-" + candidate, cnt.toString());
+                //await client.set("election-results-" + state + "-" + candidate, cnt.toString());
         }
-        else {
-                await client.set("election-results-" + state + "-" + candidate, "1");
-        }
+        //else {
+        //        await client.set("election-results-" + state + "-" + candidate, "1");
+        //}
         console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "1");
         return "success";
 }

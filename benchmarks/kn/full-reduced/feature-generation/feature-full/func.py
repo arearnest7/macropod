@@ -14,10 +14,10 @@ import time
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+
 
 cleanup_re = re.compile('[^a-z]+')
-
 
 def reducer_handler(req):
     bucket = req['input_bucket']
@@ -25,8 +25,8 @@ def reducer_handler(req):
     result = []
     latency = 0
 
-    for key in redisClient.scan_iter(bucket + "-*"):
-        body = redisClient.get(key).decode()
+    for key in ["reviews100mb.txt", "reviews10mb.txt", "reviews20mb.txt", "reviews50mb.txt"]:
+        body = open(key, 'r').read()
         start = time.time()
         word = body.replace("'", '').split(',')
         result.extend(word)
@@ -39,7 +39,7 @@ def reducer_handler(req):
     feature = feature.lstrip('[').rstrip(']').replace(' ' , '')
 
     feature_key = 'feature.txt'
-    redisClient.set(bucket + "-" + feature_key, str(feature))
+    #redisClient.set(bucket + "-" + feature_key, str(feature))
 
     return str(latency)
 
@@ -48,7 +48,7 @@ def status_handler(req):
     bucket = req['input_bucket']
     all_keys = []
 
-    for key in redisClient.scan_iter(bucket + "-*"):
+    for key in ["reviews100mb.txt", "reviews10mb.txt", "reviews20mb.txt", "reviews50mb.txt"]:
         all_keys.append(key)
     print("Number of File : " + str(len(all_keys)))
 
@@ -72,7 +72,7 @@ def extractor_handler(req):
     key = req['key']
     dest = req['dest']
     with open("/tmp/" + key, "w") as f:
-        f.write(redisClient.get(key).decode())
+        f.write(open(key, 'r').read())
     f.close()
     df = pd.read_csv("/tmp/" + key)
 
@@ -90,11 +90,11 @@ def extractor_handler(req):
     print(latency)
 
     write_key = req['key'].split('.')[0] + ".txt"
-    redisClient.set(dest + "-" + write_key, feature)
+    #redisClient.set(dest + "-" + write_key, feature)
     return str(latency)
 
 def invoke_lambda(bucket, dest, key):
-    extractor_handler({"input_bucket": bucket, "key": key.decode(), "dest": dest})
+    extractor_handler({"input_bucket": bucket, "key": key, "dest": dest})
 
 def main(context: Context):
     if 'request' in context.keys():
@@ -110,7 +110,7 @@ def main(context: Context):
         dest = str(random.randint(0, 10000000)) + "-" + bucket
         all_keys = []
 
-        for key in redisClient.scan_iter(bucket + "-*"):
+        for key in ["reviews100mb.csv", "reviews10mb.csv", "reviews20mb.csv", "reviews50mb.csv"]:
             all_keys.append(key)
         print("Number of File : " + str(len(all_keys)))
         print("File : " + str(all_keys))

@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/arearnest7/hotel-search:wob
+        - image: docker.io/arearnest7/hotel-search:kn
           env:
           - name: HOTEL_GEO
             value: http://hotel-geo.knative-functions.127.0.0.1.sslip.io

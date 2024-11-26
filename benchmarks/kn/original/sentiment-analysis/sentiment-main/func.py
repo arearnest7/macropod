@@ -9,8 +9,8 @@ import os
 import datetime
 import redis
 
-
 pp = pprint.PrettyPrinter(indent=4)
+
 
 def main(context: Context):
     if 'request' in context.keys():
