@@ -424,7 +424,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 				if in_pod {
 					service_name = "127.0.0.1:" + endpoint_port // structuring because we are fixating on the port number
 				} else {
-					service_name = strings.ToLower(endpoint_name)+"-"+replicaNumber + "." + namespace + ".svc.cluster.local:" + endpoint_port
+					service_name = strings.ReplaceAll(strings.ToLower(endpoint_name), "_", "-")+"-"+replicaNumber + "." + namespace + ".svc.cluster.local:" + endpoint_port
 				}
 				env = append(env, corev1.EnvVar{Name: endpoint_name, Value: service_name})
 			}
@@ -636,7 +636,7 @@ func updateDeployments(func_name string, max_concurrency int) int { //, replicaN
 		usage_mem, _ := memory_raw_to_float(node.Usage.Memory)
 		percentage_mem := (usage_mem / nodeCapacityMemory[node_name]) * 100
 		log.Printf("Percentage Memory Usage is %f for node %s", percentage_mem, node_name)
-		if percentage_mem > 40 {
+		if percentage_mem > 70 {
 			log.Printf("memeory threshold reached in %s", node_name)
 			workflows[func_name].LatestVersion += 1
 			internal_log("workflow " + func_name + " updated to version " + strconv.Itoa(workflows[func_name].LatestVersion))
