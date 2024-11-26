@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: wage-write-merit
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/wage-write-merit:wob
-imageDigest: sha256:59580a213494b11b4cb193e14dc023c99c6f62339e8367e9ac896ad1b732ea24
+image: docker.io/sysdevtamu/wage-write-merit:kn-wob
+imageDigest: sha256:408c8db5015f1b3f6cf823e271406f97b8c472c900370afb3e798ad51d6f7ebd
 created: 2023-12-03T21:05:01.566151977-06:00
 build:
   builder: pack

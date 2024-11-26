@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: pipelined-checksum
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/pipelined-checksum:wob
-imageDigest: sha256:c43777a7fc7f56b3c5c31feb24a103b37df61d2a15b3e38b4b1207d6143240b1
+image: docker.io/sysdevtamu/pipelined-checksum:kn-wob
+imageDigest: sha256:e2d941573264772f4a2ac1e6abc1ce2e73de325d9d92416326c42d9c22b55cf9
 created: 2023-12-03T20:55:04.99480755-06:00
 build:
   builder: pack

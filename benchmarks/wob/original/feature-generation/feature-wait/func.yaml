@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: feature-wait
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/feature-wait:wob
-imageDigest: sha256:ad966afc37c1e09642e6753abe759fcd61c56b75149b0c1176f4dd41bde4cdf3
+image: docker.io/sysdevtamu/feature-wait:kn-wob
+imageDigest: sha256:aa59f7feb51f936ab676f74f8d0c0fcadab588252c4f6f09dc690411553baad3
 created: 2023-12-03T20:51:14.796019377-06:00
 build:
   builder: pack

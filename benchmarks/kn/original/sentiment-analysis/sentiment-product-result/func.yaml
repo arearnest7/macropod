@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: sentiment-product-result
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/sentiment-product-result:kn
-imageDigest: sha256:bb787acb0d71b6105471183882d92f4b52909f38a7bf62997a891a60ea3c7de4
+image: docker.io/sysdevtamu/sentiment-product-result:kn-wb
+imageDigest: sha256:34429362b2002d5a0e23cae320a97a2ca341b9565006aab904275caa61d2588d
 created: 2023-12-03T21:00:25.612050207-06:00
 build:
   builder: pack

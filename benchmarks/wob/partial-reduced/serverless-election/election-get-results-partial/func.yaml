@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: election-get-results-partial
 runtime: node
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/election-get-results-partial:wob
-imageDigest: sha256:3812267d35941e2ed06ccba5edaabc026dbe7383619ef0e879b072e5eb8db6d6
+image: docker.io/sysdevtamu/election-get-results-partial:kn-wob
+imageDigest: sha256:23cbbad8ff0358c98ef7ea66585a771e5cc3b878a5df370623f3338b9f0a81d4
 created: 2023-10-20T10:09:21.067803343-05:00
 build:
   builder: pack

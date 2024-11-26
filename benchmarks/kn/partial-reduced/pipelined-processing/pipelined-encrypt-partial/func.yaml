@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: pipelined-encrypt-partial
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/pipelined-encrypt-partial:kn
-imageDigest: sha256:24294064005c8a09d4bda179f0268182fb5631d0262a663b30dbb35cce4d59d9
+image: docker.io/sysdevtamu/pipelined-encrypt-partial:kn-wb
+imageDigest: sha256:7ad63b4928f90448b47c71a3df8951640fc0c5df66710efc0145f0d827782411
 created: 2023-12-03T21:21:47.577703094-06:00
 build:
   builder: pack

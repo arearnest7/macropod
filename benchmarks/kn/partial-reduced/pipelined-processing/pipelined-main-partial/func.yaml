@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: pipelined-main-partial
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/pipelined-main-partial:kn
-imageDigest: sha256:30e0ed6591e4301b8b362fb2b1b241b17f49260a8e5ac44a97f09b48b546c199
+image: docker.io/sysdevtamu/pipelined-main-partial:kn-wb
+imageDigest: sha256:a77c19a04dad05f6165f505fcff27a3d1afe1c4c92e0edd077b11d9412fababf
 created: 2023-12-03T21:21:53.008269067-06:00
 build:
   builder: pack

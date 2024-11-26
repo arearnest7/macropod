@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: wage-stats-partial
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/wage-stats-partial:kn
-imageDigest: sha256:b146619f44702ea70200b7a461740cb418d00439b417901ee1933aab3438d638
+image: docker.io/sysdevtamu/wage-stats-partial:kn-wb
+imageDigest: sha256:3058990b1b94eb98f39afc7315eb86bf66e5ccbe828e5da1afaed2c682275432
 created: 2023-12-03T21:32:12.572244103-06:00
 build:
   builder: pack

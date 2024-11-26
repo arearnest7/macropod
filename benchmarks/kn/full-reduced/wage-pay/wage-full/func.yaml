@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: wage-full
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/wage-full:kn
-imageDigest: sha256:73035001084bef5fa94291c7267de90f025d28f17d313a91d69999cb11f45456
+image: docker.io/sysdevtamu/wage-full:kn-wb
+imageDigest: sha256:fe67e78d5234ccb673c236caa74cf3db055669559dbf3c2d100a1eaa364e05b5
 created: 2023-12-03T21:08:48.450495924-06:00
 build:
   builder: pack

@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: sentiment-db
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/sentiment-db:kn
-imageDigest: sha256:1484da19a33bcd23b4d92e1c4683bd7040183fbd28833bb311b00791f7c58007
+image: docker.io/sysdevtamu/sentiment-db:kn-wb
+imageDigest: sha256:d00dd8208c77ae43ce46ddb44bce26834b7bcb6084cc95687ef234ec05eca07b
 created: 2023-12-03T21:00:05.343906893-06:00
 build:
   builder: pack

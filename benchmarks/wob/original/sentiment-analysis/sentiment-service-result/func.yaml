@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: sentiment-service-result
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/sentiment-service-result:wob
-imageDigest: sha256:2db562845d0bfb8121708995c0f054ec69411731cb2a5c7376e00cb8f2335dc1
+image: docker.io/sysdevtamu/sentiment-service-result:kn-wob
+imageDigest: sha256:23c3768279b8045d56933bc9231ee81d9cdbe292bd5b82b32a6fc79f9518f8e0
 created: 2023-12-03T21:00:45.838624707-06:00
 build:
   builder: pack

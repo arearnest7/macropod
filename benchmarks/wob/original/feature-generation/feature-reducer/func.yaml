@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: feature-reducer
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/feature-reducer:wob
-imageDigest: sha256:b130b06ee8951ea73727b71b36571cd161444e865680f8a0eb2ba1a8bec5e379
+image: docker.io/sysdevtamu/feature-reducer:kn-wob
+imageDigest: sha256:9d486892d87f26111d735c7abc0213a5be13c8e7547bb87a343304f532d773a6
 created: 2023-12-03T20:51:07.694206765-06:00
 build:
   builder: pack

@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: sentiment-main-rcposc
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/sentiment-main-rcposc:wob
-imageDigest: sha256:17bc20fe710f54758c987cd8de4ea6fe7ae334c54c5ef229f3796eabd88458a9
+image: docker.io/sysdevtamu/sentiment-main-rcposc:kn-wob
+imageDigest: sha256:cc5ef8d822db113fc3231b54df9aba9051a610acc71bc0f095ea11e6ddd9b4af
 created: 2023-12-03T21:27:22.752749433-06:00
 build:
   builder: pack

@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: sentiment-service-sentiment-srs
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/sentiment-service-sentiment-srs:wob
-imageDigest: sha256:b672b418d878fb234b91ad336650590dbefb1d31bb470e6758c7fb6a299f7508
+image: docker.io/sysdevtamu/sentiment-service-sentiment-srs:kn-wob
+imageDigest: sha256:9de9545929c6df2295c449ea238ad76af783285724fe8331421a43b29ccf1341
 created: 2023-12-03T21:30:00.866902725-06:00
 build:
   builder: pack

@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: feature-orchestrator
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/feature-orchestrator:wob
-imageDigest: sha256:aab0d886f0116f6a1a119dd3c83fae6f2f724d82acc6ca3ea6bb179088b71262
+image: docker.io/sysdevtamu/feature-orchestrator:kn-wob
+imageDigest: sha256:26117a55d0d07291551c2155c5540658b525d8bc324e7ceb021e090bf037dfc1
 created: 2023-12-03T20:51:02.770828406-06:00
 build:
   builder: pack

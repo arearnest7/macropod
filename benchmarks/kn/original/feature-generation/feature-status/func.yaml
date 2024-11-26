@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: feature-status
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/feature-status:kn
-imageDigest: sha256:2541da5082802ce3372e0dc04037067ffd16d90de21639209075b7c0b28fc9ed
+image: docker.io/sysdevtamu/feature-status:kn-wb
+imageDigest: sha256:59eb18e4b5c8384f7335da7d5a7b097cf8a50a613479c4f3de4eae9b71a66bf8
 created: 2023-12-03T20:51:11.858374137-06:00
 build:
   builder: pack

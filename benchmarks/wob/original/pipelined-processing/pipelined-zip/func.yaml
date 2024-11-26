@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: pipelined-zip
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/pipelined-zip:wob
-imageDigest: sha256:482377062fc38eb3c35106ca4cc4041a81426c9304ae2d524db0b01b383207c9
+image: docker.io/sysdevtamu/pipelined-zip:kn-wob
+imageDigest: sha256:aa0c612af8a4f77f6b523564f3e023654e5431086a0a3ec03cfa09a7dac81716
 created: 2023-12-03T20:55:20.453042627-06:00
 build:
   builder: pack

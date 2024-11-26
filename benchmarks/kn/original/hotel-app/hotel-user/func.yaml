@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: hotel-user
 runtime: go
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/hotel-user:kn
-imageDigest: sha256:ea05dd99ff3976c95a9bd0aa7a126c5577ddb8bee75808db942f9437980b3147
+image: docker.io/sysdevtamu/hotel-user:kn-wb
+imageDigest: sha256:c707535719ff6307306ca64f995360c64454046de4ba3d598b8e1c3b2f47abb4
 created: 2023-10-26T19:54:52.836777088-05:00
 build:
   builder: pack

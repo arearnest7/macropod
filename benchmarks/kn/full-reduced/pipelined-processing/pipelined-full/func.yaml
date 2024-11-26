@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: pipelined-full
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/pipelined-full:kn
-imageDigest: sha256:6713058c419b89b3772111429d9986cf155b43288580cac738e6b845ca9dc583
+image: docker.io/sysdevtamu/pipelined-full:kn-wb
+imageDigest: sha256:efdbd182d171369bbc7a18a55904528a3cae3ba0a9e4e36349951e9aba1eb7aa
 created: 2023-12-03T21:07:35.930126142-06:00
 build:
   builder: pack

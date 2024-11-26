@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: hotel-frontend
 runtime: go
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/hotel-frontend:wob
-imageDigest: sha256:d4548e91281485213682dccf12861e95876d5e8893d902c831d78a269abc6709
+image: docker.io/sysdevtamu/hotel-frontend:kn-wob
+imageDigest: sha256:4f42063238001df72d8286379999188dd740b83955f2d3fcce67252ad516679e
 created: 2023-10-26T19:30:15.504368653-05:00
 build:
   builder: pack

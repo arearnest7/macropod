@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: feature-full
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/feature-full:wob
-imageDigest: sha256:63c2d72ae7acad74214131662770b745b47057ac13ea5f0c19277e2abba898a7
+image: docker.io/sysdevtamu/feature-full:kn-wob
+imageDigest: sha256:fe926c36d766df572585366752d24a20a6b69a4aef9024ea9abbf394bfa60bc0
 created: 2023-12-03T21:07:14.996832312-06:00
 build:
   builder: pack

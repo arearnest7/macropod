@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: hotel-frontend-spgr
 runtime: go
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/hotel-frontend-spgr:wob
-imageDigest: sha256:08e80fe7c03c231f65d5603ae406901d6291fbe87dd08ba06e28ce3904ca327c
+image: docker.io/sysdevtamu/hotel-frontend-spgr:kn-wob
+imageDigest: sha256:f963ed3a9a4753595aa910eb7dde3da3bb7bbc56f7a18667578103e6e856a592
 created: 2023-10-26T19:54:28.29278899-05:00
 build:
   builder: pack

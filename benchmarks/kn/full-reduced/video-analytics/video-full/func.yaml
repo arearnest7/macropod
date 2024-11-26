@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: video-full
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/video-full:kn
-imageDigest: sha256:0b6938741d8160a08dd7431ce30173789764f368c105bc0ad1e5623a9760a94d
+image: docker.io/sysdevtamu/video-full:kn-wb
+imageDigest: sha256:8651829889f734fb12aed2f36a6a0192a1bfc8cb0ed11a8faf9e78b7f75bc648
 created: 2023-11-05T16:38:01.912085473-06:00
 build:
   builder: pack

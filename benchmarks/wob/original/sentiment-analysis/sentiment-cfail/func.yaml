@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: sentiment-cfail
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/sentiment-cfail:wob
-imageDigest: sha256:277246a6d283488dc9a30a3bef890b27bcde51be6faf139f8476c0b6e3a23fb5
+image: docker.io/sysdevtamu/sentiment-cfail:kn-wob
+imageDigest: sha256:9417e6e94d6af37019586a6bec938565e07469b481238549fe40cf84aa2a11ea
 created: 2023-12-03T20:59:59.650656944-06:00
 build:
   builder: pack

@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: video-streaming-d
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/video-streaming-d:wob
-imageDigest: sha256:39a33d587aa897cc6792818e0c4250c194f470e44cd4eb40aeb4074708f2c792
+image: docker.io/sysdevtamu/video-streaming-d:kn-wob
+imageDigest: sha256:2df19dcb537ca79d55e8ae8a14fb8a09345efcb8a8b4cbb370e56e64ed3ea07e
 created: 2023-11-05T16:52:48.093508325-06:00
 build:
   builder: pack

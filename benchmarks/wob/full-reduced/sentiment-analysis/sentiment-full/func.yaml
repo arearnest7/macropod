@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: sentiment-full
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/sentiment-full:wob
-imageDigest: sha256:2d5761cd588d994e6c6169600d392640c45bd4d39c36573bc78993f1e1bebab4
+image: docker.io/sysdevtamu/sentiment-full:kn-wob
+imageDigest: sha256:b7312cba8b4b8ac1117b08eb95f983f02a4dec9fedd3eeece741519e05c8b3c3
 created: 2023-12-03T21:08:33.226898249-06:00
 build:
   builder: pack

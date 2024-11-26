@@ -2,8 +2,8 @@ specVersion: 0.35.0
 name: video-decoder
 runtime: python
 registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/video-decoder:wob
-imageDigest: sha256:ba88f788cfca58157b15e3c78792eddb7e693b4f26dec365fac90a453be2ecae
+image: docker.io/sysdevtamu/video-decoder:kn-wob
+imageDigest: sha256:1620620901728de911b45a2d9d75d2aedc9329f009f95509495c00b2cd5aff47
 created: 2023-10-26T19:40:26.563671274-05:00
 build:
   builder: pack
