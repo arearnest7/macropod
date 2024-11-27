@@ -3,7 +3,7 @@ name: election-vote-processor
 runtime: node
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/election-vote-processor:kn
-imageDigest: sha256:9f282ad872888d5e222eb8cba18523764023ca2ea3740b22d2eb8fc5e03b79a6
+imageDigest: sha256:b42b29a2e5fbbc333dc2b83a01ad4100251e1fcae12e6a5674098a09e74e9c46
 created: 2023-10-10T14:57:02.060343933-05:00
 build:
   builder: pack

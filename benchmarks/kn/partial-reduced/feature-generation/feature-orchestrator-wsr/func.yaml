@@ -3,7 +3,7 @@ name: feature-orchestrator-wsr
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-orchestrator-wsr:kn
-imageDigest: sha256:667734e7f019d47edb50014093b2e428f7dffd8d8b9d50568a515823aca17d1d
+imageDigest: sha256:31121d91dcf0cd22bcc86447a784ba798f77b34763c3db28c278bb30664e65a4
 created: 2023-12-03T21:19:25.926672298-06:00
 build:
   builder: pack

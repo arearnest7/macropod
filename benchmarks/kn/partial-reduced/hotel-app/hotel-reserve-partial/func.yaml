@@ -3,7 +3,7 @@ name: hotel-reserve-partial
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-reserve-partial:kn
-imageDigest: sha256:631fe742d4b69cb53a5aaf262ac07d1c18376a8fac8eb249ea56eaf415bd77ea
+imageDigest: sha256:2009dc4c96b26ffbc6680f9e995d9f628187b79bf0508f067076c50f7b38bb01
 created: 2023-10-26T19:54:47.835967387-05:00
 build:
   builder: pack

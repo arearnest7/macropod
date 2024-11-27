@@ -3,7 +3,7 @@ name: feature-reducer
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-reducer:kn
-imageDigest: sha256:5eb3a5314e3d389da39bc4a46ab5e42577da7e022bb1f576177e629b2aceb65a
+imageDigest: sha256:91dd424dd1056576a3f5a74f1b564756d87c51c4670265b018c138dc49f0a92f
 created: 2023-12-03T20:51:07.694206765-06:00
 build:
   builder: pack

@@ -3,7 +3,7 @@ name: video-decoder
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/video-decoder:kn
-imageDigest: sha256:0e605d1dc48e60d5b01018cf4cfa19308985f7d00b3b7d421194072cfd4d34fa
+imageDigest: sha256:7c737e28c72444ad8249bacf3bacc805934371cf0dc445a29d746aa3c93a2df7
 created: 2023-10-26T19:40:26.563671274-05:00
 build:
   builder: pack

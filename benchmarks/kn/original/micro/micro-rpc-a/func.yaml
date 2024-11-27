@@ -3,7 +3,7 @@ name: micro-rpc-a
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/micro-rpc-a:kn
-imageDigest: sha256:4a4aa11bb394723b74a5a50424b9a288fd156b66bc8168d647f4dc2146a8b04c
+imageDigest: sha256:57a1d8bc0a8a2406e28e215e9f9232d0ad933568eb833e270400c8bca441d46b
 created: 2023-12-21T14:55:54.548463456-06:00
 build:
   builder: pack
@@ -12,6 +12,6 @@ run:
   - name: DEST
     value: http://micro-rpc-b.knative-functions.127.0.0.1.sslip.io
   - name: LEN
-    value: "10000000"
+    value: "1000000"
 deploy:
   namespace: default

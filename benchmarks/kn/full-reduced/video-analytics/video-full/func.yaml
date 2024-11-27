@@ -3,7 +3,7 @@ name: video-full
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/video-full:kn
-imageDigest: sha256:1ecd260e30e99c2ddbbd8cdb917807d7ef8bf91a1c822d2514c11cef8a0b1e13
+imageDigest: sha256:0a2b942d0c07337bbe4c3a54759f3ffc47ad1faa2c864c8ec6e897d21ada6ce7
 created: 2023-11-05T16:38:01.912085473-06:00
 build:
   builder: pack

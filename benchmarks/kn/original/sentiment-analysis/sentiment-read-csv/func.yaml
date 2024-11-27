@@ -3,7 +3,7 @@ name: sentiment-read-csv
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-read-csv:kn
-imageDigest: sha256:1d7db43a0e9303756d4cfa3e256404ceddf12ab8e108fadbdfa26afab8750eb9
+imageDigest: sha256:c00cb347828bd21afccab7672e70bd32063293d0e88b77eead57efbf4a6b81d8
 created: 2023-12-03T21:00:37.907039642-06:00
 build:
   builder: pack

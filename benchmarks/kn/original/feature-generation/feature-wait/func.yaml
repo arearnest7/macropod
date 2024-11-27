@@ -3,7 +3,7 @@ name: feature-wait
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-wait:kn
-imageDigest: sha256:72cf1cb4fac20f9939ddc9bcfe66d7b49e3ee4c5bfbaffc86f9a06d3a3e6628c
+imageDigest: sha256:7a6fae9b1347fd54980969eaffe7ee11d43faa40fd4a4fc0bf56bb08d7ee4275
 created: 2023-12-03T20:51:14.796019377-06:00
 build:
   builder: pack

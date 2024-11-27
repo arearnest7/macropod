@@ -3,7 +3,7 @@ name: feature-extractor
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-extractor:kn
-imageDigest: sha256:6d444308d6c8df6a8ba29c0e7fe7f2db5edae3f410b19c89a7a055ffe3b065e9
+imageDigest: sha256:3ace3fe6bf345fe63468e7cb297030ca42117decc43c17aa3780e836e6252ca6
 created: 2023-12-03T20:50:55.155063848-06:00
 build:
   builder: pack

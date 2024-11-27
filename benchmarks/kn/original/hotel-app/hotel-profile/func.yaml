@@ -3,7 +3,7 @@ name: hotel-profile
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-profile:kn
-imageDigest: sha256:528a054c1f144601aa36e4ddcbdd40cfe8fafb779b00b56fbb7efb88a856b3c4
+imageDigest: sha256:b455d4e5990d65f86362080e8b3cbaa1d83e831e7d65c2ae5944bb92b96c1004
 created: 2023-10-26T19:30:48.125063479-05:00
 build:
   builder: pack

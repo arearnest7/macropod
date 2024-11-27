@@ -3,13 +3,13 @@ name: micro-rpc-b
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/micro-rpc-b:kn
-imageDigest: sha256:0d4e75d15ebaf8b9899b48ef301ff9c47ae670df727eaa2ec7ac97874cf1f861
+imageDigest: sha256:537f60da85d3d1bac1856e9f15ceab9b4ce6fee37f590c4f741ddf7f62fad66f
 created: 2023-12-21T14:55:57.409001657-06:00
 build:
   builder: pack
 run:
   envs:
   - name: LEN
-    value: "10000000"
+    value: "1000000"
 deploy:
   namespace: default

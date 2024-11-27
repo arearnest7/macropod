@@ -3,7 +3,7 @@ name: wage-merit
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-merit:kn
-imageDigest: sha256:51cd1f984348fba7b264c641465a4d20fe01d0f0f007ed04bb8e780ba5efd0f0
+imageDigest: sha256:62ffaba3d8f3ba9c86bf92cc06acd74a92df784dd5f08ba60e5b31abe6104503
 created: 2023-12-03T21:04:40.388331242-06:00
 build:
   builder: pack
