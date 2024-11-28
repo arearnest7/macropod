@@ -22,8 +22,6 @@ metadata:
   name: macropod-functions
   labels:
     name: macropod-functions
-
-
 ---
 apiVersion: v1
 kind: Namespace
@@ -31,8 +29,6 @@ metadata:
   name: standby-functions
   labels:
     name: standby-functions
-
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -73,11 +69,11 @@ spec:
         app: macropod
     spec:
      serviceAccountName: macropod-service-account
-     nodeSelector: 
+     nodeSelector:
         kubernetes.io/hostname: sys-dev-vm-1
      tolerations:
-      - key: "master-node"
-        value: "master-node"
+      - key: "taint_key"
+        value: "master_node"
         effect: "NoSchedule"
      containers:
       - name: macropod-ingress
