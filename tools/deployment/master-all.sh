@@ -13,7 +13,7 @@ echo "export KUBECONFIG=/root/.kube/config" | sudo tee -a /root/.profile >> /dev
 export token=$(sudo cat /var/lib/rancher/k3s/server/node-token)
 for i in ${worker_nodes[@]}; do ssh $user@$i "wget -P /home/$user/ https://raw.githubusercontent.com/arearnest7/macropod/main/tools/deployment/worker.sh -O worker.sh && chmod +x /home/$user/worker.sh && sudo -S /home/$user/worker.sh $host $iface $token"; done;
 host_name=$(hostname)
-kubectl taint nodes $host_name taint_key=master_node:NoSchedule
+kubectl taint nodes $host_name master-node=master-node:NoSchedule
 sudo kubectl apply -f knative/serving-crds.yaml
 sudo kubectl apply -f knative/serving-core.yaml
 sudo kubectl apply -f knative/istio-ns.yaml

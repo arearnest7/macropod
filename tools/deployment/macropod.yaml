@@ -69,11 +69,9 @@ spec:
         app: macropod
     spec:
      serviceAccountName: macropod-service-account
-     nodeSelector:
-        kubernetes.io/hostname: sys-dev-vm-1
      tolerations:
-      - key: "taint_key"
-        value: "master_node"
+      - key: "master-node"
+        value: "master-node"
         effect: "NoSchedule"
      containers:
       - name: macropod-ingress
