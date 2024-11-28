@@ -11,8 +11,6 @@ def RPC(context, dest, payloads):
     print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowId"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + "," + context["RequestType"] + "," + "rpc_start" + "\n", flush=True)
     with grpc.insecure_channel(dest, options=opts,) as channel:
         stub = pb_grpc.gRPCFunctionStub(channel)
-        tl = []
-        pv_paths = []
         request_type = "gg"
         with futures.ThreadPoolExecutor(max_workers=len(payloads)) as executor:
             for i in range(len(payloads)):

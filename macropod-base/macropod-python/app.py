@@ -6,9 +6,6 @@ import wf_pb2 as pb
 import wf_pb2_grpc as pb_grpc
 from func import FunctionHandler
 
-app = Flask(__name__)
-api = Api(app)
-
 MAX_MESSAGE_LENGTH = 1024 * 1024 * 200
 opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_message_length", MAX_MESSAGE_LENGTH)]
 
