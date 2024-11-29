@@ -1,15 +1,15 @@
 {
 	"workflow": "micro",
 	"functions": {
-		"MICRO-RPC-A": {
+		"SRC": {
 			"registry": "sysdevtamu/micro-rpc-a:macropod",
-			"endpoints": ["MICRO-RPC-B"],
+			"endpoints": ["DEST"],
 			"envs": {
 				"LEN": "1000000"
 			},
 			"secrets": {}
 		},
-		"MICRO-RPC-B": {
+		"DEST": {
 			"registry": "sysdevtamu/micro-rpc-b:macropod",
 			"endpoints": [],
 			"envs": {
