@@ -3,7 +3,7 @@ name: wage-avg
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-avg:kn
-imageDigest: sha256:2ca160c52845fa10d27d6d95b2e98f5f0336fdbabc2c8f2f6c22aff6366a9037
+imageDigest: sha256:8058a67727361421987f3d43e1e8ebed838983b9b5d0dfd8f3a3d46f28a86e8a
 created: 2023-12-03T21:04:30.364238593-06:00
 build:
   builder: pack

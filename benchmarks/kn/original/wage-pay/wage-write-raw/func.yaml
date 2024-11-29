@@ -3,7 +3,7 @@ name: wage-write-raw
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-write-raw:kn
-imageDigest: sha256:a1c82a30cbc763ba59eba827f86306badfd8a87d05ce84eecf2ea700f1716376
+imageDigest: sha256:eec70899de3859054552d262f66cac10be6a63baa82f7c27be77f920f5987f85
 created: 2023-12-03T21:05:04.943050344-06:00
 build:
   builder: pack

@@ -12,6 +12,7 @@ def RPC(context, dest, payloads):
     with grpc.insecure_channel(dest, options=opts,) as channel:
         stub = pb_grpc.gRPCFunctionStub(channel)
         request_type = "gg"
+        tl = []
         with futures.ThreadPoolExecutor(max_workers=len(payloads)) as executor:
             for i in range(len(payloads)):
                 payload = payloads[i]

@@ -3,7 +3,7 @@ name: pipelined-zip-partial
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/pipelined-zip-partial:kn
-imageDigest: sha256:d35f75b818f84fa367bf2b3e0f2808322efe3ffc19f7c71de50634c24d825ebe
+imageDigest: sha256:1400daf97863d725c8407141abc36a1fb28d0d3ae9a2478516095c8443c34d2a
 created: 2023-12-03T21:21:56.948541147-06:00
 build:
   builder: pack

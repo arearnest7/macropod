@@ -3,7 +3,7 @@ name: election-vote-enqueuer
 runtime: node
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/election-vote-enqueuer:kn
-imageDigest: sha256:d8c20e22cf83b98e97ba2d2ec092b2e785169ba50d650a346be65f282206c0fc
+imageDigest: sha256:327aa0dd8df6e13988b53b9c5265b563d6d7f97df024c65403ca4161bada6cf9
 created: 2023-10-10T14:56:57.264364766-05:00
 build:
   builder: pack

@@ -3,7 +3,7 @@ name: hotel-user-partial
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-user-partial:kn
-imageDigest: sha256:4d068dc3a6cedb87ba1792494b13a498fac489aa57b3f1c4723b3bf14bbedf0d
+imageDigest: sha256:c21fd519be6f1a18f465f294f559cc2ddf65a1a24c16a9c5582995db4101a910
 created: 2023-10-26T19:54:52.836777088-05:00
 build:
   builder: pack
