@@ -3,7 +3,7 @@ name: micro-rpc-a
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/micro-rpc-a:kn
-imageDigest: sha256:b220bba1dc2fa5188c246c67abaceac0285c73bb69a7e537d8cefac3cc2a6b2e
+imageDigest: sha256:573758585972e69a43739eb706f3351be0c13078f4938b4cfaf8aba289362591
 created: 2023-12-21T14:55:54.548463456-06:00
 build:
   builder: pack

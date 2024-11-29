@@ -3,7 +3,7 @@ name: feature-full
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-full:kn
-imageDigest: sha256:89689e0d015a630bcff0c6675d76e84f87c55589c276179378d37de79d87e2e1
+imageDigest: sha256:af618c82d449aebdc15a759b893577351e80950f125d5a22efd1211885eca906
 created: 2023-12-03T21:07:14.996832312-06:00
 build:
   builder: pack

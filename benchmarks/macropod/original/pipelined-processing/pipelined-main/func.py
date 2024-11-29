@@ -8,10 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import random
 
 def FunctionHandler(context):
-    if context["InvokeType"] == "GRPC":
-        body = json.loads(context["Request"])
-    else:
-        body = context["Request"]
+    body = json.loads(context["Request"])
     if body["manifest"]:
         to_checksum = body["manifest"][0]
     else:
@@ -38,6 +35,3 @@ def FunctionHandler(context):
         response = RPC(context, os.environ["PIPELINED_MAIN"], [json.dumps({"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip}).encode()])[0]
         return response, 200
     return "success", 200
-    #else:
-    #    print("Empty request", flush=True)
-    #    return "{}", 200

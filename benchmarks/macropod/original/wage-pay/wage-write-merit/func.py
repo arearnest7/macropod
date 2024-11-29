@@ -9,12 +9,8 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def FunctionHandler(context):
-    if context["InvokeType"] == "GRPC":
-        params = json.loads(context["Request"])
+    params = json.loads(context["Request"])
 
-        #redisClient.set("merit-" + str(params["id"]), json.dumps(params))
+    #redisClient.set("merit-" + str(params["id"]), json.dumps(params))
 
-        return str(params["id"]) + " statistics uploaded/updated", 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
+    return str(params["id"]) + " statistics uploaded/updated", 200

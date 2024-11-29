@@ -9,36 +9,32 @@ from urllib.parse import quote_plus
 import random
 
 def FunctionHandler(context):
-    if context["InvokeType"] == "GRPC":
-        event = json.loads(context["Request"])
+    event = json.loads(context["Request"])
 
-	#client = MongoClient(host=os.environ["MONGO_HOST"])
-        #db = client['sentiment']
-        #table = ""
-        #if event['reviewType'] == 'Product':
-        #    table = db.products
-        #elif event['reviewType'] == 'Service':
-        #    table = db.services
-        #else:
-        #    raise Exception("Input review is neither Product nor Service")
-        #Item = {
-        #   'reviewID': event['reviewID'],
-        #    'customerID': event['customerID'],
-        #    'productID': event['productID'],
-        #    'feedback': event['feedback'],
-        #    'sentiment': event['sentiment']
-        #}
-        #response = {"response": str(table.insert_one(Item).inserted_id)}
+    #client = MongoClient(host=os.environ["MONGO_HOST"])
+    #db = client['sentiment']
+    #table = ""
+    #if event['reviewType'] == 'Product':
+    #    table = db.products
+    #elif event['reviewType'] == 'Service':
+    #    table = db.services
+    #else:
+    #    raise Exception("Input review is neither Product nor Service")
+    #Item = {
+    #   'reviewID': event['reviewID'],
+    #    'customerID': event['customerID'],
+    #    'productID': event['productID'],
+    #    'feedback': event['feedback'],
+    #    'sentiment': event['sentiment']
+    #}
+    #response = {"response": str(table.insert_one(Item).inserted_id)}
 
-        response = {}
-        response['reviewType'] = event['reviewType']
-        response['reviewID'] = event['reviewID']
-        response['customerID'] = event['customerID']
-        response['productID'] = event['productID']
-        response['feedback'] = event['feedback']
-        response['sentiment'] = event['sentiment']
+    response = {}
+    response['reviewType'] = event['reviewType']
+    response['reviewID'] = event['reviewID']
+    response['customerID'] = event['customerID']
+    response['productID'] = event['productID']
+    response['feedback'] = event['feedback']
+    response['sentiment'] = event['sentiment']
 
-        return json.dumps(response), 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
+    return json.dumps(response), 200
