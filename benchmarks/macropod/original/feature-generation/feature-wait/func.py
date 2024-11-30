@@ -8,5 +8,7 @@ import os
 
 def FunctionHandler(context):
     time.sleep(1)
-    response = RPC(context, os.environ["FEATURE_STATUS"], [context["Request"]])[0]
+    payload = []
+    payload.append(context["Request"])
+    response = RPC(context, os.environ["FEATURE_STATUS"], payload)[0]
     return response, 200

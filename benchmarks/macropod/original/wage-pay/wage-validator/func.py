@@ -8,7 +8,7 @@ import os
 ROLES = ['staff', 'teamleader', 'manager']
 
 def FunctionHandler(context):
-    event = context["Request"]
+    event = json.loads(context["Request"])
     for param in ['id', 'name', 'role', 'base', 'merit', 'operator']:
         if param in ['name', 'role']:
             if not isinstance(event[param], str):

@@ -9,10 +9,12 @@ def FunctionHandler(context):
     event = json.loads(context["Request"])
 
     results = ""
+    payload = []
+    payload.append(context["Request"])
     if event["reviewType"] == "Product":
-        results = RPC(context, os.environ["SENTIMENT_PRODUCT_SENTIMENT"], [context["Request"]])[0]
+        results = RPC(context, os.environ["SENTIMENT_PRODUCT_SENTIMENT"], payload)[0]
     elif event["reviewType"] == "Service":
-        results = RPC(context, os.environ["SENTIMENT_SERVICE_SENTIMENT"], [context["Request"]])[0]
+        results = RPC(context, os.environ["SENTIMENT_SERVICE_SENTIMENT"], payload)[0]
     else:
-        results = RPC(context, os.environ["SENTIMENT_CFAIL"], [context["Request"]])[0]
+        results = RPC(context, os.environ["SENTIMENT_CFAIL"], payload)[0]
     return results, 200

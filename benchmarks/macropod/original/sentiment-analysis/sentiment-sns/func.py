@@ -13,12 +13,14 @@ def FunctionHandler(context):
     #    event['reviewType'], int(event['productID']), int(event['customerID']), event['feedback'])
     #})
 
-    response = RPC(context, os.environ["SENTIMENT_DB"], [json.dumps({
+    payload = []
+    payload.append(json.dumps({
         'sentiment': event['sentiment'],
         'reviewType': event['reviewType'],
         'reviewID': event['reviewID'],
         'customerID': event['customerID'],
         'productID': event['productID'],
         'feedback': event['feedback']
-    }).encode()])[0]
+    }).encode())
+    response = RPC(context, os.environ["SENTIMENT_DB"], payload)[0]
     return response, 200

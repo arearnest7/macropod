@@ -16,12 +16,14 @@ def FunctionHandler(context):
         sentiment = "NEGATIVE"
     else:
         sentiment = "NEUTRAL"
-    response = RPC(context, os.environ["SENTIMENT_SERVICE_RESULT"], [json.dumps({
+    payload = []
+    payload.append(json.dumps({
         'sentiment': sentiment,
         'reviewType': event['reviewType'],
         'reviewID': event['reviewID'],
         'customerID': event['customerID'],
         'productID': event['productID'],
         'feedback': event['feedback']
-    }).encode()])[0]
+    }).encode())
+    response = RPC(context, os.environ["SENTIMENT_SERVICE_RESULT"], payload)[0]
     return response.text, 200

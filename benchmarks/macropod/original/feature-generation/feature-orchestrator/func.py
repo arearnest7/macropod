@@ -11,10 +11,12 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def invoke_lambda(bucket, dest, context, key):
-    RPC(context, os.environ["FEATURE_EXTRACTOR"], [json.dumps({"input_bucket": bucket, "key": key, "dest": dest}).encode()])
+    payload = []
+    payload.append(json.dumps({"input_bucket": bucket, "key": key, "dest": dest}).encode())
+    RPC(context, os.environ["FEATURE_EXTRACTOR"], payload)
 
 def FunctionHandler(context):
-    params = context["Request"]
+    params = json.loads(context["Request"])
     bucket = params['bucket']
     dest = str(random.randint(0, 10000000)) + "-" + bucket
     all_keys = []

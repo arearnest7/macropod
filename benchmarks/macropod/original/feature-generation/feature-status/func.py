@@ -18,8 +18,10 @@ def FunctionHandler(context):
         all_keys.append(key)
     print("Number of File : " + str(len(all_keys)))
 
+    payload = []
+    payload.append(context["Request"])
     if num_of_file == len(all_keys):
-        return RPC(context, os.environ["FEATURE_REDUCER"], [json.dumps(params).encode()])[0], 200
+        return RPC(context, os.environ["FEATURE_REDUCER"], payload)[0], 200
     else:
-        return RPC(context, os.environ["FEATURE_WAIT"], [json.dumps(params).encode()])[0], 200
+        return RPC(context, os.environ["FEATURE_WAIT"], payload)[0], 200
 

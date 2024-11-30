@@ -20,5 +20,7 @@ def FunctionHandler(context):
     lines = response.split('\n')
 
     for row in csv.DictReader(lines):
-        response = RPC(context, os.environ["SENTIMENT_PRODUCT_OR_SERVICE"], [json.dumps(row).encode()])[0]
+        payload = []
+        payload.append(json.dumps(row).encode())
+        response = RPC(context, os.environ["SENTIMENT_PRODUCT_OR_SERVICE"], payload)[0]
     return response, 200
