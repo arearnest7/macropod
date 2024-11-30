@@ -3,7 +3,7 @@ name: hotel-frontend
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-frontend:kn
-imageDigest: sha256:3969652d39267faaa91d26a852561348197317242bdcb86978eb869a2fb334fe
+imageDigest: sha256:2e92cd941f178696b292f7941d8e5f4d8dfa90a6fe31bd1b5fa67ee279663c37
 created: 2023-10-26T19:30:15.504368653-05:00
 build:
   builder: pack

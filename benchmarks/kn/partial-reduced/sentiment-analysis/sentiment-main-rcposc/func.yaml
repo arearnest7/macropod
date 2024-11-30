@@ -3,7 +3,7 @@ name: sentiment-main-rcposc
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-main-rcposc:kn
-imageDigest: sha256:2b91b1bd8d23707097189916e2f8184fb5d20eeb76885d97379723e1f1827a44
+imageDigest: sha256:ee6b867dbb869d7e69845f92f7c004b9a282291ea8a3aafdeef08eecc8ed44bd
 created: 2023-12-03T21:27:22.752749433-06:00
 build:
   builder: pack

@@ -3,7 +3,7 @@ name: sentiment-db
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-db:kn
-imageDigest: sha256:07b6eba6cde467a5f74b925fab667fa08c420c452f32a345ee197e48928d485a
+imageDigest: sha256:8dc7773fc9e7503271c47f2f1570d5fbe27a86a03f5798910fe6934b75dad254
 created: 2023-12-03T21:00:05.343906893-06:00
 build:
   builder: pack
