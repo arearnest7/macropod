@@ -3,7 +3,7 @@ name: video-full
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/video-full:kn-wob
-imageDigest: sha256:96b8ef4a3031c3b85ef987fc864aaa934421f080fc7d932bb12b1ba4e45fda0c
+imageDigest: sha256:a4b994b597dcc8d41657c00e67fafca863c2978f3bbf7751a893876c02d73fce
 created: 2023-11-05T16:38:01.912085473-06:00
 build:
   builder: pack

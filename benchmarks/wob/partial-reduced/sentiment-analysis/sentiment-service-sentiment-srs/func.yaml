@@ -3,7 +3,7 @@ name: sentiment-service-sentiment-srs
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-service-sentiment-srs:kn-wob
-imageDigest: sha256:9de9545929c6df2295c449ea238ad76af783285724fe8331421a43b29ccf1341
+imageDigest: sha256:abf53772e68318a57480f49aeaa06335446ca2130d46f150a34c25a9b0ec8ab7
 created: 2023-12-03T21:30:00.866902725-06:00
 build:
   builder: pack

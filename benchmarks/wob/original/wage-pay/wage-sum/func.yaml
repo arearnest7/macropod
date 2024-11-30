@@ -3,7 +3,7 @@ name: wage-sum
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-sum:kn-wob
-imageDigest: sha256:67f66c90a269813cf2d534e168f1320c44114cc69a7b8f41b34742d738d05bf6
+imageDigest: sha256:5f191f282166bfb4c46ef822afa7b811b27cd8b4225cceb690f7eb47bd3c65d2
 created: 2023-12-03T21:04:46.885982026-06:00
 build:
   builder: pack

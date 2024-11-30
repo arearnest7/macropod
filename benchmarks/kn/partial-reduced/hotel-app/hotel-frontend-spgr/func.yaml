@@ -3,7 +3,7 @@ name: hotel-frontend-spgr
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-frontend-spgr:kn-wb
-imageDigest: sha256:b03ae70724b4a1ebe50507c6984ee025a3a81d77ed1358bf9cca6e82536c7d51
+imageDigest: sha256:8a142a11bff506ef00097834412d126a12a80451129b6ebc18bf00600cadd877
 created: 2023-10-26T19:54:28.29278899-05:00
 build:
   builder: pack

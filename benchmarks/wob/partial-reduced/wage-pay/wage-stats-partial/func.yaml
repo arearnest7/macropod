@@ -3,7 +3,7 @@ name: wage-stats-partial
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-stats-partial:kn-wob
-imageDigest: sha256:656ec9097ae044b4f1387d739fde90d0e36be29ef17ba7a2c2c0eb3cb2cdfd32
+imageDigest: sha256:40f405ecdfa1172c565a1fd83a25e07f08d4788a194dbc2441ab50003e00f753
 created: 2023-12-03T21:32:12.572244103-06:00
 build:
   builder: pack

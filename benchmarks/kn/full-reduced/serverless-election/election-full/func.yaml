@@ -3,7 +3,7 @@ name: election-full
 runtime: node
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/election-full:kn-wb
-imageDigest: sha256:0c77bc7e635fca5e3d42572467640d9c605f4d3284e120335249e56ca63a1426
+imageDigest: sha256:71cf1aea1d20444869b10c3ca2e11e013b9fd6b5686423d7530bbad3591c3bd8
 created: 2023-10-20T09:54:18.57851076-05:00
 build:
   builder: pack

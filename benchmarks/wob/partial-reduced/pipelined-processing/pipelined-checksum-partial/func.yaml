@@ -3,7 +3,7 @@ name: pipelined-checksum-partial
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/pipelined-checksum-partial:kn-wob
-imageDigest: sha256:02e0666d143f1a195952a0f90a1413e670cb985eca733997bf06fe1a5fbf36b4
+imageDigest: sha256:a4f239d44092b00b5ab5269a74aa19834a2e01eb479105786b3004a011359b69
 created: 2023-12-03T21:21:41.254958415-06:00
 build:
   builder: pack

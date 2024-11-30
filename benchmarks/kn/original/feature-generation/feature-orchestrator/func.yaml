@@ -3,7 +3,7 @@ name: feature-orchestrator
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-orchestrator:kn-wb
-imageDigest: sha256:244b73298bc77aab594337c6d95764099b7a0df1e034c6af317a3a5ff4a4d8b4
+imageDigest: sha256:7697d854efff9fa14c9ce6f4f724778d0de26fd9b741ff90508b5d132087fff7
 created: 2023-12-03T20:51:02.770828406-06:00
 build:
   builder: pack

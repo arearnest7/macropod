@@ -3,7 +3,7 @@ name: hotel-recommend-partial
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-recommend-partial:kn-wob
-imageDigest: sha256:ec2726a35d84ec3608b2421c948cda1c17ffa92cb1260a4816090537bd2973db
+imageDigest: sha256:665cbc2844d4652984bde0b2e39fe4f92261ad268afb77e70a228974b74d1edf
 created: 2023-10-26T19:54:40.164310055-05:00
 build:
   builder: pack

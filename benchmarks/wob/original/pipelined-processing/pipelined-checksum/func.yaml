@@ -3,7 +3,7 @@ name: pipelined-checksum
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/pipelined-checksum:kn-wob
-imageDigest: sha256:e2d941573264772f4a2ac1e6abc1ce2e73de325d9d92416326c42d9c22b55cf9
+imageDigest: sha256:721d6940f917f2c89a5a63089700e3a5e355b5eda338a2d805e110798512f9a3
 created: 2023-12-03T20:55:04.99480755-06:00
 build:
   builder: pack

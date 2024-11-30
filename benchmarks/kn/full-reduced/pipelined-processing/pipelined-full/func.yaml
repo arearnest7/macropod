@@ -3,7 +3,7 @@ name: pipelined-full
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/pipelined-full:kn-wb
-imageDigest: sha256:efdbd182d171369bbc7a18a55904528a3cae3ba0a9e4e36349951e9aba1eb7aa
+imageDigest: sha256:01d422b1b848402601d165d7bee85c8e1e3947e688dfd039cc56535a108d87b2
 created: 2023-12-03T21:07:35.930126142-06:00
 build:
   builder: pack

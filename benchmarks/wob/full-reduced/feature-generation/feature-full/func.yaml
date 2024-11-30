@@ -3,7 +3,7 @@ name: feature-full
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-full:kn-wob
-imageDigest: sha256:fe926c36d766df572585366752d24a20a6b69a4aef9024ea9abbf394bfa60bc0
+imageDigest: sha256:0755e875ab02101498c7cb67e45fbac08bf47bddc7d0a54b50447504d884b2cd
 created: 2023-12-03T21:07:14.996832312-06:00
 build:
   builder: pack

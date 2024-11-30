@@ -3,7 +3,7 @@ name: hotel-geo
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-geo:kn-wb
-imageDigest: sha256:ca7ba871ddcdbd14d1337068c452ff2131461c47e9322a2d4298b0571b5c8787
+imageDigest: sha256:75eada089e5ba5319953a2d4bf7473e7bf7a6ebc99f6152ea70b9781970c7c1f
 created: 2023-10-26T19:30:51.417314908-05:00
 build:
   builder: pack

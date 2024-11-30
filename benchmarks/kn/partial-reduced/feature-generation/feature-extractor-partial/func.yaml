@@ -3,7 +3,7 @@ name: feature-extractor-partial
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/feature-extractor-partial:kn-wb
-imageDigest: sha256:a635278bd5267223fbaf958b5bf77f771ae80c510def7cabb5ae1cce34bf4262
+imageDigest: sha256:9e6fcc9ac03a5a608fa703b63dcff2d495d72806ef4b6e122e5118f6dae8de0c
 created: 2023-12-03T21:18:28.69304073-06:00
 build:
   builder: pack

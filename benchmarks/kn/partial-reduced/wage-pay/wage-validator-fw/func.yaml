@@ -3,7 +3,7 @@ name: wage-validator-fw
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-validator-fw:kn-wb
-imageDigest: sha256:766d2fa080240e0a05b5715177f4b8411acd29740ab56c4ded5fd9d7c00d335f
+imageDigest: sha256:1c65303231d8186948c263d84d5d85a01338a4a64f88f217c4bf43957daecb20
 created: 2023-12-03T21:32:43.759166982-06:00
 build:
   builder: pack
