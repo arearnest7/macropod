@@ -574,35 +574,6 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 }
 
 
-func deleteDeploymentsAndServiceAfterDelay(label_to_delete string) {
-	log.Printf("Will be deleting all the resurces with %s", label_to_delete)
-	time.Sleep(10*time.Second) // keeping this so that existing requests are served 
-	log.Printf("Deleting....... %s", label_to_delete)
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		log.Fatalf("Failed to get in-cluster config: %s", err)
-	}
-	k, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		log.Fatalf("Failed to create kclient: %s", err)
-	}
-	services, err := k.CoreV1().Services("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, service := range services.Items {
-		k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
-	}
-	log.Print("deleted service for delete")
-	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, deployment := range deployments.Items {
-		k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
-	}
-}
-
 // TODO
 func updateDeployments(func_name string, max_concurrency int) (string) { //, replicaNumber int
 
@@ -636,7 +607,7 @@ func updateDeployments(func_name string, max_concurrency int) (string) { //, rep
 		internal_log("unable to unmarshal metrics from nodes API - " + err.Error())
 		return ingresses_deleted
 	}
-
+	labels_to_check := ""
 	for _, node := range nodes.Items {
 		value, exists := node.Metadata.Labels["node-role.kubernetes.io/master"]
 		if exists && value == "true" {
@@ -682,33 +653,13 @@ func updateDeployments(func_name string, max_concurrency int) (string) { //, rep
 			workflows[func_name].Updating = false
 			label_workflow := "workflow_name=" + func_name
 			label_version := "version=" + strconv.Itoa(workflows[func_name].LatestVersion-1)
-			labels_to_check := label_workflow + "," + label_version
-			ingresses, err := kclient.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: labels_to_check})
-			if err != nil {
-				fmt.Println(err)
-			}
-			for _, ingress := range ingresses.Items {
-				fmt.Println(ingress.ObjectMeta.Name)
-				for _, rule := range ingress.Spec.Rules {
-					if rule.HTTP != nil {
-						for _, path := range rule.HTTP.Paths {
-							serviceName := path.Backend.Service.Name
-							namespace := ingress.Namespace
-							port := path.Backend.Service.Port.Number
-							ingresses_deleted = ingresses_deleted + "," + serviceName+"."+namespace+".svc.cluster.local:"+ strconv.Itoa(int(port))
-						}
-					}
-				}
-				kclient.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
-				
-			}
-			go deleteDeploymentsAndServiceAfterDelay(labels_to_check)
+			labels_to_check = label_workflow + "," + label_version
 			updateDeployment.Unlock() // this is important because both update and deployment should not happen simulatenously 
-			return ingresses_deleted
+			return labels_to_check //ingress controller will delete the resources based on the usaage
 		}
 	}
 	workflows[func_name].Updating = false
-	return ingresses_deleted
+	return labels_to_check
 }
 
 // return in bytes

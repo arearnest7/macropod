@@ -135,8 +135,49 @@ func ifPodsAreRunning(workflow_replica string, namespace string) bool {
 	return true
 }
 
+func deleteDeployments(label_to_delete string, services_list []string) {
+	for _, service_name := range services_list {
+		countLock.Lock()
+		for serviceCount[service_name] != 0 {
+			log.Printf("service %s still in use", service_name)
+			time.Sleep(10 * time.Millisecond)
+		}
+		countLock.Unlock()
+	}
 
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Fatalf("Failed to get in-cluster config: %s", err)
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatalf("Failed to create kclient: %s", err)
+	}
 
+	log.Printf("Deleting all the older versions %s", label_to_delete)
+	services, err := k.CoreV1().Services("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, service := range services.Items {
+		k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	log.Print("deleted service for delete")
+	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, deployment := range deployments.Items {
+		k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, ingress := range ingresses.Items {
+		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+}
 
 func callDepController(func_found bool, func_name string, replicaNumber int) error {
 	if func_found {
@@ -181,30 +222,43 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 		return err
 	}
 	if func_found {
-		countLock.Lock()
-		messageArray := strings.Split(resp.Message, ",")
-		log.Printf("response from existing: %s", resp.Message)
-		log.Printf("Deleted ingresses :%v", messageArray)
-		log.Printf("length %d", len(messageArray))
-		if len(messageArray) > 1 { //[, value1, value2]
-			max_concurrency = 2 * max_concurrency
-		}
-		for _, service_name := range messageArray {
-			if _, exists := serviceCount[service_name]; exists {
-				delete(serviceCount, service_name)
-				delete(serviceTimeStamp, service_name)
-				log.Print("Deleting from response")
-				workflow_deployments[func_name]--
-				for i, val := range hostTargets[func_name] {
-					if val == service_name {
-						hostTargets[func_name] = append(hostTargets[func_name][:i], hostTargets[func_name][i+1:]...)
-						break
+		labels_to_delete := resp.Message
+		if labels_to_delete != "" {
+			max_concurrency = 2*max_concurrency
+			log.Printf("Increasing the concurrency to %d", max_concurrency)
+			countLock.Lock()
+			config, err := rest.InClusterConfig()
+			if err != nil {
+				log.Fatalf("Failed to get in-cluster config: %s", err)
+			}
+			k, err := kubernetes.NewForConfig(config)
+			if err != nil {
+				log.Fatalf("Failed to create kclient: %s", err)
+			}
+			services, _ := k.CoreV1().Services("macropo-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_to_delete})
+			var service_list []string
+			for _, service := range services.Items {
+				service_name := service.Name
+				if _, exists := serviceCount[service_name]; exists {
+					service_list = append(service_list, service_name)
+					delete(serviceTimeStamp, service_name)
+					log.Print("Deleting from response")
+					workflow_deployments[func_name]--
+					for i, val := range hostTargets[func_name] {
+						if val == service_name {
+							hostTargets[func_name] = append(hostTargets[func_name][:i], hostTargets[func_name][i+1:]...)
+							break
+						}
 					}
 				}
 			}
+			countLock.Unlock()
+			deleteDeployments(labels_to_delete, service_list)
 		}
+		existingInvokeLock.Lock()
 		runningExistingDeployment[func_name] = false
-		countLock.Unlock()
+		existingInvokeLock.Unlock()
+
 	}
 	if !func_found {
 		if debug > 2 {
@@ -603,7 +657,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	status := int32(0)
 	var response *wf_pb.ResponseBody
 	go callDepController(true, func_name, max_concurrency)
-	channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()),grpc.WithDefaultServiceConfig(retrypolicy))
+	channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
 	stub := wf_pb.NewGRPCFunctionClient(channel)
 	request_type := "gg"
 	response, err := stub.GRPCFunctionHandler(context.Background(), &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
