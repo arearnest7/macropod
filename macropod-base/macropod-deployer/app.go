@@ -188,7 +188,7 @@ func createStandByDeployment(func_name string, node_name string) (string, error)
 				env = append(env, corev1.EnvVar{Name: name, Value: value})
 			}
 			env = append(env, corev1.EnvVar{Name: "SERVICE_TYPE", Value: "GRPC"})
-			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: "100"})
+			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: "1000"})
 			func_port_s := strconv.Itoa(func_port)
 			env = append(env, corev1.EnvVar{Name: "FUNC_PORT", Value: func_port_s})
 			log.Print(function.Endpoints)
@@ -359,6 +359,23 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 		"version":          strconv.Itoa(workflows[func_name].LatestVersion),
 	}
 	updateDeployment.Lock()
+
+
+	label_workflow := "workflow_name=" + func_name
+	label_version := "version=" + strconv.Itoa(workflows[func_name].LatestVersion-1)
+	labels_to_check := label_workflow + "," + label_version
+	log.Printf("checking if older versions exist %s", labels_to_check)
+
+	for {
+	deployments_list, _ := kclient.CoreV1().Pods("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_to_check})
+	if deployments_list == nil || len(deployments_list.Items)==0  {
+		fmt.Println("Deployment does not exist")
+		break
+	}
+	time.Sleep(10*time.Millisecond) // let all the deployments be deleted before new ones
+}
+
+
 	pathType := networkingv1.PathTypePrefix
 	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
 	for _, pod := range workflows[func_name].Pods {
@@ -414,7 +431,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 				env = append(env, corev1.EnvVar{Name: name, Value: value})
 			}
 			env = append(env, corev1.EnvVar{Name: "SERVICE_TYPE", Value: "GRPC"})
-			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: "100"})
+			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: "1000"})
 			func_port_s := strconv.Itoa(func_port)
 			env = append(env, corev1.EnvVar{Name: "FUNC_PORT", Value: func_port_s})
 			log.Print(function.Endpoints)
@@ -575,7 +592,10 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 
 
 // TODO
-func updateDeployments(func_name string, max_concurrency int) (string) { //, replicaNumber int
+func updateDeployments(func_name string, max_concurrency int) (string) {
+	
+	
+	//, replicaNumber int
 
 	var ingresses_deleted string
 	if workflows[func_name].Updating {
@@ -943,9 +963,8 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 
 func main() {
 	internal_log("Deployer Started")
-
 	// deploymentRunning = false
-	update_threshold = 10
+	update_threshold, _ = strconv.Atoi(os.Getenv("UPDATE_THRESHOLD"))
 	workflows = make(map[string]*Workflow)
 	standbyNodeMap = make(map[string]string)
 	versionFunction = make(map[string]int)

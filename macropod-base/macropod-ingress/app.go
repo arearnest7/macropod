@@ -6,14 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"io/ioutil"
-	networkingv1 "k8s.io/api/networking/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"log"
 	"math/rand"
 	"net/http"
@@ -22,6 +15,14 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	networkingv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 type Function struct {
@@ -46,7 +47,7 @@ var (
 	ttl_seconds                 int
 	overall_ttl                 int
 	max_concurrency             int
-	countLock                   sync.Mutex
+	countLock                   sync.RWMutex
 	timerLockk                  sync.Mutex
 	existingInvokeLock          sync.Mutex
 	workflow_invocations        = make(map[string]int)
@@ -55,10 +56,6 @@ var (
 	runningExistingDeployment   = make(map[string]bool)
 	overallWorkflowTTL          = make(map[string]time.Time)
 	debug                       int
-	standbyNodeName             string
-	mem_float_capacity          float64
-	nodeLock                    sync.Mutex
-	nodeInUse                   bool
 	retrypolicy                 = `{
 		"methodConfig": [{
 		"name": [{}],
@@ -202,7 +199,6 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 	var type_call string
 	if func_found {
 		type_call = "existing_invoke"
-		internal_log("getting metrics from deployment controller")
 	} else {
 		type_call = "new_invoke"
 		internal_log("invoking new replica")
@@ -224,9 +220,9 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 	if func_found {
 		labels_to_delete := resp.Message
 		if labels_to_delete != "" {
-			max_concurrency = 2*max_concurrency
+			max_concurrency = 2 * max_concurrency
 			log.Printf("Increasing the concurrency to %d", max_concurrency)
-			countLock.Lock()
+
 			config, err := rest.InClusterConfig()
 			if err != nil {
 				log.Fatalf("Failed to get in-cluster config: %s", err)
@@ -239,6 +235,7 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 			var service_list []string
 			for _, service := range services.Items {
 				service_name := service.Name
+				countLock.Lock()
 				if _, exists := serviceCount[service_name]; exists {
 					service_list = append(service_list, service_name)
 					delete(serviceTimeStamp, service_name)
@@ -251,8 +248,8 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 						}
 					}
 				}
+				countLock.Unlock()
 			}
-			countLock.Unlock()
 			deleteDeployments(labels_to_delete, service_list)
 		}
 		existingInvokeLock.Lock()
@@ -318,6 +315,7 @@ func checkOverallTTL() {
 				delete(workflow_invocations, name)
 				delete(workflow_deployments, name)
 				delete(standbyTargets, name)
+				delete(overallWorkflowTTL, name)
 				opts := grpc.WithInsecure()
 				cc, err := grpc.Dial(os.Getenv("DEP_CONTROLLER_ADD"), opts)
 				if err != nil {
@@ -510,91 +508,6 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(res, help_print)
 }
 
-func memory_raw_to_float(memory_str string) (float64, error) {
-	if memory_str == "0" {
-		return 0, nil
-	} else if strings.HasSuffix(memory_str, "Ki") {
-		memory_str = strings.TrimSuffix(memory_str, "Ki")
-		memory, err := strconv.ParseFloat(memory_str, 64)
-		if err != nil {
-			return 0, err
-		}
-		return memory * 1024, nil
-	} else if strings.HasSuffix(memory_str, "Mi") {
-		memory_str = strings.TrimSuffix(memory_str, "Mi")
-		memory, err := strconv.ParseFloat(memory_str, 64)
-		if err != nil {
-			return 0, err
-		}
-		return memory * 1024 * 1024, nil
-	} else if strings.HasSuffix(memory_str, "Gi") {
-		memory_str = strings.TrimSuffix(memory_str, "Gi")
-		memory, err := strconv.ParseFloat(memory_str, 64)
-		if err != nil {
-			return 0, err
-		}
-		return memory * 1024 * 1024 * 1024, nil
-	} else {
-		memory, err := strconv.ParseFloat(memory_str, 64)
-		if err != nil {
-			return 0, err
-		}
-		return memory, nil
-	}
-
-}
-
-func getStandByNode(standbyNodeName string) bool {
-	if nodeInUse {
-		return false
-	}
-
-	nodeLock.Lock()
-	nodeInUse = true
-	nodeLock.Unlock()
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		log.Fatalf("Failed to get in-cluster config: %s", err)
-	}
-	k, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		log.Fatalf("Failed to create kclient: %s", err)
-	}
-	var nodes NodeMetricList
-	data, err := k.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
-	if err != nil {
-		internal_log("unable to retrieve metrics from nodes API - " + err.Error())
-		return true
-	}
-	err = json.Unmarshal(data, &nodes)
-	if err != nil {
-		internal_log("unable to unmarshal metrics from nodes API - " + err.Error())
-		return true
-	}
-
-	for _, node := range nodes.Items {
-
-		if node.Metadata.Name == standbyNodeName {
-			usage_mem, err := memory_raw_to_float(node.Usage.Memory)
-			if err != nil {
-				return true
-			}
-			percentage_mem := (usage_mem / mem_float_capacity) * 100
-			log.Printf("Node memory of %s is %f", node.Metadata.Name, percentage_mem)
-			if percentage_mem > 70 {
-				return true
-			}
-		}
-
-	}
-
-	nodeLock.Lock()
-	nodeInUse = false
-	nodeLock.Unlock()
-
-	return false
-
-}
 func getTargets(standby bool, triggered bool, func_name string, target string) (string, bool, bool) {
 	countLock.Lock()
 	for idx := range len(hostTargets[func_name]) {
@@ -616,7 +529,6 @@ func getTargets(standby bool, triggered bool, func_name string, target string) (
 		runningDeploymentController[func_name] = false
 	}
 	if target == "" && len(hostTargets[func_name]) == 0 {
-
 		target = standbyTargets[func_name]
 		if debug > 2 {
 			log.Print("Fowarding to standby")
@@ -651,19 +563,20 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	for target == "" {
 		target, standby, triggered = getTargets(standby, triggered, func_name, target)
 	}
-	log.Printf("Forwarding to %s", target)
 	payload, _ := ioutil.ReadAll(req.Body)
 	workflow_id := strconv.Itoa(rand.Intn(100000))
 	status := int32(0)
 	var response *wf_pb.ResponseBody
 	go callDepController(true, func_name, max_concurrency)
+	// start_time := time.Now()
 	channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
 	stub := wf_pb.NewGRPCFunctionClient(channel)
+	// end_time := time.Now()
+	// log.Printf("time taken to create teh channel is %f", end_time.Sub(start_time).Seconds())
 	request_type := "gg"
 	response, err := stub.GRPCFunctionHandler(context.Background(), &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
 	status = response.GetCode()
 	if status == 200 {
-		log.Printf("Sucessfull %s", target)
 		fmt.Fprint(res, response)
 	} else {
 		log.Printf("Non 200 code %s: %d, error : %s", target, response.GetCode(), err.Error())
@@ -697,28 +610,10 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	client := pb.NewDeploymentServiceClient(cc)
 	request := &pb.DeploymentServiceRequest{Name: req.PathValue("func_name"), FunctionCall: "create", Workflow: &workflow}
 	internal_log("requesting create for " + req.PathValue("func_name"))
-	response, err := client.Deployment(context.Background(), request)
+	_, err = client.Deployment(context.Background(), request)
 	internal_log("returned create for " + req.PathValue("func_name"))
 	if err != nil {
 		internal_log("create return - " + err.Error())
-	}
-	standbyNodeName = response.Message
-
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		log.Fatalf("Failed to get in-cluster config: %s", err)
-	}
-	k, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		log.Fatalf("Failed to create kclient: %s", err)
-	}
-	node, err := k.CoreV1().Nodes().Get(context.Background(), standbyNodeName, metav1.GetOptions{})
-	if err != nil {
-		return
-	}
-	mem_float_capacity, err = memory_raw_to_float(node.Status.Capacity.Memory().String())
-	if err != nil {
-		panic(err)
 	}
 	workflows[req.PathValue("func_name")] = body_u
 	runningDeploymentController[req.PathValue("func_name")] = false
@@ -750,91 +645,11 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	client := pb.NewDeploymentServiceClient(cc)
 	request := &pb.DeploymentServiceRequest{Name: req.PathValue("func_name"), FunctionCall: "update", Workflow: &workflow}
 	internal_log("requesting update for " + req.PathValue("func_name"))
-	response, err := client.Deployment(context.Background(), request)
-	internal_log("returned update for " + req.PathValue("func_name"))
-	if err != nil {
-		internal_log("update return - " + err.Error())
-	}
-	standbyNodeName = response.Message
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		log.Fatalf("Failed to get in-cluster config: %s", err)
-	}
-	k, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		log.Fatalf("Failed to create kclient: %s", err)
-	}
-	node, err := k.CoreV1().Nodes().Get(context.Background(), standbyNodeName, metav1.GetOptions{})
-	if err != nil {
-		return
-	}
-	mem_float_capacity, err = memory_raw_to_float(node.Status.Capacity.Memory().String())
-	if err != nil {
-		panic(err)
-	}
-	delete(standbyTargets, req.PathValue("func_name"))
-	label_workflow := "workflow_name=" + req.PathValue("func_name")
-	services, err := k.CoreV1().Services("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, service := range services.Items {
-		delete(serviceTimeStamp, service.Name)
-		fmt.Println(service.ObjectMeta.Name)
-		k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
-	}
-	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, deployment := range deployments.Items {
-		fmt.Println(deployment.ObjectMeta.Name)
-		k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
-	}
-	ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, ingress := range ingresses.Items {
-		fmt.Println(ingress.ObjectMeta.Name)
-		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
-	}
-
-	// delete standby also
-
-	// standby also
-
-	services, err = k.CoreV1().Services("standby-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, service := range services.Items {
-		delete(serviceTimeStamp, service.Name)
-		fmt.Println(service.ObjectMeta.Name)
-		k.CoreV1().Services("standby-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
-	}
-	deployments, err = k.AppsV1().Deployments("standby-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, deployment := range deployments.Items {
-		fmt.Println(deployment.ObjectMeta.Name)
-		k.AppsV1().Deployments("standby-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
-	}
-	ingresses, err = k.NetworkingV1().Ingresses("standby-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, ingress := range ingresses.Items {
-		fmt.Println(ingress.ObjectMeta.Name)
-		k.NetworkingV1().Ingresses("standby-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
-	}
-
+	_, _ = client.Deployment(context.Background(), request)
 	workflows[req.PathValue("func_name")] = body_u
 	runningDeploymentController[req.PathValue("func_name")] = false
 	workflow_invocations[req.PathValue("func_name")] = 0
 	workflow_deployments[req.PathValue("func_name")] = 0
-
 	internal_log("WF_UPDATE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been updated successfully.\n")
 }
@@ -927,13 +742,6 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been deleted successfully.\n")
 }
 
-func getCurrentConcurrency() {
-
-	for {
-		log.Printf("Current concurrency is: %d", max_concurrency)
-		time.Sleep(60 * time.Second)
-	}
-}
 func main() {
 	log.Print("Ingress controller started")
 	ttl_seconds, _ = strconv.Atoi(os.Getenv("TTL"))
@@ -952,7 +760,6 @@ func main() {
 	}
 	go checkTTL()
 	go checkOverallTTL()
-	go getCurrentConcurrency()
 	workflows = make(map[string]Workflow)
 	max_concurrency = 5
 	watchIngress(kclient)
