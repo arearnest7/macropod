@@ -105,6 +105,7 @@ func ifPodsAreRunning(workflow_replica string, namespace string) bool {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		log.Fatalf("Failed to get in-cluster config: %s", err)
+		return false
 	}
 	k, err := kubernetes.NewForConfig(config)
 	if err != nil {
@@ -112,7 +113,8 @@ func ifPodsAreRunning(workflow_replica string, namespace string) bool {
 	}
 	pods, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_replica})
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
+		return false
 	}
 	for _, pod := range pods.Items {
 		if pod.Status.Phase != "Running" {
@@ -154,7 +156,7 @@ func deleteDeployments(label_to_delete string, services_list []string) {
 	log.Printf("Deleting all the older versions %s", label_to_delete)
 	services, err := k.CoreV1().Services("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 	}
 	for _, service := range services.Items {
 		k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
@@ -162,14 +164,14 @@ func deleteDeployments(label_to_delete string, services_list []string) {
 	log.Print("deleted service for delete")
 	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 	}
 	for _, deployment := range deployments.Items {
 		k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 	ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 	}
 	for _, ingress := range ingresses.Items {
 		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
@@ -622,6 +624,7 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	overallWorkflowTTL[req.PathValue("func_name")] = time.Now()
 	internal_log("WF_CREATE_END " + req.PathValue("func_name"))
 	for !ifPodsAreRunning(req.PathValue("func_name"), "standby-functions") {
+		time.Sleep(10 * time.Millisecond)
 	}
 	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name")+"\n")
 }
@@ -730,6 +733,24 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	for _, ingress := range ingresses.Items {
 		fmt.Println(ingress.ObjectMeta.Name)
 		k.NetworkingV1().Ingresses("standby-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+
+	for {
+		deployments_list, _ := k.CoreV1().Pods("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+		if deployments_list == nil || len(deployments_list.Items) == 0 {
+			log.Printf("Pods for function %s are deleted", req.PathValue("func_name"))
+			break
+		}
+		time.Sleep(10 * time.Millisecond) // let all the deployments be deleted before new ones
+	}
+
+	for {
+		deployments_list, _ := k.CoreV1().Pods("standby-functsions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+		if deployments_list == nil || len(deployments_list.Items) == 0 {
+			log.Printf("Pods in standby are deleted")
+			break
+		}
+		time.Sleep(10 * time.Millisecond) // let all the deployments be deleted before new ones
 	}
 
 	delete(workflows, req.PathValue("func_name"))

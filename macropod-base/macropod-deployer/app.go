@@ -4,17 +4,8 @@ import (
 	pb "app/deployer_pb"
 	"context"
 	"encoding/json"
-
+	"errors"
 	"fmt"
-	"log"
-	"math"
-	"net"
-	"os"
-	"slices"
-	"strconv"
-	"strings"
-	"time"
-	"sync"
 	"google.golang.org/grpc"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -23,6 +14,15 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"log"
+	"math"
+	"net"
+	"os"
+	"slices"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 )
 
 type server struct {
@@ -84,7 +84,7 @@ var (
 	nodeCapacityMemory map[string]float64
 	//countLock		sync.Mutex
 	updateDeployment sync.Mutex
-	standbyNodeMap map[string]string
+	standbyNodeMap   map[string]string
 )
 
 func internal_log(message string) {
@@ -359,22 +359,25 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 		"version":          strconv.Itoa(workflows[func_name].LatestVersion),
 	}
 	updateDeployment.Lock()
-
-
+	if _, exists := workflows[func_name]; exists {
+        log.Printf(" %s is present", func_name)
+    } else {
+        log.Printf(" %s is not present", func_name)
+		return "", errors.New("Workflow does not exist")
+    }
 	label_workflow := "workflow_name=" + func_name
 	label_version := "version=" + strconv.Itoa(workflows[func_name].LatestVersion-1)
 	labels_to_check := label_workflow + "," + label_version
 	log.Printf("checking if older versions exist %s", labels_to_check)
 
 	for {
-	deployments_list, _ := kclient.CoreV1().Pods("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_to_check})
-	if deployments_list == nil || len(deployments_list.Items)==0  {
-		fmt.Println("Deployment does not exist")
-		break
+		deployments_list, _ := kclient.CoreV1().Pods("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_to_check})
+		if deployments_list == nil || len(deployments_list.Items) == 0 {
+			fmt.Println("Deployment does not exist")
+			break
+		}
+		time.Sleep(10 * time.Millisecond) // let all the deployments be deleted before new ones
 	}
-	time.Sleep(10*time.Millisecond) // let all the deployments be deleted before new ones
-}
-
 
 	pathType := networkingv1.PathTypePrefix
 	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
@@ -590,11 +593,9 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 	return service_name_ingress + "." + namespace + ".svc.cluster.local:5000", nil
 }
 
-
 // TODO
-func updateDeployments(func_name string, max_concurrency int) (string) {
-	
-	
+func updateDeployments(func_name string, max_concurrency int) string {
+
 	//, replicaNumber int
 
 	var ingresses_deleted string
@@ -674,8 +675,8 @@ func updateDeployments(func_name string, max_concurrency int) (string) {
 			label_workflow := "workflow_name=" + func_name
 			label_version := "version=" + strconv.Itoa(workflows[func_name].LatestVersion-1)
 			labels_to_check = label_workflow + "," + label_version
-			updateDeployment.Unlock() // this is important because both update and deployment should not happen simulatenously 
-			return labels_to_check //ingress controller will delete the resources based on the usaage
+			updateDeployment.Unlock() // this is important because both update and deployment should not happen simulatenously
+			return labels_to_check    //ingress controller will delete the resources based on the usaage
 		}
 	}
 	workflows[func_name].Updating = false
@@ -771,7 +772,7 @@ func bfs_initial_pod(pod []string, func_name string, pod_list []string) []string
 	return bfs_initial_pod(pod, func_name, pod_list)
 }
 
-func createInitialPod(func_name string)string{
+func createInitialPod(func_name string) string {
 	standbyNode := getNodes()
 	standbyNodeMap[func_name] = standbyNode
 	node, _ := kclient.CoreV1().Nodes().Get(context.Background(), standbyNode, metav1.GetOptions{})
@@ -845,6 +846,7 @@ func updateWorkflow(func_name string, workflow_str string) string {
 }
 
 func deleteWorkflow(func_name string) {
+	updateDeployment.Lock()
 	internal_log("DELETE_WORKFLOW_START - " + func_name)
 	_, exists := workflows[func_name]
 	node_name := standbyNodeMap[func_name]
@@ -864,12 +866,13 @@ func deleteWorkflow(func_name string) {
 		delete(workflows, func_name)
 		delete(standbyNodeMap, func_name)
 	}
+	updateDeployment.Unlock()
 	internal_log("DELETE_WORKFLOW_END - " + func_name)
 }
 
-func updateExistingIngress(func_name string, current_concurrency int) string { 
+func updateExistingIngress(func_name string, current_concurrency int) string {
 	internal_log("UPDATE_EXISTING_START - " + func_name)
-	ingress_deleted := updateDeployments(func_name, current_concurrency) 
+	ingress_deleted := updateDeployments(func_name, current_concurrency)
 	internal_log("UPDATE_EXISTING_END - " + func_name)
 	return ingress_deleted
 }
