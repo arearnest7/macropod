@@ -94,5 +94,7 @@ spec:
         env:
         - name: SERVICE_PORT
           value: "8082"
+        - name: UPDATE_THRESHOLD
+          value: "100"
         - name: NAMESPACE_INGRESS
           value: "macropod"

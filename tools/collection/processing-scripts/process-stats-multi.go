@@ -50,7 +50,7 @@ func main() {
                         timestamps = append(timestamps, timestamp)
                     }
                 }
-                for idx, wf_prefix := range [3]string{"kn-full", "kn-original", "kn-partial"} {
+                for idx, wf_prefix := range [1]string{"macropod"} {
                     wf_name := wf_prefix + "-" + out_file[:len(out_file)-4]
                     var median string
                     var percentile99 string
