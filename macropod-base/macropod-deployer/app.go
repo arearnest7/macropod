@@ -188,7 +188,7 @@ func createStandByDeployment(func_name string, node_name string) (string, error)
 				env = append(env, corev1.EnvVar{Name: name, Value: value})
 			}
 			env = append(env, corev1.EnvVar{Name: "SERVICE_TYPE", Value: "GRPC"})
-			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: "1000"})
+			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: strconv.Itoa(10)}) //TODO
 			func_port_s := strconv.Itoa(func_port)
 			env = append(env, corev1.EnvVar{Name: "FUNC_PORT", Value: func_port_s})
 			log.Print(function.Endpoints)
@@ -434,7 +434,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 				env = append(env, corev1.EnvVar{Name: name, Value: value})
 			}
 			env = append(env, corev1.EnvVar{Name: "SERVICE_TYPE", Value: "GRPC"})
-			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: "1000"})
+			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: strconv.Itoa(10)})
 			func_port_s := strconv.Itoa(func_port)
 			env = append(env, corev1.EnvVar{Name: "FUNC_PORT", Value: func_port_s})
 			log.Print(function.Endpoints)

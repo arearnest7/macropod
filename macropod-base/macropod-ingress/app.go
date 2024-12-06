@@ -551,6 +551,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	}
 	countLock.Lock()
 	workflow_invocations[func_name]++
+	i := strconv.Itoa(workflow_invocations[func_name])
 	_, exists = runningDeploymentController[func_name]
 	if !exists {
 		runningDeploymentController[func_name] = false
@@ -579,7 +580,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	response, err := stub.GRPCFunctionHandler(context.Background(), &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
 	status = response.GetCode()
 	if status == 200 {
-		fmt.Fprint(res, response)
+		fmt.Fprint(res, response.GetReply())
 	} else {
 		log.Printf("Non 200 code %s: %d, error : %s", target, response.GetCode(), err.Error())
 		http.Error(res, err.Error(), http.StatusBadGateway)
