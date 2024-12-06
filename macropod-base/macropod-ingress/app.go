@@ -551,7 +551,6 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	}
 	countLock.Lock()
 	workflow_invocations[func_name]++
-	i := strconv.Itoa(workflow_invocations[func_name])
 	_, exists = runningDeploymentController[func_name]
 	if !exists {
 		runningDeploymentController[func_name] = false
