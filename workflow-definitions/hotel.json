@@ -2,49 +2,49 @@
 	"workflow": "hotel",
 	"functions": {
 		"HOTEL_FRONTEND": {
-			"registry": "sysdevtamu/hotel-frontend:macropod",
+			"registry": "sysdevtamu/hotel-frontend:macropod-http",
 			"endpoints": ["HOTEL_SEARCH", "HOTEL_RECOMMEND", "HOTEL_RESERVE", "HOTEL_USER"],
 			"envs": {},
 			"secrets": {}
 		},
 		"HOTEL_GEO": {
-			"registry": "sysdevtamu/hotel-geo:macropod",
+			"registry": "sysdevtamu/hotel-geo:macropod-http",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_PROFILE": {
-			"registry": "sysdevtamu/hotel-profile:macropod",
+			"registry": "sysdevtamu/hotel-profile:macropod-http",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_RATE": {
-			"registry": "sysdevtamu/hotel-rate:macropod",
+			"registry": "sysdevtamu/hotel-rate:macropod-http",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_RECOMMEND": {
-			"registry": "sysdevtamu/hotel-recommend:macropod",
+			"registry": "sysdevtamu/hotel-recommend:macropod-http",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_RESERVE": {
-			"registry": "sysdevtamu/hotel-reserve:macropod",
+			"registry": "sysdevtamu/hotel-reserve:macropod-http",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}
 		},
 		"HOTEL_SEARCH": {
-			"registry": "sysdevtamu/hotel-search:macropod",
+			"registry": "sysdevtamu/hotel-search:macropod-http",
 			"endpoints": ["HOTEL_PROFILE", "HOTEL_GEO", "HOTEL_RATE"],
 			"envs": {},
 			"secrets": {}
 		},
 		"HOTEL_USER": {
-			"registry": "sysdevtamu/hotel-user:macropod",
+			"registry": "sysdevtamu/hotel-user:macropod-http",
 			"endpoints": [],
 			"envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"},
 			"secrets": {}

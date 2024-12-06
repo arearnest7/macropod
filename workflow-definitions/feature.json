@@ -2,31 +2,31 @@
 	"workflow": "feature",
 	"functions": {
 		"FEATURE_EXTRACTOR": {
-			"registry": "sysdevtamu/feature-extractor:macropod",
+			"registry": "sysdevtamu/feature-extractor:macropod-http",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"FEATURE_ORCHESTRATOR": {
-			"registry": "sysdevtamu/feature-orchestrator:macropod",
+			"registry": "sysdevtamu/feature-orchestrator:macropod-http",
 			"endpoints": ["FEATURE_EXTRACTOR", "FEATURE_WAIT"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"FEATURE_REDUCER": {
-			"registry": "sysdevtamu/feature-reducer:macropod",
+			"registry": "sysdevtamu/feature-reducer:macropod-http",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"FEATURE_STATUS": {
-			"registry": "sysdevtamu/feature-status:macropod",
+			"registry": "sysdevtamu/feature-status:macropod-http",
 			"endpoints": ["FEATURE_REDUCER"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"FEATURE_WAIT": {
-			"registry": "sysdevtamu/feature-wait:macropod",
+			"registry": "sysdevtamu/feature-wait:macropod-http",
 			"endpoints": ["FEATURE_STATUS"],
 			"envs": {},
 			"secrets": {}

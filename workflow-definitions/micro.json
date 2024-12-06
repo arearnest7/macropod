@@ -2,7 +2,7 @@
 	"workflow": "micro",
 	"functions": {
 		"SRC": {
-			"registry": "sysdevtamu/micro-rpc-a:macropod",
+			"registry": "sysdevtamu/micro-rpc-a:macropod-http",
 			"endpoints": ["DEST"],
 			"envs": {
 				"LEN": "1000000"
@@ -10,7 +10,7 @@
 			"secrets": {}
 		},
 		"DEST": {
-			"registry": "sysdevtamu/micro-rpc-b:macropod",
+			"registry": "sysdevtamu/micro-rpc-b:macropod-http",
 			"endpoints": [],
 			"envs": {
 				"LEN": "1000000"

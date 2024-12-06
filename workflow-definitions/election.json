@@ -2,25 +2,25 @@
 	"workflow": "election",
 	"functions": {
 		"ELECTION_GATEWAY": {
-			"registry": "sysdevtamu/election-gateway:macropod",
+			"registry": "sysdevtamu/election-gateway:macropod-http",
 			"endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"],
 			"envs": {},
 			"secrets": {}
 		},
 		"ELECTION_GET_RESULTS": {
-			"registry": "sysdevtamu/election-get-results:macropod",
+			"registry": "sysdevtamu/election-get-results:macropod-http",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"ELECTION_VOTE_ENQUEUER": {
-			"registry": "sysdevtamu/election-vote-enqueuer:macropod",
+			"registry": "sysdevtamu/election-vote-enqueuer:macropod-http",
 			"endpoints": ["ELECTION_VOTE_PROCESSOR"],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
 		},
 		"ELECTION_VOTE_PROCESSOR": {
-			"registry": "sysdevtamu/election-vote-processor:macropod",
+			"registry": "sysdevtamu/election-vote-processor:macropod-http",
 			"endpoints": [],
 			"envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
 			"secrets": {}
