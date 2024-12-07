@@ -2,5 +2,5 @@ FROM sysdevtamu/macropod-node:latest
 WORKDIR /app
 COPY . .
 RUN npm install
-RUN npm install @grpc/grpc-js @grpc/proto-loader moment google-protobuf
+RUN npm install moment express axios
 CMD [ "node", "app.js" ]

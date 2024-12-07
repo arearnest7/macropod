@@ -1,4 +1,4 @@
-FROM sysdevtamu/macropod-python:latest
+FROM sysdevtamu/macropod-python:http
 WORKDIR /app
 COPY . .
 RUN pip install -r requirements.txt

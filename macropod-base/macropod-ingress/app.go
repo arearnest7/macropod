@@ -2,7 +2,7 @@ package main
 
 import (
 	pb "app/deployer_pb"
-	wf_pb "app/wf_pb"
+	//wf_pb "app/wf_pb"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -15,9 +15,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"bytes"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	//"google.golang.org/grpc/credentials/insecure"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
@@ -35,6 +36,15 @@ type Function struct {
 type Workflow struct {
 	Name      string              `json:"name,omitempty"`
 	Functions map[string]Function `json:"functions"`
+}
+
+type MacropodBody struct {
+    Data string `json:"Data"`
+    WorkflowId string `json:"WorkflowId"`
+    Depth int32 `json:"Depth"`
+    Width int32 `json:"Width"`
+    RequestType string `json:"RequestType"`
+    PvPath string `json:"PvPath"`
 }
 
 var (
@@ -233,7 +243,7 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 			if err != nil {
 				log.Fatalf("Failed to create kclient: %s", err)
 			}
-			services, _ := k.CoreV1().Services("macropo-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_to_delete})
+			services, _ := k.CoreV1().Services("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_to_delete})
 			var service_list []string
 			for _, service := range services.Items {
 				service_name := service.Name
@@ -565,32 +575,36 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	for target == "" {
 		target, standby, triggered = getTargets(standby, triggered, func_name, target)
 	}
-	payload, _ := ioutil.ReadAll(req.Body)
 	workflow_id := strconv.Itoa(rand.Intn(100000))
-	status := int32(0)
-	var response *wf_pb.ResponseBody
 	go callDepController(true, func_name, max_concurrency)
-	// start_time := time.Now()
-	channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
-	stub := wf_pb.NewGRPCFunctionClient(channel)
-	// end_time := time.Now()
-	// log.Printf("time taken to create teh channel is %f", end_time.Sub(start_time).Seconds())
-	request_type := "gg"
-	response, err := stub.GRPCFunctionHandler(context.Background(), &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
-	status = response.GetCode()
-	if status == 200 {
-		fmt.Fprint(res, response.GetReply())
-	} else {
-		log.Printf("Non 200 code %s: %d, error : %s", target, response.GetCode(), err.Error())
-		http.Error(res, err.Error(), http.StatusBadGateway)
+	payload, _ := ioutil.ReadAll(req.Body)
+	request := MacropodBody{Data: string(payload), WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: "gg"}
+	body_m, err := json.Marshal(request)
+	if err != nil {
+		fmt.Println(err)
 	}
+	req_url, err := http.NewRequest(http.MethodPost, "http://" + target, bytes.NewBuffer(body_m))
+        if err != nil {
+                fmt.Println(err)
+        }
+	req_url.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+	ret, err := client.Do(req_url)
+	if err != nil {
+                fmt.Println(err)
+        }
+	retBody, err := ioutil.ReadAll(ret.Body)
+	if err != nil {
+                fmt.Println(err)
+        }
+        reply := string(retBody)
+	fmt.Fprint(res, reply)
 	countLock.Lock()
 	if !standby {
 		serviceCount[target]--
 	}
 	workflow_invocations[func_name]--
 	countLock.Unlock()
-	channel.Close()
 }
 
 func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {

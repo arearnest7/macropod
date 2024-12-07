@@ -2,14 +2,23 @@ package function
 
 import (
     "fmt"
-    "context"
     "time"
     "strconv"
-    "google.golang.org/grpc"
-    "google.golang.org/grpc/credentials/insecure"
-
-    pb "app/wf_pb"
+    "net/http"
+    "encoding/json"
+    "log"
+    "bytes"
+    "io/ioutil"
 )
+
+type MacropodBody struct {
+    Data []byte `json:"Data"`
+    WorkflowId string `json:"WorkflowId"`
+    Depth int32 `json:"Depth"`
+    Width int32 `json:"Width"`
+    RequestType string `json:"RequestType"`
+    PvPath string `json:"PvPath"`
+}
 
 type Context struct {
     Request []byte
@@ -21,29 +30,34 @@ type Context struct {
     IsJson bool
 }
 
-func invoke(stub pb.GRPCFunctionClient, ctx_in context.Context, in *pb.RequestBody) (*pb.ResponseBody) {
-    res, _ := stub.GRPCFunctionHandler(ctx_in, in)
-    return res
+func invoke(target string, ctx_in Context, data []byte, i int) (string) {
+    request := MacropodBody{Data: data, WorkflowId: ctx_in.WorkflowId, Depth: int32(ctx_in.Depth + 1), Width: int32(i), RequestType: "gg"}
+    body_m, _ := json.Marshal(request)
+    req_url, err := http.NewRequest(http.MethodPost, "http://" + target, bytes.NewBuffer(body_m))
+    if err != nil {
+        log.Fatal(err)
+    }
+    req_url.Header.Add("Content-Type", "application/json")
+    client := &http.Client{}
+    ret, _ := client.Do(req_url)
+    retBody, _ := ioutil.ReadAll(ret.Body)
+    reply := string(retBody)
+
+    return reply
 }
 
 func RPC(ctx_in Context, dest string, payloads [][]byte) ([]string) {
     fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "rpc_start")
-    tl := make(chan *pb.ResponseBody)
-    request_type := "gg"
+    tl := make(chan string)
     for i := 0; i < len(payloads); i++ {
         go func(n int) {
-            channel, _ := grpc.Dial(dest, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
-            stub := pb.NewGRPCFunctionClient(channel)
-            ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-            tl <- invoke(stub, ctx, &pb.RequestBody{Data: payloads[n], WorkflowId: ctx_in.WorkflowId, Depth: int32(ctx_in.Depth + 1), Width: int32(i), RequestType: &request_type})
-            channel.Close()
-            cancel()
+            tl <- invoke(dest, ctx_in, payloads[n], i)
         }(i)
     }
     results := make([]string, 0)
     for i := 0; i < len(payloads); i++ {
         res := <-tl
-        results = append(results, res.GetReply())
+        results = append(results, res)
     }
     fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "rpc_end")
     return results
