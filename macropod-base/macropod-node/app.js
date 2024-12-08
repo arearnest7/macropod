@@ -4,16 +4,18 @@ const func = require('./func')
 const moment = require('moment');
 const exec = require('child_process').execSync;
 
+app.use(express.json());
+
 app.post('/', async (req, res) => {
   var reply_t = "";
   var code_t = 500;
   var pv_path_t = "";
-  var data = req["Data"];
-  var workflow_id = req["WorkflowId"];
-  var depth = req["Depth"];
-  var width = req["Width"];
-  var request_type = req["RequestType"];
-  var path = req["PvPath"];
+  var data = req.body["Data"];
+  var workflow_id = req.body["WorkflowId"];
+  var depth = req.body["Depth"];
+  var width = req.body["Width"];
+  var request_type = req.body["RequestType"];
+  var path = req.body["PvPath"];
   var ctx = {
     Request: "",
     WorkflowId: workflow_id,

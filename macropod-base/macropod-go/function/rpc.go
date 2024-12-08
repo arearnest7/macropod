@@ -6,13 +6,12 @@ import (
     "strconv"
     "net/http"
     "encoding/json"
-    "log"
     "bytes"
     "io/ioutil"
 )
 
 type MacropodBody struct {
-    Data []byte `json:"Data"`
+    Data string `json:"Data"`
     WorkflowId string `json:"WorkflowId"`
     Depth int32 `json:"Depth"`
     Width int32 `json:"Width"`
@@ -31,11 +30,11 @@ type Context struct {
 }
 
 func invoke(target string, ctx_in Context, data []byte, i int) (string) {
-    request := MacropodBody{Data: data, WorkflowId: ctx_in.WorkflowId, Depth: int32(ctx_in.Depth + 1), Width: int32(i), RequestType: "gg"}
+    request := MacropodBody{Data: string(data), WorkflowId: ctx_in.WorkflowId, Depth: int32(ctx_in.Depth + 1), Width: int32(i), RequestType: "gg"}
     body_m, _ := json.Marshal(request)
     req_url, err := http.NewRequest(http.MethodPost, "http://" + target, bytes.NewBuffer(body_m))
     if err != nil {
-        log.Fatal(err)
+        fmt.Println(err)
     }
     req_url.Header.Add("Content-Type", "application/json")
     client := &http.Client{}

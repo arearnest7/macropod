@@ -2,13 +2,13 @@
 	"workflow": "macropod-python",
 	"functions": {
 		"SRC": {
-			"registry": "sysdevtamu/macropod-python:latest",
+			"registry": "sysdevtamu/macropod-python:http",
 			"endpoints": ["TEST"],
 			"envs": {},
 			"secrets": {}
 		},
 		"TEST": {
-			"registry": "sysdevtamu/macropod-python:latest",
+			"registry": "sysdevtamu/macropod-python:http",
 			"endpoints": [],
 			"envs": {},
 			"secrets": {}

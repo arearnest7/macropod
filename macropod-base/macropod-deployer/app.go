@@ -212,7 +212,7 @@ func createStandByDeployment(func_name string, node_name string) (string, error)
 				env = append(env, corev1.EnvVar{Name: endpoint_name, Value: service_name})
 			}
 			container_port := int32(5000 + slices.Index(workflows[func_name].InitialPods, container))
-			imagePullPolicy := corev1.PullPolicy("Always")
+			imagePullPolicy := corev1.PullPolicy("IfNotPresent")
 			deployment.Spec.Template.Spec.Containers[i] = corev1.Container{
 				Name:            container_name,
 				Image:           registry,
@@ -458,7 +458,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 				env = append(env, corev1.EnvVar{Name: endpoint_name, Value: service_name})
 			}
 			container_port := int32(5000 + slices.Index(workflows[func_name].InitialPods, container))
-			imagePullPolicy := corev1.PullPolicy("Always")
+			imagePullPolicy := corev1.PullPolicy("IfNotPresent")
 			deployment.Spec.Template.Spec.Containers[i] = corev1.Container{
 				Name:            container_name,
 				Image:           registry,

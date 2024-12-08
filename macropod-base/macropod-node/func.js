@@ -1,11 +1,11 @@
 const rpc = require('./rpc')
 
 async function FunctionHandler(context) {
-	if (context.InvokeType != "GRPC") {
+	if (process.env.TEST) {
 		const payloads = new Array();
-        	payloads.push(Buffer.from("a".repeat(1000000), "utf8"));
+        	payloads.push(Buffer.from("a".repeat(10000), "utf8"));
 		const res = await rpc.RPC(context, process.env.TEST, payloads);
-		const res1 = await res.toString();
+		const res1 = await res[0];
 		return [res1, 200];
 	}
 	return [context.Request.toString(), 200];

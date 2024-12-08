@@ -16,17 +16,17 @@ async function RPC(context, dest, payloads) {
 			Width: i,
 			RequestType: request_type
 		};
-		var data = '';
-		await axios.post(dest, request)
-                	.then((response) => {
-                        	data = response.data;
-               		});
-		tl.push(data);
+		await axios.post("http://" + dest, request)
+			.then( (response) => {
+				var data = response.data;
+				console.log(response);
+				tl.push(data);
+			});
 		i += 1;
 	}
 	var results = new Array();
 	for (let t of tl) {
-		var reply = t.reply;
+		var reply = t;
 		results.push(reply);
 	}
         await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "rpc_end");

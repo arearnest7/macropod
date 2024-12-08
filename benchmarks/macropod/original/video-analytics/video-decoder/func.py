@@ -38,9 +38,10 @@ def processFrames(videoBytes, context):
     all_result_futures = []
     # send all requests
     frames = frames[0:6]
+    frames_b = [base64.b64encode(frame) for frame in frames]
     #ex = ThreadPoolExecutor(max_workers=6)
     #all_result_futures = ex.map(Recognise, frames)
-    all_result_futures = RPC(context, os.environ['VIDEO_RECOG'], frames)
+    all_result_futures = RPC(context, os.environ['VIDEO_RECOG'], frames_b)
     results = ""
     for result in all_result_futures:
         results = results + result + ","
@@ -49,7 +50,7 @@ def processFrames(videoBytes, context):
 
 def Decode(request, context):
     videoBytes = b''
-    videoBytes = request
+    videoBytes = base64.b64decode(request)
     results = processFrames(videoBytes, context)
     return results
 
