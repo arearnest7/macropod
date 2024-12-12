@@ -115,7 +115,6 @@ func getNodes() string {
 	return ""
 }
 func createStandByDeployment(func_name string, node_name string) (string, error) {
-	log.Printf("deploying the workflow of version %d", workflows[func_name].LatestVersion)
 	var update_deployments []appsv1.Deployment
 	namespace := "standby-functions"
 	labels_ingress := map[string]string{
@@ -212,7 +211,7 @@ func createStandByDeployment(func_name string, node_name string) (string, error)
 				env = append(env, corev1.EnvVar{Name: endpoint_name, Value: service_name})
 			}
 			container_port := int32(5000 + slices.Index(workflows[func_name].InitialPods, container))
-			imagePullPolicy := corev1.PullPolicy("IfNotPresent")
+			imagePullPolicy := corev1.PullPolicy("Always")
 			deployment.Spec.Template.Spec.Containers[i] = corev1.Container{
 				Name:            container_name,
 				Image:           registry,
@@ -458,7 +457,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 				env = append(env, corev1.EnvVar{Name: endpoint_name, Value: service_name})
 			}
 			container_port := int32(5000 + slices.Index(workflows[func_name].InitialPods, container))
-			imagePullPolicy := corev1.PullPolicy("IfNotPresent")
+			imagePullPolicy := corev1.PullPolicy("Always")
 			deployment.Spec.Template.Spec.Containers[i] = corev1.Container{
 				Name:            container_name,
 				Image:           registry,
@@ -600,17 +599,14 @@ func updateDeployments(func_name string, max_concurrency int) string {
 
 	var ingresses_deleted string
 	if workflows[func_name].Updating {
-		internal_log("Already updating..........")
 		return ingresses_deleted
 	}
 
 	if time.Since(workflows[func_name].LastUpdated) < time.Second*time.Duration(update_threshold) {
-		internal_log("Not ready to update.........")
 		return ingresses_deleted
 	}
 
 	if workflows[func_name].FullyDisaggregated {
-		internal_log("The function has been fully disaggregated.........")
 		return ingresses_deleted
 	}
 
@@ -620,12 +616,10 @@ func updateDeployments(func_name string, max_concurrency int) string {
 	var nodes NodeMetricList
 	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
 	if err != nil {
-		internal_log("unable to retrieve metrics from nodes API - " + err.Error())
 		return ingresses_deleted
 	}
 	err = json.Unmarshal(data, &nodes)
 	if err != nil {
-		internal_log("unable to unmarshal metrics from nodes API - " + err.Error())
 		return ingresses_deleted
 	}
 	labels_to_check := ""
@@ -639,13 +633,12 @@ func updateDeployments(func_name string, max_concurrency int) string {
 		}
 		node_name := node.Metadata.Name
 		usage_mem, _ := memory_raw_to_float(node.Usage.Memory)
+		usage_cpu, _ := cpu_raw_to_float(node.Usage.CPU)
+		percentage_cpu := (usage_cpu/nodeCapacityCPU[node_name]) * 100 
 		percentage_mem := (usage_mem / nodeCapacityMemory[node_name]) * 100
-		log.Printf("Percentage Memory Usage is %f for node %s", percentage_mem, node_name)
-		if percentage_mem > 70 {
+		if percentage_mem > 70 || percentage_cpu > 70  {
 			updateDeployment.Lock()
-			log.Printf("memeory threshold reached in %s", node_name)
 			workflows[func_name].LatestVersion += 1
-			internal_log("workflow " + func_name + " updated to version " + strconv.Itoa(workflows[func_name].LatestVersion))
 			var pods_updated [][]string
 			for _, pod := range workflows[func_name].Pods {
 				if len(pod) > 1 {
@@ -665,7 +658,6 @@ func updateDeployments(func_name string, max_concurrency int) string {
 				}
 			}
 			if !pod_2_or_more {
-				internal_log(func_name + " has been fully disaggregated")
 				workflows[func_name].FullyDisaggregated = true
 			}
 			workflows[func_name].Pods = pods_updated
@@ -675,7 +667,7 @@ func updateDeployments(func_name string, max_concurrency int) string {
 			label_workflow := "workflow_name=" + func_name
 			label_version := "version=" + strconv.Itoa(workflows[func_name].LatestVersion-1)
 			labels_to_check = label_workflow + "," + label_version
-			updateDeployment.Unlock() // this is important because both update and deployment should not happen simulatenously
+			updateDeployment.Unlock() 
 			return labels_to_check    //ingress controller will delete the resources based on the usaage
 		}
 	}
@@ -781,7 +773,6 @@ func createInitialPod(func_name string) string {
 		Value:  func_name,
 		Effect: "NoSchedule",
 	})
-	log.Printf("Tainting %s for %s", standbyNode, func_name)
 	kclient.CoreV1().Nodes().Update(context.Background(), node, metav1.UpdateOptions{})
 	var initial_pod []string
 	var frontend_func string
@@ -815,7 +806,6 @@ func createInitialPod(func_name string) string {
 }
 
 func createWorkflow(func_name string, func_str string) string {
-	internal_log("CREATE_WORKFLOW_START - " + func_name)
 	workflow := Workflow{}
 	json.Unmarshal([]byte(func_str), &workflow)
 	log.Printf("%v", workflow)
@@ -826,12 +816,10 @@ func createWorkflow(func_name string, func_str string) string {
 	}
 	workflows[func_name] = &workflow
 	standby := createInitialPod(func_name)
-	internal_log("CREATE_WORKFLOW_END - " + func_name)
 	return standby
 }
 
 func updateWorkflow(func_name string, workflow_str string) string {
-	internal_log("UPDATE_WORKFLOW_START - " + func_name)
 	workflow := Workflow{}
 	json.Unmarshal([]byte(workflow_str), &workflow)
 	_, exists := workflows[func_name]
@@ -841,13 +829,11 @@ func updateWorkflow(func_name string, workflow_str string) string {
 	}
 	workflows[func_name] = &workflow
 	standby := createInitialPod(func_name)
-	internal_log("UPDATE_WORKFLOW_END - " + func_name)
 	return standby
 }
 
 func deleteWorkflow(func_name string) {
 	updateDeployment.Lock()
-	internal_log("DELETE_WORKFLOW_START - " + func_name)
 	_, exists := workflows[func_name]
 	node_name := standbyNodeMap[func_name]
 	node, _ := kclient.CoreV1().Nodes().Get(context.Background(), node_name, metav1.GetOptions{})
@@ -867,18 +853,14 @@ func deleteWorkflow(func_name string) {
 		delete(standbyNodeMap, func_name)
 	}
 	updateDeployment.Unlock()
-	internal_log("DELETE_WORKFLOW_END - " + func_name)
 }
 
 func updateExistingIngress(func_name string, current_concurrency int) string {
-	internal_log("UPDATE_EXISTING_START - " + func_name)
 	ingress_deleted := updateDeployments(func_name, current_concurrency)
-	internal_log("UPDATE_EXISTING_END - " + func_name)
 	return ingress_deleted
 }
 
 func createNewIngress(func_name string, rn int) string {
-	internal_log("CREATE_INGRESS_START - " + func_name)
 	_, exist := workflows[func_name]
 	if !exist {
 		internal_log("unable to create new ingress for " + func_name + " - workflow does not exist")
@@ -891,7 +873,6 @@ func createNewIngress(func_name string, rn int) string {
 		internal_log("Failed to deploy new ingress - " + err.Error())
 		return ""
 	}
-	internal_log("CREATE_INGRESS_END - " + func_name)
 	return ingress
 }
 
@@ -925,8 +906,8 @@ func checkNodeStatus() {
 			}
 			nodeCapacityCPU[node.Name] = cpu_float
 			nodeCapacityMemory[node.Name] = mem_float
-			log.Printf("%v", nodeCapacityCPU)
-			log.Printf("%v", nodeCapacityMemory)
+			// log.Printf("%v", nodeCapacityCPU)
+			// log.Printf("%v", nodeCapacityMemory)
 		}
 		time.Sleep(30 * time.Minute)
 	}
@@ -939,25 +920,15 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 	replicaNumber := req.ReplicaNumber
 	var result string
 	if request_type == "create" {
-		internal_log("create workflow request start - " + func_name)
 		result = createWorkflow(func_name, *req.Workflow)
-		internal_log("create workflow request end - " + func_name)
 	} else if request_type == "update" {
-		internal_log("update workflow request start - " + func_name)
 		result = updateWorkflow(func_name, *req.Workflow)
-		internal_log("update workflow request end - " + func_name)
 	} else if request_type == "delete" {
-		internal_log("delete workflow request start - " + func_name)
 		deleteWorkflow(func_name)
-		internal_log("delete workflow request end - " + func_name)
 	} else if request_type == "existing_invoke" {
-		internal_log("existing invoke request start - " + func_name)
 		result = updateExistingIngress(func_name, int(replicaNumber)) //replicaNumber here is the currentc_concurrency
-		internal_log("existing invoke request end - " + func_name)
 	} else if request_type == "new_invoke" {
-		internal_log("new invoke request start - " + func_name)
 		result = createNewIngress(func_name, int(replicaNumber))
-		internal_log("new invoke request end - " + func_name)
 	}
 	return &pb.DeploymentServiceReply{
 		Message: result,
