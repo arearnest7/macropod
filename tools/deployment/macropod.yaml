@@ -98,3 +98,5 @@ spec:
           value: "100"
         - name: NAMESPACE_INGRESS
           value: "macropod"
+        - name: STATIC
+          value: "full-agg"

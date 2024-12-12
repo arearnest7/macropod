@@ -623,6 +623,10 @@ func updateDeployments(func_name string, max_concurrency int) string {
         return ingresses_deleted
     }
     labels_to_check := ""
+    static := os.Getenv("STATIC")
+    if static != "" {
+        return ""
+    }
     for _, node := range nodes.Items {
         value, exists := node.Metadata.Labels["node-role.kubernetes.io/master"]
         if exists && value == "true" {
@@ -798,7 +802,25 @@ func createInitialPod(func_name string) string {
     var pod_list []string
     pod_list = append(pod_list, frontend_func)
     initial_pod = bfs_initial_pod(initial_pod, func_name, pod_list)
-    workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
+    static := os.Getenv("STATIC")
+    if static == "full-agg" {
+        workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
+    } else if static == "partial" {
+        pods_split := make([][]string, 0)
+	pods_split = append(pods_split, initial_pod[0:(len(initial_pod)/2)])
+        pods_split = append(pods_split, initial_pod[(len(initial_pod)/2)+1:])
+        workflows[func_name].Pods = pods_split
+    } else if static == "full-disagg" {
+        pods_disagg := make([][]string, 0)
+        for _, container := range initial_pod {
+            container_pod := make([]string, 0)
+            container_pod = append(container_pod, container)
+            pods_disagg = append(pods_disagg, container_pod)
+        }
+        workflows[func_name].Pods = pods_disagg
+    } else {
+        workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
+    }
     workflows[func_name].InitialPods = initial_pod
     workflows[func_name].LatestVersion = 1
     createStandByDeployment(func_name, standbyNode)
