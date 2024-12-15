@@ -812,7 +812,7 @@ func createInitialPod(func_name string) string {
     } else if static == "partial" {
         pods_split := make([][]string, 0)
 	pods_split = append(pods_split, initial_pod[0:(len(initial_pod)/2)])
-        pods_split = append(pods_split, initial_pod[(len(initial_pod)/2)+1:])
+        pods_split = append(pods_split, initial_pod[(len(initial_pod)/2):])
 	fmt.Println("partial: ")
 	for _, line := range pods_split {
 		fmt.Println(strings.Join(line, ","))
