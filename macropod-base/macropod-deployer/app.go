@@ -813,6 +813,10 @@ func createInitialPod(func_name string) string {
         pods_split := make([][]string, 0)
 	pods_split = append(pods_split, initial_pod[0:(len(initial_pod)/2)])
         pods_split = append(pods_split, initial_pod[(len(initial_pod)/2)+1:])
+	fmt.Println("partial: ")
+	for _, line := range pods_split {
+		fmt.Println(strings.Join(line, ","))
+	}
         workflows[func_name].Pods = pods_split
     } else if static == "full-disagg" {
         pods_disagg := make([][]string, 0)
@@ -821,6 +825,10 @@ func createInitialPod(func_name string) string {
             container_pod = append(container_pod, container)
             pods_disagg = append(pods_disagg, container_pod)
         }
+	fmt.Println("original: ")
+	for _, line := range pods_disagg {
+		fmt.Println(strings.Join(line, ","))
+	}
         workflows[func_name].Pods = pods_disagg
     } else {
         workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
