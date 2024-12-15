@@ -362,6 +362,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
         log.Printf(" %s is present", func_name)
     } else {
         log.Printf(" %s is not present", func_name)
+		updateDeployment.Unlock()
         return "", errors.New("Workflow does not exist")
     }
     label_workflow := "workflow_name=" + func_name
@@ -496,7 +497,6 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 
     for _, dp := range update_deployments {
         internal_log("deploying existing deployment " + dp.Name)
-        log.Print(dp)
         kclient.AppsV1().Deployments(namespace).Update(context.Background(), &dp, metav1.UpdateOptions{})
     }
 
@@ -586,6 +586,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
     _, err := kclient.NetworkingV1().Ingresses(namespace).Create(context.Background(), ingress, metav1.CreateOptions{})
     if err != nil {
         internal_log("unable to create ingress for " + namespace + " - " + err.Error())
+		updateDeployment.Unlock()
         return "", err
     }
     updateDeployment.Unlock()
@@ -594,10 +595,13 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 
 // TODO
 func updateDeployments(func_name string, max_concurrency int) string {
-
-    //, replicaNumber int
-
-    var ingresses_deleted string
+	var ingresses_deleted string
+    if _, exists := workflows[func_name]; exists {
+    } else {
+        log.Printf(" %s is not present", func_name)
+        return ingresses_deleted
+    }
+    
     if workflows[func_name].Updating {
         return ingresses_deleted
     }

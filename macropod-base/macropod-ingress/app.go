@@ -24,6 +24,8 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
+	toolsWatch "k8s.io/client-go/tools/watch"
 )
 
 type Function struct {
@@ -162,27 +164,27 @@ func deleteDeployments(label_to_delete string, services_list []string) {
 	}
 
 	log.Printf("Deleting all the older versions %s", label_to_delete)
-	services, err := k.CoreV1().Services("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
+	services, err := k.CoreV1().Services("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_to_delete})
 	if err != nil {
 		fmt.Println(err)
 	}
 	for _, service := range services.Items {
-		k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.CoreV1().Services("macropod-functions").Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 	log.Print("deleted service for delete")
-	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
+	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_to_delete})
 	if err != nil {
 		log.Print(err)
 	}
 	for _, deployment := range deployments.Items {
-		k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.AppsV1().Deployments("macropod-functions").Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
-	ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_to_delete})
+	ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_to_delete})
 	if err != nil {
 		log.Print(err)
 	}
 	for _, ingress := range ingresses.Items {
-		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 }
 
@@ -232,7 +234,7 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 			if err != nil {
 				fmt.Println("Failed to create kclient: " + err.Error())
 			}
-			ingresses, _ := k.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: labels_to_delete})
+			ingresses, _ := k.NetworkingV1().Ingresses("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_to_delete})
 			var service_list []string
 			for _, ingress := range ingresses.Items {
 				for _, rule := range ingress.Spec.Rules {
@@ -292,7 +294,7 @@ func checkOverallTTL() {
 			elapsedTime := currentTime.Sub(timestamp)
 			if elapsedTime.Seconds() > float64(overall_ttl) {
 				labels_replica := "workflow_name=" + name
-				services, err := k.CoreV1().Services("standby-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
+				services, err := k.CoreV1().Services("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -304,23 +306,23 @@ func checkOverallTTL() {
 					delete(stubsOfChannel, service.Name)
 					dataLock.Unlock()
 					fmt.Println(service.ObjectMeta.Name)
-					k.CoreV1().Services(service.Namespace).Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+					k.CoreV1().Services(service.Namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 				}
-				deployments, err := k.AppsV1().Deployments("standby-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
+				deployments, err := k.AppsV1().Deployments("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 				if err != nil {
 					fmt.Println(err)
 				}
 				for _, deployment := range deployments.Items {
 					fmt.Println(deployment.ObjectMeta.Name)
-					k.AppsV1().Deployments("standby-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+					k.AppsV1().Deployments("standby-functions").Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 				}
-				ingresses, err := k.NetworkingV1().Ingresses("standby-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
+				ingresses, err := k.NetworkingV1().Ingresses("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 				if err != nil {
 					fmt.Println(err)
 				}
 				for _, ingress := range ingresses.Items {
 					fmt.Println(ingress.ObjectMeta.Name)
-					k.NetworkingV1().Ingresses("standby-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+					k.NetworkingV1().Ingresses("standby-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 				}
 				if debug > 1 {
 					log.Printf("Deleting all traces of %s", name)
@@ -383,7 +385,7 @@ func checkTTL() {
 					labels := service.Labels["workflow_replica"]
 					dataLock.Unlock()
 					labels_replica := "workflow_replica=" + labels
-					services, err := k.CoreV1().Services("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
+					services, err := k.CoreV1().Services("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -395,23 +397,23 @@ func checkTTL() {
 						delete(stubsOfChannel, service.Name)
 						dataLock.Unlock()
 						fmt.Println(service.ObjectMeta.Name)
-						k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+						k.CoreV1().Services("macropod-functions").Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 					}
-					deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
+					deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 					if err != nil {
 						fmt.Println(err)
 					}
 					for _, deployment := range deployments.Items {
 						fmt.Println(deployment.ObjectMeta.Name)
-						k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+						k.AppsV1().Deployments("macropod-functions").Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 					}
-					ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
+					ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 					if err != nil {
 						fmt.Println(err)
 					}
 					for _, ingress := range ingresses.Items {
 						fmt.Println(ingress.ObjectMeta.Name)
-						k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+						k.NetworkingV1().Ingresses("macropod-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 					}
 				}
 			}
@@ -520,33 +522,25 @@ func deleteHostTargets(ingress *networkingv1.Ingress) {
 }
 
 func watchIngress(kclient *kubernetes.Clientset) {
-	watcher, err := kclient.NetworkingV1().Ingresses("").Watch(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		fmt.Println("Failed to set up watch: " + err.Error())
+	//reference: https://blog.mimacom.com/k8s-watch-resources/
+	watchFunc := func(options metav1.ListOptions) (watch.Interface, error) {
+		return kclient.NetworkingV1().Ingresses("").Watch(context.Background(), metav1.ListOptions{})
 	}
-
-	go func() {
-		for event := range watcher.ResultChan() {
-			ingress, ok := event.Object.(*networkingv1.Ingress)
-			if !ok {
-				continue
-			}
-
-			switch event.Type {
-			case watch.Added, watch.Modified:
-				if debug > 2 {
-					log.Printf("Updated host targets: %+v", hostTargets)
-				}
-				updateHostTargets(ingress)
-			case watch.Deleted:
-				if debug > 2 {
-					log.Printf("Deleted host targets")
-				}
-				deleteHostTargets(ingress)
-			}
-
+	watcher, _ := toolsWatch.NewRetryWatcher("1", &cache.ListWatch{WatchFunc: watchFunc})
+	for event := range watcher.ResultChan() {
+		ingress, ok := event.Object.(*networkingv1.Ingress)
+		if !ok {
+			continue
 		}
-	}()
+		switch event.Type {
+		case watch.Added, watch.Modified:
+			log.Printf("Found a new ingress")
+			updateHostTargets(ingress)
+		case watch.Deleted:
+			deleteHostTargets(ingress)
+		}
+
+	}
 }
 
 func Serve_Help(res http.ResponseWriter, req *http.Request) {
@@ -560,58 +554,33 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 
 func getTargets(standby bool, triggered bool, func_name string, target string) (string, bool, bool) {
 	dataLock.Lock()
-	fmt.Println("dataLock15")
-	func_targets := hostTargets[func_name]
-	dataLock.Unlock()
-	for idx := range len(func_targets) {
-		service := func_targets[len(func_targets)-1-idx]
-		dataLock.Lock()
-		fmt.Println("dataLock16")
+	for idx := range len(hostTargets[func_name]) {
+		service := hostTargets[func_name][len(hostTargets[func_name])-1-idx]
 		if serviceCount[service] < max_concurrency && channelOfService[service][0].GetState() == connectivity.Ready {
 			target = service
 			serviceCount[service]++
 			standby = false
 			serviceTimeStamp[service] = time.Now()
-			dataLock.Unlock()
 			break
 		}
-		dataLock.Unlock()
 	}
-	dataLock.Lock()
-	fmt.Println("dataLock17")
-	running := runningDeploymentController[func_name]
-	func_invocations := workflow_invocations[func_name]
-	func_deployments := workflow_deployments[func_name]
-	dataLock.Unlock()
-	if target == "" && !triggered && !running && func_invocations > max_concurrency*func_deployments {
-		dataLock.Lock()
-		fmt.Println("dataLock18")
+	if target == "" && !triggered && !runningDeploymentController[func_name] && workflow_invocations[func_name] > max_concurrency*workflow_deployments[func_name] {
 		runningDeploymentController[func_name] = true
 		triggered = true
 		replicaCount[func_name] = replicaCount[func_name] + 1
-		dataLock.Unlock()
 		go callDepController(false, func_name, replicaCount[func_name])
-		dataLock.Lock()
-		fmt.Println("dataLock19")
 		workflow_deployments[func_name]++
 		runningDeploymentController[func_name] = false
-		dataLock.Unlock()
 	}
 
-	dataLock.Lock()
-	fmt.Println("dataLock20")
-	func_targets = hostTargets[func_name]
-	func_standby := standbyCount[func_name]
-	dataLock.Unlock()
-	if target == "" && len(func_targets) == 0 && func_standby < maxConcurrencyStanby {
-		dataLock.Lock()
-		fmt.Println("dataLock21")
+	if target == "" && len(hostTargets[func_name]) == 0 && standbyCount[func_name] < maxConcurrencyStanby {
 		target = standbyTargets[func_name] // VD: we will keep the target for full same throughout
 		standbyCount[func_name] += 1
-		dataLock.Unlock()
+
 		standby = true
 
 	}
+	dataLock.Unlock()
 	return target, standby, triggered
 }
 
@@ -633,9 +602,9 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 		runningDeploymentController[func_name] = false
 	}
 	dataLock.Unlock()
-	//timerLock.Lock() // do we need this? - AE
+	timerLock.Lock()
 	overallWorkflowTTL[func_name] = time.Now()
-	//timerLock.Unlock()
+	timerLock.Unlock()
 	target := ""
 	triggered := false
 	standby := false
@@ -708,11 +677,16 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	workflow_deployments[req.PathValue("func_name")] = 0
 	overallWorkflowTTL[req.PathValue("func_name")] = time.Now()
 	standbyCount[req.PathValue("func_name")] = 0
+	_, exists := standbyTargets[req.PathValue("func_name")]
 	dataLock.Unlock()
-	internal_log("WF_CREATE_END " + req.PathValue("func_name"))
-	for !ifPodsAreRunning(req.PathValue("func_name"), "standby-functions") {
+	for !exists {
 		time.Sleep(10 * time.Millisecond)
+		dataLock.Lock()
+		_, exists = standbyTargets[req.PathValue("func_name")]
+		dataLock.Unlock()
+
 	}
+	internal_log("WF_CREATE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name")+"\n")
 }
 
@@ -773,67 +747,69 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		fmt.Println("Failed to create kclient: " + err.Error())
 	}
-	services, err := k.CoreV1().Services("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	services, err := k.CoreV1().Services("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 	if err != nil {
 		fmt.Println(err)
 	}
 	for _, service := range services.Items {
 		dataLock.Lock()
+		fmt.Println("deleting service: " + service.Name)
 		fmt.Println("dataLock28")
 		delete(serviceTimeStamp, service.Name)
 		delete(channelOfService, service.Name)
 		delete(stubsOfChannel, service.Name)
 		dataLock.Unlock()
 		fmt.Println(service.ObjectMeta.Name)
-		k.CoreV1().Services("macropod-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.CoreV1().Services("macropod-functions").Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
-	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 	if err != nil {
 		fmt.Println(err)
 	}
 	for _, deployment := range deployments.Items {
 		fmt.Println(deployment.ObjectMeta.Name)
-		k.AppsV1().Deployments("macropod-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.AppsV1().Deployments("macropod-functions").Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
-	ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 	if err != nil {
 		fmt.Println(err)
 	}
 	for _, ingress := range ingresses.Items {
 		fmt.Println(ingress.ObjectMeta.Name)
-		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 	// standby also
 
-	services, err = k.CoreV1().Services("standby-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	services, err = k.CoreV1().Services("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 	if err != nil {
 		fmt.Println(err)
 	}
 	for _, service := range services.Items {
 		dataLock.Lock()
+		fmt.Println("deleting service: " + service.Name)
 		fmt.Println("dataLock29")
 		delete(serviceTimeStamp, service.Name)
 		delete(channelOfService, service.Name)
 		delete(stubsOfChannel, service.Name)
 		dataLock.Unlock()
 		fmt.Println(service.ObjectMeta.Name)
-		k.CoreV1().Services("standby-functions").Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.CoreV1().Services("standby-functions").Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
-	deployments, err = k.AppsV1().Deployments("standby-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	deployments, err = k.AppsV1().Deployments("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 	if err != nil {
 		fmt.Println(err)
 	}
 	for _, deployment := range deployments.Items {
 		fmt.Println(deployment.ObjectMeta.Name)
-		k.AppsV1().Deployments("standby-functions").Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.AppsV1().Deployments("standby-functions").Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
-	ingresses, err = k.NetworkingV1().Ingresses("standby-functions").List(context.TODO(), metav1.ListOptions{LabelSelector: label_workflow})
+	ingresses, err = k.NetworkingV1().Ingresses("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 	if err != nil {
 		fmt.Println(err)
 	}
 	for _, ingress := range ingresses.Items {
 		fmt.Println(ingress.ObjectMeta.Name)
-		k.NetworkingV1().Ingresses("standby-functions").Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		k.NetworkingV1().Ingresses("standby-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 
 	for {
@@ -889,7 +865,7 @@ func main() {
 	workflows = make(map[string]Workflow)
 	max_concurrency = 5
 	maxConcurrencyStanby = 6
-	watchIngress(kclient)
+	go watchIngress(kclient)
 	h := http.NewServeMux()
 	h.HandleFunc("/", Serve_Help)
 	h.HandleFunc("/invoke/{func_name}", Serve_WF_Invoke)
