@@ -54,6 +54,7 @@ var (
 	timerLock                   sync.Mutex
 	depLock                     sync.Mutex
 	workflow_invocations        = make(map[string]int)
+	serviceCreationTime = make(map[string]time.Time)
 	replicaCount                = make(map[string]int)
 	workflow_deployments        = make(map[string]int)
 	overallWorkflowTTL          = make(map[string]time.Time)
@@ -67,13 +68,13 @@ var (
 		"name": [{}],
 		"waitForReady": true,
 		"retryThrottling": {
-			"maxTokens": 10,
+			"maxTokens": 100,
 			"tokenRatio": 0.1
 		  },
 		"retryPolicy": {
-			"MaxAttempts": 50,
-			"InitialBackoff": "0.5s",
-			"MaxBackoff": "100s",
+			"MaxAttempts": 3,
+			"InitialBackoff": "1s",
+			"MaxBackoff": "10s",
 			"BackoffMultiplier": 2.0,
 			"RetryableStatusCodes": ["UNAVAILABLE", "UNKNOWN"]
 		}
@@ -154,6 +155,7 @@ func deleteDeployments(label_to_delete string, services_list []string) {
 		//dataLock.Unlock()
 	}
 
+
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		fmt.Println("Failed to get in-cluster config: " + err.Error())
@@ -186,6 +188,14 @@ func deleteDeployments(label_to_delete string, services_list []string) {
 	for _, ingress := range ingresses.Items {
 		k.NetworkingV1().Ingresses("macropod-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
+
+	for _, service_name := range services_list {
+		for _, channel := range channelOfService[service_name] {
+			channel.Close()
+		}
+		
+	}
+
 }
 
 func callDepController(func_found bool, func_name string, replicaNumber int) error {
@@ -211,7 +221,7 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 	rn := int32(replicaNumber)
 	request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: type_call, ReplicaNumber: rn}
 	depLock.Lock()
-	fmt.Println("depLock1")
+	// fmt.Println("depLock1")
 	resp, err := client.Deployment(context.Background(), request)
 	depLock.Unlock()
 	if err != nil {
@@ -249,7 +259,7 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 							dataLock.Lock()
 							// fmt.Println("dataLock2")
 							delete(serviceTimeStamp, service_name)
-							delete(channelOfService, service_name)
+
 							delete(stubsOfChannel, service_name)
 							workflow_deployments[func_name]--
 							for i, val := range hostTargets[func_name] {
@@ -443,11 +453,14 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
 				}
 				internal_log("service found: " + hostname)
 				channel, _ := grpc.Dial(hostname, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
+				stub := wf_pb.NewGRPCFunctionClient(channel)
 				if namespace == "standby-functions" {
 					dataLock.Lock()
 					// fmt.Println("dataLock9")
 					standbyTargets[func_name] = hostname
 					channelOfService[hostname] = append(channelOfService[hostname], channel)
+					serviceCreationTime[hostname] = time.Now()
+					stubsOfChannel[hostname] =append(stubsOfChannel[hostname], stub)
 					dataLock.Unlock()
 					log.Printf("Adding standby for %s", func_name)
 				} else {
@@ -455,8 +468,10 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
 					// fmt.Println("dataLock10")
 					serviceCount[hostname] = 0
 					serviceTimeStamp[hostname] = time.Now()
+					serviceCreationTime[hostname] = time.Now()
 					hostTargets[func_name] = append(hostTargets[func_name], hostname)
 					channelOfService[hostname] = append(channelOfService[hostname], channel)
+					stubsOfChannel[hostname] =append(stubsOfChannel[hostname], stub)
 					dataLock.Unlock()
 				}
 			}
@@ -556,7 +571,7 @@ func getTargets(standby bool, triggered bool, func_name string, target string) (
 	dataLock.Lock()
 	for idx := range len(hostTargets[func_name]) {
 		service := hostTargets[func_name][len(hostTargets[func_name])-1-idx]
-		if serviceCount[service] < max_concurrency && channelOfService[service][0].GetState() == connectivity.Ready {
+		if serviceCount[service] < max_concurrency && len(channelOfService[service]) > 0 && channelOfService[service][0].GetState() == connectivity.Ready {
 			target = service
 			serviceCount[service]++
 			standby = false
@@ -608,6 +623,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	target := ""
 	triggered := false
 	standby := false
+	look_arget := time.Now()
 	for target == "" {
 		target, standby, triggered = getTargets(standby, triggered, func_name, target)
 	}
@@ -620,19 +636,20 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	// log.Printf("time taken to create teh channel is %f", end_time.Sub(start_time).Seconds())
 	request_type := "gg"
 	dataLock.Lock()
-	// fmt.Println("dataLock24")
-	channel := channelOfService[target][0]
+
 	dataLock.Unlock()
-	stub := wf_pb.NewGRPCFunctionClient(channel)
+	stub := stubsOfChannel[target][0]
+	start_time := time.Now()
 	response, err := stub.GRPCFunctionHandler(context.Background(), &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
+	end_time := time.Now()
 	status = response.GetCode()
 	// log.Printf("request went to %s", target)
 	if status == 200 {
-		fmt.Println("request was served by: "+ target)
+		fmt.Println("request was served by: " + target + " in " + end_time.Sub(start_time).String() + " time to find target " + start_time.Sub(look_arget).String())
 		fmt.Fprint(res, response.GetReply())
-		
+
 	} else {
-		log.Printf("Non 200 code %s: %d, error : %s", target, response.GetCode(), err.Error())
+		log.Printf("Non 200 code %s: %d, error : %s in : %s time ti find target : %s", target, response.GetCode(), err.Error(), end_time.Sub(start_time).String(), start_time.Sub(look_arget).String())
 		http.Error(res, err.Error(), http.StatusBadGateway)
 	}
 	dataLock.Lock()
@@ -648,6 +665,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 
 func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	internal_log("WF_CREATE_START " + req.PathValue("func_name"))
+	func_name := req.PathValue("func_name")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		internal_log("create body - " + err.Error())
@@ -664,32 +682,32 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	workflow := string(body)
 	max_concurrency = 5 // we will need to fix this at some point - AE
 	client := pb.NewDeploymentServiceClient(cc)
-	request := &pb.DeploymentServiceRequest{Name: req.PathValue("func_name"), FunctionCall: "create", Workflow: &workflow}
-	internal_log("requesting create for " + req.PathValue("func_name"))
+	request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: "create", Workflow: &workflow}
+	internal_log("requesting create for " + func_name)
 	_, err = client.Deployment(context.Background(), request)
-	internal_log("returned create for " + req.PathValue("func_name"))
+	internal_log("returned create for " + func_name)
 	if err != nil {
 		internal_log("create return - " + err.Error())
 	}
 	dataLock.Lock()
 	// fmt.Println("dataLock26")
-	workflows[req.PathValue("func_name")] = body_u
-	runningDeploymentController[req.PathValue("func_name")] = false
-	workflow_invocations[req.PathValue("func_name")] = 0
-	workflow_deployments[req.PathValue("func_name")] = 0
-	overallWorkflowTTL[req.PathValue("func_name")] = time.Now()
-	standbyCount[req.PathValue("func_name")] = 0
-	_, exists := standbyTargets[req.PathValue("func_name")]
+	workflows[func_name] = body_u
+	runningDeploymentController[func_name] = false
+	workflow_invocations[func_name] = 0
+	workflow_deployments[func_name] = 0
+	overallWorkflowTTL[func_name] = time.Now()
+	standbyCount[func_name] = 0
+	_, exists := standbyTargets[func_name]
 	dataLock.Unlock()
 	for !exists {
 		time.Sleep(10 * time.Millisecond)
 		dataLock.Lock()
-		_, exists = standbyTargets[req.PathValue("func_name")]
+		_, exists = standbyTargets[func_name]
 		dataLock.Unlock()
 
 	}
-	internal_log("WF_CREATE_END " + req.PathValue("func_name"))
-	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+req.PathValue("func_name")+"\n")
+	internal_log("WF_CREATE_END " + func_name)
+	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+func_name+"\n")
 }
 
 func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
@@ -838,8 +856,10 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	delete(runningDeploymentController, req.PathValue("func_name"))
 	delete(workflow_invocations, req.PathValue("func_name"))
 	delete(workflow_deployments, req.PathValue("func_name"))
+	delete(replicaCount, req.PathValue("func_name"))
 	delete(standbyTargets, req.PathValue("func_name"))
 	delete(overallWorkflowTTL, req.PathValue("func_name"))
+	delete(hostTargets, req.PathValue("func_name"))
 	delete(standbyCount, req.PathValue("func_name"))
 	dataLock.Unlock()
 	internal_log("WF_DELETE_END " + req.PathValue("func_name"))

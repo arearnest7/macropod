@@ -91,6 +91,39 @@ func internal_log(message string) {
 	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message)
 }
 
+func nodesAreStable(func_name string) bool {
+	var nodes NodeMetricList
+	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
+	if err != nil {
+		log.Print("issue")
+		return true
+	}
+	err = json.Unmarshal(data, &nodes)
+	if err != nil {
+		log.Print("issue")
+		return true
+	}
+	for _, node := range nodes.Items {
+		value, exists := node.Metadata.Labels["node-role.kubernetes.io/master"]
+		if exists && value == "true" {
+			continue
+		}
+		if node.Metadata.Name == standbyNodeMap[func_name] { //1 workflow assumption we can skip all the standby nodes in future
+			continue
+		}
+		node_name := node.Metadata.Name
+		usage_mem, _ := memory_raw_to_float(node.Usage.Memory)
+		usage_cpu, _ := cpu_raw_to_float(node.Usage.CPU)
+		percentage_cpu := (usage_cpu / nodeCapacityCPU[node_name]) * 100
+		percentage_mem := (usage_mem / nodeCapacityMemory[node_name]) * 100
+		if percentage_mem > 70 || percentage_cpu > 70 {
+			log.Printf("Node %s is still not stable", node_name)
+			return false
+		}
+	}
+	return true
+}
+
 func getNodes() string {
 	var nodes NodeMetricList
 	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
@@ -380,6 +413,14 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 		time.Sleep(10 * time.Millisecond) // let all the deployments be deleted before new ones
 	}
 
+	static := os.Getenv("STATIC")
+	if static == "" {
+		for !nodesAreStable(func_name) {
+			fmt.Println("waiting for nodes to be stable")
+			time.Sleep(1*time.Second)
+		}
+	}
+
 	pathType := networkingv1.PathTypePrefix
 	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
 	for _, pod := range workflows[func_name].Pods {
@@ -454,7 +495,13 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 				if in_pod {
 					service_name = "127.0.0.1:" + endpoint_port // structuring because we are fixating on the port number
 				} else {
-					service_name = strings.ReplaceAll(strings.ToLower(endpoint_name), "_", "-") + "-" + replicaNumber + "." + namespace + ".svc.cluster.local:" + endpoint_port
+					endpoint_service := ""
+					for _, pods_list := range workflows[func_name].Pods {
+						if slices.Contains(pods_list, endpoint_name) {
+							endpoint_service = pods_list[0]
+						}
+					}
+					service_name = strings.ReplaceAll(strings.ToLower(endpoint_service), "_", "-") + "-" + replicaNumber + "." + namespace + ".svc.cluster.local:" + endpoint_port
 				}
 				env = append(env, corev1.EnvVar{Name: endpoint_name, Value: service_name})
 			}
@@ -560,7 +607,7 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 		Spec: networkingv1.IngressSpec{
 			Rules: []networkingv1.IngressRule{
 				{
-					Host: func_name + "." + namespace + ".macropod",
+					Host: func_name + "." + replicaNumber + "." + namespace + ".macropod",
 					IngressRuleValue: networkingv1.IngressRuleValue{
 						HTTP: &networkingv1.HTTPIngressRuleValue{
 							Paths: []networkingv1.HTTPIngressPath{
@@ -680,7 +727,13 @@ func updateDeployments(func_name string, max_concurrency int) string {
 			return labels_to_check //ingress controller will delete the resources based on the usaage
 		}
 	}
-	workflows[func_name].Updating = false
+
+	if _, exists := workflows[func_name]; exists {
+		workflows[func_name].Updating = false
+	} else {
+		log.Printf(" %s is not present", func_name)
+		return ingresses_deleted
+	}
 	return labels_to_check
 }
 
