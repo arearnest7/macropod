@@ -23,13 +23,6 @@ metadata:
   labels:
     name: macropod-functions
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: standby-functions
-  labels:
-    name: standby-functions
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -98,5 +91,3 @@ spec:
           value: "100"
         - name: NAMESPACE_INGRESS
           value: "macropod"
-        - name: STATIC
-          value: "partial"

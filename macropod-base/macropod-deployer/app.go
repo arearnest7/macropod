@@ -84,7 +84,7 @@ var (
 	nodeCapacityMemory map[string]float64
 	//countLock     sync.Mutex
 	updateDeployment sync.Mutex
-	standbyNodeMap   map[string]string
+	//standbyNodeMap   map[string]string
 )
 
 func internal_log(message string) {
@@ -108,9 +108,9 @@ func nodesAreStable(func_name string) bool {
 		if exists && value == "true" {
 			continue
 		}
-		if node.Metadata.Name == standbyNodeMap[func_name] { //1 workflow assumption we can skip all the standby nodes in future
-			continue
-		}
+		//if node.Metadata.Name == standbyNodeMap[func_name] { //1 workflow assumption we can skip all the standby nodes in future
+		//	continue
+		//}
 		node_name := node.Metadata.Name
 		usage_mem, _ := memory_raw_to_float(node.Usage.Memory)
 		usage_cpu, _ := cpu_raw_to_float(node.Usage.CPU)
@@ -146,7 +146,7 @@ func getNodes() string {
 	}
 	return ""
 }
-func createStandByDeployment(func_name string, node_name string) (string, error) {
+/*func createStandByDeployment(func_name string, node_name string) (string, error) {
 	var update_deployments []appsv1.Deployment
 	namespace := "standby-functions"
 	labels_ingress := map[string]string{
@@ -380,7 +380,7 @@ func createStandByDeployment(func_name string, node_name string) (string, error)
 		}
 	}
 	return service_name_ingress + "." + namespace + ".svc.cluster.local:5000", nil
-}
+}*/
 
 func manageDeployment(func_name string, replicaNumber string) (string, error) {
 	log.Printf("deploying the workflow of version %d", workflows[func_name].LatestVersion)
@@ -684,9 +684,9 @@ func updateDeployments(func_name string, max_concurrency int) string {
 		if exists && value == "true" {
 			continue
 		}
-		if node.Metadata.Name == standbyNodeMap[func_name] { //1 workflow assumption we can skip all the standby nodes in future
-			continue
-		}
+		//if node.Metadata.Name == standbyNodeMap[func_name] { //1 workflow assumption we can skip all the standby nodes in future
+		//	continue
+		//}
 		node_name := node.Metadata.Name
 		usage_mem, _ := memory_raw_to_float(node.Usage.Memory)
 		usage_cpu, _ := cpu_raw_to_float(node.Usage.CPU)
@@ -826,16 +826,16 @@ func bfs_initial_pod(pod []string, func_name string, pod_list []string) []string
 	return bfs_initial_pod(pod, func_name, pod_list)
 }
 
-func createInitialPod(func_name string) string {
-	standbyNode := getNodes()
-	standbyNodeMap[func_name] = standbyNode
-	node, _ := kclient.CoreV1().Nodes().Get(context.Background(), standbyNode, metav1.GetOptions{})
-	node.Spec.Taints = append(node.Spec.Taints, corev1.Taint{
-		Key:    "workflow_standby",
-		Value:  func_name,
-		Effect: "NoSchedule",
-	})
-	kclient.CoreV1().Nodes().Update(context.Background(), node, metav1.UpdateOptions{})
+func createInitialPod(func_name string) {
+	//standbyNode := getNodes()
+	//standbyNodeMap[func_name] = standbyNode
+	//node, _ := kclient.CoreV1().Nodes().Get(context.Background(), standbyNode, metav1.GetOptions{})
+	//node.Spec.Taints = append(node.Spec.Taints, corev1.Taint{
+	//	Key:    "workflow_standby",
+	//	Value:  func_name,
+	//	Effect: "NoSchedule",
+	//})
+	//kclient.CoreV1().Nodes().Update(context.Background(), node, metav1.UpdateOptions{})
 	var initial_pod []string
 	var frontend_func string
 	var endpoints []string
@@ -884,11 +884,11 @@ func createInitialPod(func_name string) string {
 	log.Printf("we are going to deploy %v", workflows[func_name].Pods)
 	workflows[func_name].InitialPods = initial_pod
 	workflows[func_name].LatestVersion = 1
-	createStandByDeployment(func_name, standbyNode)
-	return standbyNode
+	//createStandByDeployment(func_name, standbyNode)
+	//return standbyNode
 }
 
-func createWorkflow(func_name string, func_str string) string {
+func createWorkflow(func_name string, func_str string) {
 	workflow := Workflow{}
 	json.Unmarshal([]byte(func_str), &workflow)
 	_, exists := workflows[func_name]
@@ -897,11 +897,12 @@ func createWorkflow(func_name string, func_str string) string {
 		return ""
 	}
 	workflows[func_name] = &workflow
-	standby := createInitialPod(func_name)
-	return standby
+	//standby := createInitialPod(func_name)
+	createInitialPod(func_name)
+	//return standby
 }
 
-func updateWorkflow(func_name string, workflow_str string) string {
+func updateWorkflow(func_name string, workflow_str string) {
 	workflow := Workflow{}
 	json.Unmarshal([]byte(workflow_str), &workflow)
 	_, exists := workflows[func_name]
@@ -910,29 +911,30 @@ func updateWorkflow(func_name string, workflow_str string) string {
 		delete(standbyNodeMap, func_name)
 	}
 	workflows[func_name] = &workflow
-	standby := createInitialPod(func_name)
-	return standby
+	//standby := createInitialPod(func_name)
+	createInitialPod(func_name)
+	//return standby
 }
 
 func deleteWorkflow(func_name string) {
 	updateDeployment.Lock()
 	_, exists := workflows[func_name]
-	node_name := standbyNodeMap[func_name]
-	node, _ := kclient.CoreV1().Nodes().Get(context.Background(), node_name, metav1.GetOptions{})
-	taint := corev1.Taint{
-		Key:    "workflow_standby",
-		Value:  func_name,
-		Effect: "NoSchedule",
-	}
-	index := slices.Index(node.Spec.Taints, taint)
-	if index != -1 {
-		node.Spec.Taints = append(node.Spec.Taints[:index], node.Spec.Taints[index+1:]...)
-	}
-	log.Printf("Removing tain from %s in %s", func_name, node_name)
-	kclient.CoreV1().Nodes().Update(context.Background(), node, metav1.UpdateOptions{})
+	//node_name := standbyNodeMap[func_name]
+	//node, _ := kclient.CoreV1().Nodes().Get(context.Background(), node_name, metav1.GetOptions{})
+	//taint := corev1.Taint{
+	//	Key:    "workflow_standby",
+	//	Value:  func_name,
+	//	Effect: "NoSchedule",
+	//}
+	//index := slices.Index(node.Spec.Taints, taint)
+	//if index != -1 {
+	//	node.Spec.Taints = append(node.Spec.Taints[:index], node.Spec.Taints[index+1:]...)
+	//}
+	//log.Printf("Removing tain from %s in %s", func_name, node_name)
+	//kclient.CoreV1().Nodes().Update(context.Background(), node, metav1.UpdateOptions{})
 	if exists {
 		delete(workflows, func_name)
-		delete(standbyNodeMap, func_name)
+		//delete(standbyNodeMap, func_name)
 	}
 	updateDeployment.Unlock()
 }
@@ -1002,9 +1004,11 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 	replicaNumber := req.ReplicaNumber
 	var result string
 	if request_type == "create" {
-		result = createWorkflow(func_name, *req.Workflow)
+		//result = createWorkflow(func_name, *req.Workflow)
+		createWorkflow(func_name, *req.Workflow)
 	} else if request_type == "update" {
-		result = updateWorkflow(func_name, *req.Workflow)
+		//result = updateWorkflow(func_name, *req.Workflow)
+		updateWorkflow(func_name, *req.Workflow)
 	} else if request_type == "delete" {
 		deleteWorkflow(func_name)
 	} else if request_type == "existing_invoke" {
@@ -1022,7 +1026,7 @@ func main() {
 	// deploymentRunning = false
 	update_threshold, _ = strconv.Atoi(os.Getenv("UPDATE_THRESHOLD"))
 	workflows = make(map[string]*Workflow)
-	standbyNodeMap = make(map[string]string)
+	//standbyNodeMap = make(map[string]string)
 	versionFunction = make(map[string]int)
 	nodeCapacityCPU = make(map[string]float64)
 	nodeCapacityMemory = make(map[string]float64)

@@ -43,7 +43,7 @@ type Workflow struct {
 var (
 	workflows                   = make(map[string]Workflow)
 	hostTargets                 = make(map[string][]string)
-	standbyTargets              = make(map[string]string)
+	//standbyTargets              = make(map[string]string)
 	serviceCount                = make(map[string]int)
 	serviceTimeStamp            = make(map[string]time.Time)
 	runningDeploymentController = make(map[string]bool) // this can be used for lock mechanism
@@ -57,12 +57,13 @@ var (
 	serviceCreationTime = make(map[string]time.Time)
 	replicaCount                = make(map[string]int)
 	workflow_deployments        = make(map[string]int)
+	invocationRound             = make(map[string]int)
 	overallWorkflowTTL          = make(map[string]time.Time)
 	channelOfService            = make(map[string][]*grpc.ClientConn)
 	stubsOfChannel              = make(map[string][]wf_pb.GRPCFunctionClient)
 	debug                       int
 	maxConcurrencyStanby        int
-	standbyCount                = make(map[string]int)
+	//standbyCount                = make(map[string]int)
 	retrypolicy                 = `{
 		"methodConfig": [{
 		"name": [{}],
@@ -137,11 +138,11 @@ func ifPodsAreRunning(workflow_replica string, namespace string) bool {
 			}
 		}
 	}
-	if namespace == "standby-functions" {
+	/*if namespace == "standby-functions" {
 		if debug > 2 {
 			log.Printf("Pods in standby are up")
 		}
-	}
+	}*/
 	return true
 }
 
@@ -193,7 +194,6 @@ func deleteDeployments(label_to_delete string, services_list []string) {
 		for _, channel := range channelOfService[service_name] {
 			channel.Close()
 		}
-		
 	}
 
 }
@@ -304,7 +304,7 @@ func checkOverallTTL() {
 			elapsedTime := currentTime.Sub(timestamp)
 			if elapsedTime.Seconds() > float64(overall_ttl) {
 				labels_replica := "workflow_name=" + name
-				services, err := k.CoreV1().Services("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+				services, err := k.CoreV1().Services("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -318,21 +318,21 @@ func checkOverallTTL() {
 					fmt.Println(service.ObjectMeta.Name)
 					k.CoreV1().Services(service.Namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 				}
-				deployments, err := k.AppsV1().Deployments("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+				deployments, err := k.AppsV1().Deployments("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 				if err != nil {
 					fmt.Println(err)
 				}
 				for _, deployment := range deployments.Items {
 					fmt.Println(deployment.ObjectMeta.Name)
-					k.AppsV1().Deployments("standby-functions").Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+					k.AppsV1().Deployments("macropod-functions").Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 				}
-				ingresses, err := k.NetworkingV1().Ingresses("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+				ingresses, err := k.NetworkingV1().Ingresses("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 				if err != nil {
 					fmt.Println(err)
 				}
 				for _, ingress := range ingresses.Items {
 					fmt.Println(ingress.ObjectMeta.Name)
-					k.NetworkingV1().Ingresses("standby-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+					k.NetworkingV1().Ingresses("macropod-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 				}
 				if debug > 1 {
 					log.Printf("Deleting all traces of %s", name)
@@ -343,7 +343,7 @@ func checkOverallTTL() {
 				delete(runningDeploymentController, name)
 				delete(workflow_invocations, name)
 				delete(workflow_deployments, name)
-				delete(standbyTargets, name)
+				//delete(standbyTargets, name)
 				delete(overallWorkflowTTL, name)
 				dataLock.Unlock()
 				opts := grpc.WithInsecure()
@@ -570,7 +570,7 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 func getTargets(standby bool, triggered bool, func_name string, target string) (string, bool, bool) {
 	dataLock.Lock()
 	for idx := range len(hostTargets[func_name]) {
-		service := hostTargets[func_name][len(hostTargets[func_name])-1-idx]
+		service := hostTargets[func_name][(invocationRound[func_name] + idx) % len(hostTargets[func_name])]
 		if serviceCount[service] < max_concurrency && len(channelOfService[service]) > 0 && channelOfService[service][0].GetState() == connectivity.Ready {
 			target = service
 			serviceCount[service]++
@@ -588,27 +588,27 @@ func getTargets(standby bool, triggered bool, func_name string, target string) (
 		runningDeploymentController[func_name] = false
 	}
 
-	if target == "" && len(hostTargets[func_name]) == 0 && standbyCount[func_name] < maxConcurrencyStanby {
-		target = standbyTargets[func_name] // VD: we will keep the target for full same throughout
-		standbyCount[func_name] += 1
+	//if target == "" && len(hostTargets[func_name]) == 0 && standbyCount[func_name] < maxConcurrencyStanby {
+	//	target = standbyTargets[func_name] // VD: we will keep the target for full same throughout
+	//	standbyCount[func_name] += 1
 
-		standby = true
+	//	standby = true
 
-	}
+	//}
 	dataLock.Unlock()
 	return target, standby, triggered
 }
 
 func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	func_name := req.PathValue("func_name")
-	dataLock.Lock()
+	//dataLock.Lock()
 	// fmt.Println("dataLock22")
-	_, exists := standbyTargets[func_name]
-	dataLock.Unlock()
-	if !exists {
-		http.Error(res, "please create the workflow before invoking", http.StatusBadRequest)
-		return
-	}
+	//_, exists := standbyTargets[func_name]
+	//dataLock.Unlock()
+	//if !exists {
+	//	http.Error(res, "please create the workflow before invoking", http.StatusBadRequest)
+	//	return
+	//}
 	dataLock.Lock()
 	// fmt.Println("dataLock23")
 	workflow_invocations[func_name]++
@@ -654,12 +654,13 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	}
 	dataLock.Lock()
 	// fmt.Println("dataLock25")
-	if !standby {
-		serviceCount[target]--
-	} else {
-		standbyCount[func_name] -= 1
-	}
+	//if !standby {
+	//	serviceCount[target]--
+	//} else {
+	//	standbyCount[func_name] -= 1
+	//}
 	workflow_invocations[func_name]--
+	invocationRound[func_name]++
 	dataLock.Unlock()
 }
 
@@ -696,16 +697,17 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	workflow_invocations[func_name] = 0
 	workflow_deployments[func_name] = 0
 	overallWorkflowTTL[func_name] = time.Now()
-	standbyCount[func_name] = 0
-	_, exists := standbyTargets[func_name]
+	//standbyCount[func_name] = 0
+	invocationRound[func_name] = 0
+	//_, exists := standbyTargets[func_name]
 	dataLock.Unlock()
-	for !exists {
-		time.Sleep(10 * time.Millisecond)
-		dataLock.Lock()
-		_, exists = standbyTargets[func_name]
-		dataLock.Unlock()
+	//for !exists {
+	//	time.Sleep(10 * time.Millisecond)
+	//	dataLock.Lock()
+	//	_, exists = standbyTargets[func_name]
+	//	dataLock.Unlock()
 
-	}
+	//}
 	internal_log("WF_CREATE_END " + func_name)
 	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+func_name+"\n")
 }
@@ -736,7 +738,8 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	runningDeploymentController[req.PathValue("func_name")] = false
 	workflow_invocations[req.PathValue("func_name")] = 0
 	workflow_deployments[req.PathValue("func_name")] = 0
-	standbyCount[req.PathValue("func_name")] = 0
+	//standbyCount[req.PathValue("func_name")] = 0
+	invocationRound[req.PathValue("func_name")] = 0
 	dataLock.Unlock()
 	internal_log("WF_UPDATE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been updated successfully.\n")
@@ -800,7 +803,7 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	}
 	// standby also
 
-	services, err = k.CoreV1().Services("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+	/*services, err = k.CoreV1().Services("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -830,7 +833,7 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	for _, ingress := range ingresses.Items {
 		fmt.Println(ingress.ObjectMeta.Name)
 		k.NetworkingV1().Ingresses("standby-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
-	}
+	}*/
 
 	for {
 		deployments_list, _ := k.CoreV1().Pods("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
@@ -841,14 +844,14 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 		time.Sleep(10 * time.Millisecond) // let all the deployments be deleted before new ones
 	}
 
-	for {
+	/*for {
 		deployments_list, _ := k.CoreV1().Pods("standby-functions").List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if deployments_list == nil || len(deployments_list.Items) == 0 {
 			log.Printf("Pods in standby are deleted")
 			break
 		}
 		time.Sleep(10 * time.Millisecond) // let all the deployments be deleted before new ones
-	}
+	}*/
 
 	dataLock.Lock()
 	// fmt.Println("dataLock30")
@@ -857,10 +860,11 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	delete(workflow_invocations, req.PathValue("func_name"))
 	delete(workflow_deployments, req.PathValue("func_name"))
 	delete(replicaCount, req.PathValue("func_name"))
-	delete(standbyTargets, req.PathValue("func_name"))
+	//delete(standbyTargets, req.PathValue("func_name"))
 	delete(overallWorkflowTTL, req.PathValue("func_name"))
 	delete(hostTargets, req.PathValue("func_name"))
-	delete(standbyCount, req.PathValue("func_name"))
+	//delete(standbyCount, req.PathValue("func_name"))
+	delete(invocationRound, req.PathValue("func_name"))
 	dataLock.Unlock()
 	internal_log("WF_DELETE_END " + req.PathValue("func_name"))
 	fmt.Fprintf(res, "Workflow \""+req.PathValue("func_name")+"\" has been deleted successfully.\n")

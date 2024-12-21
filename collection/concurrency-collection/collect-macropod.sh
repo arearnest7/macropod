@@ -10,6 +10,7 @@ while [ "$number_of_non_running_pods" -ne 0 ]; do
     number_of_non_running_pods=$(kubectl get pods -n macropod-functions --field-selector=status.phase!=Running --output name | wc -l)
     sleep 10
 done
+sleep 120s
 hey -n $N -c $C -t 1000 -o csv -D $PAYLOAD -m POST -T application/json http://10.43.190.1/invoke/$BENCHMARK >> macropod-$BENCHMARK.csv
 curl http://10.43.190.1/delete/$BENCHMARK
 number_of_pods=$(kubectl get pods --output name -n macropod-functions | wc -l)
