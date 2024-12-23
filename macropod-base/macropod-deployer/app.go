@@ -40,7 +40,6 @@ type Workflow struct {
 	Name               string              `json:"name,omitempty"`
 	Functions          map[string]Function `json:"functions"`
 	Pods               [][]string
-	IngressVersion     map[string]int
 	LatestVersion      int
 	LastUpdated        time.Time
 	Updating           bool
@@ -77,14 +76,10 @@ type Usage struct {
 var (
 	kclient          *kubernetes.Clientset
 	workflows        map[string]*Workflow
-	versionFunction  map[string]int
 	update_threshold int
-	//deploymentRunning bool
 	nodeCapacityCPU    map[string]float64
 	nodeCapacityMemory map[string]float64
-	//countLock     sync.Mutex
 	updateDeployment sync.Mutex
-	//standbyNodeMap   map[string]string
 )
 
 func internal_log(message string) {
@@ -328,7 +323,6 @@ func manageDeployment(func_name string, replicaNumber string) (string, error) {
 	return service_name_ingress + "." + namespace + ".svc.cluster.local:5000", nil
 }
 
-// TODO
 func updateDeployments(func_name string, max_concurrency int) string {
 	var ingresses_deleted string
 	if _, exists := workflows[func_name]; exists {
@@ -568,7 +562,7 @@ func createWorkflow(func_name string, func_str string) {
 	_, exists := workflows[func_name]
 	if exists {
 		internal_log("workflow " + func_name + " already exists. If you are updating it please use update instead.")
-		return 
+		return
 	}
 	workflows[func_name] = &workflow
 	createInitialPod(func_name)
@@ -645,8 +639,6 @@ func checkNodeStatus() {
 			}
 			nodeCapacityCPU[node.Name] = cpu_float
 			nodeCapacityMemory[node.Name] = mem_float
-			// log.Printf("%v", nodeCapacityCPU)
-			// log.Printf("%v", nodeCapacityMemory)
 		}
 		time.Sleep(30 * time.Minute)
 	}
@@ -659,10 +651,8 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 	replicaNumber := req.ReplicaNumber
 	var result string
 	if request_type == "create" {
-		//result = createWorkflow(func_name, *req.Workflow)
 		createWorkflow(func_name, *req.Workflow)
 	} else if request_type == "update" {
-		//result = updateWorkflow(func_name, *req.Workflow)
 		updateWorkflow(func_name, *req.Workflow)
 	} else if request_type == "delete" {
 		deleteWorkflow(func_name)
@@ -678,11 +668,8 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 
 func main() {
 	internal_log("Deployer Started")
-	// deploymentRunning = false
 	update_threshold, _ = strconv.Atoi(os.Getenv("UPDATE_THRESHOLD"))
 	workflows = make(map[string]*Workflow)
-	//standbyNodeMap = make(map[string]string)
-	versionFunction = make(map[string]int)
 	nodeCapacityCPU = make(map[string]float64)
 	nodeCapacityMemory = make(map[string]float64)
 	config, err := rest.InClusterConfig()

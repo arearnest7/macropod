@@ -88,6 +88,6 @@ spec:
         - name: SERVICE_PORT
           value: "8082"
         - name: UPDATE_THRESHOLD
-          value: "100"
+          value: "60"
         - name: NAMESPACE_INGRESS
           value: "macropod"
