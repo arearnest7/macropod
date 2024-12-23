@@ -55,7 +55,7 @@ var (
 	timerLock                       sync.Mutex
 	depLock                         sync.Mutex
 	replicaRunning                  []string
-	deleteIngressList []*networkingv1.Ingress
+	deleteIngressList               []*networkingv1.Ingress
 	workflow_invocations            = make(map[string]int)
 	serviceCreationTime             = make(map[string]time.Time)
 	replicaCount                    = make(map[string]int)
@@ -155,7 +155,10 @@ func deleteDeployments(label_to_delete string, func_name string) {
 	if err != nil {
 		fmt.Println("Failed to create kclient: " + err.Error())
 	}
-	for _, ingress := range deleteIngressList {
+	length_total := len(deleteIngressList)
+	fmt.Println("length of delete ingressList "+ strconv.Itoa(length_total))
+	for len(deleteIngressList) != length_total/2 {
+		ingress := deleteIngressList[0]
 		service_name := ""
 		label_replica := ingress.Labels["workflow_replica"]
 		for _, rule := range ingress.Spec.Rules {
@@ -203,22 +206,11 @@ func deleteDeployments(label_to_delete string, func_name string) {
 		for _, ingress := range ingresses.Items {
 			k.NetworkingV1().Ingresses("macropod-functions").Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
-
-		for {
-			deployments_list, _ := k.CoreV1().Pods("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: delete_labels})
-			if deployments_list == nil || len(deployments_list.Items) == 0 {
-				fmt.Println("Deployment does not exist")
-				break
-			}
-			time.Sleep(10 * time.Millisecond)
-		}
 		dataLock.Lock()
 		currentReplicasThatCanBeHandled[func_name] -= concurrencyList[service_name]
 		delete(concurrencyList, service_name)
 		dataLock.Unlock()
-		for !deploymentStarted{
-			
-		}
+		deleteIngressList = deleteIngressList[1:]
 	}
 
 }
@@ -273,7 +265,7 @@ func callDepController(func_found bool, func_name string, replicaNumber int) err
 			dataLock.Unlock()
 			log.Printf("Increasing the concurrency to %d", max_concurrency)
 			ingresses, _ := k.NetworkingV1().Ingresses("macropod-functions").List(context.Background(), metav1.ListOptions{LabelSelector: labels_to_delete})
-			for _, ingress := range ingresses.Items{
+			for _, ingress := range ingresses.Items {
 				deleteIngressList = append(deleteIngressList, &ingress)
 			}
 			go deleteDeployments(labels_to_delete, func_name)
