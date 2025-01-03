@@ -4,7 +4,6 @@ import (
 	pb "app/deployer_pb"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"google.golang.org/grpc"
 	appsv1 "k8s.io/api/apps/v1"
@@ -98,56 +97,55 @@ func deleteTTL(func_name string, labels string) {
 	}
 	depLock.Lock()
 	delete(workflows[func_name].Deployments, labels)
+	delete(workflows[func_name].IngressVersion, labels)
 	depLock.Unlock()
 	labels_replica := "workflow_replica=" + labels
-	services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+	services, err := kclient.CoreV1().Services(macropod_namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
 	if err != nil && debug > 0 {
 		fmt.Println(err)
 	}
 	for _, service := range services.Items {
-		kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		kclient.CoreV1().Services(macropod_namespace).Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 	deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 	if err != nil && debug > 0 {
 		fmt.Println(err)
 	}
 	for _, deployment := range deployments.Items {
-		kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		kclient.AppsV1().Deployments(macropod_namespace).Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
-	ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+	ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
 	if err != nil && debug > 0 {
 		fmt.Println(err)
 	}
 	for _, ingress := range ingresses.Items {
-		kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 
 }
 
 //TODO
-func createDeployment(func_name string) string {
+func createDeployment(func_name string, bypass bool) string {
+	if !bypass {
+		depLock.Lock()
+		if _, exists := workflows[func_name]; !exists {
+			log.Printf(" %s is not present", func_name)
+			return "0"
+		}
+		if workflows[func_name].Updating {
+			return "1"
+		}
+		depLock.Unlock()
+	}
 	depLock.Lock()
-	if _, exists := workflows[func_name]; !exists {
-		log.Printf(" %s is not present", func_name)
-		return "0"
-	}
-	if workflows[func_name].Updating {
-		return "1"
-	}
-	depLock.Unlock()
+	replicaNumber := strconv.Itoa(workflows[func_name].ReplicaCount)
+	workflows[func_name].ReplicaCount++
+	//TODO
 	var update_deployments []appsv1.Deployment
 	labels_ingress := map[string]string{
 		"workflow_name":    func_name,
 		"workflow_replica": func_name + "-" + replicaNumber,
 		"version":          strconv.Itoa(workflows[func_name].LatestVersion),
-	}
-	depLock.Lock()
-	if _, exists := workflows[func_name]; exists {
-		log.Printf(" %s is present", func_name)
-	} else {
-		log.Printf(" %s is not present", func_name)
-		depLock.Unlock()
-		return
 	}
 	pathType := networkingv1.PathTypePrefix
 	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
@@ -207,7 +205,6 @@ func createDeployment(func_name string) string {
 			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: strconv.Itoa(10)})
 			func_port_s := strconv.Itoa(func_port)
 			env = append(env, corev1.EnvVar{Name: "FUNC_PORT", Value: func_port_s})
-			log.Print(function.Endpoints)
 			for _, endpoint := range function.Endpoints {
 				in_pod := false
 				for _, c := range pod {
@@ -260,8 +257,7 @@ func createDeployment(func_name string) string {
 			_, err := kclient.AppsV1().Deployments(macropod_namespace).Create(context.Background(), deployment, metav1.CreateOptions{})
 			if err != nil {
 				fmt.Println("unable to create deployment " + strings.ToLower(pod[0]) + " for " + macropod_namespace + " - " + err.Error())
-				depLock.Unlock()
-				return
+				return "0"
 			}
 
 		} else {
@@ -275,8 +271,10 @@ func createDeployment(func_name string) string {
 		kclient.AppsV1().Deployments(macropod_namespace).Update(context.Background(), &dp, metav1.UpdateOptions{})
 	}
 
+	workflows[func_name].Deployments[func_name + "-" + replicaNumber] = make(map[string]string)
 	for _, pod := range workflows[func_name].Pods {
 		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
+		workflows[func_name].Deployments[func_name + "-" + replicaNumber][pod_name + "-" + replicaNumber] = "" //TODO
 		labels := map[string]string{
 			"workflow_name":    func_name,
 			"app":              pod_name + "-" + replicaNumber,
@@ -311,15 +309,13 @@ func createDeployment(func_name string) string {
 			_, err := kclient.CoreV1().Services(macropod_namespace).Create(context.Background(), service, metav1.CreateOptions{})
 			if err != nil {
 				fmt.Println("unable to create service " + strings.ToLower(pod[0]) + "-" + replicaNumber + " for " + macropod_namespace + " - " + err.Error())
-				depLock.Unlock()
-				return
+				return "0"
 			}
 		} else {
 			_, err := kclient.CoreV1().Services(macropod_namespace).Update(context.Background(), service, metav1.UpdateOptions{})
 			if err != nil {
 				fmt.Println("unable to update service " + strings.ToLower(pod[0]) + "-" + replicaNumber + " for " + macropod_namespace + " - " + err.Error())
-				depLock.Unlock()
-				return
+				return "0"
 			}
 		}
 
@@ -361,16 +357,46 @@ func createDeployment(func_name string) string {
 	_, err := kclient.NetworkingV1().Ingresses(macropod_namespace).Create(context.Background(), ingress, metav1.CreateOptions{})
 	if err != nil {
 		fmt.Println("unable to create ingress for " + macropod_namespace + " - " + err.Error())
-		depLock.Unlock()
-		return
+		return "0"
 	}
 	depLock.Unlock()
 	return "0"
 }
 
-//TODO
-func nodeReclaim(func_name string, node_name string) {
-	
+func nodeReclaim(func_name string) {
+	depLock.Lock()
+	reclaim_replicas := workflows[func_name].Deployments
+	depLock.Unlock()
+	for replica_name, _ := range reclaim_replicas {
+		depLock.Lock()
+		delete(workflows[func_name].Deployments, replica_name)
+		delete(workflows[func_name].IngressVersion, replica_name)
+		depLock.Unlock()
+		labels_replica := "workflow_replica=" + replica_name
+		services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, service := range services.Items {
+			kclient.CoreV1().Services(macropod_namespace).Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, deployment := range deployments.Items {
+			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, ingress := range ingresses.Items {
+			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+
+		createDeployment(func_name, true)
+	}
 }
 
 func updateDeployments(func_name string) string {
@@ -443,7 +469,7 @@ func updateDeployments(func_name string) string {
 			}
 			workflows[func_name].Pods = pods_updated
 			workflows[func_name].LastUpdated = time.Now()
-			go nodeReclaim(func_name, node_name)
+			go nodeReclaim(func_name)
 			depLock.Unlock()
 			return "2"
 		}
@@ -608,6 +634,8 @@ func createWorkflow(func_name string, func_str string) {
 		return
 	}
 	workflows[func_name] = &workflow
+	workflows[func_name].Deployments = make(map[string]map[string]string)
+	workflows[func_name].IngressVersion = make(map[string]int)
 	createInitialPod(func_name)
 	depLock.Unlock()
 }
@@ -625,24 +653,26 @@ func updateWorkflow(func_name string, workflow_str string) {
 			fmt.Println(err)
 		}
 		for _, service := range services.Items {
-			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.CoreV1().Services(macropod_namespace).Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, deployment := range deployments.Items {
-			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, ingress := range ingresses.Items {
-			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 	}
 	workflows[func_name] = &workflow
+	workflows[func_name].Deployments = make(map[string]map[string]string)
+	workflows[func_name].IngressVersion = make(map[string]int)
 	createInitialPod(func_name)
 	depLock.Unlock()
 }
@@ -658,21 +688,21 @@ func deleteWorkflow(func_name string) {
 			fmt.Println(err)
 		}
 		for _, service := range services.Items {
-			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.CoreV1().Services(macropod_namespace).Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, deployment := range deployments.Items {
-			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, ingress := range ingresses.Items {
-			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 	}
 	depLock.Unlock()
@@ -735,7 +765,7 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 		case "update_deployments":
 			result = updateDeployments(func_name)
 		case "create_deployment":
-			result = createDeployment(func_name)
+			result = createDeployment(func_name, false)
 		case "ttl_delete":
 			deleteTTL(func_name, *req.Workflow)
 			result = "0"
