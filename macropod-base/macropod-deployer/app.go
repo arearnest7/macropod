@@ -124,7 +124,6 @@ func deleteTTL(func_name string, labels string) {
 
 }
 
-//TODO
 func createDeployment(func_name string, bypass bool) string {
 	if !bypass {
 		depLock.Lock()
@@ -138,9 +137,40 @@ func createDeployment(func_name string, bypass bool) string {
 		depLock.Unlock()
 	}
 	depLock.Lock()
+	var nodes NodeMetricList
+	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
+	if err != nil {
+		return "0"
+	}
+	err = json.Unmarshal(data, &nodes)
+	if err != nil {
+		return "0"
+	}
+	start_node := -1
+	for i, node := range nodes.Items {
+		if start_node != -1 {
+			break
+		}
+		value, exists := node.Metadata.Labels["node-role.kubernetes.io/master"]
+		if exists && value == "true" {
+			continue
+		}
+		in_use := false
+		for _, deployment := range workflows[func_name].Deployments {
+			if in_use && deployment[strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-"))] == node.Metadata.Name {
+				in_use = true
+			}
+		}
+		if !in_use {
+			start_node = i
+		}
+	}
+	if start_node == -1 {
+		depLock.Unlock()
+		return "0"
+	}
 	replicaNumber := strconv.Itoa(workflows[func_name].ReplicaCount)
 	workflows[func_name].ReplicaCount++
-	//TODO
 	var update_deployments []appsv1.Deployment
 	labels_ingress := map[string]string{
 		"workflow_name":    func_name,
@@ -149,8 +179,22 @@ func createDeployment(func_name string, bypass bool) string {
 	}
 	pathType := networkingv1.PathTypePrefix
 	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
+	workflows[func_name].Deployments[func_name + "-" + replicaNumber] = make(map[string]string)
+	node_index := start_node
 	for _, pod := range workflows[func_name].Pods {
+		node_sel := ""
+		for node_sel == "" {
+			value, exists := nodes.Items[node_index].Metadata.Labels["node-role.kubernetes.io/master"]
+			if exists && value == "true" {
+				node_index = (node_index + 1) % len(nodes.Items)
+				continue
+			} else {
+				node_sel = nodes.Items[node_index].Metadata.Name
+				break
+			}
+		}
 		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
+		workflows[func_name].Deployments[func_name + "-" + replicaNumber][pod_name] = node_sel
 		service := &corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      pod_name + "-" + replicaNumber,
@@ -186,6 +230,7 @@ func createDeployment(func_name string, bypass bool) string {
 						Labels: labels,
 					},
 					Spec: corev1.PodSpec{
+						NodeName: node_sel,
 						Containers: make([]corev1.Container, len(pod)),
 					},
 				},
@@ -257,6 +302,7 @@ func createDeployment(func_name string, bypass bool) string {
 			_, err := kclient.AppsV1().Deployments(macropod_namespace).Create(context.Background(), deployment, metav1.CreateOptions{})
 			if err != nil {
 				fmt.Println("unable to create deployment " + strings.ToLower(pod[0]) + " for " + macropod_namespace + " - " + err.Error())
+				depLock.Unlock()
 				return "0"
 			}
 
@@ -271,10 +317,8 @@ func createDeployment(func_name string, bypass bool) string {
 		kclient.AppsV1().Deployments(macropod_namespace).Update(context.Background(), &dp, metav1.UpdateOptions{})
 	}
 
-	workflows[func_name].Deployments[func_name + "-" + replicaNumber] = make(map[string]string)
 	for _, pod := range workflows[func_name].Pods {
 		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
-		workflows[func_name].Deployments[func_name + "-" + replicaNumber][pod_name + "-" + replicaNumber] = "" //TODO
 		labels := map[string]string{
 			"workflow_name":    func_name,
 			"app":              pod_name + "-" + replicaNumber,
@@ -309,12 +353,14 @@ func createDeployment(func_name string, bypass bool) string {
 			_, err := kclient.CoreV1().Services(macropod_namespace).Create(context.Background(), service, metav1.CreateOptions{})
 			if err != nil {
 				fmt.Println("unable to create service " + strings.ToLower(pod[0]) + "-" + replicaNumber + " for " + macropod_namespace + " - " + err.Error())
+				depLock.Unlock()
 				return "0"
 			}
 		} else {
 			_, err := kclient.CoreV1().Services(macropod_namespace).Update(context.Background(), service, metav1.UpdateOptions{})
 			if err != nil {
 				fmt.Println("unable to update service " + strings.ToLower(pod[0]) + "-" + replicaNumber + " for " + macropod_namespace + " - " + err.Error())
+				depLock.Unlock()
 				return "0"
 			}
 		}
@@ -354,9 +400,10 @@ func createDeployment(func_name string, bypass bool) string {
 		},
 	}
 
-	_, err := kclient.NetworkingV1().Ingresses(macropod_namespace).Create(context.Background(), ingress, metav1.CreateOptions{})
+	_, err = kclient.NetworkingV1().Ingresses(macropod_namespace).Create(context.Background(), ingress, metav1.CreateOptions{})
 	if err != nil {
 		fmt.Println("unable to create ingress for " + macropod_namespace + " - " + err.Error())
+		depLock.Unlock()
 		return "0"
 	}
 	depLock.Unlock()
