@@ -854,9 +854,9 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 
 func main() {
 	var err error
-	service_port := os.Getenv("SERVICE_PORT")
-	if service_port == "" {
-		service_port = "8082"
+	service_port, err := strconv.Atoi(os.Getenv("SERVICE_PORT"))
+	if err != nil {
+		service_port = 8082
 	}
 	macropod_namespace = os.Getenv("MACROPOD_NAMESPACE")
 	if macropod_namespace == "" {
@@ -885,12 +885,7 @@ func main() {
 		return
 	}
 	go checkNodeStatus()
-	port, err := strconv.Atoi(os.Getenv("SERVICE_PORT"))
-	if err != nil {
-		fmt.Println("error port - " + err.Error())
-		return
-	}
-	l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", service_port))
 	if err != nil {
 		fmt.Println("error listener - " + err.Error())
 		return
