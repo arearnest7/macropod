@@ -100,28 +100,35 @@ func deleteTTL(func_name string, labels string) {
 	delete(workflows[func_name].IngressVersion, labels)
 	depLock.Unlock()
 	labels_replica := "workflow_replica=" + labels
-	services, err := kclient.CoreV1().Services(macropod_namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
+	services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 	if err != nil && debug > 0 {
 		fmt.Println(err)
 	}
 	for _, service := range services.Items {
-		kclient.CoreV1().Services(macropod_namespace).Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 	deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 	if err != nil && debug > 0 {
 		fmt.Println(err)
 	}
 	for _, deployment := range deployments.Items {
-		kclient.AppsV1().Deployments(macropod_namespace).Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
-	ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: labels_replica})
+	ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 	if err != nil && debug > 0 {
 		fmt.Println(err)
 	}
 	for _, ingress := range ingresses.Items {
-		kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
 
+	for {
+		deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if deployments_list == nil || len(deployments_list.Items) == 0 {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
 }
 
 func createDeployment(func_name string, bypass bool) string {
@@ -138,7 +145,7 @@ func createDeployment(func_name string, bypass bool) string {
 	}
 	depLock.Lock()
 	var nodes NodeMetricList
-	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
+	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
 	if err != nil {
 		return "0"
 	}
@@ -425,25 +432,34 @@ func nodeReclaim(func_name string) {
 			fmt.Println(err)
 		}
 		for _, service := range services.Items {
-			kclient.CoreV1().Services(macropod_namespace).Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, deployment := range deployments.Items {
-			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, ingress := range ingresses.Items {
-			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+
+		for {
+			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+			if deployments_list == nil || len(deployments_list.Items) == 0 {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
 		}
 
 		createDeployment(func_name, true)
 	}
+	workflows[func_name].Updating = false
 }
 
 func updateDeployments(func_name string) string {
@@ -466,7 +482,7 @@ func updateDeployments(func_name string) string {
 
 	// get the percentage of the node utilisation
 	var nodes NodeMetricList
-	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO()).Raw()
+	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
 	if err != nil {
 		return "0"
 	}
@@ -700,21 +716,28 @@ func updateWorkflow(func_name string, workflow_str string) {
 			fmt.Println(err)
 		}
 		for _, service := range services.Items {
-			kclient.CoreV1().Services(macropod_namespace).Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, deployment := range deployments.Items {
-			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, ingress := range ingresses.Items {
-			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		for {
+			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+			if deployments_list == nil || len(deployments_list.Items) == 0 {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
 		}
 	}
 	workflows[func_name] = &workflow
@@ -735,21 +758,28 @@ func deleteWorkflow(func_name string) {
 			fmt.Println(err)
 		}
 		for _, service := range services.Items {
-			kclient.CoreV1().Services(macropod_namespace).Delete(context.TODO(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, deployment := range deployments.Items {
-			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.TODO(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
 		}
 		for _, ingress := range ingresses.Items {
-			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.TODO(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		for {
+			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+			if deployments_list == nil || len(deployments_list.Items) == 0 {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
 		}
 	}
 	depLock.Unlock()
