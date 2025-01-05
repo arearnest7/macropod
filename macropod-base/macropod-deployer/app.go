@@ -200,6 +200,7 @@ func createDeployment(func_name string, bypass bool) string {
 				continue
 			} else {
 				node_sel = nodes.Items[node_index].Metadata.Name
+				node_index = (node_index + 1) % len(nodes.Items)
 				break
 			}
 		}
