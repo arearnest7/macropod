@@ -136,9 +136,11 @@ func createDeployment(func_name string, bypass bool) string {
 		depLock.Lock()
 		if _, exists := workflows[func_name]; !exists {
 			log.Printf(" %s is not present", func_name)
+			depLock.Unlock()
 			return "0"
 		}
 		if workflows[func_name].Updating {
+			depLock.Unlock()
 			return "1"
 		}
 		depLock.Unlock()
@@ -147,10 +149,12 @@ func createDeployment(func_name string, bypass bool) string {
 	var nodes NodeMetricList
 	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
 	if err != nil {
+		depLock.Unlock()
 		return "0"
 	}
 	err = json.Unmarshal(data, &nodes)
 	if err != nil {
+		depLock.Unlock()
 		return "0"
 	}
 	start_node := -1
@@ -455,25 +459,30 @@ func nodeReclaim(func_name string) {
 			}
 			time.Sleep(10 * time.Millisecond)
 		}
-
 		createDeployment(func_name, true)
 	}
+	depLock.Lock()
 	workflows[func_name].Updating = false
+	depLock.Unlock()
 }
 
 func updateDeployments(func_name string) string {
 	depLock.Lock()
 	if _, exists := workflows[func_name]; !exists {
 		log.Printf(" %s is not present", func_name)
+		depLock.Unlock()
 		return "0"
 	}
 	if workflows[func_name].Updating {
+		depLock.Unlock()
 		return "1"
 	}
 	if time.Since(workflows[func_name].LastUpdated) < time.Second*time.Duration(update_threshold) {
+		depLock.Unlock()
 		return "0"
 	}
 	if workflows[func_name].FullyDisaggregated {
+		depLock.Unlock()
 		return "0"
 	}
 	workflows[func_name].Updating = true
@@ -693,6 +702,7 @@ func createWorkflow(func_name string, func_str string) {
 	_, exists := workflows[func_name]
 	if exists {
 		fmt.Println("workflow " + func_name + " already exists. If you are updating it please use update instead.")
+		depLock.Unlock()
 		return
 	}
 	workflows[func_name] = &workflow
