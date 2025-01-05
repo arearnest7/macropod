@@ -155,21 +155,20 @@ func createDeployment(func_name string, bypass bool) string {
 	}
 	start_node := -1
 	for i, node := range nodes.Items {
-		if start_node != -1 {
-			break
-		}
 		value, exists := node.Metadata.Labels["node-role.kubernetes.io/master"]
 		if exists && value == "true" {
 			continue
 		}
 		in_use := false
 		for _, deployment := range workflows[func_name].Deployments {
-			if in_use && deployment[strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-"))] == node.Metadata.Name {
+			if deployment[strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-"))] == node.Metadata.Name {
 				in_use = true
+				break
 			}
 		}
 		if !in_use {
 			start_node = i
+			break
 		}
 	}
 	if start_node == -1 {
