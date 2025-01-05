@@ -209,7 +209,14 @@ func watchTTL() {
 						delete(service_stub, service.Name)
 						dataLock.Unlock()
 					}
-					go callDepController("ttl_delete", func_name, labels)
+					for {
+						go callDepController("ttl_delete", func_name, labels)
+						time.Sleep(100 * time.Millisecond)
+						deployments_list, _ := k.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels})
+						if deployments_list == nil || len(deployments_list.Items) == 0 {
+							break
+						}
+					}
 				}
 			}
 			time.Sleep(time.Second)
