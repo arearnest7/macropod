@@ -828,24 +828,20 @@ func checkNodeStatus() {
 func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceRequest) (*pb.DeploymentServiceReply, error) {
 	func_name := req.Name
 	request_type := req.FunctionCall
-	var result string
+	result := "0"
 	switch request_type {
 		case "create_workflow":
 			createWorkflow(func_name, *req.Workflow)
-			result = "0"
 		case "update_workflow":
 			updateWorkflow(func_name, *req.Workflow)
-			result = "0"
 		case "delete_workflow":
 			deleteWorkflow(func_name)
-			result = "0"
 		case "update_deployments":
 			result = updateDeployments(func_name)
 		case "create_deployment":
 			result = createDeployment(func_name, false)
 		case "ttl_delete":
 			deleteTTL(func_name, *req.Workflow)
-			result = "0"
 	}
 	return &pb.DeploymentServiceReply{
 		Message: result,

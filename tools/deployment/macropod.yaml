@@ -72,8 +72,14 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
+        env:
+        - name: DEBUG
+          value: "5"
       - name: macropod-deployer
         image: sysdevtamu/macropod-deployer:node-reclaim
         imagePullPolicy: Always
         ports:
         - containerPort: 8082
+        env:
+        - name: DEBUG
+          value: "5"

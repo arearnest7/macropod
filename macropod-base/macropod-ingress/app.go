@@ -162,7 +162,7 @@ func callDepController(type_call string, func_name string, payload string) error
 			}
 		default:
 			if debug > 2 {
-				fmt.Println("Unknown response code %s", resp_code[0])
+				fmt.Println("Unknown response code " + resp_code[0])
 			}
 	}
 
@@ -416,7 +416,7 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	json.Unmarshal(body, &body_u)
 	defer req.Body.Close()
 	workflow := string(body)
-	callDepController(func_name, "create_workflow", workflow)
+	callDepController("create_workflow", func_name, workflow)
 	dataLock.Lock()
 	workflows[req.PathValue("func_name")] = body_u
 	workflow_invocations_current[req.PathValue("func_name")] = 0
@@ -463,7 +463,7 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	json.Unmarshal(body, &body_u)
 	defer req.Body.Close()
 	workflow := string(body)
-	callDepController(req.PathValue("func_name"), "update_workflow", workflow)
+	callDepController("update_workflow", req.PathValue("func_name"), workflow)
 	dataLock.Lock()
 	workflows[req.PathValue("func_name")] = body_u
 	delete(workflow_target_concurrency, req.PathValue("func_name"))
@@ -503,7 +503,7 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 		dataLock.Unlock()
 	}
 
-	callDepController(req.PathValue("func_name"), "delete_workflow", "")
+	callDepController("delete_workflow", req.PathValue("func_name"), "")
 
 	dataLock.Lock()
 	delete(workflows, req.PathValue("func_name"))
