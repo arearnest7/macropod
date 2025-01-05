@@ -856,7 +856,7 @@ func main() {
 	}
 	macropod_namespace = os.Getenv("MACROPOD_NAMESPACE")
 	if macropod_namespace == "" {
-		macropod_namespace = macropod_namespace
+		macropod_namespace = "macropod-functions"
 	}
 	debug, err = strconv.Atoi(os.Getenv("DEBUG"))
 	if err != nil {
