@@ -353,7 +353,7 @@ func getTargets(triggered bool, func_name string, target string) (string, bool) 
 	}
 	if !triggered && len(service_target[func_name]) < workflow_invocations_current[func_name]{
 		triggered = true
-		go callDepController("create_deployment", func_name, strconv.Itoa(len(service_target[func_name])))
+		callDepController("create_deployment", func_name, strconv.Itoa(len(service_target[func_name])))
 	}
 	dataLock.Unlock()
 	return target, triggered

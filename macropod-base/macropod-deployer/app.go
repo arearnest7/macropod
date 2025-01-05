@@ -93,7 +93,7 @@ var (
 
 func deleteTTL(func_name string, labels string) {
 	if debug > 2 {
-		fmt.Println("delete TTL")
+		fmt.Println("delete TTL " + labels)
 	}
 	depLock.Lock()
 	delete(workflows[func_name].Deployments, labels)
@@ -719,7 +719,9 @@ func updateWorkflow(func_name string, workflow_str string) {
 	json.Unmarshal([]byte(workflow_str), &workflow)
 	_, exists := workflows[func_name]
 	if exists {
-		delete(workflows, func_name)
+		if debug > 2 {
+			fmt.Println("deleting workflow " + func_name)
+		}
 		label_workflow := "workflow_name=" + func_name
 		services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
@@ -743,12 +745,16 @@ func updateWorkflow(func_name string, workflow_str string) {
 			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		for {
+			if debug > 4 {
+				fmt.Println("waiting for " + func_name + " to delete")
+			}
 			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 			if deployments_list == nil || len(deployments_list.Items) == 0 {
 				break
 			}
 			time.Sleep(10 * time.Millisecond)
 		}
+		delete(workflows, func_name)
 	}
 	workflows[func_name] = &workflow
 	workflows[func_name].Deployments = make(map[string]map[string]string)
@@ -761,7 +767,9 @@ func deleteWorkflow(func_name string) {
 	depLock.Lock()
 	_, exists := workflows[func_name]
 	if exists {
-		delete(workflows, func_name)
+		if debug > 2 {
+			fmt.Println("deleting workflow " + func_name)
+		}
 		label_workflow := "workflow_name=" + func_name
 		services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 		if err != nil && debug > 0 {
@@ -785,12 +793,16 @@ func deleteWorkflow(func_name string) {
 			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
 		}
 		for {
+			if debug > 4 {
+				fmt.Println("waiting for " + func_name + " to delete")
+			}
 			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 			if deployments_list == nil || len(deployments_list.Items) == 0 {
 				break
 			}
 			time.Sleep(10 * time.Millisecond)
 		}
+		delete(workflows, func_name)
 	}
 	depLock.Unlock()
 }
