@@ -9,7 +9,7 @@ import datetime
 import redis
 import random
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 def main(context: Context):
@@ -24,7 +24,7 @@ def main(context: Context):
         print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "0" + "\n", flush=True)
         params = context.request.json
         params["workflow_depth"] += 1
-        temp = json.loads(redisClient.get(params["operator"]))
+        temp = json.loads(open(params["operator"], 'r').read())
         params["operator"] = temp["operator"]
         params["id"] = temp["id"]
         stats = {'total': params['total']['statistics']['total'] }

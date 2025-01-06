@@ -20,7 +20,7 @@ const redis = require('redis');
 const exec = require('child_process').execSync;
 const moment = require('moment');
 
-const client = redis.createClient({url: 'redis://' + process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
+//const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'U'];
 
@@ -39,14 +39,14 @@ const handle = async (context, body) => {
                 newbody["workflow_width"] = workflow_width;
         }
         console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "0");
-	client.on('error', err => console.log('Redis Client Error', err));
-        await client.connect();
+	//client.on('error', err => console.log('Redis Client Error', err));
+        //await client.connect();
 	var results = [];
 	for (var state in state_list) {
-		state_results = await client.keys('election-results-' + state + '-*');
+		state_results = {}; //await client.keys('election-results-' + state + '-*');
 		var total_count = {"total": 0};
 		for (var i = 0; i < state_results.length; i++) {
-			const cnt = await parseInt(client.get(state_results[i]));
+			const cnt = 1; //await parseInt(client.get(state_results[i]));
 			total_count[state_results[i]] = cnt;
 			total_count["total"] += cnt;
 		}

@@ -1,18 +1,10 @@
 package main
 
 import (
+	pb "app/deployer_pb"
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	pb "app/deployer_pb"
-	"math"
-	"net"
-	"os"
-	"strconv"
-	"strings"
-	"time"
-
 	"google.golang.org/grpc"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -21,48 +13,49 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"log"
+	"math"
+	"net"
+	"os"
+	"slices"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 )
 
 type server struct {
 	pb.DeploymentServiceServer
 }
 
-// // this will also take the ping metrics for latancy in pod to pod communication and
-
-// // we will retrieve 2 things - metrics and then ping results from pod to pod communication and build on that
-type PodMetricsList struct {
-	Kind       string           `json:"kind"`
-	APIVersion string           `json:"apiVersion"`
-	Metadata   MetadataPod      `json:"metadata"`
-	Items      []PodMetricsItem `json:"items"`
+type Function struct {
+	Registry  string            `json:"registry"`
+	Endpoints []string          `json:"endpoints,omitempty"`
+	Envs      map[string]string `json:"envs,omitempty"`
+	Secrets   map[string]string `json:"secrets,omitempty"`
 }
 
-type MetadataPod struct {
-	Name              string            `json:"name,omitempty"`
-	Namespace         string            `json:"namespace,omitempty"`
-	CreationTimestamp time.Time         `json:"creationTimestamp,omitempty"`
-	Labels            map[string]string `json:"labels,omitempty"`
-}
-
-type PodMetricsItem struct {
-	Metadata   MetadataPod       `json:"metadata"`
-	Timestamp  time.Time         `json:"timestamp"`
-	Window     string            `json:"window"`
-	Containers []ContainerMetric `json:"containers"`
-}
-
-type ContainerMetric struct {
-	Name  string `json:"name"`
-	Usage Usage  `json:"usage"`
+type Workflow struct {
+	Name               string              `json:"name,omitempty"`
+	Functions          map[string]Function `json:"functions"`
+	Pods               [][]string
+	Deployments        map[string]map[string]string
+	IngressVersion     map[string]int
+	LatestVersion      int
+	LastUpdated        time.Time
+	ReplicaCount       int
+	Updating           bool
+	InitialPods        []string
+	FullyDisaggregated bool
 }
 
 type NodeMetricList struct {
-	Kind       string `json:"kind"`
-	APIVersion string `json:"apiVersion"`
-	Metadata   struct {
-		SelfLink string `json:"selfLink"`
-	} `json:"metadata"`
-	Items []NodeMetricsItem `json:"items"`
+	Kind             string              `json:"kind"`
+	APIVersion       string              `json:"apiVersion"`
+	Metadata         struct {
+		         SelfLink string     `json:"selfLink"`
+	}                                    `json:"metadata"`
+	Items            []NodeMetricsItem   `json:"items"`
 }
 
 type NodeMetricsItem struct {
@@ -71,6 +64,7 @@ type NodeMetricsItem struct {
 	Window    string    `json:"window"`
 	Usage     Usage     `json:"usage"`
 }
+
 type Metadata struct {
 	Name              string            `json:"name,omitempty"`
 	CreationTimestamp time.Time         `json:"creationTimestamp,omitempty"`
@@ -82,616 +76,329 @@ type Usage struct {
 	Memory string `json:"memory"`
 }
 
-type ContainerMetrics struct {
-	Name   string `json:"name"`
-	CPU    string `json:"cpu"`
-	Memory string `json:"memory"`
-}
-
-type PodMetrics struct {
-	Name       string             `json:"name"`
-	Namespace  string             `json:"namespace"`
-	Containers []ContainerMetrics `json:"containers"`
-}
-
-type NodeMetrics struct {
-	Name   string `json:"name"`
-	CPU    string `json:"cpu"`
-	Memory string `json:"memory"`
-}
-
-type Metrics struct {
-	Pods  []PodMetrics  `json:"pods"`
-	Nodes []NodeMetrics `json:"nodes"`
-}
-
 var (
-	clientset         *kubernetes.Clientset
-	err               error
-	namesapce_ingress string
-	version_function  map[string]int
+	kclient            *kubernetes.Clientset
+	nodeCapacityCPU    = make(map[string]float64)
+	nodeCapacityMemory = make(map[string]float64)
+
+	workflows          = make(map[string]*Workflow)
+
+	update_threshold   int
+	debug              int
+	ttl_seconds        int
+	macropod_namespace string
+
+	depLock            sync.Mutex
 )
 
-func internal_log(message string) {
-	fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message)
-}
-
-func init() {
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		panic(err.Error())
+func deleteTTL(func_name string, labels string) {
+	if debug > 2 {
+		fmt.Println("delete TTL " + labels)
 	}
-	version_function = make(map[string]int)
-	namesapce_ingress = os.Getenv("NAMESPACE_INGRESS")
-	clientset, err = kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
+	depLock.Lock()
+	delete(workflows[func_name].Deployments, labels)
+	delete(workflows[func_name].IngressVersion, labels)
+	depLock.Unlock()
+	labels_replica := "workflow_replica=" + labels
+	services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+	if err != nil && debug > 0 {
+		fmt.Println(err)
 	}
-}
-
-func convertCPUUsage(cpuUsage string) (float64, error) {
-
-	if cpuUsage == "0" {
-		return 0, nil
+	for _, service := range services.Items {
+		kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
 	}
-	if strings.HasSuffix(cpuUsage, "n") {
-		cpuUsage = strings.TrimSuffix(cpuUsage, "n")
-		cpu, err := strconv.ParseFloat(cpuUsage, 64)
-		if err != nil {
-			return 0, err
+	deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+	if err != nil && debug > 0 {
+		fmt.Println(err)
+	}
+	for _, deployment := range deployments.Items {
+		kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+	if err != nil && debug > 0 {
+		fmt.Println(err)
+	}
+	for _, ingress := range ingresses.Items {
+		kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+
+	for {
+		deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if deployments_list == nil || len(deployments_list.Items) == 0 {
+			break
 		}
-
-		return cpu / 1000000, nil
-	} else if strings.HasSuffix(cpuUsage, "m") {
-		cpuUsage = strings.TrimSuffix(cpuUsage, "m")
-		cpu, err := strconv.ParseFloat(cpuUsage, 64)
-		if err != nil {
-			return 0, err
-		}
-
-		return cpu, nil
-	} else if strings.HasSuffix(cpuUsage, "u") {
-
-		cpuUsage = strings.TrimSuffix(cpuUsage, "m")
-		cpu, err := strconv.ParseFloat(cpuUsage, 64)
-		if err != nil {
-			return 0, err
-		}
-
-		return cpu / 1000, nil
-
-	} else {
-		return 0, fmt.Errorf("unsupported CPU usage format %s", cpuUsage)
+		time.Sleep(10 * time.Millisecond)
 	}
 }
 
-// convert memory given by metric server to float for comaprisions
-func convertMemoryUsage(memoryUsage string) (float64, error) {
-	if memoryUsage == "0" {
-		return 0, nil
-	}
-	if strings.HasSuffix(memoryUsage, "Ki") {
-		memoryUsage = strings.TrimSuffix(memoryUsage, "Ki")
-		memory, err := strconv.ParseFloat(memoryUsage, 64)
-		if err != nil {
-			return 0, err
+func createDeployment(func_name string, bypass bool) string {
+	if !bypass {
+		depLock.Lock()
+		if _, exists := workflows[func_name]; !exists {
+			log.Printf(" %s is not present", func_name)
+			depLock.Unlock()
+			return "0"
 		}
-		return memory * 1024, nil
-	} else if strings.HasSuffix(memoryUsage, "Mi") {
-		memoryUsage = strings.TrimSuffix(memoryUsage, "Mi")
-		memory, err := strconv.ParseFloat(memoryUsage, 64)
-		if err != nil {
-			return 0, err
+		if workflows[func_name].Updating {
+			depLock.Unlock()
+			return "1"
 		}
-		return memory * 1024 * 1024, nil
-	} else {
-		return 0, fmt.Errorf("unsupported memory usage format")
+		depLock.Unlock()
 	}
-}
-
-func getMetricsNodes(node *NodeMetricList) error {
-
-	result := clientset.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.TODO())
-	data, err := result.Raw()
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(data, &node)
-	return err
-}
-
-func nodeCPUSort() string {
-
+	depLock.Lock()
 	var nodes NodeMetricList
-	err := getMetricsNodes(&nodes)
+	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
 	if err != nil {
-
-		return ""
-
+		depLock.Unlock()
+		return "0"
 	}
-
-	node_name := ""
-	var node_usage_minimum float64 = math.Inf(1)
-
-	for _, item := range nodes.Items {
-		cpu_current, _ := convertCPUUsage(item.Usage.CPU)
-		if cpu_current < node_usage_minimum {
-			node_usage_minimum = cpu_current
-			node_name = item.Metadata.Name
-
-		}
-	}
-	return node_name
-
-}
-
-func getMetrics(clientset *kubernetes.Clientset, pods *PodMetricsList, namespace string) error {
-	result := clientset.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/pods").Do(context.TODO())
-	data, err := result.Raw()
+	err = json.Unmarshal(data, &nodes)
 	if err != nil {
-		return err
+		depLock.Unlock()
+		return "0"
 	}
-	err = json.Unmarshal(data, &pods)
-	//log.Print(pods)
-	return err
-}
-
-func getPodMetricsAndChanges(namespace string) (float64, float64, error) {
-	_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
-	if exists != nil {
-		log.Printf("%s worflow version does not exist", namespace)
-		return 0.0, 0.0, nil
-	}
-	var podMetricsList PodMetricsList
-	err := getMetrics(clientset, &podMetricsList, namespace)
-	if err != nil {
-		return 0, 0, err
-	}
-	var nsCPUUsage float64 = 0.0
-	var nsMemUsage float64 = 0.0
-	for _, item := range podMetricsList.Items {
-		podName := item.Metadata.Name
-		podNamespace := item.Metadata.Namespace
-		if podNamespace != namespace {
+	start_node := -1
+	for i, node := range nodes.Items {
+		value, exists := node.Metadata.Labels["node-role.kubernetes.io/master"]
+		if exists && value == "true" {
 			continue
 		}
-		var podCPUUsage float64
-		var podMemUsage float64
-		for _, container := range item.Containers {
-			mem, err := convertMemoryUsage(container.Usage.Memory)
-			if err != nil {
-				fmt.Printf("Error converting CPU usage for pod %s: %v\n", podName, err)
-				return 0.0, 0.0, err
+		in_use := false
+		for _, deployment := range workflows[func_name].Deployments {
+			if deployment[strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-"))] == node.Metadata.Name {
+				in_use = true
+				break
 			}
-			cpu, err := convertCPUUsage(container.Usage.CPU)
-			if err != nil {
-				fmt.Printf("Error converting CPU usage for pod %s: %v\n", podName, err)
-				return 0.0, 0.0, err
+		}
+		if !in_use {
+			start_node = i
+			break
+		}
+	}
+	if start_node == -1 {
+		depLock.Unlock()
+		return "0"
+	}
+	replicaNumber := strconv.Itoa(workflows[func_name].ReplicaCount)
+	workflows[func_name].ReplicaCount++
+	var update_deployments []appsv1.Deployment
+	labels_ingress := map[string]string{
+		"workflow_name":    func_name,
+		"workflow_replica": func_name + "-" + replicaNumber,
+		"version":          strconv.Itoa(workflows[func_name].LatestVersion),
+	}
+	pathType := networkingv1.PathTypePrefix
+	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
+	workflows[func_name].Deployments[func_name + "-" + replicaNumber] = make(map[string]string)
+	node_index := start_node
+	for _, pod := range workflows[func_name].Pods {
+		node_sel := ""
+		for node_sel == "" {
+			value, exists := nodes.Items[node_index].Metadata.Labels["node-role.kubernetes.io/master"]
+			if exists && value == "true" {
+				node_index = (node_index + 1) % len(nodes.Items)
+				continue
+			} else {
+				node_sel = nodes.Items[node_index].Metadata.Name
+				node_index = (node_index + 1) % len(nodes.Items)
+				break
 			}
-			podCPUUsage += cpu
-			podMemUsage += mem
 		}
-
-		nsCPUUsage += podCPUUsage
-		nsMemUsage += podMemUsage
-
-	}
-
-	log.Printf("Namespace : %s\n", namespace)
-	log.Printf("CPU Usage:%v\n", nsCPUUsage)
-	log.Printf("Memory Usage:%v\n", nsMemUsage)
-	return nsCPUUsage, nsMemUsage, nil
-}
-
-func getConfigMapData(namespace, configMapName string) ([]map[string]interface{}, error) {
-	cm, err := clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), configMapName, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	var configData []map[string]interface{}
-	if err := json.Unmarshal([]byte(cm.Data["my-config.json"]), &configData); err != nil {
-		return nil, err
-	}
-	//log.Print(configData)
-	return configData, nil
-}
-
-func getConfigMapThreshold(namespace, configMapName string) (float64, float64, float64, float64, error) {
-	cm, err := clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), configMapName, metav1.GetOptions{})
-	if err != nil {
-		return 0.0, 0.0, 0.0, 0.0, err
-	}
-
-	cpuThreshold1Str := cm.Labels["cpu_threshold_1"]
-	cpuThreshold2Str := cm.Labels["cpu_threshold_2"]
-	mmThreshold1Str := cm.Labels["mm_threshold_1"]
-	mmThreshold2Str := cm.Labels["mm_threshold_2"]
-
-	cpu_threshold1, _ := strconv.ParseFloat(cpuThreshold1Str, 64)
-
-	cpu_threshuld2, _ := strconv.ParseFloat(cpuThreshold2Str, 64)
-
-	mm_threshold1, _ := strconv.ParseFloat(mmThreshold1Str, 64)
-
-	mm_threshold2, _ := strconv.ParseFloat(mmThreshold2Str, 64)
-
-	return cpu_threshold1, cpu_threshuld2, mm_threshold1, mm_threshold2, nil
-
-}
-
-func getKind(configMapName string) string {
-
-	cm, _ := clientset.CoreV1().ConfigMaps(namesapce_ingress).Get(context.TODO(), configMapName, metav1.GetOptions{})
-
-	if kind, ok := cm.Labels["kind"]; ok {
-		return kind
-	}
-	return ""
-
-}
-
-func updateDeletedNamespace(namespace string) {
-	for key, version := range version_function {
-		versionStr := strconv.Itoa(version)
-		ns := key + versionStr
-		if ns == namespace {
-			log.Printf("Deleting log of function of %s because the namespace has been externally deleted", namespace)
-			delete(version_function, key)
-			return
-		}
-
-	}
-	return
-}
-
-func MakeDeploymentSinglePod(kind string, name_main string, func_name string, ingress bool, update bool, configMapName string) error {
-
-	log.Print("Deploying Single pod")
-
-	configDataArray, err := getConfigMapData(namesapce_ingress, configMapName)
-	if err != nil {
-		log.Printf("Falied to delete deployment: %v\n", err)
-	}
-
-	if ingress == false {
+		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
+		workflows[func_name].Deployments[func_name + "-" + replicaNumber][pod_name] = node_sel
 		service := &corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      name_main,
-				Namespace: "macropod-functions",
+				Name:      pod_name + "-" + replicaNumber,
+				Namespace: macropod_namespace,
 			},
 			Spec: corev1.ServiceSpec{
 				Selector: map[string]string{
-					"app": name_main,
+					"app": pod_name + "-" + replicaNumber,
 				},
 				Ports: []corev1.ServicePort{},
 			},
 		}
 
-		for _, configMapData := range configDataArray {
-			name := configMapData["name"].(string)
-			servicePort := int32(configMapData["service"].(map[string]interface{})["port"].(float64))
-
-			containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
-			service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
-				Name:       name,
-				Port:       servicePort,
-				TargetPort: intstr.FromInt(int(containerPort)),
-			})
-
+		labels := map[string]string{
+			"workflow_name":    func_name,
+			"app":              pod_name + "-" + replicaNumber,
+			"workflow_replica": func_name + "-" + replicaNumber,
+			"version":          strconv.Itoa(workflows[func_name].LatestVersion),
 		}
-
-		deployment := appsv1.Deployment{
+		replicaCount := int32(1)
+		deployment := &appsv1.Deployment{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: name_main,
+				Name:   pod_name + "-" + replicaNumber,
+				Labels: labels,
 			},
 			Spec: appsv1.DeploymentSpec{
+				Replicas: &replicaCount,
 				Selector: &metav1.LabelSelector{
-					MatchLabels: map[string]string{"app": name_main},
+					MatchLabels: labels,
 				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
-						Labels: map[string]string{"app": name_main},
+						Labels: labels,
 					},
 					Spec: corev1.PodSpec{
-						Containers: make([]corev1.Container, len(configDataArray)),
+						NodeName: node_sel,
+						Containers: make([]corev1.Container, len(pod)),
 					},
 				},
 			},
 		}
 
-		if kind == "mmap" {
-			volume := corev1.Volume{
-				Name: "macropod-pv",
-				VolumeSource: corev1.VolumeSource{
-					EmptyDir: &corev1.EmptyDirVolumeSource{
-						Medium: corev1.StorageMediumMemory,
-					},
-				},
-			}
-
-			if deployment.Spec.Template.Spec.Volumes == nil {
-				deployment.Spec.Template.Spec.Volumes = make([]corev1.Volume, 0)
-			}
-
-			deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, volume)
-
-		}
-
-		for i, configMapData := range configDataArray {
-			name := configMapData["name"].(string)
-			replicaCount := int32(configMapData["replicaCount"].(float64))
-
-			envVariables, _ := configMapData["env"].([]interface{})
-
-			imageData := configMapData["image"].(map[string]interface{})
-			imageName := imageData["image"].(string)
-			endpoints, ok := configMapData["endpoints"].(string)
-			if !ok {
-				endpoints = ""
-			}
-			containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
-
-			imagePullPolicy := corev1.PullPolicy(imageData["pullPolicy"].(string))
-
+		for i, container := range pod {
+			container_name := strings.ToLower(strings.ReplaceAll(container, "_", "-")) + "-" + replicaNumber
+			func_port := 5000 + slices.Index(workflows[func_name].InitialPods, container)
+			function := workflows[func_name].Functions[container]
+			registry := function.Registry
 			var env []corev1.EnvVar
-			for _, item := range envVariables {
-				envData, _ := item.(map[string]interface{})
-
-				name, _ := envData["name"].(string)
-				value, _ := envData["value"].(string)
-
-				env = append(env, corev1.EnvVar{
-					Name:  name,
-					Value: value,
-				})
+			for name, value := range function.Envs {
+				env = append(env, corev1.EnvVar{Name: name, Value: value})
 			}
-
-			endpointList := strings.Split(endpoints, ",")
-			if endpoints != "" {
-				for _, endpoint := range endpointList {
-					name_key := strings.ToUpper(endpoint)
-					port := ""
-					for _, port_svc := range service.Spec.Ports {
-						if port_svc.Name == endpoint {
-							port = strconv.Itoa(int(port_svc.Port))
-							break
+			env = append(env, corev1.EnvVar{Name: "SERVICE_TYPE", Value: "GRPC"})
+			env = append(env, corev1.EnvVar{Name: "GRPC_THREAD", Value: strconv.Itoa(10)})
+			func_port_s := strconv.Itoa(func_port)
+			env = append(env, corev1.EnvVar{Name: "FUNC_PORT", Value: func_port_s})
+			for _, endpoint := range function.Endpoints {
+				in_pod := false
+				for _, c := range pod {
+					if endpoint == c {
+						in_pod = true
+						break
+					}
+				}
+				endpoint_upper := strings.ToUpper(endpoint)
+				endpoint_name := strings.ReplaceAll(endpoint_upper, "-", "_")
+				endpoint_port := strconv.Itoa(5000 + slices.Index(workflows[func_name].InitialPods, endpoint))
+				var service_name string
+				if in_pod {
+					service_name = "127.0.0.1:" + endpoint_port // structuring because we are fixating on the port number
+				} else {
+					endpoint_service := ""
+					for _, pods_list := range workflows[func_name].Pods {
+						if slices.Contains(pods_list, endpoint_name) {
+							endpoint_service = pods_list[0]
 						}
 					}
-					service_name := "127.0.0.1:" + port
-					final_name := strings.ReplaceAll(name_key, "-", "_")
-					env = append(env, corev1.EnvVar{
-						Name:  final_name,
-						Value: service_name,
-					})
+					service_name = strings.ReplaceAll(strings.ToLower(endpoint_service), "_", "-") + "-" + replicaNumber + "." + macropod_namespace + ".svc.cluster.local:" + endpoint_port
 				}
+				env = append(env, corev1.EnvVar{Name: endpoint_name, Value: service_name})
 			}
-			deployment.Spec.Replicas = &replicaCount
+			container_port := int32(5000 + slices.Index(workflows[func_name].InitialPods, container))
+			imagePullPolicy := corev1.PullPolicy("IfNotPresent")
 			deployment.Spec.Template.Spec.Containers[i] = corev1.Container{
-				Name:            name,
-				Image:           imageName,
+				Name:            container_name,
+				Image:           registry,
 				ImagePullPolicy: imagePullPolicy,
 				Ports: []corev1.ContainerPort{
 					{
-						ContainerPort: containerPort,
+						ContainerPort: container_port,
 					},
 				},
 				Env: env,
 			}
-
-			if kind == "mmap" {
-				volumeMount := corev1.VolumeMount{
-					Name:      "macropod-pv",
-					MountPath: "/macropod-pv",
-				}
-				deployment.Spec.Template.Spec.Containers[i].VolumeMounts = append(
-					deployment.Spec.Template.Spec.Containers[i].VolumeMounts, volumeMount)
-			}
-			command, ok := configMapData["command"].(string)
-			if !ok {
-				command = ""
-			}
-			if command != "" {
-				commandList := strings.Split(command, ",")
-				//log.Print(commandList)
-				deployment.Spec.Template.Spec.Containers[i].Command = commandList
-
-			}
-			args, ok := configMapData["args"].(string)
-			if !ok {
-				args = ""
-			}
-			if args != "" {
-				argsList := strings.Split(args, ",")
-				//log.Print(argsList)
-				deployment.Spec.Template.Spec.Containers[i].Args = argsList
-
-			}
-
-		}
-
-		if update == false {
-			log.Printf("Creating deployment and service %s", name_main)
-			_, err = clientset.AppsV1().Deployments("macropod-functions").Create(context.Background(), &deployment, metav1.CreateOptions{})
-			if err != nil {
-				panic(err.Error())
-			}
-		} else {
-			log.Printf("Updating deployment and service %s", name_main)
-			_, err = clientset.AppsV1().Deployments("macropod-functions").Update(context.Background(), &deployment, metav1.UpdateOptions{})
-			if err != nil {
-				panic(err.Error())
-			}
-		}
-		if update == false {
-			_, err = clientset.CoreV1().Services("macropod-functions").Create(context.Background(), service, metav1.CreateOptions{})
-			if err != nil {
-				panic(err.Error())
-			}
-		} else {
-			_, err = clientset.CoreV1().Services("macropod-functions").Update(context.Background(), service, metav1.UpdateOptions{})
-			if err != nil {
-				panic(err.Error())
-			}
-		}
-	}
-	for _, configMapData := range configDataArray {
-
-		name := configMapData["name"].(string)
-
-		labels := map[string]string{
-			"function_name": func_name,
-			"app":           name,
-		}
-
-		servicePort := int32(configMapData["service"].(map[string]interface{})["port"].(float64))
-
-		pathType := networkingv1.PathTypePrefix
-
-		if ingress {
-			if _, ok := configMapData["ingress"]; ok {
-
-				hostName := configMapData["ingress"].(map[string]interface{})["host"].(string)
-				ingress := &networkingv1.Ingress{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      name,
-						Namespace: "macropod-functions",
-						Labels:    labels,
-					},
-					Spec: networkingv1.IngressSpec{
-						Rules: []networkingv1.IngressRule{
-							{
-								Host: hostName,
-								IngressRuleValue: networkingv1.IngressRuleValue{
-									HTTP: &networkingv1.HTTPIngressRuleValue{
-										Paths: []networkingv1.HTTPIngressPath{
-											{
-												Path:     "/",
-												PathType: &pathType,
-												Backend: networkingv1.IngressBackend{
-													Service: &networkingv1.IngressServiceBackend{
-														Name: name_main,
-														Port: networkingv1.ServiceBackendPort{
-															Number: servicePort,
-														},
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				}
-				if update == false {
-					log.Printf("Creating ingress for %s", name_main)
-					_, err = clientset.NetworkingV1().Ingresses("macropod-functions").Create(context.Background(), ingress, metav1.CreateOptions{})
-					if err != nil {
-						panic(err.Error())
-					}
-				} else {
-					log.Printf("Updating ingress for %s", name_main)
-					_, err = clientset.NetworkingV1().Ingresses("macropod-functions").Update(context.Background(), ingress, metav1.UpdateOptions{})
-					if err != nil {
-						panic(err.Error())
-					}
-				}
-
-			}
-		}
-
-	}
-
-	return nil
-
-}
-
-func MakeDeploymentMultiPod(kind string, name string, func_name string, ingress bool, update bool, configMapName string) error {
-
-	configDataArray, err := getConfigMapData(namesapce_ingress, configMapName)
-	if err != nil {
-		log.Printf("Falied to delete deployment: %v\n", err)
-	}
-	for _, configMapData := range configDataArray {
-
-		name := configMapData["name"].(string)
-		replicaCount := int32(configMapData["replicaCount"].(float64))
-		envVariables, _ := configMapData["env"].([]interface{})
-		imageData := configMapData["image"].(map[string]interface{})
-		imageName := imageData["image"].(string)
-		endpoints, ok := configMapData["endpoints"].(string)
-		if !ok {
-			endpoints = ""
-		}
-		log.Printf("EndpointsList %s", endpoints)
-		imagePullPolicy := corev1.PullPolicy(imageData["pullPolicy"].(string))
-		var env []corev1.EnvVar
-		for _, item := range envVariables {
-			envData, _ := item.(map[string]interface{})
-
-			name, _ := envData["name"].(string)
-			value, _ := envData["value"].(string)
-
-			env = append(env, corev1.EnvVar{
-				Name:  name,
-				Value: value,
+			service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
+				Name:       container_name,
+				Port:       container_port,
+				TargetPort: intstr.FromInt(int(container_port)),
 			})
 		}
+		// check if deployment with name exists, if does not make a new one else update the existing lets start with creating new ones and then update the existing ones
+		fmt.Println("Looking for " + pod[0] + "_" + replicaNumber)
+		_, exists := kclient.AppsV1().Deployments(macropod_namespace).Get(context.Background(), strings.ToLower(pod[0])+"-"+replicaNumber, metav1.GetOptions{})
+		if exists != nil {
+			fmt.Println("Creating a new deployment " + deployment.Name)
+			_, err := kclient.AppsV1().Deployments(macropod_namespace).Create(context.Background(), deployment, metav1.CreateOptions{})
+			if err != nil {
+				fmt.Println("unable to create deployment " + strings.ToLower(pod[0]) + " for " + macropod_namespace + " - " + err.Error())
+				depLock.Unlock()
+				return "0"
+			}
+
+		} else {
+			fmt.Println("Updating the existing deployment " + deployment.Name)
+			update_deployments = append(update_deployments, *deployment)
+		}
+	}
+
+	for _, dp := range update_deployments {
+		fmt.Println("deploying existing deployment " + dp.Name)
+		kclient.AppsV1().Deployments(macropod_namespace).Update(context.Background(), &dp, metav1.UpdateOptions{})
+	}
+
+	for _, pod := range workflows[func_name].Pods {
+		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
 		labels := map[string]string{
-			"function_name": func_name,
-			"app":           name,
+			"workflow_name":    func_name,
+			"app":              pod_name + "-" + replicaNumber,
+			"workflow_replica": func_name + "-" + replicaNumber,
+			"version":          strconv.Itoa(workflows[func_name].LatestVersion),
+		}
+		service := &corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      pod_name + "-" + replicaNumber,
+				Namespace: macropod_namespace,
+				Labels:    labels,
+			},
+			Spec: corev1.ServiceSpec{
+				Selector: map[string]string{
+					"app": pod_name + "-" + replicaNumber,
+				},
+				Ports: []corev1.ServicePort{},
+			},
+		}
+		for _, container := range pod {
+			container_name := strings.ToLower(strings.ReplaceAll(container, "_", "-")) + "-" + replicaNumber
+			container_port := int32(5000 + slices.Index(workflows[func_name].InitialPods, container))
+			service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
+				Name:       container_name,
+				Port:       container_port,
+				TargetPort: intstr.FromInt(int(container_port)),
+			})
 		}
 
-		containerPort := int32(configMapData["service"].(map[string]interface{})["targetPort"].(float64))
-		servicePort := int32(configMapData["service"].(map[string]interface{})["port"].(float64))
-
-		pathType := networkingv1.PathTypePrefix
-		// create namespace first
-		endpointList := strings.Split(endpoints, ",")
-
-		if endpoints != "" {
-			for _, endpoint := range endpointList {
-				service_name := endpoint + "." + name + "." + "svc.cluster.local"
-				name_key := strings.ToUpper(endpoint)
-				final_name := strings.ReplaceAll(name_key, "-", "_")
-				env = append(env, corev1.EnvVar{
-					Name:  final_name,
-					Value: service_name,
-				})
+		_, exists := kclient.CoreV1().Services(macropod_namespace).Get(context.Background(), pod_name+"-"+replicaNumber, metav1.GetOptions{})
+		if exists != nil {
+			_, err := kclient.CoreV1().Services(macropod_namespace).Create(context.Background(), service, metav1.CreateOptions{})
+			if err != nil {
+				fmt.Println("unable to create service " + strings.ToLower(pod[0]) + "-" + replicaNumber + " for " + macropod_namespace + " - " + err.Error())
+				depLock.Unlock()
+				return "0"
+			}
+		} else {
+			_, err := kclient.CoreV1().Services(macropod_namespace).Update(context.Background(), service, metav1.UpdateOptions{})
+			if err != nil {
+				fmt.Println("unable to update service " + strings.ToLower(pod[0]) + "-" + replicaNumber + " for " + macropod_namespace + " - " + err.Error())
+				depLock.Unlock()
+				return "0"
 			}
 		}
 
-		// create deployment and service if ingress is false else make ingress resource
+	}
 
-		if ingress {
-			if _, ok := configMapData["ingress"]; ok {
-
-				hostName := configMapData["ingress"].(map[string]interface{})["host"].(string)
-				ingress := &networkingv1.Ingress{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      name,
-						Namespace: "macropod-functions",
-						Labels:    labels,
-					},
-					Spec: networkingv1.IngressSpec{
-						Rules: []networkingv1.IngressRule{
-							{
-								Host: hostName,
-								IngressRuleValue: networkingv1.IngressRuleValue{
-									HTTP: &networkingv1.HTTPIngressRuleValue{
-										Paths: []networkingv1.HTTPIngressPath{
-											{
-												Path:     "/",
-												PathType: &pathType,
-												Backend: networkingv1.IngressBackend{
-													Service: &networkingv1.IngressServiceBackend{
-														Name: name,
-														Port: networkingv1.ServiceBackendPort{
-															Number: servicePort,
-														},
-													},
-												},
+	ingress := &networkingv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      service_name_ingress,
+			Namespace: macropod_namespace,
+			Labels:    labels_ingress,
+		},
+		Spec: networkingv1.IngressSpec{
+			Rules: []networkingv1.IngressRule{
+				{
+					Host: func_name + "." + replicaNumber + "." + macropod_namespace + ".macropod",
+					IngressRuleValue: networkingv1.IngressRuleValue{
+						HTTP: &networkingv1.HTTPIngressRuleValue{
+							Paths: []networkingv1.HTTPIngressPath{
+								{
+									Path:     "/",
+									PathType: &pathType,
+									Backend: networkingv1.IngressBackend{
+										Service: &networkingv1.IngressServiceBackend{
+											Name: service_name_ingress,
+											Port: networkingv1.ServiceBackendPort{
+												Number: 5000,
 											},
 										},
 									},
@@ -699,201 +406,512 @@ func MakeDeploymentMultiPod(kind string, name string, func_name string, ingress 
 							},
 						},
 					},
-				}
-				if update == false {
-					log.Printf("Creating ingress for %s", name)
-					_, err = clientset.NetworkingV1().Ingresses("macropod-functions").Create(context.Background(), ingress, metav1.CreateOptions{})
-					if err != nil {
-						panic(err.Error())
-					}
+				},
+			},
+		},
+	}
+
+	_, err = kclient.NetworkingV1().Ingresses(macropod_namespace).Create(context.Background(), ingress, metav1.CreateOptions{})
+	if err != nil {
+		fmt.Println("unable to create ingress for " + macropod_namespace + " - " + err.Error())
+		depLock.Unlock()
+		return "0"
+	}
+	depLock.Unlock()
+	return "0"
+}
+
+func nodeReclaim(func_name string) {
+	depLock.Lock()
+	reclaim_replicas := workflows[func_name].Deployments
+	depLock.Unlock()
+	for replica_name, _ := range reclaim_replicas {
+		depLock.Lock()
+		delete(workflows[func_name].Deployments, replica_name)
+		delete(workflows[func_name].IngressVersion, replica_name)
+		depLock.Unlock()
+		labels_replica := "workflow_replica=" + replica_name
+		services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, service := range services.Items {
+			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, deployment := range deployments.Items {
+			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, ingress := range ingresses.Items {
+			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+
+		for {
+			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+			if deployments_list == nil || len(deployments_list.Items) == 0 {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		createDeployment(func_name, true)
+	}
+	depLock.Lock()
+	workflows[func_name].Updating = false
+	depLock.Unlock()
+}
+
+func updateDeployments(func_name string) string {
+	depLock.Lock()
+	if _, exists := workflows[func_name]; !exists {
+		log.Printf(" %s is not present", func_name)
+		depLock.Unlock()
+		return "0"
+	}
+	if workflows[func_name].Updating {
+		depLock.Unlock()
+		return "1"
+	}
+	if time.Since(workflows[func_name].LastUpdated) < time.Second*time.Duration(update_threshold) {
+		depLock.Unlock()
+		return "0"
+	}
+	if workflows[func_name].FullyDisaggregated {
+		depLock.Unlock()
+		return "0"
+	}
+	workflows[func_name].Updating = true
+	depLock.Unlock()
+
+	// get the percentage of the node utilisation
+	var nodes NodeMetricList
+	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
+	if err != nil {
+		return "0"
+	}
+	err = json.Unmarshal(data, &nodes)
+	if err != nil {
+		return "0"
+	}
+	static := os.Getenv("STATIC")
+	if static != "" {
+		return "0"
+	}
+	for _, node := range nodes.Items {
+		value, exists := node.Metadata.Labels["node-role.kubernetes.io/master"]
+		if exists && value == "true" {
+			continue
+		}
+		depLock.Lock()
+		node_name := node.Metadata.Name
+		usage_mem, _ := memory_raw_to_float(node.Usage.Memory)
+		usage_cpu, _ := cpu_raw_to_float(node.Usage.CPU)
+		percentage_cpu := (usage_cpu / nodeCapacityCPU[node_name]) * 100
+		percentage_mem := (usage_mem / nodeCapacityMemory[node_name]) * 100
+		depLock.Unlock()
+		if percentage_mem > 70 || percentage_cpu > 70 {
+			depLock.Lock()
+			workflows[func_name].LatestVersion += 1
+			var pods_updated [][]string
+			for _, pod := range workflows[func_name].Pods {
+				if len(pod) > 1 {
+					idx := int(math.Floor(float64(len(pod)) / 2))
+					pods_updated = append(pods_updated, pod[:idx])
+					pods_updated = append(pods_updated, pod[idx:])
 				} else {
-					log.Printf("Updating ingress for %s", name)
-					_, err = clientset.NetworkingV1().Ingresses("macropod-functions").Update(context.Background(), ingress, metav1.UpdateOptions{})
-					if err != nil {
-						panic(err.Error())
-					}
-				}
-
-			}
-		} else {
-
-			log.Print("Creating deployment and service %s", name)
-			deployment := &appsv1.Deployment{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:   name,
-					Labels: labels,
-				},
-				Spec: appsv1.DeploymentSpec{
-					Replicas: &replicaCount,
-					Selector: &metav1.LabelSelector{
-						MatchLabels: labels,
-					},
-					Template: corev1.PodTemplateSpec{
-						ObjectMeta: metav1.ObjectMeta{
-							Labels: labels,
-						},
-						Spec: corev1.PodSpec{
-							Containers: []corev1.Container{
-								{
-									Name:            name,
-									Image:           imageName,
-									ImagePullPolicy: imagePullPolicy,
-									Ports: []corev1.ContainerPort{
-										{
-											ContainerPort: containerPort,
-										},
-									},
-									Env: env,
-								},
-							},
-						},
-					},
-				},
-			}
-			command, ok := configMapData["command"].(string)
-			if !ok {
-				command = ""
-			}
-			if command != "" {
-				commandList := strings.Split(command, ",")
-				deployment.Spec.Template.Spec.Containers[0].Command = commandList
-
-			}
-			args, ok := configMapData["args"].(string)
-			if !ok {
-				args = ""
-			}
-			if args != "" {
-				argsList := strings.Split(args, ",")
-				deployment.Spec.Template.Spec.Containers[0].Args = argsList
-
-			}
-
-			if update == false {
-				log.Printf("Creating deployment and service %s", name)
-				_, err = clientset.AppsV1().Deployments("macropod-functions").Create(context.Background(), deployment, metav1.CreateOptions{})
-				if err != nil {
-					panic(err.Error())
-				}
-			} else {
-				log.Print("Updating deployment and service %s", name)
-				_, err = clientset.AppsV1().Deployments("macropod-functions").Update(context.Background(), deployment, metav1.UpdateOptions{})
-				if err != nil {
-					panic(err.Error())
+					pods_updated = append(pods_updated, pod)
 				}
 			}
 
-			// deploy a service as well
-
-			service := &corev1.Service{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      name,
-					Namespace: "macropod-functions",
-				},
-				Spec: corev1.ServiceSpec{
-					Selector: map[string]string{
-						"app": name,
-					},
-					Ports: []corev1.ServicePort{
-						{
-							Name:       "main-port",
-							Port:       servicePort,
-							TargetPort: intstr.FromInt(int(containerPort)),
-						},
-					},
-				},
-			}
-			if update == false {
-				_, err = clientset.CoreV1().Services("macropod-functions").Create(context.Background(), service, metav1.CreateOptions{})
-				if err != nil {
-					panic(err.Error())
-				}
-			} else {
-				_, err = clientset.CoreV1().Services("macropod-functions").Update(context.Background(), service, metav1.UpdateOptions{})
-				if err != nil {
-					panic(err.Error())
+			pod_2_or_more := false
+			for _, pod := range pods_updated {
+				if len(pod) > 1 {
+					pod_2_or_more = true
+					break
 				}
 			}
+			if !pod_2_or_more {
+				workflows[func_name].FullyDisaggregated = true
+			}
+			workflows[func_name].Pods = pods_updated
+			workflows[func_name].LastUpdated = time.Now()
+			go nodeReclaim(func_name)
+			depLock.Unlock()
+			return "2"
+		}
+	}
 
+	depLock.Lock()
+	if _, exists := workflows[func_name]; exists {
+		workflows[func_name].Updating = false
+	} else {
+		log.Printf(" %s is not present", func_name)
+	}
+	depLock.Unlock()
+	return "0"
+}
+
+// return in bytes
+func memory_raw_to_float(memory_str string) (float64, error) {
+	if memory_str == "0" {
+		return 0, nil
+	} else if strings.HasSuffix(memory_str, "Ki") {
+		memory_str = strings.TrimSuffix(memory_str, "Ki")
+		memory, err := strconv.ParseFloat(memory_str, 64)
+		if err != nil {
+			return 0, err
+		}
+		return memory * 1024, nil
+	} else if strings.HasSuffix(memory_str, "Mi") {
+		memory_str = strings.TrimSuffix(memory_str, "Mi")
+		memory, err := strconv.ParseFloat(memory_str, 64)
+		if err != nil {
+			return 0, err
+		}
+		return memory * 1024 * 1024, nil
+	} else if strings.HasSuffix(memory_str, "Gi") {
+		memory_str = strings.TrimSuffix(memory_str, "Gi")
+		memory, err := strconv.ParseFloat(memory_str, 64)
+		if err != nil {
+			return 0, err
+		}
+		return memory * 1024 * 1024 * 1024, nil
+	} else {
+		memory, err := strconv.ParseFloat(memory_str, 64)
+		if err != nil {
+			return 0, err
+		}
+		return memory, nil
+	}
+
+}
+
+// store cpu in cores
+func cpu_raw_to_float(cpu_str string) (float64, error) {
+	if cpu_str == "0" {
+		return 0, nil
+	} else if strings.HasSuffix(cpu_str, "n") {
+		cpu_str = strings.TrimSuffix(cpu_str, "n")
+		cpu, err := strconv.ParseFloat(cpu_str, 64)
+		if err != nil {
+			return 0, err
+		}
+		return cpu / 1000000000, nil
+	} else if strings.HasSuffix(cpu_str, "m") {
+		cpu_str = strings.TrimSuffix(cpu_str, "m")
+		cpu, err := strconv.ParseFloat(cpu_str, 64)
+		if err != nil {
+			return 0, err
+		}
+		return cpu / 1000, nil
+	} else if strings.HasSuffix(cpu_str, "u") {
+		cpu_str = strings.TrimSuffix(cpu_str, "u")
+		cpu, err := strconv.ParseFloat(cpu_str, 64)
+		if err != nil {
+			return 0, err
+		}
+		return cpu / 1000000, nil
+	} else {
+		cpu, err := strconv.ParseFloat(cpu_str, 64)
+		if err != nil {
+			return 0, err
+		}
+		return cpu, nil
+	}
+
+}
+
+func bfs_initial_pod(pod []string, func_name string, pod_list []string) []string {
+	if len(pod_list) == 0 {
+		return pod
+	}
+	entrypoint := pod_list[0]
+	if !slices.Contains(pod, entrypoint) {
+		pod = append(pod, entrypoint)
+	}
+	pod_list = pod_list[1:]
+	for _, endpoint := range workflows[func_name].Functions[entrypoint].Endpoints {
+		if !slices.Contains(pod, endpoint) {
+			pod = append(pod, endpoint)
+			pod_list = append(pod_list, endpoint)
+
+		}
+	}
+	return bfs_initial_pod(pod, func_name, pod_list)
+}
+
+func createInitialPod(func_name string) {
+	var initial_pod []string
+	var frontend_func string
+	var endpoints []string
+	func_endpoint := make(map[string][]string)
+	for func_name, function := range workflows[func_name].Functions {
+		for _, endpoint := range function.Endpoints {
+			func_endpoint[func_name] = append(func_endpoint[func_name], endpoint)
+			if !slices.Contains(endpoints, endpoint) {
+				if func_name != endpoint {
+					endpoints = append(endpoints, endpoint)
+				}
+			}
+		}
+	}
+	for func_name := range workflows[func_name].Functions {
+		if !slices.Contains(endpoints, func_name) {
+			frontend_func = func_name
+			break
 		}
 
 	}
-
-	return nil
-
-}
-func MakeDeployment(name string, func_name string, ingress bool, update bool, configMapName string) error {
-
-	kind := getKind(configMapName)
-
-	if kind == "mmap" || kind == "single-pod" {
-		log.Print("Single Pod")
-		err := MakeDeploymentSinglePod(kind, name, func_name, ingress, update, configMapName)
-		return err
-
+	var pod_list []string
+	pod_list = append(pod_list, frontend_func)
+	initial_pod = bfs_initial_pod(initial_pod, func_name, pod_list)
+	static := os.Getenv("STATIC")
+	log.Printf("printing the pods: %v", initial_pod)
+	if static == "full-agg" {
+		workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
+	} else if static == "partial" {
+		pods_split := make([][]string, 0)
+		pods_split = append(pods_split, initial_pod[0:(len(initial_pod)/2)])
+		pods_split = append(pods_split, initial_pod[(len(initial_pod)/2):])
+		workflows[func_name].Pods = pods_split
+	} else if static == "full-disagg" {
+		pods_disagg := make([][]string, 0)
+		for _, container := range initial_pod {
+			container_pod := make([]string, 0)
+			container_pod = append(container_pod, container)
+			pods_disagg = append(pods_disagg, container_pod)
+		}
+		workflows[func_name].Pods = pods_disagg
 	} else {
-		log.Print("Multi-Pod")
-		err := MakeDeploymentMultiPod(kind, name, func_name, ingress, update, configMapName)
-		return err
-
+		workflows[func_name].Pods = append(workflows[func_name].Pods, initial_pod)
 	}
+	workflows[func_name].InitialPods = initial_pod
+	workflows[func_name].LatestVersion = 1
 
 }
 
-func DeleteNamespace(namespace string) error {
-	log.Printf("Deleteing namespace %s\n", namespace)
-	err = clientset.CoreV1().Namespaces().Delete(context.TODO(), namespace, metav1.DeleteOptions{})
-	return err
+func createWorkflow(func_name string, func_str string) {
+	depLock.Lock()
+	workflow := Workflow{}
+	json.Unmarshal([]byte(func_str), &workflow)
+	_, exists := workflows[func_name]
+	if exists {
+		fmt.Println("workflow " + func_name + " already exists. If you are updating it please use update instead.")
+		depLock.Unlock()
+		return
+	}
+	workflows[func_name] = &workflow
+	workflows[func_name].Deployments = make(map[string]map[string]string)
+	workflows[func_name].IngressVersion = make(map[string]int)
+	createInitialPod(func_name)
+	depLock.Unlock()
 }
 
-// this will look into the function name and check if version 0 is available - if yes, move ahead and deploy - this will also keep track of the versions and functions that are being handled
-func makeNewFunctionHandler(func_name string, replicaNumber int32) string {
-	log.Printf("Deploying new function.....%s", func_name)
-	version := 0
-	versionStr := strconv.Itoa(version)
-	replicaString := strconv.Itoa(int(replicaNumber))
-	configMapName := func_name + "-" + versionStr
-	name := func_name + "-" + versionStr + "-" + replicaString
-	err := MakeDeployment(name, func_name, false, false, configMapName)
-	if err != nil {
-		log.Printf("Falied to install deployment: %v\n", err)
+func updateWorkflow(func_name string, workflow_str string) {
+	depLock.Lock()
+	workflow := Workflow{}
+	json.Unmarshal([]byte(workflow_str), &workflow)
+	_, exists := workflows[func_name]
+	if exists {
+		if debug > 2 {
+			fmt.Println("deleting workflow " + func_name)
+		}
+		label_workflow := "workflow_name=" + func_name
+		services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, service := range services.Items {
+			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, deployment := range deployments.Items {
+			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, ingress := range ingresses.Items {
+			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		for {
+			if debug > 4 {
+				fmt.Println("waiting for " + func_name + " to delete")
+			}
+			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+			if deployments_list == nil || len(deployments_list.Items) == 0 {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		delete(workflows, func_name)
 	}
-	err = MakeDeployment(name, func_name, true, false, configMapName)
-	if err != nil {
-		log.Printf("Falied to install ingress: %v\n", err)
+	workflows[func_name] = &workflow
+	workflows[func_name].Deployments = make(map[string]map[string]string)
+	workflows[func_name].IngressVersion = make(map[string]int)
+	createInitialPod(func_name)
+	depLock.Unlock()
+}
+
+func deleteWorkflow(func_name string) {
+	depLock.Lock()
+	_, exists := workflows[func_name]
+	if exists {
+		if debug > 2 {
+			fmt.Println("deleting workflow " + func_name)
+		}
+		label_workflow := "workflow_name=" + func_name
+		services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, service := range services.Items {
+			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, deployment := range deployments.Items {
+			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, ingress := range ingresses.Items {
+			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		for {
+			if debug > 4 {
+				fmt.Println("waiting for " + func_name + " to delete")
+			}
+			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+			if deployments_list == nil || len(deployments_list.Items) == 0 {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		delete(workflows, func_name)
 	}
-	version_function[func_name] = version
-	log.Printf("Deployed initial version of %s", func_name)
-	return "Deployed"
+	depLock.Unlock()
+}
+
+func checkNodeStatus() {
+	for {
+		nodes, err := kclient.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			panic(err)
+		}
+		for _, node := range nodes.Items {
+
+			notReady := false
+			for _, condition := range node.Status.Conditions {
+				if condition.Type == "Ready" && condition.Status != "True" {
+					depLock.Lock()
+					delete(nodeCapacityCPU, node.Name)
+					delete(nodeCapacityMemory, node.Name)
+					depLock.Unlock()
+					notReady = true
+				}
+			}
+			if notReady {
+				continue
+			}
+
+			cpu_float, err := cpu_raw_to_float(node.Status.Capacity.Cpu().String())
+			if err != nil {
+				panic(err)
+			}
+			mem_float, err := memory_raw_to_float(node.Status.Capacity.Memory().String())
+			if err != nil {
+				panic(err)
+			}
+			depLock.Lock()
+			nodeCapacityCPU[node.Name] = cpu_float
+			nodeCapacityMemory[node.Name] = mem_float
+			depLock.Unlock()
+		}
+		time.Sleep(30 * time.Second)
+	}
 
 }
 
 func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceRequest) (*pb.DeploymentServiceReply, error) {
 	func_name := req.Name
-	var result string
-	replicaNumber := req.ReplicaNumber
-	log.Print(replicaNumber)
-	if req.FunctionCall == "new_invoke" {
-		result = makeNewFunctionHandler(func_name, replicaNumber)
+	request_type := req.FunctionCall
+	result := "0"
+	switch request_type {
+		case "create_workflow":
+			createWorkflow(func_name, *req.Workflow)
+		case "update_workflow":
+			updateWorkflow(func_name, *req.Workflow)
+		case "delete_workflow":
+			deleteWorkflow(func_name)
+		case "update_deployments":
+			result = updateDeployments(func_name)
+		case "create_deployment":
+			result = createDeployment(func_name, false)
+		case "ttl_delete":
+			deleteTTL(func_name, *req.Workflow)
 	}
 	return &pb.DeploymentServiceReply{
-		Message: fmt.Sprintf("%s", result),
+		Message: result,
 	}, nil
 }
 
 func main() {
-        port, err := strconv.Atoi(os.Getenv("SERVICE_PORT"))
-        if err != nil {
-                internal_log("error port - " + err.Error())
-                return
-        }
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	var err error
+	service_port, err := strconv.Atoi(os.Getenv("SERVICE_PORT"))
 	if err != nil {
-		panic(err)
+		service_port = 8082
+	}
+	macropod_namespace = os.Getenv("MACROPOD_NAMESPACE")
+	if macropod_namespace == "" {
+		macropod_namespace = "macropod-functions"
+	}
+	debug, err = strconv.Atoi(os.Getenv("DEBUG"))
+	if err != nil {
+		debug = 0
+	}
+	update_threshold, err = strconv.Atoi(os.Getenv("UPDATE_THRESHOLD"))
+	if err != nil {
+		update_threshold = 100
+	}
+	ttl_seconds, err = strconv.Atoi(os.Getenv("TTL"))
+	if err != nil {
+		ttl_seconds = 180
+	}
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		fmt.Println("error config - " + err.Error())
+		return
+	}
+	kclient, err = kubernetes.NewForConfig(config)
+	if err != nil {
+		fmt.Println("error kclient - " + err.Error())
+		return
+	}
+	go checkNodeStatus()
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", service_port))
+	if err != nil {
+		fmt.Println("error listener - " + err.Error())
+		return
 	}
 	s := grpc.NewServer()
 	pb.RegisterDeploymentServiceServer(s, &server{})
-	if err := s.Serve(listener); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	if err := s.Serve(l); err != nil {
+		fmt.Println("failed to serve - " + err.Error())
+		return
 	}
 }

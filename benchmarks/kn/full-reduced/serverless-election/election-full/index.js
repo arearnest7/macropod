@@ -21,34 +21,34 @@ const axios = require('axios');
 const exec = require('child_process').execSync;
 const moment = require('moment');
 
-const client = redis.createClient({url: 'redis://' + process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
+//const client = redis.createClient({url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD});
 
 const state_list = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID'
 , 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH'
 , 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'U'];
 
 const vote_processor_handler = async (body) => {
-        await client.set("voter-" + body['id'], JSON.stringify(body));
+        //await client.set("voter-" + body['id'], JSON.stringify(body));
 
         var state = body['state'];
         var candidate = body['candidate'];
 
-	reply = await client.exists("election-results-" + state + "-" + candidate);
+	reply = 1; //await client.exists("election-results-" + state + "-" + candidate);
         if (reply == 1) {
-        	var cnt = parseInt(await client.get("election-results-" + state + "-" + candidate));
+        	var cnt = 1; //parseInt(await client.get("election-results-" + state + "-" + candidate));
 		cnt = cnt + 1;
-		await client.set("election-results-" + state + "-" + candidate, cnt.toString());
+		//await client.set("election-results-" + state + "-" + candidate, cnt.toString());
 	}
-	else {
-		await client.set("election-results-" + state + "-" + candidate, "1");
-	}
+	//else {
+	//	await client.set("election-results-" + state + "-" + candidate, "1");
+	//}
         return "success";
 }
 
 const vote_enqueuer_handler = async (body) => {
-	reply = await client.exists("voter-" + body['id']);
+	reply = 1; //await client.exists("voter-" + body['id']);
 	if (reply == 1) {
-        	const g_val = await client.get("voter-" + body['id']);
+        	const g_val = "Not Voted" //await client.get("voter-" + body['id']);
 		if (g_val != "Not Voted") {
 			return {"isBase64Encoded": false, "statusCode": 409, "body": {"success": false, "message": (body['id'] + " already submitted a vote.")}};
 		} else {
@@ -62,10 +62,10 @@ const vote_enqueuer_handler = async (body) => {
 const get_results_handler = async (body) => {
         var results = [];
         for (var state in state_list) {
-                state_results = await client.keys('election-results-' + state + '-*');
+                state_results = {}; //await client.keys('election-results-' + state + '-*');
                 var total_count = {"total": 0};
                 for (var i = 0; i < state_results.length; i++) {
-                        const cnt = await parseInt(client.get(state_results[i]));
+                        const cnt = 1; //await parseInt(client.get(state_results[i]));
                         total_count[state_results[i]] = cnt;
                         total_count["total"] += cnt;
                 }
@@ -96,33 +96,33 @@ const get_results_handler = async (body) => {
 
 const handle = async (context, body) => {
 	var workflow_id = Math.floor(Math.random() * 10000000).toString();
-        var workflow_depth = 0;
-        var workflow_width = 0;
-        var newbody = body;
-        if ("workflow_id" in body) {
-                workflow_id = body["workflow_id"];
-                workflow_depth = body["workflow_depth"] + 1;
-                workflow_width = body["workflow_width"];
-        } else {
-                newbody["workflow_id"] = workflow_id;
-                newbody["workflow_depth"] = workflow_depth;
-                newbody["workflow_width"] = workflow_width;
-        }
-	console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "0");
-	client.on('error', err => console.log('Redis Client Error', err));
-	await client.connect();
+	var workflow_depth = 0;
+	var workflow_width = 0;
+	var newbody = body;
+	if ("workflow_id" in body) {
+        	workflow_id = body["workflow_id"];
+        	workflow_depth = body["workflow_depth"] + 1;
+        	workflow_width = body["workflow_width"];
+	} else {
+        	newbody["workflow_id"] = workflow_id;
+        	newbody["workflow_depth"] = workflow_depth;
+        	newbody["workflow_width"] = workflow_width;
+	}
+	console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "kn" + "," + "0");
+	//client.on('error', err => console.log('Redis Client Error', err));
+	//await client.connect();
         if (body['requestType'] ==  'get_results') {
                 let data = await get_results_handler(newbody);
-        	console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "1");
+                console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "kn" + "," + "1");
                 return data;
         }
         else if (body['requestType'] == 'vote') {
                 let data = await vote_enqueuer_handler(newbody);
-                console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "2");
+                console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "kn" + "," + "2");
 		return data;
         }
-        console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "HTTP" + "," + "3");
-        return 'invalid request type';
+	console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + workflow_id + "," + workflow_depth.toString() + "," + workflow_width.toString() + "," + "kn" + "," + "3");
+	return 'invalid request type';
 }
 
 // Export the function

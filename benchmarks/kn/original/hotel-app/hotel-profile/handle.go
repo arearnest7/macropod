@@ -10,9 +10,6 @@ import (
         "strconv"
         "math/rand"
 
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-
 	log "github.com/sirupsen/logrus"
 
 	"time"
@@ -78,14 +75,14 @@ func GetProfiles(req RequestBody) string {
 	res := make([]Hotel, 0)
 	hotels := make([]Hotel, 0)
 
-	MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
-	var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
+	//MongoSession, _ := mgo.Dial(os.Getenv("HOTEL_APP_DATABASE"))
+	//var MemcClient = memcache.New(os.Getenv("HOTEL_APP_MEMCACHED"))
 
 	// one hotel should only have one profile
 
 	for _, i := range req.HotelIds {
 		// first check memcached
-		item, err := MemcClient.Get(i)
+		_, err := "not nil", memcache.ErrCacheMiss
 		if err == nil {
 			// memcached hit
 			// profile_str := string(item.Value)
@@ -94,19 +91,26 @@ func GetProfiles(req RequestBody) string {
 			// fmt.Println(profile_str)
 
 			hotel_prof := new(Hotel)
-			if err = json.Unmarshal(item.Value, hotel_prof); err != nil {
-				log.Warn(err)
-			}
+			//if err = json.Unmarshal(item.Value, hotel_prof); err != nil {
+			//	log.Warn(err)
+			//}
 			hotels = append(hotels, *hotel_prof)
 
 		} else if err == memcache.ErrCacheMiss {
 			// memcached miss, set up mongo connection
-			session := MongoSession.Copy()
-			defer session.Close()
-			c := session.DB("profile-db").C("hotels")
+			//session := MongoSession.Copy()
+                        //defer session.Close()
+                        f, _ := os.Open("profile_db.json")
+                        c, _ := ioutil.ReadAll(f)
 
 			hotel_prof := new(Hotel)
-			err := c.Find(bson.M{"id": i}).One(&hotel_prof)
+			hotel_prof_temp := make([]Hotel, 0)
+                        err := json.Unmarshal(c, &hotel_prof_temp)
+                        for _, h := range hotel_prof_temp {
+                                if h.id == i {
+                                        hotel_prof = &h
+                                }
+                        }
 
 			if err != nil {
 				log.Println("Hotel data not found in memcached: ", err)
@@ -117,17 +121,17 @@ func GetProfiles(req RequestBody) string {
 			// }
 			hotels = append(hotels, *hotel_prof)
 
-			prof_json, err := json.Marshal(hotel_prof)
+			_, err = json.Marshal(hotel_prof)
 			if err != nil {
 				log.Warn(err)
 			}
-			memc_str := string(prof_json)
+			//memc_str := string(prof_json)
 
 			// write to memcached
-			err = MemcClient.Set(&memcache.Item{Key: i, Value: []byte(memc_str)})
-			if err != nil {
-				log.Warn("MMC error: ", err)
-			}
+			//err = MemcClient.Set(&memcache.Item{Key: i, Value: []byte(memc_str)})
+			//if err != nil {
+			//	log.Warn("MMC error: ", err)
+			//}
 		} else {
 			fmt.Printf("Memmcached error = %s\n", err)
 			panic(err)

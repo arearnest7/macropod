@@ -68,9 +68,5 @@ def Recognise(request):
     return classification
 
 def FunctionHandler(context):
-    if context["InvokeType"] == "GRPC":
-        ret = Recognise(context["Request"])
-        return ret, 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
+    ret = Recognise(context["Request"])
+    return ret, 200

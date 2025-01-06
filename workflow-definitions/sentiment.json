@@ -44,7 +44,7 @@
 			"secrets": {}
 		},
 		"SENTIMENT_SERVICE_RESULT": {
-			"registry": "sysdevtamu/sentiment-service-results:macropod",
+			"registry": "sysdevtamu/sentiment-service-result:macropod",
 			"endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"],
 			"envs": {},
 			"secrets": {}

@@ -36,9 +36,9 @@ spec:
       serviceAccountName: controller
       tolerations:
       - effect: NoSchedule
-        key: taint_key
+        key: master-node
         operator: Equal
-        value: master_node
+        value: master-node
       containers:
         - name: default-domain
           # This is the Go import path for the binary that is containerized

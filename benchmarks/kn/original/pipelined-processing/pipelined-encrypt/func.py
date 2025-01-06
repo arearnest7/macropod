@@ -9,7 +9,7 @@ import datetime
 import redis
 import random
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 def main(context: Context):
@@ -23,7 +23,7 @@ def main(context: Context):
             workflow_width = context.request.json["workflow_width"]
         print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "0" + "\n", flush=True)
         event = context.request.json["event"]
-        data = redisClient.get("ziped-" + event[0])
+        data = open("ziped-" + event[0], 'rb').read()
         with open("/tmp/" + event[0] + ".zip", "wb") as f:
             f.write(data)
         key = Fernet.generate_key()
@@ -36,8 +36,8 @@ def main(context: Context):
             data = file.read()
         file.close()
         encrypted_data = fernet.encrypt(data)
-        redisClient.set("encrypted-" + event[0], encrypted_data)
-        redisClient.set("encrypted-key-" + event[0], key)
+        #redisClient.set("encrypted-" + event[0], encrypted_data)
+        #redisClient.set("encrypted-key-" + event[0], key)
         print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
         return "success", 200
     else:

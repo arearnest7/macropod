@@ -13,21 +13,21 @@ import datetime
 import redis
 import random
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 def checksum_handler(req):
     event = req["event"]
-    data = redisClient.get("original-" + event[0])
+    data = open("original-" + event[0], 'rb').read()
     md5 = hashlib.md5(data).hexdigest()
     if event[1] == md5:
-        redisClient.set("checksumed-" + event[0], data)
+        #redisClient.set("checksumed-" + event[0], data)
         return "success"
     return "failed"
 
 def zip_handler(req):
     event = req["event"]
-    data = redisClient.get("checksumed-" + event[0])
+    data = open("checksumed-" + event[0], 'rb').read()
     with open("/tmp/" + event[0], "wb") as f:
         f.write(data)
     with ZipFile('/tmp/zip.zip', 'w') as zip:
@@ -35,12 +35,12 @@ def zip_handler(req):
     zip.close()
     with open("/tmp/zip.zip", "rb") as f:
         data = f.read()
-    redisClient.set("ziped-" + event[0], data)
+    #redisClient.set("ziped-" + event[0], data)
     return "success"
 
 def encrypt_handler(req):
     event = req["event"]
-    data = redisClient.get("ziped-" + event[0])
+    data = open("ziped-" + event[0], 'rb').read()
     with open("/tmp/" + event[0] + ".zip", "wb") as f:
         f.write(data)
     key = Fernet.generate_key()
@@ -53,8 +53,8 @@ def encrypt_handler(req):
         data = file.read()
     file.close()
     encrypted_data = fernet.encrypt(data)
-    redisClient.set("encrypted-" + event[0], encrypted_data)
-    redisClient.set("encrypted-key-" + event[0], key)
+    #redisClient.set("encrypted-" + event[0], encrypted_data)
+    #redisClient.set("encrypted-key-" + event[0], key)
     return "success"
 
 def handle_handler(req):

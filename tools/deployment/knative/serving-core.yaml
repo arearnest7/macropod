@@ -6084,9 +6084,9 @@ spec:
     spec:
       tolerations:
       - effect: NoSchedule
-        key: taint_key
+        key: master-node
         operator: Equal
-        value: master_node
+        value: master-node
       serviceAccountName: activator
       containers:
         - name: activator
@@ -6245,9 +6245,9 @@ spec:
       # To avoid node becoming SPOF, spread our replicas to different nodes.
       tolerations:
       - effect: NoSchedule
-        key: taint_key
+        key: master-node
         operator: Equal
-        value: master_node
+        value: master-node
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -6383,9 +6383,9 @@ spec:
     spec:
       tolerations:
       - effect: NoSchedule
-        key: taint_key
+        key: master-node
         operator: Equal
-        value: master_node
+        value: master-node
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -6573,9 +6573,9 @@ spec:
     spec:
       tolerations:
       - effect: NoSchedule
-        key: taint_key
+        key: master-node
         operator: Equal
-        value: master_node
+        value: master-node
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

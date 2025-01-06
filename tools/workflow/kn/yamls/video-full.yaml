@@ -7,4 +7,4 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/sysdevtamu/video-full:wob
+        - image: docker.io/arearnest7/video-full:kn

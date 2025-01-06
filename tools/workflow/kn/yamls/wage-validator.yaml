@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/sysdevtamu/wage-validator:wob
+        - image: docker.io/arearnest7/wage-validator:kn
           env:
           - name: WAGE_FORMAT
             value: http://wage-format.knative-functions.127.0.0.1.sslip.io

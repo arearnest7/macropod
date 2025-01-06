@@ -4,22 +4,16 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"encoding/json"
 	"io/ioutil"
 	"strconv"
         "math/rand"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-
 	log "github.com/sirupsen/logrus"
 
-	"crypto/sha256"
-
 	"time"
+
+	"crypto/sha256"
 )
 
 type RequestBody struct {
@@ -47,23 +41,23 @@ type User struct {
 }
 
 // loadUsers loads hotel users from database
-func loadUsers(client *mongo.Client) map[string]string {
+func loadUsers() map[string]string {
 
-	coll := client.Database("user-db").Collection("user")
+	//coll := "{}"
 
-	filter := bson.D{}
+	//filter := bson.D{}
 	// filter := bson.M{{"username": username}}
-        cursor, err := coll.Find(context.Background(), filter)
-	if err != nil {
-		log.Println("Failed get users data: ", err)
-	}
+        //cursor, err := coll.Find(context.Background(), filter)
+	//if err != nil {
+	//	log.Println("Failed get users data: ", err)
+	//}
 
 	// Get a list of all returned documents and print them out.
 	// See the mongo.Cursor documentation for more examples of using cursors.
 	var users []User
-        if err = cursor.All(context.Background(), &users); err != nil {
-		log.Println("Failed get users data: ", err)
-	}
+        //if err = cursor.All(context.Background(), &users); err != nil {
+	//	log.Println("Failed get users data: ", err)
+	//}
 
 	res := make(map[string]string)
 	for _, user := range users {
@@ -76,11 +70,11 @@ func loadUsers(client *mongo.Client) map[string]string {
 }
 
 func lookupCache(username string) string {
-        ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
-	MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
-	if err != nil { return "" }
-	users_cached := loadUsers(MongoClient)
+        //ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	//defer cancel()
+	//MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
+	//if err != nil { return "" }
+	users_cached := loadUsers()
 	res, ok := users_cached[username]
 	if !ok {
 		log.Println("User does not exist: ", username)
@@ -92,22 +86,22 @@ func lookupCache(username string) string {
 func lookUpDB(username string) (User, bool) {
 	// session := s.MongoClient.Copy()
 	// defer session.Close()
-        ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-        defer cancel()
-        MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
-	collection := MongoClient.Database("user-db").Collection("user")
+        //ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+        //defer cancel()
+        //MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
+	//collection := "{}"
 
 	// listAll(collection)
 
 	// unmarshal json profiles
 	var user User
-	filter := bson.D{primitive.E{Key: "username", Value: username}}
+	//filter := bson.D{primitive.E{Key: "username", Value: username}}
 	// filter := bson.M{{"username": username}}
-        err = collection.FindOne(context.Background(), filter).Decode(&user)
-	if err != nil {
-		log.Println("Failed get user: ", err)
-		return user, false
-	}
+        //err = collection.FindOne(context.Background(), filter).Decode(&user)
+	//if err != nil {
+	//	log.Println("Failed get user: ", err)
+	//	return user, false
+	//}
 	return user, true
 }
 

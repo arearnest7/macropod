@@ -3,7 +3,7 @@ name: election-gateway-vevp
 runtime: node
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/election-gateway-vevp:kn
-imageDigest: sha256:ea6e1bc525bd19cb77bc4b1f44fcf8597c8802677fa037c2e86eb1bf6887a18a
+imageDigest: sha256:7e617ee0b030fa2ad2c4e8c4cb332cb5cb396d98b8ff694e5086c217e968ee16
 created: 2023-10-20T10:09:34.92768829-05:00
 build:
   builder: pack
@@ -14,6 +14,6 @@ run:
   - name: REDIS_URL
     value: 127.0.0.1
   - name: REDIS_PASSWORD
-    value: password
+    value: electoon-gateway-vevp
 deploy:
   namespace: default

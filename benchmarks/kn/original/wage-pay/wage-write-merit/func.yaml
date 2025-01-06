@@ -3,7 +3,7 @@ name: wage-write-merit
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-write-merit:kn
-imageDigest: sha256:7f50bd209c07bf8fb1082c3681d2e7bc97e886de24071e734b2e75bfa3d9ad73
+imageDigest: sha256:65355eb44247b025016786f01b572c0d56ccbb0be86106060fa9e9124f74ac7a
 created: 2023-12-03T21:05:01.566151977-06:00
 build:
   builder: pack

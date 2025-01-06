@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/sysdevtamu/pipelined-main-partial:wob
+        - image: docker.io/arearnest7/pipelined-main-partial:kn
           env:
           - name: PIPELINED_CHECKSUM_PARTIAL
             value: http://pipelined-checksum-partial.knative-functions.127.0.0.1.sslip.io

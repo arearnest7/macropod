@@ -9,30 +9,26 @@ import json
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def FunctionHandler(context):
-    if context["InvokeType"] == "GRPC":
-        params = json.loads(context["Request"])
-        bucket = params['input_bucket']
+    params = json.loads(context["Request"])
+    bucket = params['input_bucket']
 
-        result = []
-        latency = 0
+    result = []
+    latency = 0
 
-        for key in ["reviews100mb.txt", "reviews10mb.txt", "reviews20mb.txt", "reviews50mb.txt"]:
-            body = open(key, 'r').read()
-            start = time.time()
-            word = body.replace("'", '').split(',')
-            result.extend(word)
-            latency += time.time() - start
+    for key in ["reviews100mb.txt", "reviews10mb.txt", "reviews20mb.txt", "reviews50mb.txt"]:
+        body = open(key, 'r').read()
+        start = time.time()
+        word = body.replace("'", '').split(',')
+        result.extend(word)
+        latency += time.time() - start
 
-        print(len(result))
+    print(len(result))
 
-        tfidf_vect = TfidfVectorizer().fit(result)
-        feature = str(tfidf_vect.get_feature_names_out())
-        feature = feature.lstrip('[').rstrip(']').replace(' ' , '')
+    tfidf_vect = TfidfVectorizer().fit(result)
+    feature = str(tfidf_vect.get_feature_names_out())
+    feature = feature.lstrip('[').rstrip(']').replace(' ' , '')
 
-        feature_key = 'feature.txt'
-        #redisClient.set(bucket + "-" + feature_key, str(feature))
+    feature_key = 'feature.txt'
+    #redisClient.set(bucket + "-" + feature_key, str(feature))
 
-        return str(latency), 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
+    return str(latency), 200

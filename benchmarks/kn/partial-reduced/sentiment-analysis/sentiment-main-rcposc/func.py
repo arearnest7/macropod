@@ -10,9 +10,9 @@ import datetime
 import redis
 import random
 
-pp = pprint.PrettyPrinter(indent=4)
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
+pp = pprint.PrettyPrinter(indent=4)
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def cfail_handler(req):
     return "CategorizationFail: Fail: \"Input CSV could not be categorised into 'Product' or 'Service'.\""
@@ -44,9 +44,9 @@ def read_csv_handler(req):
     bucket_name = event['bucket_name']
     file_key = event['file_key']
 
-    response = redisClient.get(file_key)
+    response = open(file_key, 'r').read()
 
-    lines = response.decode('utf-8').split('\n')
+    lines = response.split('\n')
 
     for row in csv.DictReader(lines):
         row["workflow_id"] = req["workflow_id"]

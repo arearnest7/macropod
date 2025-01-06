@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/sysdevtamu/election-get-results:wob
+        - image: docker.io/arearnest7/election-get-results:kn
           env:
           - name: REDIS_URL
             value: 127.0.0.1

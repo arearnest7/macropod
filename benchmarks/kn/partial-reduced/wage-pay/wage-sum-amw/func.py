@@ -9,15 +9,15 @@ import datetime
 import redis
 import random
 
+
 TAX = 0.0387
 ROLES = ['staff', 'teamleader', 'manager']
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
-
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def write_merit_handler(req):
     params = req
-    redisClient.set("merit-" + str(params["id"]), json.dumps(req))
+    #redisClient.set("merit-" + str(params["id"]), json.dumps(req))
 
     return str(params["id"]) + " statistics uploaded/updated"
 
@@ -58,13 +58,14 @@ def main(context: Context):
             workflow_width = context.request.json["workflow_width"]
         print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "0" + "\n", flush=True)
         params = context.request.json
-        temp = json.loads(redisClient.get(params["operator"]))
+        temp = json.loads(open(params["operator"], 'r').read())
         params["operator"] = temp["operator"]
         params["id"] = temp["id"]
         stats = {'total': params['total']['statistics']['total'] }
         params['statistics'] = stats
+        ret = wage_avg_handler(params)
         print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
-        return wage_avg_handler(params), 200
+        return ret, 200
     else:
         print("Empty request", flush=True)
         return "{}", 200

@@ -15,7 +15,7 @@ import random
 
 pp = pprint.PrettyPrinter(indent=4)
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 def db_handler(req):
@@ -153,9 +153,9 @@ def read_csv_handler(req):
 
     bucket_name = event['bucket_name']
     file_key = event['file_key']
-    response = redisClient.get(file_key)
+    response = open(file_key, 'r').read()
 
-    lines = response.decode('utf-8').split('\n')
+    lines = response.split('\n')
 
     for row in csv.DictReader(lines):
         return product_or_service_handler(row)

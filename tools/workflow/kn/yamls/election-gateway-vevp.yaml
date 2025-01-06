@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/sysdevtamu/election-gateway-vevp:wob
+        - image: docker.io/arearnest7/election-gateway-vevp:kn
           env:
           - name: ELECTION_GET_RESULTS_PARTIAL
             value: http://election-get-results-partial.knative-functions.127.0.0.1.sslip.io

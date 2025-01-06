@@ -2,6 +2,7 @@
 MASTER_IP=$1
 iface=$2
 TOKEN=$3
+sudo apt-get install ca-certificates curl gnupg
 worker=$(/sbin/ifconfig $iface | grep -i mask | awk '{print $2}'| cut -f2 -d:)
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="agent --server https://$MASTER_IP:6443 --token $TOKEN --flannel-iface $iface --node-external-ip $worker" sh -
 mkdir metrics

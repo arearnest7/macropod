@@ -19,9 +19,9 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: macropod
+  name: macropod-functions
   labels:
-    name: macropod
+    name: macropod-functions
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -62,26 +62,18 @@ spec:
         app: macropod
     spec:
      serviceAccountName: macropod-service-account
+     tolerations:
+      - key: "master-node"
+        value: "master-node"
+        effect: "NoSchedule"
      containers:
       - name: macropod-ingress
         image: sysdevtamu/macropod-ingress:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
-        env:
-        - name: SERVICE_PORT
-          value: "8081"
-        - name: TTL
-          value: "300"
-        - name: DEP_CONTROLLER_ADD
-          value: "127.0.0.1:8082"
       - name: macropod-deployer
         image: sysdevtamu/macropod-deployer:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8082
-        env:
-        - name: SERVICE_PORT
-          value: "8082"
-        - name: NAMESPACE_INGRESS
-          value: "macropod"

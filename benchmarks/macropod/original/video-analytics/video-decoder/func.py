@@ -54,10 +54,6 @@ def Decode(request, context):
     return results
 
 def FunctionHandler(context):
-    if context["InvokeType"] == "GRPC":
-        ctx = context
-        ret = Decode(context["Request"], context)
-        return ret, 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
+    ctx = context
+    ret = Decode(context["Request"], context)
+    return ret, 200

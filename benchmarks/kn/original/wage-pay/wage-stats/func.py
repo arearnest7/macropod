@@ -10,7 +10,7 @@ import datetime
 import redis
 import random
 
-redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
+#redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 
 def main(context: Context):
@@ -29,13 +29,13 @@ def main(context: Context):
         base = {'statistics': {'staff': 0, 'teamleader': 0, 'manager': 0}}
         merit = {'statistics': {'staff': 0, 'teamleader': 0, 'manager': 0}}
 
-        for key in redisClient.scan_iter("raw-*"):
-            doc = json.loads(redisClient.get(key.decode("utf-8")))
+        for key in range(0, 100):
+            doc = json.loads(open(str(key), 'r').read())
             total['statistics']['total'] += doc['total']
             total['statistics'][doc['role']+'-number'] += 1
             base['statistics'][doc['role']] += doc['base']
             merit['statistics'][doc['role']] += doc['merit']
-            manifest.append(key.decode("utf-8"))
+            manifest.append(str(key))
 
         fs = []
         with ThreadPoolExecutor(max_workers=len(manifest)) as executor:

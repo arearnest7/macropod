@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/sysdevtamu/feature-extractor-partial:wob
+        - image: docker.io/arearnest7/feature-extractor-partial:kn
           env:
           - name: REDIS_URL
             value: 127.0.0.1

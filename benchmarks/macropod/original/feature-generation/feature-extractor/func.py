@@ -17,32 +17,28 @@ def cleanup(sentence):
     return sentence
 
 def FunctionHandler(context):
-    if context["InvokeType"] == "GRPC":
-        params = json.loads(context["Request"])
-        bucket = params['input_bucket']
-        key = params['key']
-        dest = params['dest']
-        with open("/tmp/" + key, "w") as f:
-            f.write(open(key, 'r').read())
-        f.close()
-        df = pd.read_csv("/tmp/" + key)
+    params = json.loads(context["Request"])
+    bucket = params['input_bucket']
+    key = params['key']
+    dest = params['dest']
+    with open("/tmp/" + key, "w") as f:
+        f.write(open(key, 'r').read())
+    f.close()
+    df = pd.read_csv("/tmp/" + key)
 
-        start = time.time()
-        df['Text'] = df['Text'].apply(cleanup)
-        text = df['Text'].tolist()
-        result = set()
-        for item in text:
-            result.update(item.split())
-        print("Number of Feature : " + str(len(result)))
+    start = time.time()
+    df['Text'] = df['Text'].apply(cleanup)
+    text = df['Text'].tolist()
+    result = set()
+    for item in text:
+        result.update(item.split())
+    print("Number of Feature : " + str(len(result)))
 
-        feature = str(list(result))
-        feature = feature.lstrip('[').rstrip(']').replace(' ', '')
-        latency = time.time() - start
-        print(latency)
+    feature = str(list(result))
+    feature = feature.lstrip('[').rstrip(']').replace(' ', '')
+    latency = time.time() - start
+    print(latency)
 
-        write_key = params['key'].split('.')[0] + ".txt"
-        #redisClient.set(dest + "-" + write_key, feature)
-        return str(latency), 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
+    write_key = params['key'].split('.')[0] + ".txt"
+    #redisClient.set(dest + "-" + write_key, feature)
+    return str(latency), 200
