@@ -6,7 +6,7 @@ full=("election-full" "hotel-full" "sentiment-full" "video-full")
 original=("election-gateway" "hotel-frontend" "sentiment-main" "video-streaming")
 partial=("election-gateway-vevp" "hotel-frontend-spgr" "sentiment-main-rcposc" "video-streaming-d")
 c=(8 16 20 40)
-for i in {0..3}; do
+for i in {0..1}; do
 	for concurrency in ${c[@]}; do
 		#date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
 		#./collect-kn.sh $HOST full-${benchmarks[$i]} ${full[$i]} $concurrency ../../tools/payloads/${benchmarks[$i]}.json 1000
@@ -29,7 +29,7 @@ full=("election-full" "hotel-full" "sentiment-full")
 original=("election-gateway" "hotel-frontend" "sentiment-main")
 partial=("election-gateway-vevp" "hotel-frontend-spgr" "sentiment-main-rcposc")
 c=(80 100)
-for i in {0..2}; do
+for i in {0..1}; do
         for concurrency in ${c[@]}; do
                 #date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
                 #./collect-kn.sh $HOST full-${benchmarks[$i]} ${full[$i]} $concurrency ../../tools/payloads/${benchmarks[$i]}.json 1000

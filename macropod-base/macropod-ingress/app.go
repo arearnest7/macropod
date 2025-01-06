@@ -158,7 +158,9 @@ func callDepController(type_call string, func_name string, payload string) error
 		case "2": // target concurrency decrease
 			if debug > 2 {
 				fmt.Println("workflow hit threshold, scaling down target concurrency")
+				dataLock.Lock()
 				workflow_target_concurrency[func_name] = workflow_invocations_current[func_name] / len(service_target[func_name]) / 2
+				dataLock.Unlock()
 			}
 		default:
 			if debug > 2 {
@@ -353,7 +355,7 @@ func getTargets(triggered bool, func_name string, target string) (string, bool) 
 	}
 	if !triggered && len(service_target[func_name]) < workflow_invocations_current[func_name]{
 		triggered = true
-		callDepController("create_deployment", func_name, strconv.Itoa(len(service_target[func_name])))
+		go callDepController("create_deployment", func_name, strconv.Itoa(len(service_target[func_name])))
 	}
 	dataLock.Unlock()
 	return target, triggered
