@@ -30,12 +30,12 @@ import (
 type Function struct {
 	Registry  string            `json:"registry"`
 	Endpoints []string          `json:"endpoints,omitempty"`
-	Envs	  map[string]string `json:"envs,omitempty"`
+	Envs      map[string]string `json:"envs,omitempty"`
 	Secrets   map[string]string `json:"secrets,omitempty"`
 }
 
 type Workflow struct {
-	Name	  string              `json:"name,omitempty"`
+	Name      string              `json:"name,omitempty"`
 	Functions map[string]Function `json:"functions"`
 }
 
@@ -51,15 +51,15 @@ var (
 	service_stub                 = make(map[string][]wf_pb.GRPCFunctionClient)
 	deployer_channel             *grpc.ClientConn
 	deployer_stub                pb.DeploymentServiceClient
+	transition = make(map[string]bool)
+	ttl_seconds        int
+	debug              int
+	deployer_add       string
+	macropod_namespace string
 
-	ttl_seconds                  int
-	debug                        int
-	deployer_add                 string
-	macropod_namespace           string
+	dataLock sync.Mutex
 
-	dataLock                     sync.Mutex
-
-	retrypolicy                  = `{
+	retrypolicy = `{
 		"methodConfig": [{
 		"name": [{}],
 		"waitForReady": true,
@@ -112,6 +112,92 @@ func ifPodsAreRunning(workflow_replica string, namespace string) bool {
 	return true
 }
 
+func nodeReclaim(func_name string, reclaim_replicas []string) {
+	dataLock.Lock()
+	transition[func_name] = true
+	dataLock.Unlock()
+ 	config, err := rest.InClusterConfig()
+	if err != nil {
+		if debug > 0 {
+			fmt.Println("Failed to get in-cluster config: " + err.Error())
+		}
+		return
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		if debug > 0 {
+			fmt.Println("Failed to create k: " + err.Error())
+		}
+	}
+
+	var ingress_list []string
+
+	for _, replica_name := range reclaim_replicas {
+		labels_replica := "workflow_replica=" + replica_name
+		ingresses, err := k.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, ingress := range ingresses.Items {
+			hostname_deleted := ""
+			k.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+			for _, rule := range ingress.Spec.Rules {
+				if rule.HTTP != nil {
+					for _, path := range rule.HTTP.Paths {
+						serviceName := path.Backend.Service.Name
+						namespace := ingress.Namespace
+						port := path.Backend.Service.Port.Number
+						dataLock.Lock()
+						func_name = ingress.Labels["workflow_name"]
+						dataLock.Unlock()
+						hostname_deleted = fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+					}
+				}
+			}
+			ingress_list = append(ingress_list, hostname_deleted)
+		}
+		for _, ingress_name := range ingress_list {
+			dataLock.Lock()
+			for service_count[ingress_name] != 0 {
+				dataLock.Unlock()
+				time.Sleep(10 * time.Millisecond)
+				dataLock.Lock()
+			}
+			dataLock.Unlock()
+			delete(service_count, ingress_name)
+		}
+
+		services, err := k.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, service := range services.Items {
+			k.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+		deployments, err := k.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+		if err != nil && debug > 0 {
+			fmt.Println(err)
+		}
+		for _, deployment := range deployments.Items {
+			k.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+		}
+
+		for {
+			deployments_list, _ := k.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+			if deployments_list == nil || len(deployments_list.Items) == 0 {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: "create_after_transition"}
+		resp, err := deployer_stub.Deployment(context.Background(), request)
+		log.Print("create after transition %s", resp.Message)
+	}
+	dataLock.Lock()
+	transition[func_name] = false
+	dataLock.Unlock()
+}
+
 func callDepController(type_call string, func_name string, payload string) error {
 	dataLock.Lock()
 	for deployer_channel == nil || deployer_channel.GetState() != connectivity.Ready {
@@ -122,22 +208,29 @@ func callDepController(type_call string, func_name string, payload string) error
 	dataLock.Unlock()
 	request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: type_call}
 	switch type_call {
-		case "create_workflow":
-			request.Workflow = &payload
-		case "update_workflow":
-			request.Workflow = &payload
-		case "delete_workflow":
-			if debug > 2 {
-				fmt.Println("calling deployer delete")
-			}
-		case "create_deployment":
-			rn, _ := strconv.Atoi(payload)
-			request.ReplicaNumber = int32(rn)
-		case "update_deployments":
-			rn, _ := strconv.Atoi(payload)
-			request.ReplicaNumber = int32(rn)
-		case "ttl_delete":
-			request.Workflow = &payload
+	case "create_workflow":
+		request.Workflow = &payload
+	case "update_workflow":
+		request.Workflow = &payload
+	case "delete_workflow":
+		if debug > 2 {
+			fmt.Println("calling deployer delete")
+		}
+	case "create_deployment":
+		rn, _ := strconv.Atoi(payload)
+		request.ReplicaNumber = int32(rn)
+	case "update_deployments":
+		dataLock.Lock()
+		if transition[func_name] {
+			log.Print("tranistion is already in place")
+			dataLock.Unlock()
+			return nil
+		}
+		dataLock.Unlock()
+		rn, _ := strconv.Atoi(payload)
+		request.ReplicaNumber = int32(rn)
+	case "ttl_delete":
+		request.Workflow = &payload
 	}
 	resp, err := deployer_stub.Deployment(context.Background(), request)
 	if err != nil && debug > 0 {
@@ -145,25 +238,27 @@ func callDepController(type_call string, func_name string, payload string) error
 		return err
 	}
 	switch resp_code := strings.Split(resp.Message, "."); resp_code[0] {
-		case "0": // status ok
-			if debug > 3 {
-				fmt.Println("deployer controller return ok")
-			}
-		case "1": // already deploying
-			if debug > 2 {
-				fmt.Println("deployer already modifying workflow " + func_name)
-			}
-		case "2": // target concurrency decrease
-			if debug > 2 {
-				fmt.Println("workflow hit threshold, scaling down target concurrency")
-				dataLock.Lock()
-				workflow_target_concurrency[func_name] = workflow_invocations_current[func_name] / len(service_target[func_name]) / 2
-				dataLock.Unlock()
-			}
-		default:
-			if debug > 2 {
-				fmt.Println("Unknown response code " + resp_code[0])
-			}
+	case "0": // status ok
+		if debug > 3 {
+			fmt.Println("deployer controller return ok")
+		}
+	case "1": // already deploying
+		if debug > 2 {
+			fmt.Println("deployer already modifying workflow " + func_name)
+		}
+	case "2": // target concurrency decrease
+		if debug > 2 {
+			fmt.Println("workflow hit threshold, scaling down target concurrency")
+			dataLock.Lock()
+			workflow_target_concurrency[func_name] = workflow_invocations_current[func_name] / len(service_target[func_name]) / 2
+			log.Printf("this is the response code : %v", resp_code[1:])
+			go nodeReclaim(func_name, resp_code[1:])
+			dataLock.Unlock()
+		}
+	default:
+		if debug > 2 {
+			fmt.Println("Unknown response code " + resp_code[0])
+		}
 	}
 
 	return nil
@@ -237,7 +332,8 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
 				hostname := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
 				replica_name := ingress.Labels["workflow_replica"]
 				dataLock.Unlock()
-				for !ifPodsAreRunning(replica_name, namespace) {}
+				for !ifPodsAreRunning(replica_name, namespace) {
+				}
 				if debug > 2 {
 					fmt.Println("service found: " + hostname)
 				}
@@ -245,6 +341,9 @@ func updateHostTargets(ingress *networkingv1.Ingress) {
 				stub := wf_pb.NewGRPCFunctionClient(channel)
 				for channel.GetState() != connectivity.Ready {
 					time.Sleep(10 * time.Millisecond)
+				}
+				if debug > 2 {
+					fmt.Println("channel found for: " + hostname)
 				}
 				dataLock.Lock()
 				service_count[hostname] = 0
@@ -275,22 +374,21 @@ func deleteHostTargets(ingress *networkingv1.Ingress) {
 			}
 		}
 	}
+	log.Printf("deletng : %s", hostname_deleted)
 	for i, val := range service_target[func_name] {
 		if val == hostname_deleted {
 			dataLock.Lock()
 			service_target[func_name] = append(service_target[func_name][:i], service_target[func_name][i+1:]...)
 			dataLock.Unlock()
 			if debug > 2 {
-				log.Printf("deleting %v", hostname_deleted)
+				log.Printf("deleting %v from %v", hostname_deleted, service_target[func_name])
 			}
-			if _, exists := service_count[hostname_deleted]; exists {
-				dataLock.Lock()
-				delete(service_count, hostname_deleted)
-				delete(service_timestamp, hostname_deleted)
-				delete(service_channel, hostname_deleted)
-				delete(service_stub, hostname_deleted)
-				dataLock.Unlock()
-			}
+			dataLock.Lock()
+			delete(service_timestamp, hostname_deleted)
+			delete(service_channel, hostname_deleted)
+			delete(service_stub, hostname_deleted)
+			dataLock.Unlock()
+
 			break
 		}
 
@@ -304,7 +402,7 @@ func watchIngress() {
 		fmt.Println("Failed to get in-cluster config: " + err.Error())
 	}
 	k, err := kubernetes.NewForConfig(config)
-	if err != nil && debug > 0{
+	if err != nil && debug > 0 {
 		fmt.Println("Failed to create k: " + err.Error())
 	}
 	//reference: https://blog.mimacom.com/k8s-watch-resources/
@@ -351,7 +449,7 @@ func getTargets(triggered bool, func_name string, target string) (string, bool) 
 			}
 		}
 	}
-	if !triggered && len(service_target[func_name]) < workflow_invocations_current[func_name]{
+	if !triggered && len(service_target[func_name]) < workflow_invocations_current[func_name] {
 		triggered = true
 		go callDepController("create_deployment", func_name, strconv.Itoa(len(service_target[func_name])))
 	}
@@ -411,12 +509,12 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	_, exists := workflows[func_name]
 	if exists {
 		if debug > 2 {
-			fmt.Fprintf(res, "Workflow " +func_name+" already exists\n")
+			fmt.Fprintf(res, "Workflow "+func_name+" already exists\n")
 		}
 		return
 	}
 	body, err := ioutil.ReadAll(req.Body)
-	if err != nil && debug > 0{
+	if err != nil && debug > 0 {
 		fmt.Println("create body - " + err.Error())
 	}
 	body_u := Workflow{}
@@ -554,5 +652,5 @@ func main() {
 	h.HandleFunc("/create/{func_name}", Serve_WF_Create)
 	h.HandleFunc("/update/{func_name}", Serve_WF_Update)
 	h.HandleFunc("/delete/{func_name}", Serve_WF_Delete)
-	http.ListenAndServe(":" + service_port, h)
+	http.ListenAndServe(":"+service_port, h)
 }

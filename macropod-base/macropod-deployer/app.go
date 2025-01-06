@@ -421,51 +421,6 @@ func createDeployment(func_name string, bypass bool) string {
 	return "0"
 }
 
-func nodeReclaim(func_name string) {
-	depLock.Lock()
-	reclaim_replicas := workflows[func_name].Deployments
-	depLock.Unlock()
-	for replica_name, _ := range reclaim_replicas {
-		depLock.Lock()
-		delete(workflows[func_name].Deployments, replica_name)
-		delete(workflows[func_name].IngressVersion, replica_name)
-		depLock.Unlock()
-		labels_replica := "workflow_replica=" + replica_name
-		services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-		if err != nil && debug > 0 {
-			fmt.Println(err)
-		}
-		for _, service := range services.Items {
-			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
-		}
-		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-		if err != nil && debug > 0 {
-			fmt.Println(err)
-		}
-		for _, deployment := range deployments.Items {
-			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
-		}
-		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-		if err != nil && debug > 0 {
-			fmt.Println(err)
-		}
-		for _, ingress := range ingresses.Items {
-			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
-		}
-
-		for {
-			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-			if deployments_list == nil || len(deployments_list.Items) == 0 {
-				break
-			}
-			time.Sleep(10 * time.Millisecond)
-		}
-		createDeployment(func_name, true)
-	}
-	depLock.Lock()
-	workflows[func_name].Updating = false
-	depLock.Unlock()
-}
 
 func updateDeployments(func_name string) string {
 	depLock.Lock()
@@ -514,6 +469,7 @@ func updateDeployments(func_name string) string {
 		usage_cpu, _ := cpu_raw_to_float(node.Usage.CPU)
 		percentage_cpu := (usage_cpu / nodeCapacityCPU[node_name]) * 100
 		percentage_mem := (usage_mem / nodeCapacityMemory[node_name]) * 100
+		log.Printf("%f, %f", percentage_cpu, percentage_mem)
 		depLock.Unlock()
 		if percentage_mem > 70 || percentage_cpu > 70 {
 			depLock.Lock()
@@ -528,7 +484,6 @@ func updateDeployments(func_name string) string {
 					pods_updated = append(pods_updated, pod)
 				}
 			}
-
 			pod_2_or_more := false
 			for _, pod := range pods_updated {
 				if len(pod) > 1 {
@@ -541,9 +496,18 @@ func updateDeployments(func_name string) string {
 			}
 			workflows[func_name].Pods = pods_updated
 			workflows[func_name].LastUpdated = time.Now()
-			go nodeReclaim(func_name)
+			reclaim_replicas := workflows[func_name].Deployments
 			depLock.Unlock()
-			return "2"
+			replicas := ""
+			for replica_name, _ := range reclaim_replicas {
+				depLock.Lock()
+				delete(workflows[func_name].Deployments, replica_name)
+				delete(workflows[func_name].IngressVersion, replica_name)
+				replicas = replicas + "."+replica_name
+				depLock.Unlock()
+			}
+			workflows[func_name].Updating = false
+			return "2"+replicas
 		}
 	}
 
@@ -862,6 +826,8 @@ func (s *server) Deployment(ctx context.Context, req *pb.DeploymentServiceReques
 			result = updateDeployments(func_name)
 		case "create_deployment":
 			result = createDeployment(func_name, false)
+		case "create_after_transition":
+			result = createDeployment(func_name, true)
 		case "ttl_delete":
 			deleteTTL(func_name, *req.Workflow)
 	}
