@@ -49,6 +49,8 @@ var (
 	service_timestamp            = make(map[string]time.Time)
 	service_channel              = make(map[string][]*grpc.ClientConn)
 	service_stub                 = make(map[string][]wf_pb.GRPCFunctionClient)
+	deployer_channel             *grpc.ClientConn
+	deployer_stub                pb.DeploymentServiceClient
 
 	ttl_seconds                  int
 	debug                        int
@@ -56,8 +58,6 @@ var (
 	macropod_namespace           string
 
 	dataLock                     sync.Mutex
-	timerLock                    sync.Mutex
-	depLock                      sync.Mutex
 
 	retrypolicy                  = `{
 		"methodConfig": [{
@@ -113,13 +113,13 @@ func ifPodsAreRunning(workflow_replica string, namespace string) bool {
 }
 
 func callDepController(type_call string, func_name string, payload string) error {
-	opts := grpc.WithInsecure()
-	cc, err := grpc.Dial(deployer_add, opts)
-	if err != nil && debug > 0 {
-		fmt.Println(err)
+	dataLock.Lock()
+	for deployer_channel == nil || deployer_channel.GetState() != connectivity.Ready {
+		deployer_channel, _ = grpc.Dial(deployer_add, grpc.WithInsecure())
+		deployer_stub = pb.NewDeploymentServiceClient(deployer_channel)
+		time.Sleep(10 * time.Millisecond)
 	}
-	defer cc.Close()
-	client := pb.NewDeploymentServiceClient(cc)
+	dataLock.Unlock()
 	request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: type_call}
 	switch type_call {
 		case "create_workflow":
@@ -139,9 +139,7 @@ func callDepController(type_call string, func_name string, payload string) error
 		case "ttl_delete":
 			request.Workflow = &payload
 	}
-	depLock.Lock()
-	resp, err := client.Deployment(context.Background(), request)
-	depLock.Unlock()
+	resp, err := deployer_stub.Deployment(context.Background(), request)
 	if err != nil && debug > 0 {
 		fmt.Println(err)
 		return err
@@ -153,7 +151,7 @@ func callDepController(type_call string, func_name string, payload string) error
 			}
 		case "1": // already deploying
 			if debug > 2 {
-				fmt.Println("deployer already modifying workflow %s", func_name)
+				fmt.Println("deployer already modifying workflow " + func_name)
 			}
 		case "2": // target concurrency decrease
 			if debug > 2 {
@@ -382,9 +380,6 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	dataLock.Unlock()
 	go callDepController("update_deployments", func_name, invocations_current)
 	request_type := "gg"
-	dataLock.Lock()
-
-	dataLock.Unlock()
 	stub := service_stub[target][0]
 	start_time := time.Now()
 	response, err := stub.GRPCFunctionHandler(context.Background(), &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
