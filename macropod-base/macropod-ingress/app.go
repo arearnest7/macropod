@@ -375,7 +375,10 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	workflow_id := strconv.Itoa(rand.Intn(100000))
 	status := int32(0)
 	var response *wf_pb.ResponseBody
-	go callDepController("update_deployments", func_name, strconv.Itoa(workflow_invocations_current[func_name]))
+	dataLock.Lock()
+	invocations_current := strconv.Itoa(workflow_invocations_current[func_name])
+	dataLock.Unlock()
+	go callDepController("update_deployments", func_name, invocations_current)
 	request_type := "gg"
 	dataLock.Lock()
 
