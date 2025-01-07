@@ -131,9 +131,9 @@ func nodeReclaim(func_name string, reclaim_replicas []string) {
 	}
 
 	var ingress_list []string
-
 	for _, replica_name := range reclaim_replicas {
 		labels_replica := "workflow_replica=" + replica_name
+		log.Printf("label to delete %s", labels_replica)
 		ingresses, err := k.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 		if err != nil && debug > 0 {
 			fmt.Println(err)
@@ -158,13 +158,17 @@ func nodeReclaim(func_name string, reclaim_replicas []string) {
 		}
 		for _, ingress_name := range ingress_list {
 			dataLock.Lock()
-			for service_count[ingress_name] != 0 {
-				dataLock.Unlock()
+			status_service := service_count[ingress_name]
+			dataLock.Unlock()
+			for status_service != 0 {
 				time.Sleep(10 * time.Millisecond)
 				dataLock.Lock()
+				status_service = service_count[ingress_name]
+				dataLock.Unlock()
 			}
-			dataLock.Unlock()
+			dataLock.Lock()
 			delete(service_count, ingress_name)
+			dataLock.Unlock()
 		}
 
 		services, err := k.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
@@ -190,8 +194,7 @@ func nodeReclaim(func_name string, reclaim_replicas []string) {
 			time.Sleep(10 * time.Millisecond)
 		}
 		request := &pb.DeploymentServiceRequest{Name: func_name, FunctionCall: "create_after_transition"}
-		resp, err := deployer_stub.Deployment(context.Background(), request)
-		log.Print("create after transition %s", resp.Message)
+		deployer_stub.Deployment(context.Background(), request)
 	}
 	dataLock.Lock()
 	transition[func_name] = false
@@ -237,6 +240,7 @@ func callDepController(type_call string, func_name string, payload string) error
 		fmt.Println(err)
 		return err
 	}
+	log.Printf("the response if %s", resp.Message)
 	switch resp_code := strings.Split(resp.Message, "."); resp_code[0] {
 	case "0": // status ok
 		if debug > 3 {
@@ -249,12 +253,11 @@ func callDepController(type_call string, func_name string, payload string) error
 	case "2": // target concurrency decrease
 		if debug > 2 {
 			fmt.Println("workflow hit threshold, scaling down target concurrency")
+		}
 			dataLock.Lock()
 			workflow_target_concurrency[func_name] = workflow_invocations_current[func_name] / len(service_target[func_name]) / 2
-			log.Printf("this is the response code : %v", resp_code[1:])
 			go nodeReclaim(func_name, resp_code[1:])
 			dataLock.Unlock()
-		}
 	default:
 		if debug > 2 {
 			fmt.Println("Unknown response code " + resp_code[0])
@@ -437,7 +440,8 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 func getTargets(triggered bool, func_name string, target string) (string, bool) {
 	dataLock.Lock()
 	if len(service_target[func_name]) > 0 {
-		idx := workflow_invocations_total[func_name] % len(service_target[func_name])
+		rand.Seed(time.Now().UnixNano())
+		idx := rand.Intn(len(service_target[func_name]))
 		service := service_target[func_name][idx]
 		target_concurrency, target_concurrency_set := workflow_target_concurrency[func_name]
 		channel, service_channel_exists := service_channel[service]
@@ -449,7 +453,7 @@ func getTargets(triggered bool, func_name string, target string) (string, bool) 
 			}
 		}
 	}
-	if !triggered && len(service_target[func_name]) < workflow_invocations_current[func_name] {
+	if !triggered && len(service_target[func_name]) < workflow_invocations_current[func_name] && !transition[func_name] {
 		triggered = true
 		go callDepController("create_deployment", func_name, strconv.Itoa(len(service_target[func_name])))
 	}
@@ -468,6 +472,7 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	look_arget := time.Now()
 	for target == "" {
 		target, triggered = getTargets(triggered, func_name, target)
+		time.Sleep(10*time.Millisecond)
 	}
 	payload, _ := ioutil.ReadAll(req.Body)
 	workflow_id := strconv.Itoa(rand.Intn(100000))
@@ -530,6 +535,7 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	if debug > 2 {
 		fmt.Println("WF_CREATE_END " + func_name)
 	}
+	transition[req.PathValue("func_name")] = false
 	fmt.Fprintf(res, "Workflow created successfully. Invoke your workflow with /invoke/"+func_name+"\n")
 }
 
@@ -574,6 +580,7 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	delete(workflow_target_concurrency, req.PathValue("func_name"))
 	workflow_invocations_current[req.PathValue("func_name")] = 0
 	workflow_invocations_total[req.PathValue("func_name")] = 0
+	transition[req.PathValue("func_name")] = false
 	dataLock.Unlock()
 	if debug > 2 {
 		fmt.Println("WF_UPDATE_END " + req.PathValue("func_name"))
