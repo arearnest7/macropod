@@ -218,11 +218,6 @@ func callDepController(type_call string, func_name string, payload string) error
 	case "create_workflow":
 		request.Workflow = &payload
 	case "update_workflow":
-		dataLock.Lock()
-		if time.Since(workflow_last_updated[func_name]) < time.Second*time.Duration(update_threshold) {
-			return nil
-		}
-		dataLock.Unlock()
 		request.Workflow = &payload
 	case "delete_workflow":
 		if debug > 2 {
@@ -233,6 +228,9 @@ func callDepController(type_call string, func_name string, payload string) error
 		request.ReplicaNumber = int32(rn)
 	case "update_deployments":
 		dataLock.Lock()
+		if time.Since(workflow_last_updated[func_name]) < time.Second*time.Duration(update_threshold) {
+			return nil
+		}
 		if transition[func_name] {
 			log.Print("tranistion is already in place")
 			dataLock.Unlock()
