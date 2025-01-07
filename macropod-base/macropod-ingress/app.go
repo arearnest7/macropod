@@ -229,6 +229,7 @@ func callDepController(type_call string, func_name string, payload string) error
 	case "update_deployments":
 		dataLock.Lock()
 		if time.Since(workflow_last_updated[func_name]) < time.Second*time.Duration(update_threshold) {
+			dataLock.Unlock()
 			return nil
 		}
 		if transition[func_name] {
