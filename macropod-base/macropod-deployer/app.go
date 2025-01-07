@@ -42,7 +42,6 @@ type Workflow struct {
 	Deployments        map[string]map[string]string
 	IngressVersion     map[string]int
 	LatestVersion      int
-	LastUpdated        time.Time
 	ReplicaCount       int
 	Updating           bool
 	InitialPods        []string
@@ -83,7 +82,6 @@ var (
 
 	workflows          = make(map[string]*Workflow)
 
-	update_threshold   int
 	debug              int
 	ttl_seconds        int
 	macropod_namespace string
@@ -132,20 +130,16 @@ func deleteTTL(func_name string, labels string) {
 }
 
 func createDeployment(func_name string, bypass bool) string {
-	if !bypass {
-		depLock.Lock()
-		if _, exists := workflows[func_name]; !exists {
-			log.Printf(" %s is not present", func_name)
-			depLock.Unlock()
-			return "0"
-		}
-		if workflows[func_name].Updating {
-			depLock.Unlock()
-			return "1"
-		}
-		depLock.Unlock()
-	}
 	depLock.Lock()
+	if _, exists := workflows[func_name]; !exists {
+		log.Printf(" %s is not present", func_name)
+		depLock.Unlock()
+		return "0"
+	}
+	if !bypass && workflows[func_name].Updating {
+		depLock.Unlock()
+		return "1"
+	}
 	var nodes NodeMetricList
 	data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
 	if err != nil {
@@ -433,10 +427,6 @@ func updateDeployments(func_name string) string {
 		depLock.Unlock()
 		return "1"
 	}
-	if time.Since(workflows[func_name].LastUpdated) < time.Second*time.Duration(update_threshold) {
-		depLock.Unlock()
-		return "0"
-	}
 	if workflows[func_name].FullyDisaggregated {
 		depLock.Unlock()
 		return "0"
@@ -495,7 +485,6 @@ func updateDeployments(func_name string) string {
 				workflows[func_name].FullyDisaggregated = true
 			}
 			workflows[func_name].Pods = pods_updated
-			workflows[func_name].LastUpdated = time.Now()
 			reclaim_replicas := workflows[func_name].Deployments
 			depLock.Unlock()
 			replicas := ""
@@ -849,10 +838,6 @@ func main() {
 	debug, err = strconv.Atoi(os.Getenv("DEBUG"))
 	if err != nil {
 		debug = 0
-	}
-	update_threshold, err = strconv.Atoi(os.Getenv("UPDATE_THRESHOLD"))
-	if err != nil {
-		update_threshold = 100
 	}
 	ttl_seconds, err = strconv.Atoi(os.Getenv("TTL"))
 	if err != nil {

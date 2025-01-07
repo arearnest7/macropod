@@ -44,6 +44,7 @@ var (
 	workflow_target_concurrency  = make(map[string]int)
 	workflow_invocations_current = make(map[string]int)
 	workflow_invocations_total   = make(map[string]int)
+	workflow_last_updated        = make(map[string]time.Time)
 	service_target               = make(map[string][]string)
 	service_count                = make(map[string]int)
 	service_timestamp            = make(map[string]time.Time)
@@ -52,10 +53,12 @@ var (
 	deployer_channel             *grpc.ClientConn
 	deployer_stub                pb.DeploymentServiceClient
 	transition = make(map[string]bool)
+
 	ttl_seconds        int
 	debug              int
 	deployer_add       string
 	macropod_namespace string
+	update_threshold   int
 
 	dataLock sync.Mutex
 
@@ -198,6 +201,7 @@ func nodeReclaim(func_name string, reclaim_replicas []string) {
 	}
 	dataLock.Lock()
 	transition[func_name] = false
+	workflow_last_updated[func_name] = time.Now()
 	dataLock.Unlock()
 }
 
@@ -214,6 +218,11 @@ func callDepController(type_call string, func_name string, payload string) error
 	case "create_workflow":
 		request.Workflow = &payload
 	case "update_workflow":
+		dataLock.Lock()
+		if time.Since(workflow_last_updated[func_name]) < time.Second*time.Duration(update_threshold) {
+			return nil
+		}
+		dataLock.Unlock()
 		request.Workflow = &payload
 	case "delete_workflow":
 		if debug > 2 {
@@ -254,10 +263,10 @@ func callDepController(type_call string, func_name string, payload string) error
 		if debug > 2 {
 			fmt.Println("workflow hit threshold, scaling down target concurrency")
 		}
-			dataLock.Lock()
-			workflow_target_concurrency[func_name] = workflow_invocations_current[func_name] / len(service_target[func_name]) / 2
-			go nodeReclaim(func_name, resp_code[1:])
-			dataLock.Unlock()
+		dataLock.Lock()
+		workflow_target_concurrency[func_name] = workflow_invocations_current[func_name] / len(service_target[func_name]) / 2
+		go nodeReclaim(func_name, resp_code[1:])
+		dataLock.Unlock()
 	default:
 		if debug > 2 {
 			fmt.Println("Unknown response code " + resp_code[0])
@@ -440,8 +449,14 @@ func Serve_Help(res http.ResponseWriter, req *http.Request) {
 func getTargets(triggered bool, func_name string, target string) (string, bool) {
 	dataLock.Lock()
 	if len(service_target[func_name]) > 0 {
-		rand.Seed(time.Now().UnixNano())
-		idx := rand.Intn(len(service_target[func_name]))
+		idx := 0
+		for i, s := range service_target[func_name] {
+			if service_count[s] < service_count[service_target[func_name][idx]] {
+				idx = i
+			}
+		}
+		//rand.Seed(time.Now().UnixNano())
+		//idx := rand.Intn(len(service_target[func_name]))
 		service := service_target[func_name][idx]
 		target_concurrency, target_concurrency_set := workflow_target_concurrency[func_name]
 		channel, service_channel_exists := service_channel[service]
@@ -472,7 +487,6 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	look_arget := time.Now()
 	for target == "" {
 		target, triggered = getTargets(triggered, func_name, target)
-		time.Sleep(10*time.Millisecond)
 	}
 	payload, _ := ioutil.ReadAll(req.Body)
 	workflow_id := strconv.Itoa(rand.Intn(100000))
@@ -529,6 +543,8 @@ func Serve_WF_Create(res http.ResponseWriter, req *http.Request) {
 	callDepController("create_workflow", func_name, workflow)
 	dataLock.Lock()
 	workflows[req.PathValue("func_name")] = body_u
+	var t time.Time
+	workflow_last_updated[req.PathValue("func_name")] = t
 	workflow_invocations_current[req.PathValue("func_name")] = 0
 	workflow_invocations_total[req.PathValue("func_name")] = 0
 	dataLock.Unlock()
@@ -577,6 +593,8 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	callDepController("update_workflow", req.PathValue("func_name"), workflow)
 	dataLock.Lock()
 	workflows[req.PathValue("func_name")] = body_u
+	var t time.Time
+	workflow_last_updated[req.PathValue("func_name")] = t
 	delete(workflow_target_concurrency, req.PathValue("func_name"))
 	workflow_invocations_current[req.PathValue("func_name")] = 0
 	workflow_invocations_total[req.PathValue("func_name")] = 0
@@ -619,6 +637,7 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 
 	dataLock.Lock()
 	delete(workflows, req.PathValue("func_name"))
+	delete(workflow_last_updated, req.PathValue("func_name"))
 	delete(workflow_target_concurrency, req.PathValue("func_name"))
 	delete(workflow_invocations_current, req.PathValue("func_name"))
 	delete(workflow_invocations_total, req.PathValue("func_name"))
@@ -650,6 +669,10 @@ func main() {
 	debug, err = strconv.Atoi(os.Getenv("DEBUG"))
 	if err != nil {
 		debug = 0
+	}
+	update_threshold, err = strconv.Atoi(os.Getenv("UPDATE_THRESHOLD"))
+	if err != nil {
+		update_threshold = 180
 	}
 	go watchTTL()
 	go watchIngress()
