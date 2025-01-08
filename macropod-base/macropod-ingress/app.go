@@ -52,7 +52,7 @@ var (
 	service_stub                 = make(map[string][]wf_pb.GRPCFunctionClient)
 	deployer_channel             *grpc.ClientConn
 	deployer_stub                pb.DeploymentServiceClient
-	transition = make(map[string]bool)
+	transition                   = make(map[string]bool)
 
 	ttl_seconds        int
 	debug              int
@@ -119,7 +119,7 @@ func nodeReclaim(func_name string, reclaim_replicas []string) {
 	dataLock.Lock()
 	transition[func_name] = true
 	dataLock.Unlock()
- 	config, err := rest.InClusterConfig()
+	config, err := rest.InClusterConfig()
 	if err != nil {
 		if debug > 0 {
 			fmt.Println("Failed to get in-cluster config: " + err.Error())
@@ -303,17 +303,31 @@ func watchTTL() {
 					labels := service.Labels["workflow_replica"]
 					dataLock.Unlock()
 					labels_replica := "workflow_replica=" + labels
-					services, err := k.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+					ingresses, err := k.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
 					if err != nil && debug > 0 {
 						fmt.Println(err)
 					}
-					for _, service := range services.Items {
-						dataLock.Lock()
-						delete(service_count, service.Name)
-						delete(service_timestamp, service.Name)
-						delete(service_channel, service.Name)
-						delete(service_stub, service.Name)
-						dataLock.Unlock()
+					for _, ingress := range ingresses.Items {
+						for _, rule := range ingress.Spec.Rules {
+							if rule.HTTP != nil {
+								for _, path := range rule.HTTP.Paths {
+									serviceName := path.Backend.Service.Name
+
+									namespace := ingress.Namespace
+									port := path.Backend.Service.Port.Number
+									service_name := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+									log.Printf("deleting service %s", service_name)
+									dataLock.Lock()
+									delete(service_count, service_name)
+									delete(service_timestamp, service_name)
+									delete(service_channel, service_name)
+									delete(service_stub, service_name)
+									dataLock.Unlock()
+
+								}
+							}
+						}
+
 					}
 					for {
 						go callDepController("ttl_delete", func_name, labels)
@@ -323,6 +337,7 @@ func watchTTL() {
 							break
 						}
 					}
+
 				}
 			}
 			time.Sleep(time.Second)
@@ -567,18 +582,31 @@ func Serve_WF_Update(res http.ResponseWriter, req *http.Request) {
 	if err != nil && debug > 0 {
 		fmt.Println("Failed to create k: " + err.Error())
 	}
-	services, err := k.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+	ingresses, err := k.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 	if err != nil && debug > 0 {
 		fmt.Println(err)
 	}
-	for _, service := range services.Items {
-		dataLock.Lock()
-		delete(service_target, service.Name)
-		delete(service_count, service.Name)
-		delete(service_timestamp, service.Name)
-		delete(service_channel, service.Name)
-		delete(service_stub, service.Name)
-		dataLock.Unlock()
+	for _, ingress := range ingresses.Items {
+		for _, rule := range ingress.Spec.Rules {
+			if rule.HTTP != nil {
+				for _, path := range rule.HTTP.Paths {
+					serviceName := path.Backend.Service.Name
+
+					namespace := ingress.Namespace
+					port := path.Backend.Service.Port.Number
+					service_name := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+					log.Printf("deleting service %s", service_name)
+					dataLock.Lock()
+					delete(service_count, service_name)
+					delete(service_timestamp, service_name)
+					delete(service_channel, service_name)
+					delete(service_stub, service_name)
+					dataLock.Unlock()
+
+				}
+			}
+		}
+
 	}
 
 	body, err := ioutil.ReadAll(req.Body)
@@ -618,18 +646,31 @@ func Serve_WF_Delete(res http.ResponseWriter, req *http.Request) {
 	if err != nil && debug > 0 {
 		fmt.Println("Failed to create k: " + err.Error())
 	}
-	services, err := k.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+	ingresses, err := k.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
 	if err != nil && debug > 0 {
 		fmt.Println(err)
 	}
-	for _, service := range services.Items {
-		dataLock.Lock()
-		delete(service_target, service.Name)
-		delete(service_count, service.Name)
-		delete(service_timestamp, service.Name)
-		delete(service_channel, service.Name)
-		delete(service_stub, service.Name)
-		dataLock.Unlock()
+	for _, ingress := range ingresses.Items {
+		for _, rule := range ingress.Spec.Rules {
+			if rule.HTTP != nil {
+				for _, path := range rule.HTTP.Paths {
+					serviceName := path.Backend.Service.Name
+
+					namespace := ingress.Namespace
+					port := path.Backend.Service.Port.Number
+					service_name := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+					log.Printf("deleting service %s", service_name)
+					dataLock.Lock()
+					delete(service_count, service_name)
+					delete(service_timestamp, service_name)
+					delete(service_channel, service_name)
+					delete(service_stub, service_name)
+					dataLock.Unlock()
+
+				}
+			}
+		}
+
 	}
 
 	callDepController("delete_workflow", req.PathValue("func_name"), "")
