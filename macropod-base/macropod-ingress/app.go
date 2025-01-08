@@ -508,10 +508,10 @@ func Serve_WF_Invoke(res http.ResponseWriter, req *http.Request) {
 	var response *wf_pb.ResponseBody
 	dataLock.Lock()
 	invocations_current := strconv.Itoa(workflow_invocations_current[func_name])
+	stub := service_stub[target][0]
 	dataLock.Unlock()
 	go callDepController("update_deployments", func_name, invocations_current)
 	request_type := "gg"
-	stub := service_stub[target][0]
 	start_time := time.Now()
 	response, err := stub.GRPCFunctionHandler(context.Background(), &wf_pb.RequestBody{Data: payload, WorkflowId: workflow_id, Depth: 0, Width: 0, RequestType: &request_type})
 	end_time := time.Now()
