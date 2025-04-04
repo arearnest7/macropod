@@ -14,7 +14,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"log"
-	"math"
 	"net"
 	"os"
 	"slices"
@@ -82,7 +81,7 @@ var (
 	nodeCapacityMemory = make(map[string]float64)
 
 	workflows          = make(map[string]*Workflow)
-
+	nodeList  []string
 	update_threshold   int
 	debug              int
 	ttl_seconds        int
@@ -157,28 +156,6 @@ func createDeployment(func_name string, bypass bool) string {
 		depLock.Unlock()
 		return "0"
 	}
-	start_node := -1
-	for i, node := range nodes.Items {
-		value, exists := node.Metadata.Labels["node-role.kubernetes.io/master"]
-		if exists && value == "true" {
-			continue
-		}
-		in_use := false
-		for _, deployment := range workflows[func_name].Deployments {
-			if deployment[strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-"))] == node.Metadata.Name {
-				in_use = true
-				break
-			}
-		}
-		if !in_use {
-			start_node = i
-			break
-		}
-	}
-	if start_node == -1 {
-		depLock.Unlock()
-		return "0"
-	}
 	replicaNumber := strconv.Itoa(workflows[func_name].ReplicaCount)
 	workflows[func_name].ReplicaCount++
 	var update_deployments []appsv1.Deployment
@@ -190,20 +167,8 @@ func createDeployment(func_name string, bypass bool) string {
 	pathType := networkingv1.PathTypePrefix
 	service_name_ingress := strings.ToLower(strings.ReplaceAll(workflows[func_name].Pods[0][0], "_", "-")) + "-" + replicaNumber
 	workflows[func_name].Deployments[func_name + "-" + replicaNumber] = make(map[string]string)
-	node_index := start_node
-	for _, pod := range workflows[func_name].Pods {
-		node_sel := ""
-		for node_sel == "" {
-			value, exists := nodes.Items[node_index].Metadata.Labels["node-role.kubernetes.io/master"]
-			if exists && value == "true" {
-				node_index = (node_index + 1) % len(nodes.Items)
-				continue
-			} else {
-				node_sel = nodes.Items[node_index].Metadata.Name
-				node_index = (node_index + 1) % len(nodes.Items)
-				break
-			}
-		}
+	for i, pod := range workflows[func_name].Pods {
+		node_sel := nodeList[i%len(nodeList)]
 		pod_name := strings.ToLower(strings.ReplaceAll(pod[0], "_", "-"))
 		workflows[func_name].Deployments[func_name + "-" + replicaNumber][pod_name] = node_sel
 		service := &corev1.Service{
@@ -421,47 +386,40 @@ func createDeployment(func_name string, bypass bool) string {
 	return "0"
 }
 
-func nodeReclaim(func_name string) {
-	depLock.Lock()
-	reclaim_replicas := workflows[func_name].Deployments
-	depLock.Unlock()
-	for replica_name, _ := range reclaim_replicas {
-		depLock.Lock()
-		delete(workflows[func_name].Deployments, replica_name)
-		delete(workflows[func_name].IngressVersion, replica_name)
-		depLock.Unlock()
-		labels_replica := "workflow_replica=" + replica_name
-		services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-		if err != nil && debug > 0 {
-			fmt.Println(err)
-		}
-		for _, service := range services.Items {
-			kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
-		}
-		deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-		if err != nil && debug > 0 {
-			fmt.Println(err)
-		}
-		for _, deployment := range deployments.Items {
-			kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
-		}
-		ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-		if err != nil && debug > 0 {
-			fmt.Println(err)
-		}
-		for _, ingress := range ingresses.Items {
-			kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
-		}
 
-		for {
-			deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-			if deployments_list == nil || len(deployments_list.Items) == 0 {
-				break
-			}
-			time.Sleep(10 * time.Millisecond)
-		}
-		createDeployment(func_name, true)
+// delete all older versions of deployments 
+func nodeReclaim(func_name string) {
+	previous_version := workflows[func_name].LatestVersion-1
+	labels_replica := "version=" + strconv.Itoa(previous_version)
+	services, err := kclient.CoreV1().Services(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+	if err != nil && debug > 0 {
+		fmt.Println(err)
 	}
+	for _, service := range services.Items {
+		kclient.CoreV1().Services(macropod_namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	deployments, err := kclient.AppsV1().Deployments(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+	if err != nil && debug > 0 {
+		fmt.Println(err)
+	}
+	for _, deployment := range deployments.Items {
+		kclient.AppsV1().Deployments(macropod_namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	ingresses, err := kclient.NetworkingV1().Ingresses(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+	if err != nil && debug > 0 {
+		fmt.Println(err)
+	}
+	for _, ingress := range ingresses.Items {
+		kclient.NetworkingV1().Ingresses(macropod_namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
+	}
+	// not waiting for deletion here 
+	// for {
+	// 	deployments_list, _ := kclient.CoreV1().Pods(macropod_namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+	// 	if deployments_list == nil || len(deployments_list.Items) == 0 {
+	// 		break
+	// 	}
+	// 	time.Sleep(10 * time.Millisecond)
+	// }
 	depLock.Lock()
 	workflows[func_name].Updating = false
 	depLock.Unlock()
@@ -520,25 +478,9 @@ func updateDeployments(func_name string) string {
 			workflows[func_name].LatestVersion += 1
 			var pods_updated [][]string
 			for _, pod := range workflows[func_name].Pods {
-				if len(pod) > 1 {
-					idx := int(math.Floor(float64(len(pod)) / 2))
-					pods_updated = append(pods_updated, pod[:idx])
-					pods_updated = append(pods_updated, pod[idx:])
-				} else {
 					pods_updated = append(pods_updated, pod)
-				}
-			}
-
-			pod_2_or_more := false
-			for _, pod := range pods_updated {
-				if len(pod) > 1 {
-					pod_2_or_more = true
-					break
-				}
-			}
-			if !pod_2_or_more {
-				workflows[func_name].FullyDisaggregated = true
-			}
+			} // only 2 forms: fully aggregated and fully diaggregated 
+			workflows[func_name].FullyDisaggregated = true
 			workflows[func_name].Pods = pods_updated
 			workflows[func_name].LastUpdated = time.Now()
 			go nodeReclaim(func_name)
@@ -902,6 +844,20 @@ func main() {
 		fmt.Println("error kclient - " + err.Error())
 		return
 	}
+
+	nodes, err := kclient.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	for _, node := range nodes.Items {
+		for _, condition := range node.Status.Conditions {
+			if condition.Type == "Ready" && condition.Status != "True" {
+				depLock.Lock()
+				nodeList = append(nodeList, node.Name)
+				depLock.Unlock()
+			}
+	}
+}
 	go checkNodeStatus()
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", service_port))
 	if err != nil {
