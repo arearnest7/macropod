@@ -1,0 +1,58 @@
+{
+    "Name": "hotel",
+    "Functions": {
+        "HOTEL_FRONTEND": {
+            "Registry": "sysdevtamu/hotel-frontend:kn",
+            "Endpoints": ["HOTEL_SEARCH", "HOTEL_RECOMMEND", "HOTEL_RESERVE", "HOTEL_USER"]
+        },
+        "HOTEL_GEO": {
+            "Registry": "sysdevtamu/hotel-geo:kn",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_PROFILE": {
+            "Registry": "sysdevtamu/hotel-profile:kn",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_RATE": {
+            "Registry": "sysdevtamu/hotel-rate:kn",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_RECOMMEND": {
+            "Registry": "sysdevtamu/hotel-recommend:kn",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_RESERVE": {
+            "Registry": "sysdevtamu/hotel-reserve:kn",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_SEARCH": {
+            "Registry": "sysdevtamu/hotel-search:kn",
+            "Endpoints": ["HOTEL_PROFILE", "HOTEL_GEO", "HOTEL_RATE"]
+        },
+        "HOTEL_USER": {
+            "Registry": "sysdevtamu/hotel-user:kn",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        }
+    },
+    "Payloads": [
+        {"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"},
+        {"Request": "recommend", "Require": "dis"},
+        {"Request": "recommend", "Require": "rate"},
+        {"Request": "recommend", "Require": "price"},
+        {"Request": "recommend", "Require": "?"},
+        {"Request": "reserve", "RequestType": "make", "InDate": "2015-04-09", "OutDate": "2015-04-10", "HotelId": "1", "RoomNumber": 1},
+        {"Request": "reserve", "RequestType": "check", "HotelIds": ["1", "2", "3"]},
+        {"Request": "user", "Username": "user", "Password": "password"}
+    ],
+    "Config": {
+        "Namespace": "knative-functions",
+        "DeploymentType": "knative",
+        "CommunicationType": "knative",
+        "AggregationType": "disagg",
+    },
+    "Eval": {
+        "Name": "hotel-disagg-w-knative",
+        "InvocationConcurrencies": [5, 10, 20, 40, 80, 100],
+        "Invocations": 1000
+    }
+}

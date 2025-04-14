@@ -1,0 +1,29 @@
+{
+    "Name": "video",
+    "Functions": {
+        "VIDEO_UNIFIED": {
+            "Registry": "sysdevtamu/video-unified:kn"
+        }
+    },
+    "Payloads": [
+        {"video": "video.mp4"},
+        {"video": "original-min_0909.mp4"},
+        {"video": "original-min_0.mp4"},
+        {"video": "original-min_1.mp4"},
+        {"video": "original-min_2.mp4"},
+        {"video": "original-min_3.mp4"},
+        {"video": "original-min_4.mp4"},
+        {"video": "original-min_5.mp4"}
+    ],
+    "Config": {
+        "Namespace": "knative-functions",
+        "DeploymentType": "knative",
+        "CommunicationType": "knative",
+        "AggregationType": "agg",
+    },
+    "Eval": {
+        "Name": "video-unified-knative",
+        "InvocationConcurrencies": [5, 10, 20, 40, 80, 100],
+        "Invocations": 1000
+    }
+}

@@ -20,11 +20,11 @@ def main(context: Context):
             workflow_id = context.request.json["workflow_id"]
             workflow_depth = context.request.json["workflow_depth"]
             workflow_width = context.request.json["workflow_width"]
-        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "0" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "0" + "\n", flush=True)
         params = context.request.json
 
         #redisClient.set("merit-" + str(params["id"]), json.dumps(params))
-        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "1" + "\n", flush=True)
         return str(params["id"]) + " statistics uploaded/updated", 200
     else:
         print("Empty request", flush=True)

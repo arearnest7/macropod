@@ -21,7 +21,7 @@ def main(context: Context):
             workflow_id = context.request.json["workflow_id"]
             workflow_depth = context.request.json["workflow_depth"]
             workflow_width = context.request.json["workflow_width"]
-        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "0" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "0" + "\n", flush=True)
         params = context.request.json
         params["workflow_depth"] += 1
 
@@ -34,9 +34,9 @@ def main(context: Context):
                 realpay[role] = (1-TAX) * (base + merit) / num
         params['statistics']['average-realpay'] = realpay
 
-        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "1" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "1" + "\n", flush=True)
         response = requests.post(url=os.environ["WAGE_MERIT"], json=params)
-        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "HTTP" + "," + "2" + "\n", flush=True)
+        print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + workflow_id + "," + str(workflow_depth) + "," + str(workflow_width) + "," + "2" + "\n", flush=True)
         return response.text, 200
     else:
         print("Empty request", flush=True)

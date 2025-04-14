@@ -10,6 +10,12 @@ def FunctionHandler(context):
 
     feedback = event['feedback']
     response = {"polarity": -0.66}
+    if "Bad" in feedback:
+        response = {"polarity": -0.66}
+    elif "Good" in feedback:
+        response = {"polarity": 0.66}
+    else:
+        response = {"polarity": 0}
     if response['polarity'] > 0.5:
         sentiment = "POSITIVE"
     elif response['polarity'] < -0.5:

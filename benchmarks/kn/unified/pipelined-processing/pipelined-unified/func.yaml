@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: pipelined-unified
+runtime: python
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/pipelined-unified:kn
+imageDigest: sha256:1a85a8ac6374d62577e07ee907ec15c76f3590635ab46ff2eb27823391a89427
+created: 2023-12-03T21:07:35.930126142-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: 127.0.0.1
+  - name: REDIS_PASSWORD
+    value: password
+deploy:
+  namespace: default

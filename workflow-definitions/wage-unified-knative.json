@@ -1,0 +1,25 @@
+{
+    "Name": "wage",
+    "Functions": {
+        "WAGE_UNIFIED": {
+            "Registry": "sysdevtamu/wage-unified:kn",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        }
+    },
+    "Payloads": [
+        {},
+        {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694},
+        {"id": 100, "name": "John Smith", "role": "teamleader", "base": 8, "merit": 2, "operator": 54283},
+    ],
+    "Config": {
+        "Namespace": "knative-functions",
+        "DeploymentType": "knative",
+        "CommunicationType": "knative",
+        "AggregationType": "agg",
+    },
+    "Eval": {
+        "Name": "wage-unified-knative",
+        "InvocationConcurrencies": [5, 10, 20, 40, 80, 100],
+        "Invocations": 1000
+    }
+}

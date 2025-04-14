@@ -1,0 +1,9 @@
+{
+	"Namespace": "macropod-functions",
+	"TTL": 180,
+	"DeploymentType": "macropod",
+	"CommunicationType": "direct",
+	"AggregationType": "agg",
+	"TargetConcurrency": -1,
+	"Debug": 0
+}

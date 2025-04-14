@@ -1,0 +1,28 @@
+{
+    "Name": "video",
+    "Functions": {
+        "VIDEO_UNIFIED": {
+            "Registry": "sysdevtamu/video-unified:latest"
+        }
+    },
+    "Payloads": [
+        {"video": "video.mp4"},
+        {"video": "original-min_0909.mp4"},
+        {"video": "original-min_0.mp4"},
+        {"video": "original-min_1.mp4"},
+        {"video": "original-min_2.mp4"},
+        {"video": "original-min_3.mp4"},
+        {"video": "original-min_4.mp4"},
+        {"video": "original-min_5.mp4"}
+    ],
+    "Config": {
+        "DeploymentType": "macropod",
+        "CommunicationType": "gateway",
+        "AggregationType": "agg",
+    },
+    "Eval": {
+        "Name": "video-unified",
+        "InvocationConcurrencies": [5, 10, 20, 40, 80, 100],
+        "Invocations": 1000
+    }
+}

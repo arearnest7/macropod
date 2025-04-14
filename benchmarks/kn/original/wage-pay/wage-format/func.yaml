@@ -3,7 +3,7 @@ name: wage-format
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-format:kn
-imageDigest: sha256:1556c475264aa405054c4d4332862c718c0ffa55aa9aed90382c1677eed33192
+imageDigest: sha256:9cdd6e6430ebf676549c3f70151e8b1763635b3c4fe59eb16b63ff15e4b8abcb
 created: 2023-12-03T21:04:34.098716872-06:00
 build:
   builder: pack

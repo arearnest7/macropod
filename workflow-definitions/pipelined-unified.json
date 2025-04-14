@@ -1,0 +1,21 @@
+{
+    "Name": "pipelined",
+    "Functions": {
+        "PIPELINED_UNIFIED": {
+            "Registry": "sysdevtamu/pipelined-unified:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        }
+    },
+    "Payloads": [
+    ],
+    "Config": {
+        "DeploymentType": "macropod",
+        "CommunicationType": "gateway",
+        "AggregationType": "agg",
+    },
+    "Eval": {
+        "Name": "pipelined-unified",
+        "InvocationConcurrencies": [5, 10, 20, 40, 80, 100],
+        "Invocations": 1000
+    }
+}

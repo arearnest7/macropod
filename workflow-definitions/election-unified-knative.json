@@ -1,0 +1,24 @@
+{
+    "Name": "election",
+    "Functions": {
+        "ELECTION_UNIFIED": {
+            "Registry": "sysdevtamu/election-unified:kn",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+        }
+    },
+    "Payloads": [
+        {"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"},
+        {"requestType": "get_results"}
+    ],
+    "Config": {
+        "Namespace": "knative-functions",
+        "DeploymentType": "knative",
+        "CommunicationType": "knative",
+        "AggregationType": "agg",
+    },
+    "Eval": {
+        "Name": "election-unified-knative",
+        "InvocationConcurrencies": [5, 10, 20, 40, 80, 100],
+        "Invocations": 1000
+    }
+}

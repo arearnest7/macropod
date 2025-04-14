@@ -1,0 +1,27 @@
+{
+    "Name": "sentiment",
+    "Functions": {
+        "SENTIMENT_UNIFIED": {
+            "Registry": "sysdevtamu/sentiment-unified:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        }
+    },
+    "Payloads": [
+        {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]},
+        {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review2.csv"}}}]},
+        {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review3.csv"}}}]},
+        {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review4.csv"}}}]},
+        {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review5.csv"}}}]},
+        {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review6.csv"}}}]}
+    ],
+    "Config": {
+        "DeploymentType": "macropod",
+        "CommunicationType": "gateway",
+        "AggregationType": "agg",
+    },
+    "Eval": {
+        "Name": "sentiment-unified",
+        "InvocationConcurrencies": [5, 10, 20, 40, 80, 100],
+        "Invocations": 1000
+    }
+}

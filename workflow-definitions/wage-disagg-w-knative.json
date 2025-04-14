@@ -1,0 +1,55 @@
+{
+    "Name": "wage",
+    "Functions": {
+        "WAGE_AVG": {
+            "Registry": "sysdevtamu/wage-avg:kn",
+            "Endpoints": ["WAGE_MERIT"]
+        },
+        "WAGE_FORMAT": {
+            "Registry": "sysdevtamu/wage-format:kn",
+            "Endpoints": ["WAGE_WRITE_RAW"]
+        },
+        "WAGE_MERIT": {
+            "Registry": "sysdevtamu/wage-merit:kn",
+            "Endpoints": ["WAGE_WRITE_MERIT"]
+        },
+        "WAGE_STATS": {
+            "Registry": "sysdevtamu/wage-stats:kn",
+            "Endpoints": ["WAGE_SUM"],
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        },
+        "WAGE_SUM": {
+            "Registry": "sysdevtamu/wage-sum:kn",
+            "Endpoints": ["WAGE_AVG"]
+        },
+        "WAGE_VALIDATOR": {
+            "Registry": "sysdevtamu/wage-validator:kn",
+            "Endpoints": ["WAGE_FORMAT"]
+        },
+        "WAGE_WRITE_MERIT": {
+            "Registry": "sysdevtamu/wage-write-merit:kn",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        },
+        "WAGE_WRITE_RAW": {
+            "Registry": "sysdevtamu/wage-write-raw:kn",
+            "Endpoints": ["WAGE_STATS"],
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        }
+    },
+    "Payloads": [
+        {},
+        {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694},
+        {"id": 100, "name": "John Smith", "role": "teamleader", "base": 8, "merit": 2, "operator": 54283},
+    ],
+    "Config": {
+        "Namespace": "knative-functions",
+        "DeploymentType": "knative",
+        "CommunicationType": "knative",
+        "AggregationType": "disagg",
+    },
+    "Eval": {
+        "Name": "wage-disagg-w-knative",
+        "InvocationConcurrencies": [5, 10, 20, 40, 80, 100],
+        "Invocations": 1000
+    }
+}
