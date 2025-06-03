@@ -1,4 +1,4 @@
-from rpc import RPC
+from rpc import Invoke_Multi_JSON
 import base64
 import requests
 import json
@@ -30,7 +30,7 @@ def FunctionHandler(context):
         for obj in manifest:
             if obj != "raw/":
                 # fs.append(executor.submit(requests.post, url=os.environ["WAGE_SUM"], json={'total': total, 'base': base, 'merit': merit, 'operator': obj}))
-                fs.append(json.dumps({'total': total, 'base': base, 'merit': merit, 'operator': obj}).encode())
+                fs.append({'total': total, 'base': base, 'merit': merit, 'operator': obj})
     #results = [f for f in fs]
-    results = RPC(context, os.environ["WAGE_SUM"], fs)
+    results = Invoke_Multi_JSON(context, "WAGE_SUM", fs)
     return "processed batch at " + str(time.time()), 200

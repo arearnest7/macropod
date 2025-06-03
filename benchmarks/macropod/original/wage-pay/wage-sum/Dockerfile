@@ -1,5 +1,3 @@
-FROM sysdevtamu/macropod-python:latest
-WORKDIR /app
+FROM sysdevtamu/macropod-python:unified
 COPY . .
-RUN pip install -r requirements.txt
-CMD ["python","app.py"]
+RUN pip install --root-user-action=ignore -r requirements.txt

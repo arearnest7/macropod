@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: video-streaming
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/video-streaming:kn
+          env:
+          - name: VIDEO_DECODER
+            value: http://video-decoder.knative-functions.127.0.0.1.sslip.io

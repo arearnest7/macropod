@@ -1,4 +1,4 @@
-from rpc import RPC
+from rpc import Invoke
 import base64
 import random
 

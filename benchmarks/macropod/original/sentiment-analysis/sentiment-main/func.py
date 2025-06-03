@@ -1,4 +1,4 @@
-from rpc import RPC
+from rpc import Invoke_JSON
 import base64
 import requests
 import json
@@ -9,7 +9,7 @@ import os
 pp = pprint.PrettyPrinter(indent=4)
 
 def FunctionHandler(context):
-    event = json.loads(context["Request"])
+    event = context["JSON"]
 
     try:
         pp
@@ -23,7 +23,5 @@ def FunctionHandler(context):
             'bucket_name': bucket_name,
             'file_key': file_key
         }
-    payload = []
-    payload.append(json.dumps(input).encode())
-    response = RPC(context, os.environ["SENTIMENT_READ_CSV"], payload)[0]
+    response = Invoke_JSON(context, "SENTIMENT_READ_CSV", input)[0]
     return response, 200

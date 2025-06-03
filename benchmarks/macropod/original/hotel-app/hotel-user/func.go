@@ -1,129 +1,108 @@
 package function
 
 import (
-	"fmt"
-	"encoding/json"
-	"strconv"
+    "fmt"
+    "strconv"
 
-	log "github.com/sirupsen/logrus"
+    log "github.com/sirupsen/logrus"
 
-	"crypto/sha256"
+    "crypto/sha256"
 )
 
-type RequestBody struct {
-        Request string `json:"Request"`
-        RequestType string `json:"RequestType"`
-        Lat float64 `json:"Lat"`
-        Lon float64 `json:"Lon"`
-        HotelId string `json:"HotelId"`
-        HotelIds []string `json:"HotelIds"`
-        RoomNumber int `json:"RoomNumber"`
-        CustomerName string `json:"CustomerName"`
-        Username string `json:"Username"`
-        Password string `json:"Password"`
-        Require string `json:"Require"`
-        InDate string `json:"InDate"`
-        OutDate string `json:"OutDate"`
-}
-
 type User struct {
-	Username string `bson:"username" json:"username"`
-	Password string `bson:"password" json:"password"`
+    Username string `bson:"username" json:"username"`
+    Password string `bson:"password" json:"password"`
 }
 
 // loadUsers loads hotel users from database
 func loadUsers() map[string]string {
 
-	//coll := "{}"
+    //coll := "{}"
 
-	//filter := bson.D{}
-	// filter := bson.M{{"username": username}}
+    //filter := bson.D{}
+    // filter := bson.M{{"username": username}}
         //cursor, err := coll.Find(context.Background(), filter)
-	//if err != nil {
-	//	log.Println("Failed get users data: ", err)
-	//}
+    //if err != nil {
+    //    log.Println("Failed get users data: ", err)
+    //}
 
-	// Get a list of all returned documents and print them out.
-	// See the mongo.Cursor documentation for more examples of using cursors.
-	var users []User
+    // Get a list of all returned documents and print them out.
+    // See the mongo.Cursor documentation for more examples of using cursors.
+    var users []User
         //if err = cursor.All(context.Background(), &users); err != nil {
-	//	log.Println("Failed get users data: ", err)
-	//}
+    //    log.Println("Failed get users data: ", err)
+    //}
 
-	res := make(map[string]string)
-	for _, user := range users {
-		res[user.Username] = user.Password
-	}
+    res := make(map[string]string)
+    for _, user := range users {
+        res[user.Username] = user.Password
+    }
 
-	fmt.Printf("Done load users\n")
+    fmt.Printf("Done load users\n")
 
-	return res
+    return res
 }
 
 func lookupCache(username string) string {
         //ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	//defer cancel()
-	//MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
-	//if err != nil { return "" }
-	users_cached := loadUsers()
-	res, ok := users_cached[username]
-	if !ok {
-		log.Println("User does not exist: ", username)
-	}
-	return res
+    //defer cancel()
+    //MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
+    //if err != nil { return "" }
+    users_cached := loadUsers()
+    res, ok := users_cached[username]
+    if !ok {
+        log.Println("User does not exist: ", username)
+    }
+    return res
 }
 
 //
 func lookUpDB(username string) (User, bool) {
-	// session := s.MongoClient.Copy()
-	// defer session.Close()
+    // session := s.MongoClient.Copy()
+    // defer session.Close()
         //ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
         //defer cancel()
         //MongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("HOTEL_APP_DATABASE")))
-	//collection := "{}"
+    //collection := "{}"
 
-	// listAll(collection)
+    // listAll(collection)
 
-	// unmarshal json profiles
-	var user User
-	//filter := bson.D{primitive.E{Key: "username", Value: username}}
-	// filter := bson.M{{"username": username}}
+    // unmarshal json profiles
+    var user User
+    //filter := bson.D{primitive.E{Key: "username", Value: username}}
+    // filter := bson.M{{"username": username}}
         //err = collection.FindOne(context.Background(), filter).Decode(&user)
-	//if err != nil {
-	//	log.Println("Failed get user: ", err)
-	//	return user, false
-	//}
-	return user, true
+    //if err != nil {
+    //    log.Println("Failed get user: ", err)
+    //    return user, false
+    //}
+    return user, true
 }
 
 // CheckUser returns whether the username and password are correct.
-func CheckUser(req RequestBody) bool {
-	var res bool
+func CheckUser(req map[string]interface{}) bool {
+    var res bool
 
-	fmt.Printf("CheckUser: %+v", req)
+    fmt.Printf("CheckUser: %+v", req)
 
-	sum := sha256.Sum256([]byte(req.Password))
-	pass := fmt.Sprintf("%x", sum)
+    sum := sha256.Sum256([]byte(req["Password"].(string)))
+    pass := fmt.Sprintf("%x", sum)
 
-	use_cache := false
+    use_cache := false
 
-	if use_cache {
-		password := lookupCache(req.Username)
-		res = pass == password
-	} else {
-		user, _ := lookUpDB(req.Username)
-		res = pass == user.Password
-	}
+    if use_cache {
+        password := lookupCache(req["Username"].(string))
+        res = pass == password
+    } else {
+        user, _ := lookUpDB(req["Username"].(string))
+        res = pass == user.Password
+    }
 
-	fmt.Printf(" >> pass: %t\n", res)
+    fmt.Printf(" >> pass: %t\n", res)
 
-        return res
+    return res
 }
 
 func FunctionHandler(context Context) (string, int) {
-	//body, _ := ioutil.ReadAll(req.Body)
-        body_u := RequestBody{}
-        json.Unmarshal([]byte(context.Request), &body_u)
-        //defer req.Body.Close()
-        return strconv.FormatBool(CheckUser(body_u)), 200
+    return strconv.FormatBool(CheckUser(context.JSON)), 200
 }

@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sentiment-sns
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/sentiment-sns:kn
+          env:
+          - name: SENTIMENT_DB
+            value: http://sentiment-db.knative-functions.127.0.0.1.sslip.io

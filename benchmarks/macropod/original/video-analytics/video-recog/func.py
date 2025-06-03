@@ -1,4 +1,4 @@
-from rpc import RPC
+from rpc import Invoke
 import json
 from torchvision import transforms
 from PIL import Image
@@ -68,5 +68,5 @@ def Recognise(request):
     return classification
 
 def FunctionHandler(context):
-    ret = Recognise(context["Request"])
+    ret = Recognise(context["Data"])
     return ret, 200

@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hotel-search
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/hotel-search:kn
+          env:
+          - name: HOTEL_GEO
+            value: http://hotel-geo.knative-functions.127.0.0.1.sslip.io
+          - name: HOTEL_RATE
+            value: http://hotel-rate.knative-functions.127.0.0.1.sslip.io

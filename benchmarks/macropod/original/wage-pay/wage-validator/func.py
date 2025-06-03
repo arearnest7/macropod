@@ -1,4 +1,4 @@
-from rpc import RPC
+from rpc import Invoke_JSON
 import base64
 import requests
 import json
@@ -8,7 +8,7 @@ import os
 ROLES = ['staff', 'teamleader', 'manager']
 
 def FunctionHandler(context):
-    event = json.loads(context["Request"])
+    event = context["JSON"]
     for param in ['id', 'name', 'role', 'base', 'merit', 'operator']:
         if param in ['name', 'role']:
             if not isinstance(event[param], str):
@@ -25,5 +25,5 @@ def FunctionHandler(context):
                 return "fail: illegal params: " + str(event[param]) + " not between 1 and 8 inclusively", 200
         else:
             return "fail: missing param: " + param, 200
-    response = RPC(context, os.environ["WAGE_FORMAT"], [json.dumps(event).encode()])[0]
+    response = Invoke_JSON(context, "WAGE_FORMAT", event)[0]
     return response, 200

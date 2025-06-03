@@ -1,4 +1,4 @@
-from rpc import RPC
+from rpc import Invoke_JSON
 import base64
 import requests
 import json
@@ -9,7 +9,7 @@ TAX = 0.0387
 ROLES = ['staff', 'teamleader', 'manager']
 
 def FunctionHandler(context):
-    params = json.loads(context["Request"])
+    params = context["JSON"]
 
     realpay = {'staff': 0, 'teamleader': 0, 'manager': 0}
     for role in ROLES:
@@ -20,5 +20,5 @@ def FunctionHandler(context):
             realpay[role] = (1-TAX) * (base + merit) / num
     params['statistics']['average-realpay'] = realpay
 
-    response = RPC(context, os.environ["WAGE_MERIT"], [json.dumps(params).encode()])[0]
+    response = Invoke(context, "WAGE_MERIT", params])[0]
     return response, 200

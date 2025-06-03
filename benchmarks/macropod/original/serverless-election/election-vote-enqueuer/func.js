@@ -6,7 +6,7 @@ const redis = require('redis');
 async function FunctionHandler(context) {
 	//client.on('error', err => console.log('Redis Client Error', err));
         //await client.connect();
-	var body = JSON.parse(context.Request);
+	var body = context.JSON;
 	reply = 1; //await client.exists("voter-" + body['id']);
 	if (reply == 1) {
 		const g_val = "Not Voted"; //await client.get("voter-" + body['id']);
@@ -16,7 +16,7 @@ async function FunctionHandler(context) {
 		else {
 			data = '';
 			newBody = body;
-			await rpc.RPC(context, process.env.ELECTION_VOTE_PROCESSOR, [context.Request]);
+			await rpc.Invoke(context, "ELECTION_VOTE_PROCESSOR", body);
 			return ["Vote " + body['id'] + " registered", 200];
 		}
 	}

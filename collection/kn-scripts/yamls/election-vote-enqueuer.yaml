@@ -1,0 +1,17 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: election-vote-enqueuer
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/election-vote-enqueuer:kn
+          env:
+          - name: ELECTION_VOTE_PROCESSOR
+            value: http://election-vote-processor.knative-functions.127.0.0.1.sslip.io
+          - name: REDIS_URL
+            value: 127.0.0.1
+          - name: REDIS_PASSWORD
+            value: password

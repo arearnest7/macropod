@@ -7,7 +7,7 @@ async function FunctionHandler(context) {
 	//client.on('error', err => console.log('Redis Client Error', err));
         //await client.connect();
 	//await client.set("voter-" + body['id'], JSON.stringify(body));
-	var body = JSON.parse(context.Request);
+	var body = context.JSON;
 	var state = body['state'];
 	var candidate = body['candidate'];
 

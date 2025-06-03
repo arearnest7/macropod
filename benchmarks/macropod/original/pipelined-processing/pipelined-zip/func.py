@@ -1,4 +1,4 @@
-from rpc import RPC
+from rpc import Invoke
 import base64
 from zipfile import ZipFile
 import os
@@ -10,14 +10,14 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def FunctionHandler(context):
-    event = json.loads(context["Request"])
-    data = open("checksumed-" + event[0], 'rb').read()
-    with open("/tmp/" + event[0], "wb") as f:
+    event = context["TEXT"]
+    data = open("checksumed-" + event, 'rb').read()
+    with open("/tmp/" + event, "wb") as f:
         f.write(data)
     with ZipFile('/tmp/zip.zip', 'w') as zip:
-        zip.write("/tmp/" + event[0])
+        zip.write("/tmp/" + event)
     zip.close()
     with open("/tmp/zip.zip", "rb") as f:
         data = f.read()
-    #redisClient.set("ziped-" + event[0], data)
+    #redisClient.set("ziped-" + event, data)
     return "success", 200

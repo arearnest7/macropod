@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hotel-unified
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/hotel-unified:kn
+          env:
+          - name: HOTEL_APP_DATABASE
+            value: mongodb://10.42.2.96:27017
+          - name: HOTEL_APP_MEMCACHED
+            value: 10.42.4.93:11211
