@@ -6,7 +6,7 @@ C=${4:-1}
 PAYLOAD=${5:-payloads/election.json}
 N=${6:-1000}
 cd kn-scripts/
-./deploy-$SCRIPT.sh
+./deploy-$SCRIPT.sh $HOST
 cd ../
 sleep 60s
 hey -n $N -c $C -t 1000 -o csv -D $PAYLOAD -m POST -T application/json http://$ENTRY.knative-functions.$HOST.sslip.io >> cold-start
