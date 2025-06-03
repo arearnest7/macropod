@@ -13,9 +13,8 @@ for concurrency in ${c[@]}; do
 	LATENCY_FILES=""
 	LATENCY_OUT[$concurrency]=""
 	for benchmark in ${benchmarks[@]}; do
-		LATENCY_FILES="${LATENCY_FILES} kn-full-${benchmark}-${concurrency}.csv"
+		LATENCY_FILES="${LATENCY_FILES} kn-unified-${benchmark}-${concurrency}.csv"
 		LATENCY_FILES="${LATENCY_FILES} kn-original-${benchmark}-${concurrency}.csv"
-		LATENCY_FILES="${LATENCY_FILES} kn-partial-${benchmark}-${concurrency}.csv"
 		LATENCY_FILES="${LATENCY_FILES} macropod-${benchmark}-${concurrency}.csv"
 		if [[ "${LATENCY_OUT[$concurrency]}" == "" ]]; then
 			LATENCY_OUT[$concurrency]="${benchmark}-${concurrency}.out"
@@ -33,9 +32,8 @@ for concurrency in ${c[@]}; do
         LATENCY_FILES=""
 	LATENCY_OUT[$concurrency]=""
         for benchmark in ${benchmarks[@]}; do
-                LATENCY_FILES="${LATENCY_FILES} kn-full-${benchmark}-${concurrency}.csv"
+                LATENCY_FILES="${LATENCY_FILES} kn-unified-${benchmark}-${concurrency}.csv"
 		LATENCY_FILES="${LATENCY_FILES} kn-original-${benchmark}-${concurrency}.csv"
-		LATENCY_FILES="${LATENCY_FILES} kn-partial-${benchmark}-${concurrency}.csv"
 		LATENCY_FILES="${LATENCY_FILES} macropod-${benchmark}-${concurrency}.csv"
 		if [[ "${LATENCY_OUT[$concurrency]}" == "" ]]; then
                         LATENCY_OUT[$concurrency]="${benchmark}-${concurrency}.out"

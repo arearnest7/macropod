@@ -1,3 +1,3 @@
-FROM sysdevtamu/macropod-node:unified
+FROM sysdevtamu/macropod-node:macropod
 COPY . .
 RUN npm install
