@@ -1,7 +1,7 @@
 #!/bin/bash
 HOST=${1:-127.0.0.1}
-SCRIPT=${2:-full-election}
-ENTRY=${3:-election-full}
+SCRIPT=${2:-election-unified}
+ENTRY=${3:-election-unified}
 C=${4:-1}
 PAYLOAD=${5:-payloads/election.json}
 N=${6:-1000}

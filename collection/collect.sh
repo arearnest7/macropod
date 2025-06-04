@@ -8,11 +8,11 @@ c=(8 16 20 40)
 for i in {0..3}; do
 	for concurrency in ${c[@]}; do
 		date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
-		./collect-kn.sh $HOST unified-${benchmarks[$i]} ${unified[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
-		mv kn-full-$benchmarks[$i].csv kn-unified-$benchmarks[$i]-$concurrency.csv
+		./collect-kn.sh $HOST ${benchmarks[$i]}-unified ${unified[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
+		mv kn-${benchmarks[$i]}-unified.csv kn-unified-$benchmarks[$i]-$concurrency.csv
 		date -u '+%F %H:%M:%S.%6N %Z' >> $benchmarks[$i]-$concurrency.out
-		./collect-kn.sh $HOST original-${benchmarks[$i]} ${original[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
-		mv kn-original-${benchmarks[$i]}.csv kn-original-${benchmarks[$i]}-$concurrency.csv
+		./collect-kn.sh $HOST ${benchmarks[$i]}-original ${original[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
+		mv kn-${benchmarks[$i]}-original.csv kn-original-${benchmarks[$i]}-$concurrency.csv
 		date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
 		./collect-macropod.sh ${benchmarks[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
 		mv macropod-${benchmarks[$i]}.csv macropod-${benchmarks[$i]}-$concurrency.csv
@@ -27,11 +27,11 @@ c=(80 100)
 for i in {0..2}; do
         for concurrency in ${c[@]}; do
                 date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
-                ./collect-kn.sh $HOST unified-${benchmarks[$i]} ${unified[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
-                mv kn-full-$benchmarks[$i].csv kn-unified-$benchmarks[$i]-$concurrency.csv
+                ./collect-kn.sh $HOST ${benchmarks[$i]}-unified ${unified[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
+                mv kn-${benchmarks[$i]}-unified.csv kn-unified-$benchmarks[$i]-$concurrency.csv
                 date -u '+%F %H:%M:%S.%6N %Z' >> $benchmarks[$i]-$concurrency.out
-                ./collect-kn.sh $HOST original-${benchmarks[$i]} ${original[$i]} $concurrency payloads/${benchmarks[$i]}.json >
-                mv kn-original-${benchmarks[$i]}.csv kn-original-${benchmarks[$i]}-$concurrency.csv
+                ./collect-kn.sh $HOST ${benchmarks[$i]}-original ${original[$i]} $concurrency payloads/${benchmarks[$i]}.json >
+                mv kn-${benchmarks[$i]}-original.csv kn-original-${benchmarks[$i]}-$concurrency.csv
                 date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
                 ./collect-macropod.sh ${benchmarks[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
                 mv macropod-${benchmarks[$i]}.csv macropod-${benchmarks[$i]}-$concurrency.csv
