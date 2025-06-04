@@ -17,8 +17,6 @@ while [ "$number_of_non_running_pods" -ne 0 ]; do
 done
 sleep 120s
 hey -n $N -c $C -t 1000 -o csv -D $PAYLOAD -m POST -T application/json http://$ENTRY.knative-functions.$HOST.sslip.io >> kn-$SCRIPT.csv
-logs=$(sudo kubectl get pods -n knative-functions --no-headers -o custom-columns=":metadata.name" --sort-by="metadata.name")
-for i in $logs; do sudo kubectl logs -n knative-functions -c user-container $i >> kn-$SCRIPT-$i.csv; done;
 cd kn-scripts/
 ./remove-$SCRIPT.sh
 cd ../
