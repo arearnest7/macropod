@@ -3,7 +3,7 @@ name: sentiment-unified
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-unified:kn
-imageDigest: sha256:bab0bad47ca7348a8e746162e1721168ccaa8a64b2e50c5fb2a51f59f230a191
+imageDigest: sha256:dea733c03b7280e211dd2893f9d26adc5523b85979c63cb3362ce28e93b08613
 created: 2023-12-03T21:08:33.226898249-06:00
 build:
   builder: pack

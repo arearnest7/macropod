@@ -3,7 +3,7 @@ name: election-get-results
 runtime: node
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/election-get-results:kn
-imageDigest: sha256:d1bc3deca12fc67bcda32e91f4d4a8033f28d1f23759db4cfaedc7f7eb353be2
+imageDigest: sha256:82835f55f0ea0ac77cbc54501d80b93e91579bdfd3b83214c715bb81b876c7d6
 created: 2023-10-10T14:56:42.988177953-05:00
 build:
   builder: pack

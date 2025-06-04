@@ -3,7 +3,7 @@ name: sentiment-service-result
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-service-result:kn
-imageDigest: sha256:8381022b703898034ddd2ab51b00f7efc2683555eec6634fb1db9f87ce91019d
+imageDigest: sha256:0df84dbc2ca5489cde90e0cba4af57196ec13058f4a7b81f25c93d958577a070
 created: 2023-12-03T21:00:45.838624707-06:00
 build:
   builder: pack

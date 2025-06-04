@@ -3,7 +3,7 @@ name: wage-unified
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-unified:kn
-imageDigest: sha256:000dbabe3375d25e001ee3706664f5b7bc1c3d9da5403b27ca3cb3c1b97201be
+imageDigest: sha256:21a27b828f74afdedbbce0ec36993022768f3a43a8694861d9a0aacda9d59538
 created: 2023-12-03T21:08:48.450495924-06:00
 build:
   builder: pack
