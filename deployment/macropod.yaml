@@ -68,12 +68,12 @@ spec:
         effect: "NoSchedule"
      containers:
       - name: macropod-ingress
-        image: sysdevtamu/macropod-ingress:latest
+        image: sysdevtamu/macropod-ingress:macropod
         imagePullPolicy: Always
         ports:
         - containerPort: 8081
       - name: macropod-deployer
-        image: sysdevtamu/macropod-deployer:latest
+        image: sysdevtamu/macropod-deployer:macropod
         imagePullPolicy: Always
         ports:
         - containerPort: 8082

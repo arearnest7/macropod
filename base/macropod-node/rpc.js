@@ -3,50 +3,159 @@ const moment = require('moment')
 const grpc = require('@grpc/grpc-js')
 const protoLoader = require('@grpc/proto-loader');
 var packageDefinition = protoLoader.loadSync(
-  "./wf.proto",
+  "./macropod.proto",
   { keepCase: true,
     longs: String,
     enums: String,
     defaults: true,
     oneofs: true
   });
-var gRPCFunction = grpc.loadPackageDefinition(packageDefinition).function;
+var macropod_pb = grpc.loadPackageDefinition(packageDefinition).function;
 
 function invoke(dest, request) {
-	return new Promise((resolve, reject) => {
-		var stub = new gRPCFunction.gRPCFunction(dest, grpc.credentials.createInsecure());
-		stub.gRPCFunctionHandler(request, async function(err, response) {
-			resolve(response);
-		});
-	});
+  if process.env["COMM_TYPE"] == "direct" {
+    return new Promise((resolve, reject) => {
+      var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
+      stub.Invoke(request, async function(err, response) {
+        resolve(response);
+      });
+    });
+  }
+  else if process.env["COMM_TYPE"] == "gateway" {
+    return new Promise((resolve, reject) => {
+      var stub = new macropod_pb.MacroPodIngress(process.env[dest], grpc.credentials.createInsecure());
+      stub.FunctionInvoke(request, async function(err, response) {
+        resolve(response);
+      });
+    });
+  }
+  return new Promise((resolve, reject) => {
+    var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
+    stub.Invoke(request, async function(err, response) {
+      resolve(response);
+    });
+  });
 }
 
-async function RPC(context, dest, payloads) {
-	await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "rpc_start");
-	var tl = new Array();
-	var pv_paths = new Array();
-	var request_type = "gg";
-	var i = 0;
-	for (let payload of payloads) {
-		var request = {
-			data: payload,
-			workflow_id: context.WorkflowId,
-			depth: context.Depth+1,
-			width: i,
-			request_type: request_type
-		};
-		let t = await invoke(dest, request);
-		tl.push(t);
-		i += 1;
-	}
-	var results = new Array();
-	for (let t of tl) {
-		var reply = t.reply;
-		results.push(reply);
-	}
-        await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowId + "," + context.Depth.toString() + "," + context.Width.toString() + "," + context.RequestType + "," + "rpc_end");
-	return results;
+async function Invoke(context, dest, payload) {
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_start");
+  var request = {
+    Function: dest,
+    Text: payload,
+    WorkflowID: context.WorkflowID,
+    Depth: context.Depth+1,
+    Width: 0
+  };
+  let [reply, code] = await invoke(dest, request);
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_end");
+  return [reply, code];
+}
+
+async function Invoke_JSON(context, dest, payload) {
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_start");
+  var request = {
+    Function: dest,
+    JSON: payload,
+    WorkflowID: context.WorkflowID,
+    Depth: context.Depth+1,
+    Width: 0
+  };
+  let [reply, code] = await invoke(dest, request);
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_end");
+  return [reply, code];
+}
+
+async function Invoke_Data(context, dest, payload) {
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_start");
+  var request = {
+    Function: dest,
+    Data: payload,
+    WorkflowID: context.WorkflowID,
+    Depth: context.Depth+1,
+    Width: 0
+  };
+  let [reply, code] = await invoke(dest, request);
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_end");
+  return [reply, code];
+}
+
+async function Invoke_Multi(context, dest, payloads) {
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_start");
+  var tl = new Array();
+  var i = 0;
+  for (let payload of payloads) {
+    var request = {
+      Function: dest,
+      Text: payload,
+      WorkflowID: context.WorkflowID,
+      Depth: context.Depth+1,
+      Width: i
+    };
+    let t = await invoke(dest, request);
+    tl.push(t);
+    i += 1;
+  }
+  var reply = new Array();
+  var code = new Array();
+  for (let t of tl) {
+    reply.push(t.Reply);
+    code.push(t.Code)
+  }
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_end");
+  return [reply, code];
+}
+
+async function Invoke_Multi_JSON(context, dest, payloads) {
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_start");
+  var tl = new Array();
+  var i = 0;
+  for (let payload of payloads) {
+    var request = {
+      Function: dest,
+      JSON: payload,
+      WorkflowID: context.WorkflowID,
+      Depth: context.Depth+1,
+      Width: i
+    };
+    let t = await invoke(dest, request);
+    tl.push(t);
+    i += 1;
+  }
+  var reply = new Array();
+  var code = new Array();
+  for (let t of tl) {
+    reply.push(t.Reply);
+    code.push(t.Code)
+  }
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_end");
+  return [reply, code];
+}
+
+async function Invoke_Multi_Data(context, dest, payloads) {
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() +"," + context.Width.toString() + ",invoke_rpc_start");
+  var tl = new Array();
+  var i = 0;
+  for (let payload of payloads) {
+    var request = {
+      Function: dest,
+      Data: payload,
+      WorkflowID: context.WorkflowID,
+      Depth: context.Depth+1,
+      Width: i
+    };
+    let t = await invoke(dest, request);
+    tl.push(t);
+    i += 1;
+  }
+  var reply = new Array();
+  var code = new Array();
+  for (let t of tl) {
+    reply.push(t.Reply);
+    code.push(t.Code)
+  }
+  await console.log(moment(exec("date -u '+%F %H:%M:%S.%6N %Z'").toString(),"YYYY-MM-DD HH:mm:ss.SSSSSS z").format("YYYY-MM-DD HH:mm:ss.SSSSSS UTC") + "," + context.WorkflowID + "," + context.Depth.toString() + "," + context.Width.toString() + ",invoke_rpc_end");
+  return [reply, code];
 }
 
 // Export the function
-module.exports = { RPC };
+module.exports = { Invoke };

@@ -1,50 +1,240 @@
 package function
 
 import (
+    pb "app/macropod_pb"
+
     "fmt"
     "context"
     "time"
     "strconv"
+    "os"
+
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials/insecure"
-
-    pb "app/wf_pb"
+    structpb "google.golang.org/protobuf/types/known/structpb"
 )
 
 type Context struct {
-    Request []byte
-    WorkflowId string
-    Depth int
-    Width int
-    RequestType string
-    InvokeType string
-    IsJson bool
+    Function string
+    Text string
+    JSON map[string]interface{}
+    Data []byte
+    WorkflowID string
+    Depth int32
+    Width int32
 }
 
-func invoke(stub pb.GRPCFunctionClient, ctx_in context.Context, in *pb.RequestBody) (*pb.ResponseBody) {
-    res, _ := stub.GRPCFunctionHandler(ctx_in, in)
-    return res
+func Invoke(ctx_in Context, dest string, payload string) (string, int32) {
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_start")
+    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+    depth := ctx_in.Depth + 1
+    width := int32(0)
+    req := pb.FunctionRequest{Function: &dest, Text: &payload, WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+    var res *pb.MacroPodReply
+    var err error
+    channel, _ := grpc.Dial(os.Getenv(dest), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+    switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
+        case "direct":
+            stub := pb.NewMacroPodFunctionClient(channel)
+            res, err = stub.Invoke(ctx, &req)
+        case "gateway":
+            stub := pb.NewMacroPodIngressClient(channel)
+            res, err = stub.FunctionInvoke(ctx, &req)
+        default:
+            stub := pb.NewMacroPodFunctionClient(channel)
+            res, err = stub.Invoke(ctx, &req)
+    }
+    channel.Close()
+    cancel()
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_end")
+    return res.GetReply(), res.GetCode()
 }
 
-func RPC(ctx_in Context, dest string, payloads [][]byte) ([]string) {
-    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "rpc_start")
-    tl := make(chan *pb.ResponseBody)
-    request_type := "gg"
+func Invoke_JSON(ctx_in Context, dest string, payload map[string]interface{}) (string, int32) {
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_start")
+    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+    depth := ctx_in.Depth + 1
+    width := int32(0)
+    j, _ := structpb.NewStruct(payload)
+    req := pb.FunctionRequest{Function: &dest, JSON: j, WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+    var res *pb.MacroPodReply
+    var err error
+    channel, _ := grpc.Dial(os.Getenv(dest), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+    switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
+        case "direct":
+            stub := pb.NewMacroPodFunctionClient(channel)
+            res, err = stub.Invoke(ctx, &req)
+        case "gateway":
+            stub := pb.NewMacroPodIngressClient(channel)
+            res, err = stub.FunctionInvoke(ctx, &req)
+        default:
+            stub := pb.NewMacroPodFunctionClient(channel)
+            res, err = stub.Invoke(ctx, &req)
+    }
+    channel.Close()
+    cancel()
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_end")
+    return res.GetReply(), res.GetCode()
+}
+
+func Invoke_Data(ctx_in Context, dest string, payload []byte) (string, int32) {
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_start")
+    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+    depth := ctx_in.Depth + 1
+    width := int32(0)
+    req := pb.FunctionRequest{Function: &dest, Data: payload, WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+    var res *pb.MacroPodReply
+    var err error
+    channel, _ := grpc.Dial(os.Getenv(dest), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+    switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
+        case "direct":
+            stub := pb.NewMacroPodFunctionClient(channel)
+            res, err = stub.Invoke(ctx, &req)
+        case "gateway":
+            stub := pb.NewMacroPodIngressClient(channel)
+            res, err = stub.FunctionInvoke(ctx, &req)
+        default:
+            stub := pb.NewMacroPodFunctionClient(channel)
+            res, err = stub.Invoke(ctx, &req)
+    }
+    channel.Close()
+    cancel()
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_end")
+    return res.GetReply(), res.GetCode()
+}
+
+func Invoke_Multi(ctx_in Context, dest string, payloads []string) ([]string, []int32) {
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_start")
+    tl := make(chan *pb.MacroPodReply)
     for i := 0; i < len(payloads); i++ {
         go func(n int) {
-            channel, _ := grpc.Dial(dest, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
-            stub := pb.NewGRPCFunctionClient(channel)
             ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-            tl <- invoke(stub, ctx, &pb.RequestBody{Data: payloads[n], WorkflowId: ctx_in.WorkflowId, Depth: int32(ctx_in.Depth + 1), Width: int32(i), RequestType: &request_type})
+            depth := ctx_in.Depth + 1
+            width := int32(n)
+            req := pb.FunctionRequest{Function: &dest, Text: &payloads[n], WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+            var res *pb.MacroPodReply
+            var err error
+            channel, _ := grpc.Dial(os.Getenv(dest), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
+                case "direct":
+                    stub := pb.NewMacroPodFunctionClient(channel)
+                    res, err = stub.Invoke(ctx, &req)
+                case "gateway":
+                    stub := pb.NewMacroPodIngressClient(channel)
+                    res, err = stub.FunctionInvoke(ctx, &req)
+                default:
+                    stub := pb.NewMacroPodFunctionClient(channel)
+                    res, err = stub.Invoke(ctx, &req)
+            }
+            if err != nil {
+                fmt.Println(err)
+            }
+            tl <- res
             channel.Close()
             cancel()
         }(i)
     }
-    results := make([]string, 0)
+    reply := make([]string, 0)
+    code := make([]int32, 0)
     for i := 0; i < len(payloads); i++ {
         res := <-tl
-        results = append(results, res.GetReply())
+        reply = append(reply, res.GetReply())
+        code = append(code, res.GetCode())
     }
-    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowId + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + "," + ctx_in.RequestType + "," + "rpc_end")
-    return results
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_end")
+    return reply, code
+}
+
+func Invoke_Multi_JSON(ctx_in Context, dest string, payloads []map[string]interface{}) ([]string, []int32) {
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_start")
+    tl := make(chan *pb.MacroPodReply)
+    for i := 0; i < len(payloads); i++ {
+        go func(n int) {
+            ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+            depth := ctx_in.Depth + 1
+            width := int32(n)
+            j, _ := structpb.NewStruct(payloads[n])
+            req := pb.FunctionRequest{Function: &dest, JSON: j, WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+            var res *pb.MacroPodReply
+            var err error
+            channel, _ := grpc.Dial(os.Getenv(dest), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
+                case "direct":
+                    stub := pb.NewMacroPodFunctionClient(channel)
+                    res, err = stub.Invoke(ctx, &req)
+                case "gateway":
+                    stub := pb.NewMacroPodIngressClient(channel)
+                    res, err = stub.FunctionInvoke(ctx, &req)
+                default:
+                    stub := pb.NewMacroPodFunctionClient(channel)
+                    res, err = stub.Invoke(ctx, &req)
+            }
+            if err != nil {
+                fmt.Println(err)
+            }
+            tl <- res
+            channel.Close()
+            cancel()
+        }(i)
+    }
+    reply := make([]string, 0)
+    code := make([]int32, 0)
+    for i := 0; i < len(payloads); i++ {
+        res := <-tl
+        reply = append(reply, res.GetReply())
+        code = append(code, res.GetCode())
+    }
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_end")
+    return reply, code
+}
+
+func Invoke_Multi_Data(ctx_in Context, dest string, payloads [][]byte) ([]string, []int32) {
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_start")
+    tl := make(chan *pb.MacroPodReply)
+    for i := 0; i < len(payloads); i++ {
+        go func(n int) {
+            ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+            depth := ctx_in.Depth + 1
+            width := int32(n)
+            req := pb.FunctionRequest{Function: &dest, Data: payloads[n], WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+            var res *pb.MacroPodReply
+            var err error
+            channel, _ := grpc.Dial(os.Getenv(dest), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
+                case "direct":
+                    stub := pb.NewMacroPodFunctionClient(channel)
+                    res, err = stub.Invoke(ctx, &req)
+                case "gateway":
+                    stub := pb.NewMacroPodIngressClient(channel)
+                    res, err = stub.FunctionInvoke(ctx, &req)
+                default:
+                    stub := pb.NewMacroPodFunctionClient(channel)
+                    res, err = stub.Invoke(ctx, &req)
+            }
+            if err != nil {
+                fmt.Println(err)
+            }
+            tl <- res
+            channel.Close()
+            cancel()
+        }(i)
+    }
+    reply := make([]string, 0)
+    code := make([]int32, 0)
+    for i := 0; i < len(payloads); i++ {
+        res := <-tl
+        reply = append(reply, res.GetReply())
+        code = append(code, res.GetCode())
+    }
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + ctx_in.WorkflowID + "," + strconv.Itoa(int(ctx_in.Depth)) + "," + strconv.Itoa(int(ctx_in.Width)) + ",invoke_rpc_end")
+    return reply, code
 }

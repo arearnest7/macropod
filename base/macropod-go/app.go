@@ -1,37 +1,55 @@
 package main
 
 import (
-    "os"
-    "context"
-    "fmt"
-    "net"
-    "time"
-    "strconv"
-    "google.golang.org/grpc"
+    pb "app/macropod_pb"
+    "app/function"
 
-    pb "app/wf_pb"
-    function "app/function"
+    "os"
+    "fmt"
+    "strconv"
+    "time"
+    "net"
+
+    "google.golang.org/grpc"
+    "golang.org/x/net/context"
 )
 
-type server struct {
-    pb.UnimplementedGRPCFunctionServer
+type FunctionService struct {
+    pb.UnimplementedMacroPodFunctionServer
 }
 
-func (s *server) GRPCFunctionHandler(ctx context.Context, in *pb.RequestBody) (*pb.ResponseBody, error) {
-    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + in.GetWorkflowId() + "," + strconv.Itoa(int(in.GetDepth())) + "," + strconv.Itoa(int(in.GetWidth())) + "," + in.GetRequestType() + "," + "request_start")
-    res := pb.ResponseBody{Code: int32(500)}
-    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + in.GetWorkflowId() + "," + strconv.Itoa(int(in.GetDepth())) + "," + strconv.Itoa(int(in.GetWidth())) + "," + in.GetRequestType() + "," + "function_start")
-    reply, code := function.FunctionHandler(function.Context{Request: in.GetData(), WorkflowId: in.GetWorkflowId(), Depth: int(in.GetDepth()), Width: int(in.GetWidth()), RequestType: in.GetRequestType(), InvokeType: "GRPC", IsJson: false})
-    res.Reply = &reply
-    res.Code = int32(code)
-    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + in.GetWorkflowId() + "," + strconv.Itoa(int(in.GetDepth())) + "," + strconv.Itoa(int(in.GetWidth())) + "," + in.GetRequestType() + "," + "request_end")
-    return &res, nil
+var (
+
+)
+
+func Function_Invoke(function_request pb.FunctionRequest) (string, int, error) {
+    var reply string
+    var code int
+    var err error
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + function_request.GetWorkflowID() + "," + strconv.Itoa(int(function_request.GetDepth())) + "," + strconv.Itoa(int(function_request.GetWidth())) + ",request_start")
+    defer func() {
+        if err := recover(); err != nil {}
+    }()
+    reply, code = function.FunctionHandler(function.Context{Function: function_request.GetFunction(), Text: function_request.GetText(), JSON: function_request.GetJSON().AsMap(), Data: function_request.GetData(), WorkflowID: function_request.GetWorkflowID(), Depth: function_request.GetDepth(), Width: function_request.GetWidth()})
+    fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + "," + function_request.GetWorkflowID() + "," + strconv.Itoa(int(function_request.GetDepth())) + "," + strconv.Itoa(int(function_request.GetWidth())) + ",request_end")
+    return reply, code, err
+}
+
+func (s *FunctionService) Invoke(ctx context.Context, in *pb.FunctionRequest) (*pb.MacroPodReply, error) {
+    results, code, err := Function_Invoke(*in)
+    c := int32(code)
+    res := pb.MacroPodReply{Reply: &results, Code: &c}
+    return &res, err
 }
 
 func main() {
-    port, _ := strconv.Atoi(os.Getenv("FUNC_PORT"))
-    l, _ := net.Listen("tcp", fmt.Sprintf(":%d", port))
+    service_port := os.Getenv("FUNC_PORT")
+    if service_port == "" {
+        service_port = "8081"
+    }
+    l, _ := net.Listen("tcp", ":" + service_port)
     s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))
-    pb.RegisterGRPCFunctionServer(s, &server{})
-    s.Serve(l)
+    pb.RegisterMacroPodFunctionServer(s, &FunctionService{})
+
+    go s.Serve(l)
 }

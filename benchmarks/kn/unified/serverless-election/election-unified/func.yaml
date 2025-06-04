@@ -3,7 +3,7 @@ name: election-unified
 runtime: node
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/election-unified:kn
-imageDigest: sha256:a86d2e389507394fb352b5684624f24247500e50e53522909a4375bea7e7c3bc
+imageDigest: sha256:f03a59910bdbb5dbdfc4912d58e58d53c46c59649b9076fb2a021beaa9dcc9ac
 created: 2023-10-20T09:54:18.57851076-05:00
 build:
   builder: pack

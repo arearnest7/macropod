@@ -1,7 +1,6 @@
-FROM golang:alpine
+FROM golang:1.24
 WORKDIR /app
 COPY . .
-RUN go get google.golang.org/grpc math/rand
-RUN go mod tidy
+RUN go mod tidy 2> /dev/null
 RUN go build -o main
 CMD ["/app/main"]
