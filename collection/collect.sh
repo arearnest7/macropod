@@ -9,8 +9,8 @@ for i in {0..3}; do
 	for concurrency in ${c[@]}; do
 		date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
 		./collect-kn.sh $HOST ${benchmarks[$i]}-unified ${unified[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
-		mv kn-${benchmarks[$i]}-unified.csv kn-unified-$benchmarks[$i]-$concurrency.csv
-		date -u '+%F %H:%M:%S.%6N %Z' >> $benchmarks[$i]-$concurrency.out
+		mv kn-${benchmarks[$i]}-unified.csv kn-unified-${benchmarks[$i]}-$concurrency.csv
+		date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
 		./collect-kn.sh $HOST ${benchmarks[$i]}-original ${original[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
 		mv kn-${benchmarks[$i]}-original.csv kn-original-${benchmarks[$i]}-$concurrency.csv
 		date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
@@ -28,8 +28,8 @@ for i in {0..2}; do
         for concurrency in ${c[@]}; do
                 date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
                 ./collect-kn.sh $HOST ${benchmarks[$i]}-unified ${unified[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
-                mv kn-${benchmarks[$i]}-unified.csv kn-unified-$benchmarks[$i]-$concurrency.csv
-                date -u '+%F %H:%M:%S.%6N %Z' >> $benchmarks[$i]-$concurrency.out
+                mv kn-${benchmarks[$i]}-unified.csv kn-unified-${benchmarks[$i]}-$concurrency.csv
+                date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
                 ./collect-kn.sh $HOST ${benchmarks[$i]}-original ${original[$i]} $concurrency payloads/${benchmarks[$i]}.json >
                 mv kn-${benchmarks[$i]}-original.csv kn-original-${benchmarks[$i]}-$concurrency.csv
                 date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
