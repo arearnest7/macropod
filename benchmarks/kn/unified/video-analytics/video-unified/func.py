@@ -22,7 +22,6 @@ from concurrent.futures import ThreadPoolExecutor
 import base64
 
 import datetime
-import redis
 import random
 
 # Load model

@@ -27,16 +27,16 @@ def main(context: Context):
         fs = []
         with ThreadPoolExecutor(max_workers=3) as executor:
             if to_checksum:
-                fs.append(executor.submit(requests.post, url=os.environ["PIPELINED_CHECKSUM"], json={"event": to_checksum, "workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0}))
+                fs.append(executor.submit(requests.post, url=os.environ["PIPELINED_CHECKSUM"], json={"event": to_checksum}))
             if to_zip:
-                fs.append(executor.submit(requests.post, url=os.environ["PIPELINED_ZIP"], json={"event": to_zip, "workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0}))
+                fs.append(executor.submit(requests.post, url=os.environ["PIPELINED_ZIP"], json={"event": to_zip}))
             if to_encrypt:
-                fs.append(executor.submit(requests.post, url=os.environ["PIPELINED_ENCRYPT"], json={"event": to_encrypt, "workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0}))
+                fs.append(executor.submit(requests.post, url=os.environ["PIPELINED_ENCRYPT"], json={"event": to_encrypt}))
         results = [f.result().text for f in fs]
         if to_checksum or to_zip:
             if to_checksum and "success" not in results[0]:
                 to_checksum = []
-            response = requests.post(url=os.environ["PIPELINED_MAIN"], json={"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip, "workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0})
+            response = requests.post(url=os.environ["PIPELINED_MAIN"], json={"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip})
             return response.text, 200
         return "success", 200
     else:

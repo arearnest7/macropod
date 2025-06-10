@@ -85,7 +85,7 @@ def stats_handler(req):
 def write_raw_handler(req):
     params = req
     #redisClient.set("raw-" + str(params["id"]), json.dumps(req))
-    response = requests.post(url=os.environ["WAGE_FULL"], json={"workflow_id": workflow_id, "workflow_depth": workflow_depth + 1, "workflow_width": 0})
+    response = requests.post(url=os.environ["WAGE_FULL"], json={})
     return response.text
 
 def format_handler(req):

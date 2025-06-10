@@ -45,7 +45,7 @@ def processFrames(videoBytes):
     # send all requests
     frames = frames[0:6]
     ex = ThreadPoolExecutor(max_workers=6)
-    all_result_futures = ex.map(partial(Recognise, frames)
+    all_result_futures = ex.map(partial(Recognise, frames))
     results = ""
     for result in all_result_futures:
         results = results + result + ","
