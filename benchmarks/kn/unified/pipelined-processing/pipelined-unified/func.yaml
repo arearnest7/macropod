@@ -3,7 +3,7 @@ name: pipelined-unified
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/pipelined-unified:kn
-imageDigest: sha256:cf2e713753ec70eb4df05bc45830f3749f13ef53d32cf002eb71a3d176f05438
+imageDigest: sha256:ce622d8b9f40ea920f7db1267830f06a83bc2ab7c4017f5fcb6c6788b3655fbc
 created: 2023-12-03T21:07:35.930126142-06:00
 build:
   builder: pack

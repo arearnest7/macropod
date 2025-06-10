@@ -3,7 +3,7 @@ name: pipelined-main
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/pipelined-main:kn
-imageDigest: sha256:3c5164593db42f9cca04576a6769d26ec402cfa5fc072a21146511b0beffd8fb
+imageDigest: sha256:a45c63d478fd1f867051031c0ab051b8c0a3064febba3126f8e3cccca06094a3
 created: 2023-12-03T20:55:16.752067379-06:00
 build:
   builder: pack

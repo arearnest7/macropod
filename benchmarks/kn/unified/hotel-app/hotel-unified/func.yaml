@@ -3,7 +3,7 @@ name: hotel-unified
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-unified:kn
-imageDigest: sha256:b89f46973578e8c383237736643f616b7556b79f26fb11f77e9c100ca1644d6c
+imageDigest: sha256:e706f0e46a993de67b93410a996101e2153063927a9fa0ba1ddc0fbd63ca1e07
 created: 2023-10-26T19:42:55.573322776-05:00
 build:
   builder: pack

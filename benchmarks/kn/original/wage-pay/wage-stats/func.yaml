@@ -3,7 +3,7 @@ name: wage-stats
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/wage-stats:kn
-imageDigest: sha256:80cac62383727fb0c7ee9499b036e4e86643ca93741c2145574cc32e69379db3
+imageDigest: sha256:4742c77d316d6d72872c7789f039a01a6ea3cb994930d1651626f5e63413a2cf
 created: 2023-12-03T21:04:43.68529525-06:00
 build:
   builder: pack

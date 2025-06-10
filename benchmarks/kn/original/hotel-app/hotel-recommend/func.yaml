@@ -3,7 +3,7 @@ name: hotel-recommend
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-recommend:kn
-imageDigest: sha256:5ddef0789461b61176c7a620a8ecb51036f2e7cea44ef5371e96e35ff096a3b4
+imageDigest: sha256:d495c3bb71f9987545d42a377a401d7b756d01f5e706a54833f6d19cb7c800d8
 created: 2023-10-26T19:54:40.164310055-05:00
 build:
   builder: pack

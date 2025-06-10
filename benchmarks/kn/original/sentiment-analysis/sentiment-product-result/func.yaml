@@ -3,7 +3,7 @@ name: sentiment-product-result
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/sentiment-product-result:kn
-imageDigest: sha256:0d1f48cbb152c09db4930771d9023d694afec1c9f68bedf3e726437c06ce9c9d
+imageDigest: sha256:fbb26e500f168becd21a92bc24e15b02823c891116eda40bd966cc2580f12a2f
 created: 2023-12-03T21:00:25.612050207-06:00
 build:
   builder: pack
