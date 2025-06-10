@@ -3,7 +3,7 @@ name: hotel-rate
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-rate:kn
-imageDigest: sha256:0b020d0d9b83502d1158355f2360cfa0dab2148068e109cd918b349f02fffe36
+imageDigest: sha256:543b81f5c7cb07515d242ed11581b4cceb6821b6368c2f0cc7ce7c7f46f9fabb
 created: 2023-10-26T19:30:55.730644786-05:00
 build:
   builder: pack

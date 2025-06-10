@@ -1,3 +1,3 @@
 #bin/bash
-kubectl delete -f yamls/election-unified.yaml
+sudo kubectl delete -f yamls/election-unified.yaml
 

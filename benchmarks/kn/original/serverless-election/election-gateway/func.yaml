@@ -3,7 +3,7 @@ name: election-gateway
 runtime: node
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/election-gateway:kn
-imageDigest: sha256:65d0a71e22960a35b84ea14520728bc9b075d3ff5405b4c3b1042962c147b27b
+imageDigest: sha256:f660539159af9a9be86a806fcafe0249afda36b61cb628bbe0813815e0e3ff6a
 created: 2023-10-10T14:56:35.552619558-05:00
 build:
   builder: pack

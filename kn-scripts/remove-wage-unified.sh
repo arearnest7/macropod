@@ -1,3 +1,3 @@
 #bin/bash
-kubectl delete -f yamls/wage-unified.yaml
+sudo kubectl delete -f yamls/wage-unified.yaml
 

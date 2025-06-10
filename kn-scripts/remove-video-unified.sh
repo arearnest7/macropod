@@ -1,2 +1,2 @@
 #bin/bash
-kubectl delete -f yamls/video-unified.yaml
+sudo kubectl delete -f yamls/video-unified.yaml
