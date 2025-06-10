@@ -30,7 +30,7 @@ for i in {0..2}; do
                 ./collect-kn.sh $HOST ${benchmarks[$i]}-unified ${unified[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
                 mv kn-${benchmarks[$i]}-unified.csv kn-unified-${benchmarks[$i]}-$concurrency.csv
                 date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
-                ./collect-kn.sh $HOST ${benchmarks[$i]}-original ${original[$i]} $concurrency payloads/${benchmarks[$i]}.json >
+                ./collect-kn.sh $HOST ${benchmarks[$i]}-original ${original[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000
                 mv kn-${benchmarks[$i]}-original.csv kn-original-${benchmarks[$i]}-$concurrency.csv
                 date -u '+%F %H:%M:%S.%6N %Z' >> ${benchmarks[$i]}-$concurrency.out
                 ./collect-macropod.sh ${benchmarks[$i]} $concurrency payloads/${benchmarks[$i]}.json 1000

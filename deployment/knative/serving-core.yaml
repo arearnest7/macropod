@@ -5010,7 +5010,7 @@ metadata:
   annotations:
     knative.dev/example-checksum: "e7973912"
 data:
-  container-concurrency: "5"
+  container-concurrency: "20"
   _example: |
     ################################
     #                              #
