@@ -61,7 +61,6 @@ def infer(batch_t):
 
 def Recognise(request):
     # get the frame from s3 or inline
-    frame = None
     frame = request
 
     classification = infer(preprocessImage(frame))

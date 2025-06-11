@@ -9,12 +9,9 @@ import redis
 import random
 
 def main(context: Context):
-    if 'request' in context.keys():
-        videoFile = open("reference/" + context.request.json["video"], "rb")
-        videoFragment = videoFile.read()
-        videoFile.close()
-        ret = requests.post(os.environ['VIDEO_DECODER'], json={"video": base64.b64encode(videoFragment).decode()}).text
-        return ret, 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
+    videoFile = open("reference/" + context.request.json["video"], "rb")
+    videoFragment = videoFile.read()
+    videoFile.close()
+    headers = {'Content-Type': 'application/octet-stream'}
+    ret = requests.post(os.environ['VIDEO_DECODER'], data=videoFragment, headers=headers).text
+    return ret, 200

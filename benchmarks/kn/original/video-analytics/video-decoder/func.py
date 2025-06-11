@@ -17,7 +17,6 @@ import base64
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 import datetime
-import redis
 import random
 
 def decode(bytes):
@@ -34,34 +33,33 @@ def decode(bytes):
     return all_frames
 
 def Recognise(frame):
-    result = requests.post(os.environ['VIDEO_RECOG'], json={"frame": base64.b64encode(frame).decode()}).text
+    headers = {'Content-Type': 'application/octet-stream'}
+    result = requests.post(os.environ['VIDEO_RECOG'], data=frame, headers=headers).text
 
     return result
 
 def processFrames(videoBytes):
     workflow_width = 0
     frames = decode(videoBytes)
+    print("here2\n")
     all_result_futures = []
     # send all requests
     frames = frames[0:6]
     ex = ThreadPoolExecutor(max_workers=6)
+    print("here3\n")
     all_result_futures = ex.map(partial(Recognise, frames))
     results = ""
     for result in all_result_futures:
         results = results + result + ","
-
+    print("here4\n")
     return results
 
 def Decode(request):
-    videoBytes = b''
-    videoBytes = base64.b64decode(request["video"].encode())
+    videoBytes = request
+    print("here1\n")
     results = processFrames(videoBytes)
     return results
 
 def main(context: Context):
-    if 'request' in context.keys():
-        ret = Decode(context.request.json)
-        return ret, 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
+    ret = Decode(context.request.data)
+    return ret, 200

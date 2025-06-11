@@ -64,16 +64,11 @@ def infer(batch_t):
 
 def Recognise(request):
     # get the frame from s3 or inline
-    frame = None
-    frame = base64.b64decode(request["frame"].encode())
+    frame = request
 
     classification = infer(preprocessImage(frame))
     return classification
 
 def main(context: Context):
-    if 'request' in context.keys():
-        ret = Recognise(context.request.json)
-        return ret, 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
+    ret = Recognise(context.request.data)
+    return ret, 200

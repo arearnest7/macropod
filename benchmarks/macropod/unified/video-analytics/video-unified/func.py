@@ -70,7 +70,6 @@ def infer(batch_t):
 
 def Recognise(request):
     # get the frame from s3 or inline
-    frame = None
     frame = request
 
     classification = infer(preprocessImage(frame))
@@ -108,7 +107,6 @@ def processFrames(videoBytes):
     return results
 
 def Decode(request):
-    videoBytes = b''
     videoBytes = request
     results = processFrames(videoBytes)
     return results

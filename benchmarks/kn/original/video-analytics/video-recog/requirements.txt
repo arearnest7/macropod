@@ -1,8 +1,8 @@
 parliament-functions==0.1.0
-numpy
+numpy<2
 environs
 pycapnp
 --find-links https://download.pytorch.org/whl/torch_stable.html
-torch==2.3.0+cpu
-torchvision==0.18.0+cpu
-torchaudio==2.3.0
+torch==1.12.0+cpu
+torchvision==0.13.0+cpu
+torchaudio==0.12.0

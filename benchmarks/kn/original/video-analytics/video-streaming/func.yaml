@@ -3,7 +3,7 @@ name: video-streaming
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/video-streaming:kn
-imageDigest: sha256:ee294cd72ec59b806d01b4c3bf7d5819553fea92bc05fad2435e131f3d1e08db
+imageDigest: sha256:70daa60e688a6cf5728c2e63f93d80712629a5caa1b312f30719989dad2234b6
 created: 2023-11-04T23:11:58.628724073-05:00
 build:
   builder: pack

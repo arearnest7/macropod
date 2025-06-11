@@ -2,3 +2,4 @@ parliament-functions==0.1.0
 environs
 pycapnp
 opencv-python-headless
+requests

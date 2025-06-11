@@ -3,7 +3,7 @@ name: video-unified
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/video-unified:kn
-imageDigest: sha256:2191fc507767817b4235247b1a264c49a5a8421fbdf47c6fd510d8968c4d73ba
+imageDigest: sha256:6adfed02a04addd65b2a61d71adb149d21cfe8cfe7eba445502788d0b94911c7
 created: 2023-11-05T16:38:01.912085473-06:00
 build:
   builder: pack

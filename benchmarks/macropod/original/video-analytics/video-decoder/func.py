@@ -43,7 +43,6 @@ def processFrames(videoBytes, context):
     return results
 
 def Decode(request, context):
-    videoBytes = b''
     videoBytes = request
     results = processFrames(videoBytes, context)
     return results
