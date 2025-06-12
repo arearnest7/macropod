@@ -15,7 +15,6 @@ import requests
 import base64
 
 from concurrent.futures import ThreadPoolExecutor
-from functools import partial
 import datetime
 import random
 
@@ -39,24 +38,19 @@ def Recognise(frame):
     return result
 
 def processFrames(videoBytes):
-    workflow_width = 0
     frames = decode(videoBytes)
-    print("here2\n")
     all_result_futures = []
     # send all requests
     frames = frames[0:6]
     ex = ThreadPoolExecutor(max_workers=6)
-    print("here3\n")
-    all_result_futures = ex.map(partial(Recognise, frames))
+    all_result_futures = ex.map(Recognise, frames)
     results = ""
     for result in all_result_futures:
         results = results + result + ","
-    print("here4\n")
     return results
 
 def Decode(request):
     videoBytes = request
-    print("here1\n")
     results = processFrames(videoBytes)
     return results
 

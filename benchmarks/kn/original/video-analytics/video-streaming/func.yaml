@@ -1,10 +1,9 @@
-# $schema: https://raw.githubusercontent.com/knative/func/refs/tags/v0.36.0/schema/func_yaml-schema.json
-# yaml-language-server: $schema=https://raw.githubusercontent.com/knative/func/refs/tags/v0.36.0/schema/func_yaml-schema.json
 specVersion: 0.36.0
 name: video-streaming
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/video-streaming:kn
+imageDigest: sha256:18eb68858f9fba0b467ed1bd33238f023163d9afd785a9f631fab7d7815ad128
 created: 2023-11-04T23:11:58.628724073-05:00
 build:
   builder: pack

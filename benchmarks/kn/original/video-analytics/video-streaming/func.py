@@ -5,7 +5,6 @@ import os
 import requests
 import base64
 import datetime
-import redis
 import random
 
 def main(context: Context):

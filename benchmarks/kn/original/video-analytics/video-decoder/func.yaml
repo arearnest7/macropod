@@ -1,10 +1,9 @@
-# $schema: https://raw.githubusercontent.com/knative/func/refs/tags/v0.36.0/schema/func_yaml-schema.json
-# yaml-language-server: $schema=https://raw.githubusercontent.com/knative/func/refs/tags/v0.36.0/schema/func_yaml-schema.json
 specVersion: 0.36.0
 name: video-decoder
 runtime: python
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/video-decoder:kn
+imageDigest: sha256:f10b406bb6ea9c90dc40343d34b0ea7512f2403a1c8033d13220d63b318f4bb5
 created: 2023-10-26T19:40:26.563671274-05:00
 build:
   builder: pack
