@@ -1,7 +1,7 @@
 #!/bin/bash
-user=$1
-iface=$2
-worker_nodes=($3)
+user=${1:-sysdev}
+iface=${2:-enp0s3}
+worker_nodes=(${3:-"192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24"})
 host=$(/sbin/ifconfig $iface | grep -i mask | awk '{print $2}'| cut -f2 -d:)
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
@@ -24,11 +24,3 @@ sleep 60s
 sudo kubectl get daemonset -A -o jsonpath='{range .items[*]}{.metadata.name}{" -n "}{.metadata.namespace}{"\n"}{end}' | while read -r line; do sudo kubectl patch daemonset $line --patch-file deployment/knative/daemonset.yaml; done;
 sudo kubectl apply -f deployment/knative/serving-default-domain.yaml
 sudo kubectl apply -f deployment/macropod.yaml
-wget https://github.com/knative/client/releases/download/knative-v1.11.2/kn-linux-amd64
-mv kn-linux-amd64 kn
-chmod +x kn
-sudo mv kn /usr/local/bin
-wget https://github.com/knative/func/releases/download/knative-v1.12.0/func_linux_amd64
-mv func_linux_amd64 kn-func
-chmod +x kn-func
-sudo mv kn-func /usr/local/bin

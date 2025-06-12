@@ -7,7 +7,13 @@ spec:
     app: macropod
   ports:
   - port: 80
-    targetPort: 8081
+    targetPort: 8080
+  - port: 8081
+    target: 8081
+  - port: 8082
+    target: 8082
+  - port: 8083
+    target: 8083
   type: LoadBalancer
   clusterIP: 10.43.190.1
 ---
@@ -67,6 +73,11 @@ spec:
         value: "master-node"
         effect: "NoSchedule"
      containers:
+      - name: macropod-eval
+        image: sysdevtamu/macropod-eval:macropod
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
       - name: macropod-ingress
         image: sysdevtamu/macropod-ingress:macropod
         imagePullPolicy: Always
@@ -77,3 +88,8 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8082
+      - name: macropod-logger
+        image: sysdevtamu/macropod-logger:macropod
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8083
