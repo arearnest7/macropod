@@ -130,7 +130,7 @@ spec:
         - name: NAMESPACE
           value: "macropod-functions"
         - name: TTL
-          value: 180
+          value: "180"
         - name: DEPLOYMENT
           value: "macropod"
         - name: COMMUNICATION
@@ -138,9 +138,9 @@ spec:
         - name: AGGREGATION
           value: "agg"
         - name: TARGET
-          value: -1
+          value: "-1"
         - name: DEBUG
-          value: 0
+          value: "0"
       - name: macropod-deployer
         image: sysdevtamu/macropod-deployer:latest
         imagePullPolicy: Always
@@ -159,7 +159,7 @@ spec:
         - name: LOGGER_ADDRESS
           value: "127.0.0.1:8003"
         - name: TTL
-          value: 180
+          value: "180"
         - name: DEPLOYMENT
           value: "macropod"
         - name: COMMUNICATION
@@ -167,9 +167,9 @@ spec:
         - name: AGGREGATION
           value: "agg"
         - name: TARGET
-          value: -1
+          value: "-1"
         - name: DEBUG
-          value: 0
+          value: "0"
       - name: macropod-logger
         image: sysdevtamu/macropod-logger:latest
         imagePullPolicy: Always
