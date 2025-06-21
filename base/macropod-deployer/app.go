@@ -20,6 +20,7 @@ import (
     metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
     "k8s.io/apimachinery/pkg/util/intstr"
     "k8s.io/client-go/kubernetes"
+    "k8s.io/client-go/rest"
 
     "net"
     "net/http"
@@ -964,6 +965,16 @@ func HTTP_TTLDelete(res http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+    config, err := rest.InClusterConfig()
+    if err != nil {
+        fmt.Println("error config - " + err.Error())
+        return
+    }
+    kclient, err = kubernetes.NewForConfig(config)
+    if err != nil {
+        fmt.Println("error kclient - " + err.Error())
+        return
+    }
     service_port := os.Getenv("SERVICE_PORT")
     if service_port == "" {
         service_port = "8000"
