@@ -1,0 +1,13 @@
+{
+    "Name": "video",
+    "Functions": {
+        "VIDEO_UNIFIED": {
+            "Registry": "sysdevtamu/video-unified:latest"
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "gateway",
+        "Aggregation": "agg",
+    }
+}

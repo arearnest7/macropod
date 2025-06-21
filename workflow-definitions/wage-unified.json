@@ -1,0 +1,15 @@
+{
+    "Name": "wage",
+    "Functions": {
+        "WAGE_UNIFIED": {
+            "Registry": "sysdevtamu/wage-unified:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+            "Endpoints": ["WAGE_UNIFIED"]
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "gateway",
+        "Aggregation": "agg",
+    }
+}

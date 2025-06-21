@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MacroPodFunctionClient interface {
-	Invoke(ctx context.Context, in *FunctionRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	Invoke(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
 }
 
 type macroPodFunctionClient struct {
@@ -37,7 +37,7 @@ func NewMacroPodFunctionClient(cc grpc.ClientConnInterface) MacroPodFunctionClie
 	return &macroPodFunctionClient{cc}
 }
 
-func (c *macroPodFunctionClient) Invoke(ctx context.Context, in *FunctionRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+func (c *macroPodFunctionClient) Invoke(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MacroPodReply)
 	err := c.cc.Invoke(ctx, MacroPodFunction_Invoke_FullMethodName, in, out, cOpts...)
@@ -51,7 +51,7 @@ func (c *macroPodFunctionClient) Invoke(ctx context.Context, in *FunctionRequest
 // All implementations must embed UnimplementedMacroPodFunctionServer
 // for forward compatibility.
 type MacroPodFunctionServer interface {
-	Invoke(context.Context, *FunctionRequest) (*MacroPodReply, error)
+	Invoke(context.Context, *MacroPodRequest) (*MacroPodReply, error)
 	mustEmbedUnimplementedMacroPodFunctionServer()
 }
 
@@ -62,7 +62,7 @@ type MacroPodFunctionServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMacroPodFunctionServer struct{}
 
-func (UnimplementedMacroPodFunctionServer) Invoke(context.Context, *FunctionRequest) (*MacroPodReply, error) {
+func (UnimplementedMacroPodFunctionServer) Invoke(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Invoke not implemented")
 }
 func (UnimplementedMacroPodFunctionServer) mustEmbedUnimplementedMacroPodFunctionServer() {}
@@ -87,7 +87,7 @@ func RegisterMacroPodFunctionServer(s grpc.ServiceRegistrar, srv MacroPodFunctio
 }
 
 func _MacroPodFunction_Invoke_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FunctionRequest)
+	in := new(MacroPodRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func _MacroPodFunction_Invoke_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: MacroPodFunction_Invoke_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodFunctionServer).Invoke(ctx, req.(*FunctionRequest))
+		return srv.(MacroPodFunctionServer).Invoke(ctx, req.(*MacroPodRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -121,7 +121,514 @@ var MacroPodFunction_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	MacroPodDeployer_Deployment_FullMethodName        = "/macropod.MacroPodDeployer/Deployment"
+	MacroPodEval_Eval_FullMethodName        = "/macropod.MacroPodEval/Eval"
+	MacroPodEval_EvalMetrics_FullMethodName = "/macropod.MacroPodEval/EvalMetrics"
+	MacroPodEval_EvalLatency_FullMethodName = "/macropod.MacroPodEval/EvalLatency"
+	MacroPodEval_EvalSummary_FullMethodName = "/macropod.MacroPodEval/EvalSummary"
+)
+
+// MacroPodEvalClient is the client API for MacroPodEval service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type MacroPodEvalClient interface {
+	Eval(ctx context.Context, in *EvalStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
+	EvalMetrics(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	EvalLatency(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	EvalSummary(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+}
+
+type macroPodEvalClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewMacroPodEvalClient(cc grpc.ClientConnInterface) MacroPodEvalClient {
+	return &macroPodEvalClient{cc}
+}
+
+func (c *macroPodEvalClient) Eval(ctx context.Context, in *EvalStruct, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodEval_Eval_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodEvalClient) EvalMetrics(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodEval_EvalMetrics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodEvalClient) EvalLatency(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodEval_EvalLatency_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodEvalClient) EvalSummary(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodEval_EvalSummary_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MacroPodEvalServer is the server API for MacroPodEval service.
+// All implementations must embed UnimplementedMacroPodEvalServer
+// for forward compatibility.
+type MacroPodEvalServer interface {
+	Eval(context.Context, *EvalStruct) (*MacroPodReply, error)
+	EvalMetrics(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	EvalLatency(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	EvalSummary(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	mustEmbedUnimplementedMacroPodEvalServer()
+}
+
+// UnimplementedMacroPodEvalServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedMacroPodEvalServer struct{}
+
+func (UnimplementedMacroPodEvalServer) Eval(context.Context, *EvalStruct) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Eval not implemented")
+}
+func (UnimplementedMacroPodEvalServer) EvalMetrics(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EvalMetrics not implemented")
+}
+func (UnimplementedMacroPodEvalServer) EvalLatency(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EvalLatency not implemented")
+}
+func (UnimplementedMacroPodEvalServer) EvalSummary(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EvalSummary not implemented")
+}
+func (UnimplementedMacroPodEvalServer) mustEmbedUnimplementedMacroPodEvalServer() {}
+func (UnimplementedMacroPodEvalServer) testEmbeddedByValue()                      {}
+
+// UnsafeMacroPodEvalServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MacroPodEvalServer will
+// result in compilation errors.
+type UnsafeMacroPodEvalServer interface {
+	mustEmbedUnimplementedMacroPodEvalServer()
+}
+
+func RegisterMacroPodEvalServer(s grpc.ServiceRegistrar, srv MacroPodEvalServer) {
+	// If the following call pancis, it indicates UnimplementedMacroPodEvalServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&MacroPodEval_ServiceDesc, srv)
+}
+
+func _MacroPodEval_Eval_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EvalStruct)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodEvalServer).Eval(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodEval_Eval_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodEvalServer).Eval(ctx, req.(*EvalStruct))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodEval_EvalMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodEvalServer).EvalMetrics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodEval_EvalMetrics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodEvalServer).EvalMetrics(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodEval_EvalLatency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodEvalServer).EvalLatency(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodEval_EvalLatency_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodEvalServer).EvalLatency(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodEval_EvalSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodEvalServer).EvalSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodEval_EvalSummary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodEvalServer).EvalSummary(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// MacroPodEval_ServiceDesc is the grpc.ServiceDesc for MacroPodEval service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var MacroPodEval_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "macropod.MacroPodEval",
+	HandlerType: (*MacroPodEvalServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Eval",
+			Handler:    _MacroPodEval_Eval_Handler,
+		},
+		{
+			MethodName: "EvalMetrics",
+			Handler:    _MacroPodEval_EvalMetrics_Handler,
+		},
+		{
+			MethodName: "EvalLatency",
+			Handler:    _MacroPodEval_EvalLatency_Handler,
+		},
+		{
+			MethodName: "EvalSummary",
+			Handler:    _MacroPodEval_EvalSummary_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "macropod.proto",
+}
+
+const (
+	MacroPodIngress_Config_FullMethodName         = "/macropod.MacroPodIngress/Config"
+	MacroPodIngress_WorkflowInvoke_FullMethodName = "/macropod.MacroPodIngress/WorkflowInvoke"
+	MacroPodIngress_FunctionInvoke_FullMethodName = "/macropod.MacroPodIngress/FunctionInvoke"
+	MacroPodIngress_CreateWorkflow_FullMethodName = "/macropod.MacroPodIngress/CreateWorkflow"
+	MacroPodIngress_UpdateWorkflow_FullMethodName = "/macropod.MacroPodIngress/UpdateWorkflow"
+	MacroPodIngress_DeleteWorkflow_FullMethodName = "/macropod.MacroPodIngress/DeleteWorkflow"
+)
+
+// MacroPodIngressClient is the client API for MacroPodIngress service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type MacroPodIngressClient interface {
+	Config(ctx context.Context, in *ConfigStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
+	WorkflowInvoke(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	FunctionInvoke(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	CreateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
+	UpdateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
+	DeleteWorkflow(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+}
+
+type macroPodIngressClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewMacroPodIngressClient(cc grpc.ClientConnInterface) MacroPodIngressClient {
+	return &macroPodIngressClient{cc}
+}
+
+func (c *macroPodIngressClient) Config(ctx context.Context, in *ConfigStruct, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodIngress_Config_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodIngressClient) WorkflowInvoke(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodIngress_WorkflowInvoke_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodIngressClient) FunctionInvoke(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodIngress_FunctionInvoke_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodIngressClient) CreateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodIngress_CreateWorkflow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodIngressClient) UpdateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodIngress_UpdateWorkflow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodIngressClient) DeleteWorkflow(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodIngress_DeleteWorkflow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MacroPodIngressServer is the server API for MacroPodIngress service.
+// All implementations must embed UnimplementedMacroPodIngressServer
+// for forward compatibility.
+type MacroPodIngressServer interface {
+	Config(context.Context, *ConfigStruct) (*MacroPodReply, error)
+	WorkflowInvoke(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	FunctionInvoke(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	CreateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error)
+	UpdateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error)
+	DeleteWorkflow(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	mustEmbedUnimplementedMacroPodIngressServer()
+}
+
+// UnimplementedMacroPodIngressServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedMacroPodIngressServer struct{}
+
+func (UnimplementedMacroPodIngressServer) Config(context.Context, *ConfigStruct) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Config not implemented")
+}
+func (UnimplementedMacroPodIngressServer) WorkflowInvoke(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WorkflowInvoke not implemented")
+}
+func (UnimplementedMacroPodIngressServer) FunctionInvoke(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FunctionInvoke not implemented")
+}
+func (UnimplementedMacroPodIngressServer) CreateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateWorkflow not implemented")
+}
+func (UnimplementedMacroPodIngressServer) UpdateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateWorkflow not implemented")
+}
+func (UnimplementedMacroPodIngressServer) DeleteWorkflow(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteWorkflow not implemented")
+}
+func (UnimplementedMacroPodIngressServer) mustEmbedUnimplementedMacroPodIngressServer() {}
+func (UnimplementedMacroPodIngressServer) testEmbeddedByValue()                         {}
+
+// UnsafeMacroPodIngressServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MacroPodIngressServer will
+// result in compilation errors.
+type UnsafeMacroPodIngressServer interface {
+	mustEmbedUnimplementedMacroPodIngressServer()
+}
+
+func RegisterMacroPodIngressServer(s grpc.ServiceRegistrar, srv MacroPodIngressServer) {
+	// If the following call pancis, it indicates UnimplementedMacroPodIngressServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&MacroPodIngress_ServiceDesc, srv)
+}
+
+func _MacroPodIngress_Config_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfigStruct)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodIngressServer).Config(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodIngress_Config_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodIngressServer).Config(ctx, req.(*ConfigStruct))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodIngress_WorkflowInvoke_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodIngressServer).WorkflowInvoke(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodIngress_WorkflowInvoke_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodIngressServer).WorkflowInvoke(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodIngress_FunctionInvoke_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodIngressServer).FunctionInvoke(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodIngress_FunctionInvoke_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodIngressServer).FunctionInvoke(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodIngress_CreateWorkflow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WorkflowStruct)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodIngressServer).CreateWorkflow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodIngress_CreateWorkflow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodIngressServer).CreateWorkflow(ctx, req.(*WorkflowStruct))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodIngress_UpdateWorkflow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WorkflowStruct)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodIngressServer).UpdateWorkflow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodIngress_UpdateWorkflow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodIngressServer).UpdateWorkflow(ctx, req.(*WorkflowStruct))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodIngress_DeleteWorkflow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodIngressServer).DeleteWorkflow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodIngress_DeleteWorkflow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodIngressServer).DeleteWorkflow(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// MacroPodIngress_ServiceDesc is the grpc.ServiceDesc for MacroPodIngress service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var MacroPodIngress_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "macropod.MacroPodIngress",
+	HandlerType: (*MacroPodIngressServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Config",
+			Handler:    _MacroPodIngress_Config_Handler,
+		},
+		{
+			MethodName: "WorkflowInvoke",
+			Handler:    _MacroPodIngress_WorkflowInvoke_Handler,
+		},
+		{
+			MethodName: "FunctionInvoke",
+			Handler:    _MacroPodIngress_FunctionInvoke_Handler,
+		},
+		{
+			MethodName: "CreateWorkflow",
+			Handler:    _MacroPodIngress_CreateWorkflow_Handler,
+		},
+		{
+			MethodName: "UpdateWorkflow",
+			Handler:    _MacroPodIngress_UpdateWorkflow_Handler,
+		},
+		{
+			MethodName: "DeleteWorkflow",
+			Handler:    _MacroPodIngress_DeleteWorkflow_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "macropod.proto",
+}
+
+const (
 	MacroPodDeployer_Config_FullMethodName            = "/macropod.MacroPodDeployer/Config"
 	MacroPodDeployer_CreateWorkflow_FullMethodName    = "/macropod.MacroPodDeployer/CreateWorkflow"
 	MacroPodDeployer_UpdateWorkflow_FullMethodName    = "/macropod.MacroPodDeployer/UpdateWorkflow"
@@ -129,22 +636,19 @@ const (
 	MacroPodDeployer_UpdateDeployments_FullMethodName = "/macropod.MacroPodDeployer/UpdateDeployments"
 	MacroPodDeployer_CreateDeployment_FullMethodName  = "/macropod.MacroPodDeployer/CreateDeployment"
 	MacroPodDeployer_TTLDelete_FullMethodName         = "/macropod.MacroPodDeployer/TTLDelete"
-	MacroPodDeployer_UpdateManifest_FullMethodName    = "/macropod.MacroPodDeployer/UpdateManifest"
 )
 
 // MacroPodDeployerClient is the client API for MacroPodDeployer service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MacroPodDeployerClient interface {
-	Deployment(ctx context.Context, in *DeploymentServiceRequest, opts ...grpc.CallOption) (*DeploymentServiceReply, error)
 	Config(ctx context.Context, in *ConfigStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
 	CreateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
 	UpdateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
-	DeleteWorkflow(ctx context.Context, in *DeployerRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
-	UpdateDeployments(ctx context.Context, in *DeployerRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
-	CreateDeployment(ctx context.Context, in *DeployerRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
-	TTLDelete(ctx context.Context, in *DeployerRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
-	UpdateManifest(ctx context.Context, in *MacroPodManifest, opts ...grpc.CallOption) (*MacroPodManifest, error)
+	DeleteWorkflow(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	UpdateDeployments(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	CreateDeployment(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	TTLDelete(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
 }
 
 type macroPodDeployerClient struct {
@@ -153,16 +657,6 @@ type macroPodDeployerClient struct {
 
 func NewMacroPodDeployerClient(cc grpc.ClientConnInterface) MacroPodDeployerClient {
 	return &macroPodDeployerClient{cc}
-}
-
-func (c *macroPodDeployerClient) Deployment(ctx context.Context, in *DeploymentServiceRequest, opts ...grpc.CallOption) (*DeploymentServiceReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeploymentServiceReply)
-	err := c.cc.Invoke(ctx, MacroPodDeployer_Deployment_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *macroPodDeployerClient) Config(ctx context.Context, in *ConfigStruct, opts ...grpc.CallOption) (*MacroPodReply, error) {
@@ -195,7 +689,7 @@ func (c *macroPodDeployerClient) UpdateWorkflow(ctx context.Context, in *Workflo
 	return out, nil
 }
 
-func (c *macroPodDeployerClient) DeleteWorkflow(ctx context.Context, in *DeployerRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+func (c *macroPodDeployerClient) DeleteWorkflow(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MacroPodReply)
 	err := c.cc.Invoke(ctx, MacroPodDeployer_DeleteWorkflow_FullMethodName, in, out, cOpts...)
@@ -205,7 +699,7 @@ func (c *macroPodDeployerClient) DeleteWorkflow(ctx context.Context, in *Deploye
 	return out, nil
 }
 
-func (c *macroPodDeployerClient) UpdateDeployments(ctx context.Context, in *DeployerRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+func (c *macroPodDeployerClient) UpdateDeployments(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MacroPodReply)
 	err := c.cc.Invoke(ctx, MacroPodDeployer_UpdateDeployments_FullMethodName, in, out, cOpts...)
@@ -215,7 +709,7 @@ func (c *macroPodDeployerClient) UpdateDeployments(ctx context.Context, in *Depl
 	return out, nil
 }
 
-func (c *macroPodDeployerClient) CreateDeployment(ctx context.Context, in *DeployerRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+func (c *macroPodDeployerClient) CreateDeployment(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MacroPodReply)
 	err := c.cc.Invoke(ctx, MacroPodDeployer_CreateDeployment_FullMethodName, in, out, cOpts...)
@@ -225,20 +719,10 @@ func (c *macroPodDeployerClient) CreateDeployment(ctx context.Context, in *Deplo
 	return out, nil
 }
 
-func (c *macroPodDeployerClient) TTLDelete(ctx context.Context, in *DeployerRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+func (c *macroPodDeployerClient) TTLDelete(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MacroPodReply)
 	err := c.cc.Invoke(ctx, MacroPodDeployer_TTLDelete_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *macroPodDeployerClient) UpdateManifest(ctx context.Context, in *MacroPodManifest, opts ...grpc.CallOption) (*MacroPodManifest, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodManifest)
-	err := c.cc.Invoke(ctx, MacroPodDeployer_UpdateManifest_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -249,15 +733,13 @@ func (c *macroPodDeployerClient) UpdateManifest(ctx context.Context, in *MacroPo
 // All implementations must embed UnimplementedMacroPodDeployerServer
 // for forward compatibility.
 type MacroPodDeployerServer interface {
-	Deployment(context.Context, *DeploymentServiceRequest) (*DeploymentServiceReply, error)
 	Config(context.Context, *ConfigStruct) (*MacroPodReply, error)
 	CreateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error)
 	UpdateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error)
-	DeleteWorkflow(context.Context, *DeployerRequest) (*MacroPodReply, error)
-	UpdateDeployments(context.Context, *DeployerRequest) (*MacroPodReply, error)
-	CreateDeployment(context.Context, *DeployerRequest) (*MacroPodReply, error)
-	TTLDelete(context.Context, *DeployerRequest) (*MacroPodReply, error)
-	UpdateManifest(context.Context, *MacroPodManifest) (*MacroPodManifest, error)
+	DeleteWorkflow(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	UpdateDeployments(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	CreateDeployment(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	TTLDelete(context.Context, *MacroPodRequest) (*MacroPodReply, error)
 	mustEmbedUnimplementedMacroPodDeployerServer()
 }
 
@@ -268,9 +750,6 @@ type MacroPodDeployerServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMacroPodDeployerServer struct{}
 
-func (UnimplementedMacroPodDeployerServer) Deployment(context.Context, *DeploymentServiceRequest) (*DeploymentServiceReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Deployment not implemented")
-}
 func (UnimplementedMacroPodDeployerServer) Config(context.Context, *ConfigStruct) (*MacroPodReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Config not implemented")
 }
@@ -280,20 +759,17 @@ func (UnimplementedMacroPodDeployerServer) CreateWorkflow(context.Context, *Work
 func (UnimplementedMacroPodDeployerServer) UpdateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateWorkflow not implemented")
 }
-func (UnimplementedMacroPodDeployerServer) DeleteWorkflow(context.Context, *DeployerRequest) (*MacroPodReply, error) {
+func (UnimplementedMacroPodDeployerServer) DeleteWorkflow(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteWorkflow not implemented")
 }
-func (UnimplementedMacroPodDeployerServer) UpdateDeployments(context.Context, *DeployerRequest) (*MacroPodReply, error) {
+func (UnimplementedMacroPodDeployerServer) UpdateDeployments(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateDeployments not implemented")
 }
-func (UnimplementedMacroPodDeployerServer) CreateDeployment(context.Context, *DeployerRequest) (*MacroPodReply, error) {
+func (UnimplementedMacroPodDeployerServer) CreateDeployment(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateDeployment not implemented")
 }
-func (UnimplementedMacroPodDeployerServer) TTLDelete(context.Context, *DeployerRequest) (*MacroPodReply, error) {
+func (UnimplementedMacroPodDeployerServer) TTLDelete(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TTLDelete not implemented")
-}
-func (UnimplementedMacroPodDeployerServer) UpdateManifest(context.Context, *MacroPodManifest) (*MacroPodManifest, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateManifest not implemented")
 }
 func (UnimplementedMacroPodDeployerServer) mustEmbedUnimplementedMacroPodDeployerServer() {}
 func (UnimplementedMacroPodDeployerServer) testEmbeddedByValue()                          {}
@@ -314,24 +790,6 @@ func RegisterMacroPodDeployerServer(s grpc.ServiceRegistrar, srv MacroPodDeploye
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&MacroPodDeployer_ServiceDesc, srv)
-}
-
-func _MacroPodDeployer_Deployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeploymentServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodDeployerServer).Deployment(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodDeployer_Deployment_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodDeployerServer).Deployment(ctx, req.(*DeploymentServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _MacroPodDeployer_Config_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -389,7 +847,7 @@ func _MacroPodDeployer_UpdateWorkflow_Handler(srv interface{}, ctx context.Conte
 }
 
 func _MacroPodDeployer_DeleteWorkflow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeployerRequest)
+	in := new(MacroPodRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -401,13 +859,13 @@ func _MacroPodDeployer_DeleteWorkflow_Handler(srv interface{}, ctx context.Conte
 		FullMethod: MacroPodDeployer_DeleteWorkflow_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodDeployerServer).DeleteWorkflow(ctx, req.(*DeployerRequest))
+		return srv.(MacroPodDeployerServer).DeleteWorkflow(ctx, req.(*MacroPodRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _MacroPodDeployer_UpdateDeployments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeployerRequest)
+	in := new(MacroPodRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -419,13 +877,13 @@ func _MacroPodDeployer_UpdateDeployments_Handler(srv interface{}, ctx context.Co
 		FullMethod: MacroPodDeployer_UpdateDeployments_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodDeployerServer).UpdateDeployments(ctx, req.(*DeployerRequest))
+		return srv.(MacroPodDeployerServer).UpdateDeployments(ctx, req.(*MacroPodRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _MacroPodDeployer_CreateDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeployerRequest)
+	in := new(MacroPodRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -437,13 +895,13 @@ func _MacroPodDeployer_CreateDeployment_Handler(srv interface{}, ctx context.Con
 		FullMethod: MacroPodDeployer_CreateDeployment_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodDeployerServer).CreateDeployment(ctx, req.(*DeployerRequest))
+		return srv.(MacroPodDeployerServer).CreateDeployment(ctx, req.(*MacroPodRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _MacroPodDeployer_TTLDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeployerRequest)
+	in := new(MacroPodRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -455,25 +913,7 @@ func _MacroPodDeployer_TTLDelete_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: MacroPodDeployer_TTLDelete_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodDeployerServer).TTLDelete(ctx, req.(*DeployerRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MacroPodDeployer_UpdateManifest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MacroPodManifest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodDeployerServer).UpdateManifest(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodDeployer_UpdateManifest_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodDeployerServer).UpdateManifest(ctx, req.(*MacroPodManifest))
+		return srv.(MacroPodDeployerServer).TTLDelete(ctx, req.(*MacroPodRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -485,10 +925,6 @@ var MacroPodDeployer_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "macropod.MacroPodDeployer",
 	HandlerType: (*MacroPodDeployerServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Deployment",
-			Handler:    _MacroPodDeployer_Deployment_Handler,
-		},
 		{
 			MethodName: "Config",
 			Handler:    _MacroPodDeployer_Config_Handler,
@@ -517,9 +953,297 @@ var MacroPodDeployer_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "TTLDelete",
 			Handler:    _MacroPodDeployer_TTLDelete_Handler,
 		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "macropod.proto",
+}
+
+const (
+	MacroPodLogger_Timestamp_FullMethodName    = "/macropod.MacroPodLogger/Timestamp"
+	MacroPodLogger_Error_FullMethodName        = "/macropod.MacroPodLogger/Error"
+	MacroPodLogger_Print_FullMethodName        = "/macropod.MacroPodLogger/Print"
+	MacroPodLogger_GetTimestamp_FullMethodName = "/macropod.MacroPodLogger/GetTimestamp"
+	MacroPodLogger_GetError_FullMethodName     = "/macropod.MacroPodLogger/GetError"
+	MacroPodLogger_GetPrint_FullMethodName     = "/macropod.MacroPodLogger/GetPrint"
+)
+
+// MacroPodLoggerClient is the client API for MacroPodLogger service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type MacroPodLoggerClient interface {
+	Timestamp(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	Error(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	Print(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	GetTimestamp(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	GetError(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+	GetPrint(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+}
+
+type macroPodLoggerClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewMacroPodLoggerClient(cc grpc.ClientConnInterface) MacroPodLoggerClient {
+	return &macroPodLoggerClient{cc}
+}
+
+func (c *macroPodLoggerClient) Timestamp(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodLogger_Timestamp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodLoggerClient) Error(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodLogger_Error_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodLoggerClient) Print(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodLogger_Print_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodLoggerClient) GetTimestamp(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodLogger_GetTimestamp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodLoggerClient) GetError(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodLogger_GetError_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *macroPodLoggerClient) GetPrint(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MacroPodReply)
+	err := c.cc.Invoke(ctx, MacroPodLogger_GetPrint_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MacroPodLoggerServer is the server API for MacroPodLogger service.
+// All implementations must embed UnimplementedMacroPodLoggerServer
+// for forward compatibility.
+type MacroPodLoggerServer interface {
+	Timestamp(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	Error(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	Print(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	GetTimestamp(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	GetError(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	GetPrint(context.Context, *MacroPodRequest) (*MacroPodReply, error)
+	mustEmbedUnimplementedMacroPodLoggerServer()
+}
+
+// UnimplementedMacroPodLoggerServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedMacroPodLoggerServer struct{}
+
+func (UnimplementedMacroPodLoggerServer) Timestamp(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Timestamp not implemented")
+}
+func (UnimplementedMacroPodLoggerServer) Error(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Error not implemented")
+}
+func (UnimplementedMacroPodLoggerServer) Print(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Print not implemented")
+}
+func (UnimplementedMacroPodLoggerServer) GetTimestamp(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTimestamp not implemented")
+}
+func (UnimplementedMacroPodLoggerServer) GetError(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetError not implemented")
+}
+func (UnimplementedMacroPodLoggerServer) GetPrint(context.Context, *MacroPodRequest) (*MacroPodReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPrint not implemented")
+}
+func (UnimplementedMacroPodLoggerServer) mustEmbedUnimplementedMacroPodLoggerServer() {}
+func (UnimplementedMacroPodLoggerServer) testEmbeddedByValue()                        {}
+
+// UnsafeMacroPodLoggerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MacroPodLoggerServer will
+// result in compilation errors.
+type UnsafeMacroPodLoggerServer interface {
+	mustEmbedUnimplementedMacroPodLoggerServer()
+}
+
+func RegisterMacroPodLoggerServer(s grpc.ServiceRegistrar, srv MacroPodLoggerServer) {
+	// If the following call pancis, it indicates UnimplementedMacroPodLoggerServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&MacroPodLogger_ServiceDesc, srv)
+}
+
+func _MacroPodLogger_Timestamp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodLoggerServer).Timestamp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodLogger_Timestamp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodLoggerServer).Timestamp(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodLogger_Error_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodLoggerServer).Error(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodLogger_Error_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodLoggerServer).Error(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodLogger_Print_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodLoggerServer).Print(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodLogger_Print_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodLoggerServer).Print(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodLogger_GetTimestamp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodLoggerServer).GetTimestamp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodLogger_GetTimestamp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodLoggerServer).GetTimestamp(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodLogger_GetError_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodLoggerServer).GetError(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodLogger_GetError_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodLoggerServer).GetError(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MacroPodLogger_GetPrint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MacroPodLoggerServer).GetPrint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MacroPodLogger_GetPrint_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MacroPodLoggerServer).GetPrint(ctx, req.(*MacroPodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// MacroPodLogger_ServiceDesc is the grpc.ServiceDesc for MacroPodLogger service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var MacroPodLogger_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "macropod.MacroPodLogger",
+	HandlerType: (*MacroPodLoggerServer)(nil),
+	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "UpdateManifest",
-			Handler:    _MacroPodDeployer_UpdateManifest_Handler,
+			MethodName: "Timestamp",
+			Handler:    _MacroPodLogger_Timestamp_Handler,
+		},
+		{
+			MethodName: "Error",
+			Handler:    _MacroPodLogger_Error_Handler,
+		},
+		{
+			MethodName: "Print",
+			Handler:    _MacroPodLogger_Print_Handler,
+		},
+		{
+			MethodName: "GetTimestamp",
+			Handler:    _MacroPodLogger_GetTimestamp_Handler,
+		},
+		{
+			MethodName: "GetError",
+			Handler:    _MacroPodLogger_GetError_Handler,
+		},
+		{
+			MethodName: "GetPrint",
+			Handler:    _MacroPodLogger_GetPrint_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -527,443 +1251,101 @@ var MacroPodDeployer_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	MacroPodIngress_Config_FullMethodName         = "/macropod.MacroPodIngress/Config"
-	MacroPodIngress_WorkflowInvoke_FullMethodName = "/macropod.MacroPodIngress/WorkflowInvoke"
-	MacroPodIngress_FunctionInvoke_FullMethodName = "/macropod.MacroPodIngress/FunctionInvoke"
-	MacroPodIngress_CreateWorkflow_FullMethodName = "/macropod.MacroPodIngress/CreateWorkflow"
-	MacroPodIngress_UpdateWorkflow_FullMethodName = "/macropod.MacroPodIngress/UpdateWorkflow"
-	MacroPodIngress_DeleteWorkflow_FullMethodName = "/macropod.MacroPodIngress/DeleteWorkflow"
-	MacroPodIngress_Eval_FullMethodName           = "/macropod.MacroPodIngress/Eval"
-	MacroPodIngress_EvalMetrics_FullMethodName    = "/macropod.MacroPodIngress/EvalMetrics"
-	MacroPodIngress_EvalLatency_FullMethodName    = "/macropod.MacroPodIngress/EvalLatency"
-	MacroPodIngress_EvalSummary_FullMethodName    = "/macropod.MacroPodIngress/EvalSummary"
+	MacroPodMetrics_GetMetrics_FullMethodName = "/macropod.MacroPodMetrics/GetMetrics"
 )
 
-// MacroPodIngressClient is the client API for MacroPodIngress service.
+// MacroPodMetricsClient is the client API for MacroPodMetrics service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MacroPodIngressClient interface {
-	Config(ctx context.Context, in *ConfigStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
-	WorkflowInvoke(ctx context.Context, in *IngressRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
-	FunctionInvoke(ctx context.Context, in *FunctionRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
-	CreateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
-	UpdateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
-	DeleteWorkflow(ctx context.Context, in *IngressRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
-	Eval(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error)
-	EvalMetrics(ctx context.Context, in *IngressEvalRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
-	EvalLatency(ctx context.Context, in *IngressEvalRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
-	EvalSummary(ctx context.Context, in *IngressEvalRequest, opts ...grpc.CallOption) (*MacroPodReply, error)
+type MacroPodMetricsClient interface {
+	GetMetrics(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MetricsStruct, error)
 }
 
-type macroPodIngressClient struct {
+type macroPodMetricsClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMacroPodIngressClient(cc grpc.ClientConnInterface) MacroPodIngressClient {
-	return &macroPodIngressClient{cc}
+func NewMacroPodMetricsClient(cc grpc.ClientConnInterface) MacroPodMetricsClient {
+	return &macroPodMetricsClient{cc}
 }
 
-func (c *macroPodIngressClient) Config(ctx context.Context, in *ConfigStruct, opts ...grpc.CallOption) (*MacroPodReply, error) {
+func (c *macroPodMetricsClient) GetMetrics(ctx context.Context, in *MacroPodRequest, opts ...grpc.CallOption) (*MetricsStruct, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_Config_FullMethodName, in, out, cOpts...)
+	out := new(MetricsStruct)
+	err := c.cc.Invoke(ctx, MacroPodMetrics_GetMetrics_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *macroPodIngressClient) WorkflowInvoke(ctx context.Context, in *IngressRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_WorkflowInvoke_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *macroPodIngressClient) FunctionInvoke(ctx context.Context, in *FunctionRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_FunctionInvoke_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *macroPodIngressClient) CreateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_CreateWorkflow_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *macroPodIngressClient) UpdateWorkflow(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_UpdateWorkflow_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *macroPodIngressClient) DeleteWorkflow(ctx context.Context, in *IngressRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_DeleteWorkflow_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *macroPodIngressClient) Eval(ctx context.Context, in *WorkflowStruct, opts ...grpc.CallOption) (*MacroPodReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_Eval_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *macroPodIngressClient) EvalMetrics(ctx context.Context, in *IngressEvalRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_EvalMetrics_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *macroPodIngressClient) EvalLatency(ctx context.Context, in *IngressEvalRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_EvalLatency_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *macroPodIngressClient) EvalSummary(ctx context.Context, in *IngressEvalRequest, opts ...grpc.CallOption) (*MacroPodReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MacroPodReply)
-	err := c.cc.Invoke(ctx, MacroPodIngress_EvalSummary_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// MacroPodIngressServer is the server API for MacroPodIngress service.
-// All implementations must embed UnimplementedMacroPodIngressServer
+// MacroPodMetricsServer is the server API for MacroPodMetrics service.
+// All implementations must embed UnimplementedMacroPodMetricsServer
 // for forward compatibility.
-type MacroPodIngressServer interface {
-	Config(context.Context, *ConfigStruct) (*MacroPodReply, error)
-	WorkflowInvoke(context.Context, *IngressRequest) (*MacroPodReply, error)
-	FunctionInvoke(context.Context, *FunctionRequest) (*MacroPodReply, error)
-	CreateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error)
-	UpdateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error)
-	DeleteWorkflow(context.Context, *IngressRequest) (*MacroPodReply, error)
-	Eval(context.Context, *WorkflowStruct) (*MacroPodReply, error)
-	EvalMetrics(context.Context, *IngressEvalRequest) (*MacroPodReply, error)
-	EvalLatency(context.Context, *IngressEvalRequest) (*MacroPodReply, error)
-	EvalSummary(context.Context, *IngressEvalRequest) (*MacroPodReply, error)
-	mustEmbedUnimplementedMacroPodIngressServer()
+type MacroPodMetricsServer interface {
+	GetMetrics(context.Context, *MacroPodRequest) (*MetricsStruct, error)
+	mustEmbedUnimplementedMacroPodMetricsServer()
 }
 
-// UnimplementedMacroPodIngressServer must be embedded to have
+// UnimplementedMacroPodMetricsServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedMacroPodIngressServer struct{}
+type UnimplementedMacroPodMetricsServer struct{}
 
-func (UnimplementedMacroPodIngressServer) Config(context.Context, *ConfigStruct) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Config not implemented")
+func (UnimplementedMacroPodMetricsServer) GetMetrics(context.Context, *MacroPodRequest) (*MetricsStruct, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
 }
-func (UnimplementedMacroPodIngressServer) WorkflowInvoke(context.Context, *IngressRequest) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WorkflowInvoke not implemented")
-}
-func (UnimplementedMacroPodIngressServer) FunctionInvoke(context.Context, *FunctionRequest) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FunctionInvoke not implemented")
-}
-func (UnimplementedMacroPodIngressServer) CreateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateWorkflow not implemented")
-}
-func (UnimplementedMacroPodIngressServer) UpdateWorkflow(context.Context, *WorkflowStruct) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateWorkflow not implemented")
-}
-func (UnimplementedMacroPodIngressServer) DeleteWorkflow(context.Context, *IngressRequest) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteWorkflow not implemented")
-}
-func (UnimplementedMacroPodIngressServer) Eval(context.Context, *WorkflowStruct) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Eval not implemented")
-}
-func (UnimplementedMacroPodIngressServer) EvalMetrics(context.Context, *IngressEvalRequest) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EvalMetrics not implemented")
-}
-func (UnimplementedMacroPodIngressServer) EvalLatency(context.Context, *IngressEvalRequest) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EvalLatency not implemented")
-}
-func (UnimplementedMacroPodIngressServer) EvalSummary(context.Context, *IngressEvalRequest) (*MacroPodReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EvalSummary not implemented")
-}
-func (UnimplementedMacroPodIngressServer) mustEmbedUnimplementedMacroPodIngressServer() {}
-func (UnimplementedMacroPodIngressServer) testEmbeddedByValue()                         {}
+func (UnimplementedMacroPodMetricsServer) mustEmbedUnimplementedMacroPodMetricsServer() {}
+func (UnimplementedMacroPodMetricsServer) testEmbeddedByValue()                         {}
 
-// UnsafeMacroPodIngressServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MacroPodIngressServer will
+// UnsafeMacroPodMetricsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MacroPodMetricsServer will
 // result in compilation errors.
-type UnsafeMacroPodIngressServer interface {
-	mustEmbedUnimplementedMacroPodIngressServer()
+type UnsafeMacroPodMetricsServer interface {
+	mustEmbedUnimplementedMacroPodMetricsServer()
 }
 
-func RegisterMacroPodIngressServer(s grpc.ServiceRegistrar, srv MacroPodIngressServer) {
-	// If the following call pancis, it indicates UnimplementedMacroPodIngressServer was
+func RegisterMacroPodMetricsServer(s grpc.ServiceRegistrar, srv MacroPodMetricsServer) {
+	// If the following call pancis, it indicates UnimplementedMacroPodMetricsServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&MacroPodIngress_ServiceDesc, srv)
+	s.RegisterService(&MacroPodMetrics_ServiceDesc, srv)
 }
 
-func _MacroPodIngress_Config_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConfigStruct)
+func _MacroPodMetrics_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MacroPodRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MacroPodIngressServer).Config(ctx, in)
+		return srv.(MacroPodMetricsServer).GetMetrics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MacroPodIngress_Config_FullMethodName,
+		FullMethod: MacroPodMetrics_GetMetrics_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).Config(ctx, req.(*ConfigStruct))
+		return srv.(MacroPodMetricsServer).GetMetrics(ctx, req.(*MacroPodRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MacroPodIngress_WorkflowInvoke_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IngressRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodIngressServer).WorkflowInvoke(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodIngress_WorkflowInvoke_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).WorkflowInvoke(ctx, req.(*IngressRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MacroPodIngress_FunctionInvoke_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FunctionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodIngressServer).FunctionInvoke(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodIngress_FunctionInvoke_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).FunctionInvoke(ctx, req.(*FunctionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MacroPodIngress_CreateWorkflow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WorkflowStruct)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodIngressServer).CreateWorkflow(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodIngress_CreateWorkflow_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).CreateWorkflow(ctx, req.(*WorkflowStruct))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MacroPodIngress_UpdateWorkflow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WorkflowStruct)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodIngressServer).UpdateWorkflow(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodIngress_UpdateWorkflow_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).UpdateWorkflow(ctx, req.(*WorkflowStruct))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MacroPodIngress_DeleteWorkflow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IngressRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodIngressServer).DeleteWorkflow(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodIngress_DeleteWorkflow_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).DeleteWorkflow(ctx, req.(*IngressRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MacroPodIngress_Eval_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WorkflowStruct)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodIngressServer).Eval(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodIngress_Eval_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).Eval(ctx, req.(*WorkflowStruct))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MacroPodIngress_EvalMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IngressEvalRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodIngressServer).EvalMetrics(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodIngress_EvalMetrics_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).EvalMetrics(ctx, req.(*IngressEvalRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MacroPodIngress_EvalLatency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IngressEvalRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodIngressServer).EvalLatency(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodIngress_EvalLatency_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).EvalLatency(ctx, req.(*IngressEvalRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MacroPodIngress_EvalSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IngressEvalRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MacroPodIngressServer).EvalSummary(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MacroPodIngress_EvalSummary_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MacroPodIngressServer).EvalSummary(ctx, req.(*IngressEvalRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// MacroPodIngress_ServiceDesc is the grpc.ServiceDesc for MacroPodIngress service.
+// MacroPodMetrics_ServiceDesc is the grpc.ServiceDesc for MacroPodMetrics service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var MacroPodIngress_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "macropod.MacroPodIngress",
-	HandlerType: (*MacroPodIngressServer)(nil),
+var MacroPodMetrics_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "macropod.MacroPodMetrics",
+	HandlerType: (*MacroPodMetricsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Config",
-			Handler:    _MacroPodIngress_Config_Handler,
-		},
-		{
-			MethodName: "WorkflowInvoke",
-			Handler:    _MacroPodIngress_WorkflowInvoke_Handler,
-		},
-		{
-			MethodName: "FunctionInvoke",
-			Handler:    _MacroPodIngress_FunctionInvoke_Handler,
-		},
-		{
-			MethodName: "CreateWorkflow",
-			Handler:    _MacroPodIngress_CreateWorkflow_Handler,
-		},
-		{
-			MethodName: "UpdateWorkflow",
-			Handler:    _MacroPodIngress_UpdateWorkflow_Handler,
-		},
-		{
-			MethodName: "DeleteWorkflow",
-			Handler:    _MacroPodIngress_DeleteWorkflow_Handler,
-		},
-		{
-			MethodName: "Eval",
-			Handler:    _MacroPodIngress_Eval_Handler,
-		},
-		{
-			MethodName: "EvalMetrics",
-			Handler:    _MacroPodIngress_EvalMetrics_Handler,
-		},
-		{
-			MethodName: "EvalLatency",
-			Handler:    _MacroPodIngress_EvalLatency_Handler,
-		},
-		{
-			MethodName: "EvalSummary",
-			Handler:    _MacroPodIngress_EvalSummary_Handler,
+			MethodName: "GetMetrics",
+			Handler:    _MacroPodMetrics_GetMetrics_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

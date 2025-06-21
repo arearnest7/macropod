@@ -1,4 +1,4 @@
-FROM sysdevtamu/macropod-node:macropod
+FROM sysdevtamu/macropod-node:latest
 COPY . .
 RUN npm install
-RUN npm install @grpc/grpc-js @grpc/proto-loader moment google-protobuf
+RUN npm install @grpc/grpc-js @grpc/proto-loader

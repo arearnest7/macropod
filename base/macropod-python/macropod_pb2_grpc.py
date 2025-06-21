@@ -36,7 +36,7 @@ class MacroPodFunctionStub(object):
         """
         self.Invoke = channel.unary_unary(
                 '/macropod.MacroPodFunction/Invoke',
-                request_serializer=macropod__pb2.FunctionRequest.SerializeToString,
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
 
@@ -55,7 +55,7 @@ def add_MacroPodFunctionServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Invoke': grpc.unary_unary_rpc_method_handler(
                     servicer.Invoke,
-                    request_deserializer=macropod__pb2.FunctionRequest.FromString,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
     }
@@ -84,7 +84,495 @@ class MacroPodFunction(object):
             request,
             target,
             '/macropod.MacroPodFunction/Invoke',
-            macropod__pb2.FunctionRequest.SerializeToString,
+            macropod__pb2.MacroPodRequest.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class MacroPodEvalStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.Eval = channel.unary_unary(
+                '/macropod.MacroPodEval/Eval',
+                request_serializer=macropod__pb2.EvalStruct.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+        self.EvalMetrics = channel.unary_unary(
+                '/macropod.MacroPodEval/EvalMetrics',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+        self.EvalLatency = channel.unary_unary(
+                '/macropod.MacroPodEval/EvalLatency',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+        self.EvalSummary = channel.unary_unary(
+                '/macropod.MacroPodEval/EvalSummary',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+
+
+class MacroPodEvalServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def Eval(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def EvalMetrics(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def EvalLatency(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def EvalSummary(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_MacroPodEvalServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'Eval': grpc.unary_unary_rpc_method_handler(
+                    servicer.Eval,
+                    request_deserializer=macropod__pb2.EvalStruct.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+            'EvalMetrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.EvalMetrics,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+            'EvalLatency': grpc.unary_unary_rpc_method_handler(
+                    servicer.EvalLatency,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+            'EvalSummary': grpc.unary_unary_rpc_method_handler(
+                    servicer.EvalSummary,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'macropod.MacroPodEval', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('macropod.MacroPodEval', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class MacroPodEval(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Eval(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodEval/Eval',
+            macropod__pb2.EvalStruct.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def EvalMetrics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodEval/EvalMetrics',
+            macropod__pb2.MacroPodRequest.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def EvalLatency(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodEval/EvalLatency',
+            macropod__pb2.MacroPodRequest.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def EvalSummary(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodEval/EvalSummary',
+            macropod__pb2.MacroPodRequest.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class MacroPodIngressStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.Config = channel.unary_unary(
+                '/macropod.MacroPodIngress/Config',
+                request_serializer=macropod__pb2.ConfigStruct.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+        self.WorkflowInvoke = channel.unary_unary(
+                '/macropod.MacroPodIngress/WorkflowInvoke',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+        self.FunctionInvoke = channel.unary_unary(
+                '/macropod.MacroPodIngress/FunctionInvoke',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+        self.CreateWorkflow = channel.unary_unary(
+                '/macropod.MacroPodIngress/CreateWorkflow',
+                request_serializer=macropod__pb2.WorkflowStruct.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+        self.UpdateWorkflow = channel.unary_unary(
+                '/macropod.MacroPodIngress/UpdateWorkflow',
+                request_serializer=macropod__pb2.WorkflowStruct.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+        self.DeleteWorkflow = channel.unary_unary(
+                '/macropod.MacroPodIngress/DeleteWorkflow',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
+                response_deserializer=macropod__pb2.MacroPodReply.FromString,
+                _registered_method=True)
+
+
+class MacroPodIngressServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def Config(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def WorkflowInvoke(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def FunctionInvoke(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CreateWorkflow(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateWorkflow(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteWorkflow(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_MacroPodIngressServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'Config': grpc.unary_unary_rpc_method_handler(
+                    servicer.Config,
+                    request_deserializer=macropod__pb2.ConfigStruct.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+            'WorkflowInvoke': grpc.unary_unary_rpc_method_handler(
+                    servicer.WorkflowInvoke,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+            'FunctionInvoke': grpc.unary_unary_rpc_method_handler(
+                    servicer.FunctionInvoke,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+            'CreateWorkflow': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateWorkflow,
+                    request_deserializer=macropod__pb2.WorkflowStruct.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+            'UpdateWorkflow': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateWorkflow,
+                    request_deserializer=macropod__pb2.WorkflowStruct.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+            'DeleteWorkflow': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteWorkflow,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
+                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'macropod.MacroPodIngress', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('macropod.MacroPodIngress', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class MacroPodIngress(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Config(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodIngress/Config',
+            macropod__pb2.ConfigStruct.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def WorkflowInvoke(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodIngress/WorkflowInvoke',
+            macropod__pb2.MacroPodRequest.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def FunctionInvoke(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodIngress/FunctionInvoke',
+            macropod__pb2.MacroPodRequest.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateWorkflow(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodIngress/CreateWorkflow',
+            macropod__pb2.WorkflowStruct.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateWorkflow(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodIngress/UpdateWorkflow',
+            macropod__pb2.WorkflowStruct.SerializeToString,
+            macropod__pb2.MacroPodReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteWorkflow(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/macropod.MacroPodIngress/DeleteWorkflow',
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -106,11 +594,6 @@ class MacroPodDeployerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Deployment = channel.unary_unary(
-                '/macropod.MacroPodDeployer/Deployment',
-                request_serializer=macropod__pb2.DeploymentServiceRequest.SerializeToString,
-                response_deserializer=macropod__pb2.DeploymentServiceReply.FromString,
-                _registered_method=True)
         self.Config = channel.unary_unary(
                 '/macropod.MacroPodDeployer/Config',
                 request_serializer=macropod__pb2.ConfigStruct.SerializeToString,
@@ -128,39 +611,28 @@ class MacroPodDeployerStub(object):
                 _registered_method=True)
         self.DeleteWorkflow = channel.unary_unary(
                 '/macropod.MacroPodDeployer/DeleteWorkflow',
-                request_serializer=macropod__pb2.DeployerRequest.SerializeToString,
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
         self.UpdateDeployments = channel.unary_unary(
                 '/macropod.MacroPodDeployer/UpdateDeployments',
-                request_serializer=macropod__pb2.DeployerRequest.SerializeToString,
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
         self.CreateDeployment = channel.unary_unary(
                 '/macropod.MacroPodDeployer/CreateDeployment',
-                request_serializer=macropod__pb2.DeployerRequest.SerializeToString,
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
         self.TTLDelete = channel.unary_unary(
                 '/macropod.MacroPodDeployer/TTLDelete',
-                request_serializer=macropod__pb2.DeployerRequest.SerializeToString,
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
-                _registered_method=True)
-        self.UpdateManifest = channel.unary_unary(
-                '/macropod.MacroPodDeployer/UpdateManifest',
-                request_serializer=macropod__pb2.MacroPodManifest.SerializeToString,
-                response_deserializer=macropod__pb2.MacroPodManifest.FromString,
                 _registered_method=True)
 
 
 class MacroPodDeployerServicer(object):
     """Missing associated documentation comment in .proto file."""
-
-    def Deployment(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
 
     def Config(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -204,20 +676,9 @@ class MacroPodDeployerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def UpdateManifest(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
 
 def add_MacroPodDeployerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Deployment': grpc.unary_unary_rpc_method_handler(
-                    servicer.Deployment,
-                    request_deserializer=macropod__pb2.DeploymentServiceRequest.FromString,
-                    response_serializer=macropod__pb2.DeploymentServiceReply.SerializeToString,
-            ),
             'Config': grpc.unary_unary_rpc_method_handler(
                     servicer.Config,
                     request_deserializer=macropod__pb2.ConfigStruct.FromString,
@@ -235,28 +696,23 @@ def add_MacroPodDeployerServicer_to_server(servicer, server):
             ),
             'DeleteWorkflow': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteWorkflow,
-                    request_deserializer=macropod__pb2.DeployerRequest.FromString,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
             'UpdateDeployments': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateDeployments,
-                    request_deserializer=macropod__pb2.DeployerRequest.FromString,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
             'CreateDeployment': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateDeployment,
-                    request_deserializer=macropod__pb2.DeployerRequest.FromString,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
             'TTLDelete': grpc.unary_unary_rpc_method_handler(
                     servicer.TTLDelete,
-                    request_deserializer=macropod__pb2.DeployerRequest.FromString,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
-            ),
-            'UpdateManifest': grpc.unary_unary_rpc_method_handler(
-                    servicer.UpdateManifest,
-                    request_deserializer=macropod__pb2.MacroPodManifest.FromString,
-                    response_serializer=macropod__pb2.MacroPodManifest.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -268,33 +724,6 @@ def add_MacroPodDeployerServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class MacroPodDeployer(object):
     """Missing associated documentation comment in .proto file."""
-
-    @staticmethod
-    def Deployment(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/macropod.MacroPodDeployer/Deployment',
-            macropod__pb2.DeploymentServiceRequest.SerializeToString,
-            macropod__pb2.DeploymentServiceReply.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
 
     @staticmethod
     def Config(request,
@@ -392,7 +821,7 @@ class MacroPodDeployer(object):
             request,
             target,
             '/macropod.MacroPodDeployer/DeleteWorkflow',
-            macropod__pb2.DeployerRequest.SerializeToString,
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -419,7 +848,7 @@ class MacroPodDeployer(object):
             request,
             target,
             '/macropod.MacroPodDeployer/UpdateDeployments',
-            macropod__pb2.DeployerRequest.SerializeToString,
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -446,7 +875,7 @@ class MacroPodDeployer(object):
             request,
             target,
             '/macropod.MacroPodDeployer/CreateDeployment',
-            macropod__pb2.DeployerRequest.SerializeToString,
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -473,7 +902,7 @@ class MacroPodDeployer(object):
             request,
             target,
             '/macropod.MacroPodDeployer/TTLDelete',
-            macropod__pb2.DeployerRequest.SerializeToString,
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -485,35 +914,8 @@ class MacroPodDeployer(object):
             metadata,
             _registered_method=True)
 
-    @staticmethod
-    def UpdateManifest(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/macropod.MacroPodDeployer/UpdateManifest',
-            macropod__pb2.MacroPodManifest.SerializeToString,
-            macropod__pb2.MacroPodManifest.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
 
-
-class MacroPodIngressStub(object):
+class MacroPodLoggerStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -522,187 +924,123 @@ class MacroPodIngressStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Config = channel.unary_unary(
-                '/macropod.MacroPodIngress/Config',
-                request_serializer=macropod__pb2.ConfigStruct.SerializeToString,
+        self.Timestamp = channel.unary_unary(
+                '/macropod.MacroPodLogger/Timestamp',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
-        self.WorkflowInvoke = channel.unary_unary(
-                '/macropod.MacroPodIngress/WorkflowInvoke',
-                request_serializer=macropod__pb2.IngressRequest.SerializeToString,
+        self.Error = channel.unary_unary(
+                '/macropod.MacroPodLogger/Error',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
-        self.FunctionInvoke = channel.unary_unary(
-                '/macropod.MacroPodIngress/FunctionInvoke',
-                request_serializer=macropod__pb2.FunctionRequest.SerializeToString,
+        self.Print = channel.unary_unary(
+                '/macropod.MacroPodLogger/Print',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
-        self.CreateWorkflow = channel.unary_unary(
-                '/macropod.MacroPodIngress/CreateWorkflow',
-                request_serializer=macropod__pb2.WorkflowStruct.SerializeToString,
+        self.GetTimestamp = channel.unary_unary(
+                '/macropod.MacroPodLogger/GetTimestamp',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
-        self.UpdateWorkflow = channel.unary_unary(
-                '/macropod.MacroPodIngress/UpdateWorkflow',
-                request_serializer=macropod__pb2.WorkflowStruct.SerializeToString,
+        self.GetError = channel.unary_unary(
+                '/macropod.MacroPodLogger/GetError',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
-        self.DeleteWorkflow = channel.unary_unary(
-                '/macropod.MacroPodIngress/DeleteWorkflow',
-                request_serializer=macropod__pb2.IngressRequest.SerializeToString,
-                response_deserializer=macropod__pb2.MacroPodReply.FromString,
-                _registered_method=True)
-        self.Eval = channel.unary_unary(
-                '/macropod.MacroPodIngress/Eval',
-                request_serializer=macropod__pb2.WorkflowStruct.SerializeToString,
-                response_deserializer=macropod__pb2.MacroPodReply.FromString,
-                _registered_method=True)
-        self.EvalMetrics = channel.unary_unary(
-                '/macropod.MacroPodIngress/EvalMetrics',
-                request_serializer=macropod__pb2.IngressEvalRequest.SerializeToString,
-                response_deserializer=macropod__pb2.MacroPodReply.FromString,
-                _registered_method=True)
-        self.EvalLatency = channel.unary_unary(
-                '/macropod.MacroPodIngress/EvalLatency',
-                request_serializer=macropod__pb2.IngressEvalRequest.SerializeToString,
-                response_deserializer=macropod__pb2.MacroPodReply.FromString,
-                _registered_method=True)
-        self.EvalSummary = channel.unary_unary(
-                '/macropod.MacroPodIngress/EvalSummary',
-                request_serializer=macropod__pb2.IngressEvalRequest.SerializeToString,
+        self.GetPrint = channel.unary_unary(
+                '/macropod.MacroPodLogger/GetPrint',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
 
 
-class MacroPodIngressServicer(object):
+class MacroPodLoggerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def Config(self, request, context):
+    def Timestamp(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def WorkflowInvoke(self, request, context):
+    def Error(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def FunctionInvoke(self, request, context):
+    def Print(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def CreateWorkflow(self, request, context):
+    def GetTimestamp(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def UpdateWorkflow(self, request, context):
+    def GetError(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def DeleteWorkflow(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def Eval(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def EvalMetrics(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def EvalLatency(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def EvalSummary(self, request, context):
+    def GetPrint(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_MacroPodIngressServicer_to_server(servicer, server):
+def add_MacroPodLoggerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Config': grpc.unary_unary_rpc_method_handler(
-                    servicer.Config,
-                    request_deserializer=macropod__pb2.ConfigStruct.FromString,
+            'Timestamp': grpc.unary_unary_rpc_method_handler(
+                    servicer.Timestamp,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
-            'WorkflowInvoke': grpc.unary_unary_rpc_method_handler(
-                    servicer.WorkflowInvoke,
-                    request_deserializer=macropod__pb2.IngressRequest.FromString,
+            'Error': grpc.unary_unary_rpc_method_handler(
+                    servicer.Error,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
-            'FunctionInvoke': grpc.unary_unary_rpc_method_handler(
-                    servicer.FunctionInvoke,
-                    request_deserializer=macropod__pb2.FunctionRequest.FromString,
+            'Print': grpc.unary_unary_rpc_method_handler(
+                    servicer.Print,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
-            'CreateWorkflow': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateWorkflow,
-                    request_deserializer=macropod__pb2.WorkflowStruct.FromString,
+            'GetTimestamp': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetTimestamp,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
-            'UpdateWorkflow': grpc.unary_unary_rpc_method_handler(
-                    servicer.UpdateWorkflow,
-                    request_deserializer=macropod__pb2.WorkflowStruct.FromString,
+            'GetError': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetError,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
-            'DeleteWorkflow': grpc.unary_unary_rpc_method_handler(
-                    servicer.DeleteWorkflow,
-                    request_deserializer=macropod__pb2.IngressRequest.FromString,
-                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
-            ),
-            'Eval': grpc.unary_unary_rpc_method_handler(
-                    servicer.Eval,
-                    request_deserializer=macropod__pb2.WorkflowStruct.FromString,
-                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
-            ),
-            'EvalMetrics': grpc.unary_unary_rpc_method_handler(
-                    servicer.EvalMetrics,
-                    request_deserializer=macropod__pb2.IngressEvalRequest.FromString,
-                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
-            ),
-            'EvalLatency': grpc.unary_unary_rpc_method_handler(
-                    servicer.EvalLatency,
-                    request_deserializer=macropod__pb2.IngressEvalRequest.FromString,
-                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
-            ),
-            'EvalSummary': grpc.unary_unary_rpc_method_handler(
-                    servicer.EvalSummary,
-                    request_deserializer=macropod__pb2.IngressEvalRequest.FromString,
+            'GetPrint': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetPrint,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'macropod.MacroPodIngress', rpc_method_handlers)
+            'macropod.MacroPodLogger', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('macropod.MacroPodIngress', rpc_method_handlers)
+    server.add_registered_method_handlers('macropod.MacroPodLogger', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class MacroPodIngress(object):
+class MacroPodLogger(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Config(request,
+    def Timestamp(request,
             target,
             options=(),
             channel_credentials=None,
@@ -715,8 +1053,8 @@ class MacroPodIngress(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/macropod.MacroPodIngress/Config',
-            macropod__pb2.ConfigStruct.SerializeToString,
+            '/macropod.MacroPodLogger/Timestamp',
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -729,7 +1067,7 @@ class MacroPodIngress(object):
             _registered_method=True)
 
     @staticmethod
-    def WorkflowInvoke(request,
+    def Error(request,
             target,
             options=(),
             channel_credentials=None,
@@ -742,8 +1080,8 @@ class MacroPodIngress(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/macropod.MacroPodIngress/WorkflowInvoke',
-            macropod__pb2.IngressRequest.SerializeToString,
+            '/macropod.MacroPodLogger/Error',
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -756,7 +1094,7 @@ class MacroPodIngress(object):
             _registered_method=True)
 
     @staticmethod
-    def FunctionInvoke(request,
+    def Print(request,
             target,
             options=(),
             channel_credentials=None,
@@ -769,8 +1107,8 @@ class MacroPodIngress(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/macropod.MacroPodIngress/FunctionInvoke',
-            macropod__pb2.FunctionRequest.SerializeToString,
+            '/macropod.MacroPodLogger/Print',
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -783,7 +1121,7 @@ class MacroPodIngress(object):
             _registered_method=True)
 
     @staticmethod
-    def CreateWorkflow(request,
+    def GetTimestamp(request,
             target,
             options=(),
             channel_credentials=None,
@@ -796,8 +1134,8 @@ class MacroPodIngress(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/macropod.MacroPodIngress/CreateWorkflow',
-            macropod__pb2.WorkflowStruct.SerializeToString,
+            '/macropod.MacroPodLogger/GetTimestamp',
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -810,7 +1148,7 @@ class MacroPodIngress(object):
             _registered_method=True)
 
     @staticmethod
-    def UpdateWorkflow(request,
+    def GetError(request,
             target,
             options=(),
             channel_credentials=None,
@@ -823,8 +1161,8 @@ class MacroPodIngress(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/macropod.MacroPodIngress/UpdateWorkflow',
-            macropod__pb2.WorkflowStruct.SerializeToString,
+            '/macropod.MacroPodLogger/GetError',
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -837,7 +1175,7 @@ class MacroPodIngress(object):
             _registered_method=True)
 
     @staticmethod
-    def DeleteWorkflow(request,
+    def GetPrint(request,
             target,
             options=(),
             channel_credentials=None,
@@ -850,8 +1188,8 @@ class MacroPodIngress(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/macropod.MacroPodIngress/DeleteWorkflow',
-            macropod__pb2.IngressRequest.SerializeToString,
+            '/macropod.MacroPodLogger/GetPrint',
+            macropod__pb2.MacroPodRequest.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
             channel_credentials,
@@ -863,35 +1201,53 @@ class MacroPodIngress(object):
             metadata,
             _registered_method=True)
 
-    @staticmethod
-    def Eval(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/macropod.MacroPodIngress/Eval',
-            macropod__pb2.WorkflowStruct.SerializeToString,
-            macropod__pb2.MacroPodReply.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
+
+class MacroPodMetricsStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.GetMetrics = channel.unary_unary(
+                '/macropod.MacroPodMetrics/GetMetrics',
+                request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
+                response_deserializer=macropod__pb2.MetricsStruct.FromString,
+                _registered_method=True)
+
+
+class MacroPodMetricsServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def GetMetrics(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_MacroPodMetricsServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'GetMetrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMetrics,
+                    request_deserializer=macropod__pb2.MacroPodRequest.FromString,
+                    response_serializer=macropod__pb2.MetricsStruct.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'macropod.MacroPodMetrics', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('macropod.MacroPodMetrics', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class MacroPodMetrics(object):
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def EvalMetrics(request,
+    def GetMetrics(request,
             target,
             options=(),
             channel_credentials=None,
@@ -904,63 +1260,9 @@ class MacroPodIngress(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/macropod.MacroPodIngress/EvalMetrics',
-            macropod__pb2.IngressEvalRequest.SerializeToString,
-            macropod__pb2.MacroPodReply.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def EvalLatency(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/macropod.MacroPodIngress/EvalLatency',
-            macropod__pb2.IngressEvalRequest.SerializeToString,
-            macropod__pb2.MacroPodReply.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def EvalSummary(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/macropod.MacroPodIngress/EvalSummary',
-            macropod__pb2.IngressEvalRequest.SerializeToString,
-            macropod__pb2.MacroPodReply.FromString,
+            '/macropod.MacroPodMetrics/GetMetrics',
+            macropod__pb2.MacroPodRequest.SerializeToString,
+            macropod__pb2.MetricsStruct.FromString,
             options,
             channel_credentials,
             insecure,

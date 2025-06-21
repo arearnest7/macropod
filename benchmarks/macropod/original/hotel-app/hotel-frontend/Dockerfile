@@ -1,4 +1,4 @@
-FROM sysdevtamu/macropod-go:macropod
+FROM sysdevtamu/macropod-go:latest
 COPY Dockerfile .
 COPY go.mod .
 COPY func.go ./function

@@ -8,62 +8,98 @@ import macropod_pb2_grpc as pb_grpc
 MAX_MESSAGE_LENGTH = 1024 * 1024 * 200
 opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_message_length", MAX_MESSAGE_LENGTH)]
 
+def Timestamp(context, target, message):
+    req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=context["Function"], WorkflowID=context["WorkflowID"], Depth=context["Depth"], Width=context["Width"], Target=target, Text=message)
+    if os.environ["LOGGER"] != "":
+        with grpc.insecure_channel(os.environ["LOGGER"], options=opts,) as channel:
+            stub = pb_grpc.MacroPodLoggerStub(channel)
+            stub.Timestamp(req)
+
+def Error(context, err):
+    req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=context["Function"], Text=err)
+    if os.environ["LOGGER"] != "":
+        with grpc.insecure_channel(os.environ["LOGGER"], options=opts,) as channel:
+            stub = pb_grpc.MacroPodLoggerStub(channel)
+            stub.Error(req)
+
+def Print(context, message):
+    req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=context["Function"], Text=message)
+    if os.environ["LOGGER"] != "":
+        with grpc.insecure_channel(os.environ["LOGGER"], options=opts,) as channel:
+            stub = pb_grpc.MacroPodLoggerStub(channel)
+            stub.Print(req)
+
 def Invoke(context, dest, payload):
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_start\n", flush=True)
+    Timestamp(context, dest, "Invoke")
     reply = ""
     code = 500
-    with grpc.insecure_channel(os.environ[dest], options=opts,) as channel:
+    target = os.environ[dest]
+    if os.environ["COMM_TYPE"] == "gateway":
+        target = os.environ["INGRESS"]
+    req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=dest, Target=os.environ[dest], Text=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0)
+    with grpc.insecure_channel(target, options=opts,) as channel:
         stub = pb_grpc.MacroPodFunctionStub(channel)
         if os.environ["COMM_TYPE"] == "direct":
             stub = pb_grpc.MacroPodFunctionStub(channel)
-            reply, code = stub.Invoke(pb.RequestBody(Function=dest, Text=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0))
+            reply, code = stub.Invoke(req)
         elif os.environ["COMM_TYPE"] == "gateway":
             stub = pb_grpc.MacroPodIngressStub(channel)
-            reply, code = stub.FunctionInvoke(pb.RequestBody(Function=dest, Text=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0))
+            reply, code = stub.FunctionInvoke(req)
         else:
-            reply, code = stub.Invoke(pb.RequestBody(Function=dest, Text=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0))
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_end\n", flush=True)
+            reply, code = stub.Invoke(req)
+    Timestamp(context, dest, "Invoke_End")
     return reply, code
 
 def Invoke_JSON(context, dest, payload):
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_start\n", flush=True)
+    Timestamp(context, dest, "Invoke_JSON")
     reply = ""
     code = 500
-    with grpc.insecure_channel(os.environ[dest], options=opts,) as channel:
+    target = os.environ[dest]
+    if os.environ["COMM_TYPE"] == "gateway":
+        target = os.environ["INGRESS"]
+    req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=dest, Target=os.environ[dest], JSON=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0)
+    with grpc.insecure_channel(target, options=opts,) as channel:
         stub = pb_grpc.MacroPodFunctionStub(channel)
         if os.environ["COMM_TYPE"] == "direct":
             stub = pb_grpc.MacroPodFunctionStub(channel)
-            reply, code = stub.Invoke(pb.RequestBody(Function=dest, JSON=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0))
+            reply, code = stub.Invoke(req)
         elif os.environ["COMM_TYPE"] == "gateway":
             stub = pb_grpc.MacroPodIngressStub(channel)
-            reply, code = stub.FunctionInvoke(pb.RequestBody(Function=dest, JSON=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0))
+            reply, code = stub.FunctionInvoke(req)
         else:
-            reply, code = stub.Invoke(pb.RequestBody(Function=dest, JSON=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0))
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_end\n", flush=True)
+            reply, code = stub.Invoke(req)
+    Timestamp(context, dest, "Invoke_JSON_End")
     return reply, code
 
 def Invoke_Data(context, dest, payload):
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_start\n", flush=True)
+    Timestamp(context, dest, "Invoke_Data")
     reply = ""
     code = 500
-    with grpc.insecure_channel(os.environ[dest], options=opts,) as channel:
+    target = os.environ[dest]
+    if os.environ["COMM_TYPE"] == "gateway":
+        target = os.environ["INGRESS"]
+    req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=dest, Target=os.environ[dest], Data=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0)
+    with grpc.insecure_channel(target, options=opts,) as channel:
         stub = pb_grpc.MacroPodFunctionStub(channel)
         if os.environ["COMM_TYPE"] == "direct":
             stub = pb_grpc.MacroPodFunctionStub(channel)
-            reply, code = stub.Invoke(pb.RequestBody(Function=dest, Data=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0))
+            reply, code = stub.Invoke(req)
         elif os.environ["COMM_TYPE"] == "gateway":
             stub = pb_grpc.MacroPodIngressStub(channel)
-            reply, code = stub.FunctionInvoke(pb.RequestBody(Function=dest, Data=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0))
+            reply, code = stub.FunctionInvoke(req)
         else:
-            reply, code = stub.Invoke(pb.RequestBody(Function=dest, Data=payload, WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0))
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_end\n", flush=True)
+            reply, code = stub.Invoke(req)
+    Timestamp(context, dest, "Invoke_Data_End")
     return reply, code
 
 def Invoke_Multi(context, dest, payloads):
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_start\n", flush=True)
+    Timestamp(context, dest, "Invoke_Multi")
     reply = []
     code = []
-    with grpc.insecure_channel(os.environ[dest], options=opts,) as channel:
+    target = os.environ[dest]
+    if os.environ["COMM_TYPE"] == "gateway":
+        target = os.environ["INGRESS"]
+    with grpc.insecure_channel(target, options=opts,) as channel:
         stub = pb_grpc.MacroPodFunctionStub(channel)
         if os.environ["COMM_TYPE"] == "direct":
             stub = pb_grpc.MacroPodFunctionStub(channel)
@@ -72,22 +108,26 @@ def Invoke_Multi(context, dest, payloads):
         tl = []
         with futures.ThreadPoolExecutor(max_workers=len(payloads)) as executor:
             for i in range(len(payloads)):
+                req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=dest, Target=os.environ[dest], Text=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i)
                 if os.environ["COMM_TYPE"] == "direct":
-                    tl.append(executor.submit(stub.Invoke, pb.RequestBody(Function=dest, Text=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i))
+                    tl.append(executor.submit(stub.Invoke, req)
                 elif os.environ["COMM_TYPE"] == "gateway":
-                    tl.append(executor.submit(stub.FunctionInvoke, pb.RequestBody(Function=dest, Text=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i))
+                    tl.append(executor.submit(stub.FunctionInvoke, req)
                 else:
-                    tl.append(executor.submit(stub.Invoke, pb.RequestBody(Function=dest, Text=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i))
+                    tl.append(executor.submit(stub.Invoke, req)
         reply = [t.result().reply for t in tl]
         code = [t.result().code for t in tl]
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_end\n", flush=True)
+    Timestamp(context, dest, "Invoke_Multi_End")
     return reply, code
 
 def Invoke_Multi_JSON(context, dest, payloads):
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_start\n", flush=True)
+    Timestamp(context, dest, "Invoke_Multi_JSON")
     reply = []
     code = []
-    with grpc.insecure_channel(os.environ[dest], options=opts,) as channel:
+    target = os.environ[dest]
+    if os.environ["COMM_TYPE"] == "gateway":
+        target = os.environ["INGRESS"]
+    with grpc.insecure_channel(target, options=opts,) as channel:
         stub = pb_grpc.MacroPodFunctionStub(channel)
         if os.environ["COMM_TYPE"] == "direct":
             stub = pb_grpc.MacroPodFunctionStub(channel)
@@ -96,22 +136,26 @@ def Invoke_Multi_JSON(context, dest, payloads):
         tl = []
         with futures.ThreadPoolExecutor(max_workers=len(payloads)) as executor:
             for i in range(len(payloads)):
+                req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=dest, Target=os.environ[dest], JSON=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i)
                 if os.environ["COMM_TYPE"] == "direct":
-                    tl.append(executor.submit(stub.Invoke, pb.RequestBody(Function=dest, JSON=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i))
+                    tl.append(executor.submit(stub.Invoke, req)
                 elif os.environ["COMM_TYPE"] == "gateway":
-                    tl.append(executor.submit(stub.FunctionInvoke, pb.RequestBody(Function=dest, JSON=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i))
+                    tl.append(executor.submit(stub.FunctionInvoke, req)
                 else:
-                    tl.append(executor.submit(stub.Invoke, pb.RequestBody(Function=dest, JSON=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i))
+                    tl.append(executor.submit(stub.Invoke, req)
         reply = [t.result().reply for t in tl]
         code = [t.result().code for t in tl]
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_end\n", flush=True)
+    Timestamp(context, dest, "Invoke_Multi_JSON_End")
     return reply, code
 
 def Invoke_Multi_Data(context, dest, payloads):
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_start\n", flush=True)
+    Timestamp(context, dest, "Invoke_Multi_Data")
     reply = []
     code = []
-    with grpc.insecure_channel(os.environ[dest], options=opts,) as channel:
+    target = os.environ[dest]
+    if os.environ["COMM_TYPE"] == "gateway":
+        target = os.environ["INGRESS"]
+    with grpc.insecure_channel(target, options=opts,) as channel:
         stub = pb_grpc.MacroPodFunctionStub(channel)
         if os.environ["COMM_TYPE"] == "direct":
             stub = pb_grpc.MacroPodFunctionStub(channel)
@@ -120,13 +164,14 @@ def Invoke_Multi_Data(context, dest, payloads):
         tl = []
         with futures.ThreadPoolExecutor(max_workers=len(payloads)) as executor:
             for i in range(len(payloads)):
+                req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=dest, Target=os.environ[dest], Text=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i)
                 if os.environ["COMM_TYPE"] == "direct":
-                    tl.append(executor.submit(stub.Invoke, pb.RequestBody(Function=dest, Data=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i))
+                    tl.append(executor.submit(stub.Invoke, req)
                 elif os.environ["COMM_TYPE"] == "gateway":
-                    tl.append(executor.submit(stub.FunctionInvoke, pb.RequestBody(Function=dest, Data=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i))
+                    tl.append(executor.submit(stub.FunctionInvoke, req)
                 else:
-                    tl.append(executor.submit(stub.Invoke, pb.RequestBody(Function=dest, Data=payloads[i], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=i))
+                    tl.append(executor.submit(stub.Invoke, req)
         reply = [t.result().reply for t in tl]
         code = [t.result().code for t in tl]
-    print(datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f %Z") + "," + context["WorkflowID"] + "," + str(context["Depth"]) + "," + str(context["Width"]) + ",invoke_rpc_end\n", flush=True)
+    Timestamp(context, dest, "Invoke_Multi_Data_End")
     return reply, code

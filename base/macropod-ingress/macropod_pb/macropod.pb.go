@@ -10,7 +10,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -22,6 +21,166 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type MacroPodRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Text          *string                `protobuf:"bytes,1,opt,name=Text,proto3,oneof" json:"Text,omitempty"`
+	JSON          *structpb.Struct       `protobuf:"bytes,2,opt,name=JSON,proto3,oneof" json:"JSON,omitempty"`
+	Data          []byte                 `protobuf:"bytes,3,opt,name=Data,proto3,oneof" json:"Data,omitempty"`
+	Workflow      *string                `protobuf:"bytes,4,opt,name=Workflow,proto3,oneof" json:"Workflow,omitempty"`
+	Function      *string                `protobuf:"bytes,5,opt,name=Function,proto3,oneof" json:"Function,omitempty"`
+	WorkflowID    *string                `protobuf:"bytes,6,opt,name=WorkflowID,proto3,oneof" json:"WorkflowID,omitempty"`
+	Depth         *int32                 `protobuf:"varint,7,opt,name=Depth,proto3,oneof" json:"Depth,omitempty"`
+	Width         *int32                 `protobuf:"varint,8,opt,name=Width,proto3,oneof" json:"Width,omitempty"`
+	Target        *string                `protobuf:"bytes,9,opt,name=Target,proto3,oneof" json:"Target,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MacroPodRequest) Reset() {
+	*x = MacroPodRequest{}
+	mi := &file_macropod_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MacroPodRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MacroPodRequest) ProtoMessage() {}
+
+func (x *MacroPodRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_macropod_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MacroPodRequest.ProtoReflect.Descriptor instead.
+func (*MacroPodRequest) Descriptor() ([]byte, []int) {
+	return file_macropod_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *MacroPodRequest) GetText() string {
+	if x != nil && x.Text != nil {
+		return *x.Text
+	}
+	return ""
+}
+
+func (x *MacroPodRequest) GetJSON() *structpb.Struct {
+	if x != nil {
+		return x.JSON
+	}
+	return nil
+}
+
+func (x *MacroPodRequest) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *MacroPodRequest) GetWorkflow() string {
+	if x != nil && x.Workflow != nil {
+		return *x.Workflow
+	}
+	return ""
+}
+
+func (x *MacroPodRequest) GetFunction() string {
+	if x != nil && x.Function != nil {
+		return *x.Function
+	}
+	return ""
+}
+
+func (x *MacroPodRequest) GetWorkflowID() string {
+	if x != nil && x.WorkflowID != nil {
+		return *x.WorkflowID
+	}
+	return ""
+}
+
+func (x *MacroPodRequest) GetDepth() int32 {
+	if x != nil && x.Depth != nil {
+		return *x.Depth
+	}
+	return 0
+}
+
+func (x *MacroPodRequest) GetWidth() int32 {
+	if x != nil && x.Width != nil {
+		return *x.Width
+	}
+	return 0
+}
+
+func (x *MacroPodRequest) GetTarget() string {
+	if x != nil && x.Target != nil {
+		return *x.Target
+	}
+	return ""
+}
+
+type MacroPodReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reply         *string                `protobuf:"bytes,1,opt,name=Reply,proto3,oneof" json:"Reply,omitempty"`
+	Code          *int32                 `protobuf:"varint,2,opt,name=Code,proto3,oneof" json:"Code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MacroPodReply) Reset() {
+	*x = MacroPodReply{}
+	mi := &file_macropod_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MacroPodReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MacroPodReply) ProtoMessage() {}
+
+func (x *MacroPodReply) ProtoReflect() protoreflect.Message {
+	mi := &file_macropod_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MacroPodReply.ProtoReflect.Descriptor instead.
+func (*MacroPodReply) Descriptor() ([]byte, []int) {
+	return file_macropod_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *MacroPodReply) GetReply() string {
+	if x != nil && x.Reply != nil {
+		return *x.Reply
+	}
+	return ""
+}
+
+func (x *MacroPodReply) GetCode() int32 {
+	if x != nil && x.Code != nil {
+		return *x.Code
+	}
+	return 0
+}
 
 type FunctionStruct struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -35,7 +194,7 @@ type FunctionStruct struct {
 
 func (x *FunctionStruct) Reset() {
 	*x = FunctionStruct{}
-	mi := &file_macropod_proto_msgTypes[0]
+	mi := &file_macropod_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +206,7 @@ func (x *FunctionStruct) String() string {
 func (*FunctionStruct) ProtoMessage() {}
 
 func (x *FunctionStruct) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[0]
+	mi := &file_macropod_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +219,7 @@ func (x *FunctionStruct) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FunctionStruct.ProtoReflect.Descriptor instead.
 func (*FunctionStruct) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{0}
+	return file_macropod_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *FunctionStruct) GetRegistry() string {
@@ -106,7 +265,7 @@ type ConfigStruct struct {
 
 func (x *ConfigStruct) Reset() {
 	*x = ConfigStruct{}
-	mi := &file_macropod_proto_msgTypes[1]
+	mi := &file_macropod_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -118,7 +277,7 @@ func (x *ConfigStruct) String() string {
 func (*ConfigStruct) ProtoMessage() {}
 
 func (x *ConfigStruct) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[1]
+	mi := &file_macropod_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -131,7 +290,7 @@ func (x *ConfigStruct) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigStruct.ProtoReflect.Descriptor instead.
 func (*ConfigStruct) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{1}
+	return file_macropod_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ConfigStruct) GetNamespace() string {
@@ -183,30 +342,31 @@ func (x *ConfigStruct) GetDebug() int32 {
 	return 0
 }
 
-type EvalStruct struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	Name                  string                 `protobuf:"bytes,1,opt,name=Name,proto3" json:"Name,omitempty"`
-	WorkflowConcurrencies []int32                `protobuf:"varint,2,rep,packed,name=WorkflowConcurrencies,proto3" json:"WorkflowConcurrencies,omitempty"`
-	Invocations           *int32                 `protobuf:"varint,3,opt,name=Invocations,proto3,oneof" json:"Invocations,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+type PayloadStruct struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=Type,proto3" json:"Type,omitempty"`
+	Text          *string                `protobuf:"bytes,2,opt,name=Text,proto3,oneof" json:"Text,omitempty"`
+	JSON          *structpb.Struct       `protobuf:"bytes,3,opt,name=JSON,proto3,oneof" json:"JSON,omitempty"`
+	Data          []byte                 `protobuf:"bytes,4,opt,name=Data,proto3,oneof" json:"Data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EvalStruct) Reset() {
-	*x = EvalStruct{}
-	mi := &file_macropod_proto_msgTypes[2]
+func (x *PayloadStruct) Reset() {
+	*x = PayloadStruct{}
+	mi := &file_macropod_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EvalStruct) String() string {
+func (x *PayloadStruct) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EvalStruct) ProtoMessage() {}
+func (*PayloadStruct) ProtoMessage() {}
 
-func (x *EvalStruct) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[2]
+func (x *PayloadStruct) ProtoReflect() protoreflect.Message {
+	mi := &file_macropod_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -217,48 +377,52 @@ func (x *EvalStruct) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EvalStruct.ProtoReflect.Descriptor instead.
-func (*EvalStruct) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{2}
+// Deprecated: Use PayloadStruct.ProtoReflect.Descriptor instead.
+func (*PayloadStruct) Descriptor() ([]byte, []int) {
+	return file_macropod_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *EvalStruct) GetName() string {
+func (x *PayloadStruct) GetType() string {
 	if x != nil {
-		return x.Name
+		return x.Type
 	}
 	return ""
 }
 
-func (x *EvalStruct) GetWorkflowConcurrencies() []int32 {
+func (x *PayloadStruct) GetText() string {
+	if x != nil && x.Text != nil {
+		return *x.Text
+	}
+	return ""
+}
+
+func (x *PayloadStruct) GetJSON() *structpb.Struct {
 	if x != nil {
-		return x.WorkflowConcurrencies
+		return x.JSON
 	}
 	return nil
 }
 
-func (x *EvalStruct) GetInvocations() int32 {
-	if x != nil && x.Invocations != nil {
-		return *x.Invocations
+func (x *PayloadStruct) GetData() []byte {
+	if x != nil {
+		return x.Data
 	}
-	return 0
+	return nil
 }
 
 type WorkflowStruct struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Name          string                     `protobuf:"bytes,1,opt,name=Name,proto3" json:"Name,omitempty"`
 	Functions     map[string]*FunctionStruct `protobuf:"bytes,2,rep,name=Functions,proto3" json:"Functions,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Text          []string                   `protobuf:"bytes,3,rep,name=Text,proto3" json:"Text,omitempty"`
-	JSON          []*structpb.Struct         `protobuf:"bytes,4,rep,name=JSON,proto3" json:"JSON,omitempty"`
-	Data          [][]byte                   `protobuf:"bytes,5,rep,name=Data,proto3" json:"Data,omitempty"`
-	Config        *ConfigStruct              `protobuf:"bytes,6,opt,name=Config,proto3,oneof" json:"Config,omitempty"`
-	Eval          *EvalStruct                `protobuf:"bytes,7,opt,name=Eval,proto3,oneof" json:"Eval,omitempty"`
+	Config        *ConfigStruct              `protobuf:"bytes,3,opt,name=Config,proto3,oneof" json:"Config,omitempty"`
+	Payload       *PayloadStruct             `protobuf:"bytes,4,opt,name=Payload,proto3,oneof" json:"Payload,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *WorkflowStruct) Reset() {
 	*x = WorkflowStruct{}
-	mi := &file_macropod_proto_msgTypes[3]
+	mi := &file_macropod_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -270,7 +434,7 @@ func (x *WorkflowStruct) String() string {
 func (*WorkflowStruct) ProtoMessage() {}
 
 func (x *WorkflowStruct) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[3]
+	mi := &file_macropod_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -283,7 +447,7 @@ func (x *WorkflowStruct) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WorkflowStruct.ProtoReflect.Descriptor instead.
 func (*WorkflowStruct) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{3}
+	return file_macropod_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *WorkflowStruct) GetName() string {
@@ -300,27 +464,6 @@ func (x *WorkflowStruct) GetFunctions() map[string]*FunctionStruct {
 	return nil
 }
 
-func (x *WorkflowStruct) GetText() []string {
-	if x != nil {
-		return x.Text
-	}
-	return nil
-}
-
-func (x *WorkflowStruct) GetJSON() []*structpb.Struct {
-	if x != nil {
-		return x.JSON
-	}
-	return nil
-}
-
-func (x *WorkflowStruct) GetData() [][]byte {
-	if x != nil {
-		return x.Data
-	}
-	return nil
-}
-
 func (x *WorkflowStruct) GetConfig() *ConfigStruct {
 	if x != nil {
 		return x.Config
@@ -328,193 +471,38 @@ func (x *WorkflowStruct) GetConfig() *ConfigStruct {
 	return nil
 }
 
-func (x *WorkflowStruct) GetEval() *EvalStruct {
+func (x *WorkflowStruct) GetPayload() *PayloadStruct {
 	if x != nil {
-		return x.Eval
+		return x.Payload
 	}
 	return nil
 }
 
-type PodMetadata struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          *string                `protobuf:"bytes,1,opt,name=Name,proto3,oneof" json:"Name,omitempty"`
-	Version       *int32                 `protobuf:"varint,2,opt,name=Version,proto3,oneof" json:"Version,omitempty"`
-	Entrypoint    *string                `protobuf:"bytes,3,opt,name=Entrypoint,proto3,oneof" json:"Entrypoint,omitempty"`
-	NodeName      *string                `protobuf:"bytes,4,opt,name=NodeName,proto3,oneof" json:"NodeName,omitempty"`
-	Functions     []string               `protobuf:"bytes,5,rep,name=Functions,proto3" json:"Functions,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type EvalStruct struct {
+	state               protoimpl.MessageState     `protogen:"open.v1"`
+	WorkflowConcurrency []int32                    `protobuf:"varint,1,rep,packed,name=WorkflowConcurrency,proto3" json:"WorkflowConcurrency,omitempty"`
+	Invocations         int32                      `protobuf:"varint,2,opt,name=Invocations,proto3" json:"Invocations,omitempty"`
+	ExtraTargets        map[string]string          `protobuf:"bytes,3,rep,name=ExtraTargets,proto3" json:"ExtraTargets,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ExtraTargetsPayload map[string]*PayloadStruct  `protobuf:"bytes,4,rep,name=ExtraTargetsPayload,proto3" json:"ExtraTargetsPayload,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Workflows           map[string]*WorkflowStruct `protobuf:"bytes,5,rep,name=Workflows,proto3" json:"Workflows,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
-func (x *PodMetadata) Reset() {
-	*x = PodMetadata{}
-	mi := &file_macropod_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PodMetadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PodMetadata) ProtoMessage() {}
-
-func (x *PodMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PodMetadata.ProtoReflect.Descriptor instead.
-func (*PodMetadata) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *PodMetadata) GetName() string {
-	if x != nil && x.Name != nil {
-		return *x.Name
-	}
-	return ""
-}
-
-func (x *PodMetadata) GetVersion() int32 {
-	if x != nil && x.Version != nil {
-		return *x.Version
-	}
-	return 0
-}
-
-func (x *PodMetadata) GetEntrypoint() string {
-	if x != nil && x.Entrypoint != nil {
-		return *x.Entrypoint
-	}
-	return ""
-}
-
-func (x *PodMetadata) GetNodeName() string {
-	if x != nil && x.NodeName != nil {
-		return *x.NodeName
-	}
-	return ""
-}
-
-func (x *PodMetadata) GetFunctions() []string {
-	if x != nil {
-		return x.Functions
-	}
-	return nil
-}
-
-type DeploymentMetadata struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	ID                 int32                  `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	Entrypoint         *string                `protobuf:"bytes,2,opt,name=Entrypoint,proto3,oneof" json:"Entrypoint,omitempty"`
-	Pods               []*PodMetadata         `protobuf:"bytes,3,rep,name=Pods,proto3" json:"Pods,omitempty"`
-	InvocationsCurrent *int32                 `protobuf:"varint,4,opt,name=InvocationsCurrent,proto3,oneof" json:"InvocationsCurrent,omitempty"`
-	LastUsed           *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=LastUsed,proto3,oneof" json:"LastUsed,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *DeploymentMetadata) Reset() {
-	*x = DeploymentMetadata{}
-	mi := &file_macropod_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeploymentMetadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeploymentMetadata) ProtoMessage() {}
-
-func (x *DeploymentMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeploymentMetadata.ProtoReflect.Descriptor instead.
-func (*DeploymentMetadata) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *DeploymentMetadata) GetID() int32 {
-	if x != nil {
-		return x.ID
-	}
-	return 0
-}
-
-func (x *DeploymentMetadata) GetEntrypoint() string {
-	if x != nil && x.Entrypoint != nil {
-		return *x.Entrypoint
-	}
-	return ""
-}
-
-func (x *DeploymentMetadata) GetPods() []*PodMetadata {
-	if x != nil {
-		return x.Pods
-	}
-	return nil
-}
-
-func (x *DeploymentMetadata) GetInvocationsCurrent() int32 {
-	if x != nil && x.InvocationsCurrent != nil {
-		return *x.InvocationsCurrent
-	}
-	return 0
-}
-
-func (x *DeploymentMetadata) GetLastUsed() *timestamppb.Timestamp {
-	if x != nil {
-		return x.LastUsed
-	}
-	return nil
-}
-
-type WorkflowMetadata struct {
-	state              protoimpl.MessageState         `protogen:"open.v1"`
-	Workflow           *WorkflowStruct                `protobuf:"bytes,1,opt,name=Workflow,proto3" json:"Workflow,omitempty"`
-	DeploymentConfig   *DeploymentMetadata            `protobuf:"bytes,2,opt,name=DeploymentConfig,proto3" json:"DeploymentConfig,omitempty"`
-	Deployments        map[string]*DeploymentMetadata `protobuf:"bytes,3,rep,name=Deployments,proto3" json:"Deployments,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	DeploymentsTotal   *int32                         `protobuf:"varint,4,opt,name=DeploymentsTotal,proto3,oneof" json:"DeploymentsTotal,omitempty"`
-	LatestVersion      *int32                         `protobuf:"varint,5,opt,name=LatestVersion,proto3,oneof" json:"LatestVersion,omitempty"`
-	LastUpdated        *timestamppb.Timestamp         `protobuf:"bytes,6,opt,name=LastUpdated,proto3,oneof" json:"LastUpdated,omitempty"`
-	InvocationsCurrent *int32                         `protobuf:"varint,7,opt,name=InvocationsCurrent,proto3,oneof" json:"InvocationsCurrent,omitempty"`
-	InvocationsTotal   *int32                         `protobuf:"varint,8,opt,name=InvocationsTotal,proto3,oneof" json:"InvocationsTotal,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *WorkflowMetadata) Reset() {
-	*x = WorkflowMetadata{}
+func (x *EvalStruct) Reset() {
+	*x = EvalStruct{}
 	mi := &file_macropod_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *WorkflowMetadata) String() string {
+func (x *EvalStruct) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*WorkflowMetadata) ProtoMessage() {}
+func (*EvalStruct) ProtoMessage() {}
 
-func (x *WorkflowMetadata) ProtoReflect() protoreflect.Message {
+func (x *EvalStruct) ProtoReflect() protoreflect.Message {
 	mi := &file_macropod_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -526,362 +514,122 @@ func (x *WorkflowMetadata) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use WorkflowMetadata.ProtoReflect.Descriptor instead.
-func (*WorkflowMetadata) Descriptor() ([]byte, []int) {
+// Deprecated: Use EvalStruct.ProtoReflect.Descriptor instead.
+func (*EvalStruct) Descriptor() ([]byte, []int) {
 	return file_macropod_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *WorkflowMetadata) GetWorkflow() *WorkflowStruct {
+func (x *EvalStruct) GetWorkflowConcurrency() []int32 {
 	if x != nil {
-		return x.Workflow
+		return x.WorkflowConcurrency
 	}
 	return nil
 }
 
-func (x *WorkflowMetadata) GetDeploymentConfig() *DeploymentMetadata {
+func (x *EvalStruct) GetInvocations() int32 {
 	if x != nil {
-		return x.DeploymentConfig
+		return x.Invocations
+	}
+	return 0
+}
+
+func (x *EvalStruct) GetExtraTargets() map[string]string {
+	if x != nil {
+		return x.ExtraTargets
 	}
 	return nil
 }
 
-func (x *WorkflowMetadata) GetDeployments() map[string]*DeploymentMetadata {
+func (x *EvalStruct) GetExtraTargetsPayload() map[string]*PayloadStruct {
 	if x != nil {
-		return x.Deployments
+		return x.ExtraTargetsPayload
 	}
 	return nil
 }
 
-func (x *WorkflowMetadata) GetDeploymentsTotal() int32 {
-	if x != nil && x.DeploymentsTotal != nil {
-		return *x.DeploymentsTotal
-	}
-	return 0
-}
-
-func (x *WorkflowMetadata) GetLatestVersion() int32 {
-	if x != nil && x.LatestVersion != nil {
-		return *x.LatestVersion
-	}
-	return 0
-}
-
-func (x *WorkflowMetadata) GetLastUpdated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.LastUpdated
-	}
-	return nil
-}
-
-func (x *WorkflowMetadata) GetInvocationsCurrent() int32 {
-	if x != nil && x.InvocationsCurrent != nil {
-		return *x.InvocationsCurrent
-	}
-	return 0
-}
-
-func (x *WorkflowMetadata) GetInvocationsTotal() int32 {
-	if x != nil && x.InvocationsTotal != nil {
-		return *x.InvocationsTotal
-	}
-	return 0
-}
-
-type WorkflowIngressMetadata struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	WorkflowName  string                 `protobuf:"bytes,1,opt,name=WorkflowName,proto3" json:"WorkflowName,omitempty"`
-	Ingresses     map[int32]string       `protobuf:"bytes,2,rep,name=Ingresses,proto3" json:"Ingresses,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Labels        map[int32]string       `protobuf:"bytes,3,rep,name=Labels,proto3" json:"Labels,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *WorkflowIngressMetadata) Reset() {
-	*x = WorkflowIngressMetadata{}
-	mi := &file_macropod_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *WorkflowIngressMetadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*WorkflowIngressMetadata) ProtoMessage() {}
-
-func (x *WorkflowIngressMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use WorkflowIngressMetadata.ProtoReflect.Descriptor instead.
-func (*WorkflowIngressMetadata) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *WorkflowIngressMetadata) GetWorkflowName() string {
-	if x != nil {
-		return x.WorkflowName
-	}
-	return ""
-}
-
-func (x *WorkflowIngressMetadata) GetIngresses() map[int32]string {
-	if x != nil {
-		return x.Ingresses
-	}
-	return nil
-}
-
-func (x *WorkflowIngressMetadata) GetLabels() map[int32]string {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-type FunctionIngressMetadata struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FunctionName  string                 `protobuf:"bytes,1,opt,name=FunctionName,proto3" json:"FunctionName,omitempty"`
-	WorkflowName  string                 `protobuf:"bytes,2,opt,name=WorkflowName,proto3" json:"WorkflowName,omitempty"`
-	Ingresses     map[int32]string       `protobuf:"bytes,3,rep,name=Ingresses,proto3" json:"Ingresses,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Labels        map[int32]string       `protobuf:"bytes,4,rep,name=Labels,proto3" json:"Labels,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *FunctionIngressMetadata) Reset() {
-	*x = FunctionIngressMetadata{}
-	mi := &file_macropod_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *FunctionIngressMetadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FunctionIngressMetadata) ProtoMessage() {}
-
-func (x *FunctionIngressMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use FunctionIngressMetadata.ProtoReflect.Descriptor instead.
-func (*FunctionIngressMetadata) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *FunctionIngressMetadata) GetFunctionName() string {
-	if x != nil {
-		return x.FunctionName
-	}
-	return ""
-}
-
-func (x *FunctionIngressMetadata) GetWorkflowName() string {
-	if x != nil {
-		return x.WorkflowName
-	}
-	return ""
-}
-
-func (x *FunctionIngressMetadata) GetIngresses() map[int32]string {
-	if x != nil {
-		return x.Ingresses
-	}
-	return nil
-}
-
-func (x *FunctionIngressMetadata) GetLabels() map[int32]string {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-type NodeMetricsMetadata struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	CPU            float64                `protobuf:"fixed64,1,opt,name=CPU,proto3" json:"CPU,omitempty"`
-	Memory         float64                `protobuf:"fixed64,2,opt,name=Memory,proto3" json:"Memory,omitempty"`
-	CPUCapacity    float64                `protobuf:"fixed64,3,opt,name=CPUCapacity,proto3" json:"CPUCapacity,omitempty"`
-	MemoryCapacity float64                `protobuf:"fixed64,4,opt,name=MemoryCapacity,proto3" json:"MemoryCapacity,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *NodeMetricsMetadata) Reset() {
-	*x = NodeMetricsMetadata{}
-	mi := &file_macropod_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *NodeMetricsMetadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NodeMetricsMetadata) ProtoMessage() {}
-
-func (x *NodeMetricsMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NodeMetricsMetadata.ProtoReflect.Descriptor instead.
-func (*NodeMetricsMetadata) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *NodeMetricsMetadata) GetCPU() float64 {
-	if x != nil {
-		return x.CPU
-	}
-	return 0
-}
-
-func (x *NodeMetricsMetadata) GetMemory() float64 {
-	if x != nil {
-		return x.Memory
-	}
-	return 0
-}
-
-func (x *NodeMetricsMetadata) GetCPUCapacity() float64 {
-	if x != nil {
-		return x.CPUCapacity
-	}
-	return 0
-}
-
-func (x *NodeMetricsMetadata) GetMemoryCapacity() float64 {
-	if x != nil {
-		return x.MemoryCapacity
-	}
-	return 0
-}
-
-type MacroPodManifest struct {
-	state             protoimpl.MessageState              `protogen:"open.v1"`
-	Workflows         map[string]*WorkflowMetadata        `protobuf:"bytes,1,rep,name=Workflows,proto3" json:"Workflows,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	WorkflowIngresses map[string]*WorkflowIngressMetadata `protobuf:"bytes,2,rep,name=WorkflowIngresses,proto3" json:"WorkflowIngresses,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	FunctionIngresses map[string]*FunctionIngressMetadata `protobuf:"bytes,3,rep,name=FunctionIngresses,proto3" json:"FunctionIngresses,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	NodeMetrics       map[string]*NodeMetricsMetadata     `protobuf:"bytes,4,rep,name=NodeMetrics,proto3" json:"NodeMetrics,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	DefaultConfig     *ConfigStruct                       `protobuf:"bytes,5,opt,name=DefaultConfig,proto3" json:"DefaultConfig,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *MacroPodManifest) Reset() {
-	*x = MacroPodManifest{}
-	mi := &file_macropod_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MacroPodManifest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MacroPodManifest) ProtoMessage() {}
-
-func (x *MacroPodManifest) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MacroPodManifest.ProtoReflect.Descriptor instead.
-func (*MacroPodManifest) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *MacroPodManifest) GetWorkflows() map[string]*WorkflowMetadata {
+func (x *EvalStruct) GetWorkflows() map[string]*WorkflowStruct {
 	if x != nil {
 		return x.Workflows
 	}
 	return nil
 }
 
-func (x *MacroPodManifest) GetWorkflowIngresses() map[string]*WorkflowIngressMetadata {
-	if x != nil {
-		return x.WorkflowIngresses
-	}
-	return nil
+type MetricsStruct struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Uptime               *float64               `protobuf:"fixed64,1,opt,name=Uptime,proto3,oneof" json:"Uptime,omitempty"`
+	LoadAvg1             *float64               `protobuf:"fixed64,2,opt,name=LoadAvg1,proto3,oneof" json:"LoadAvg1,omitempty"`
+	LoadAvg5             *float64               `protobuf:"fixed64,3,opt,name=LoadAvg5,proto3,oneof" json:"LoadAvg5,omitempty"`
+	LoadAvg15            *float64               `protobuf:"fixed64,4,opt,name=LoadAvg15,proto3,oneof" json:"LoadAvg15,omitempty"`
+	CPUUsed              *float64               `protobuf:"fixed64,5,opt,name=CPUUsed,proto3,oneof" json:"CPUUsed,omitempty"`
+	CPUCountLogical      *float64               `protobuf:"fixed64,6,opt,name=CPUCountLogical,proto3,oneof" json:"CPUCountLogical,omitempty"`
+	CPUCountPhysical     *float64               `protobuf:"fixed64,7,opt,name=CPUCountPhysical,proto3,oneof" json:"CPUCountPhysical,omitempty"`
+	MemoryUsed           *float64               `protobuf:"fixed64,8,opt,name=MemoryUsed,proto3,oneof" json:"MemoryUsed,omitempty"`
+	MemoryAvailable      *float64               `protobuf:"fixed64,9,opt,name=MemoryAvailable,proto3,oneof" json:"MemoryAvailable,omitempty"`
+	MemoryTotal          *float64               `protobuf:"fixed64,10,opt,name=MemoryTotal,proto3,oneof" json:"MemoryTotal,omitempty"`
+	MemoryBuffers        *float64               `protobuf:"fixed64,11,opt,name=MemoryBuffers,proto3,oneof" json:"MemoryBuffers,omitempty"`
+	MemoryCached         *float64               `protobuf:"fixed64,12,opt,name=MemoryCached,proto3,oneof" json:"MemoryCached,omitempty"`
+	MemoryWriteBack      *float64               `protobuf:"fixed64,13,opt,name=MemoryWriteBack,proto3,oneof" json:"MemoryWriteBack,omitempty"`
+	MemoryDirty          *float64               `protobuf:"fixed64,14,opt,name=MemoryDirty,proto3,oneof" json:"MemoryDirty,omitempty"`
+	MemoryWriteBackTmp   *float64               `protobuf:"fixed64,15,opt,name=MemoryWriteBackTmp,proto3,oneof" json:"MemoryWriteBackTmp,omitempty"`
+	MemoryShared         *float64               `protobuf:"fixed64,16,opt,name=MemoryShared,proto3,oneof" json:"MemoryShared,omitempty"`
+	MemorySlab           *float64               `protobuf:"fixed64,17,opt,name=MemorySlab,proto3,oneof" json:"MemorySlab,omitempty"`
+	MemorySreclaimable   *float64               `protobuf:"fixed64,18,opt,name=MemorySreclaimable,proto3,oneof" json:"MemorySreclaimable,omitempty"`
+	MemorySunreclaim     *float64               `protobuf:"fixed64,19,opt,name=MemorySunreclaim,proto3,oneof" json:"MemorySunreclaim,omitempty"`
+	MemoryPageTables     *float64               `protobuf:"fixed64,20,opt,name=MemoryPageTables,proto3,oneof" json:"MemoryPageTables,omitempty"`
+	MemorySwapCached     *float64               `protobuf:"fixed64,21,opt,name=MemorySwapCached,proto3,oneof" json:"MemorySwapCached,omitempty"`
+	MemoryCommitLimit    *float64               `protobuf:"fixed64,22,opt,name=MemoryCommitLimit,proto3,oneof" json:"MemoryCommitLimit,omitempty"`
+	MemoryCommittedAS    *float64               `protobuf:"fixed64,23,opt,name=MemoryCommittedAS,proto3,oneof" json:"MemoryCommittedAS,omitempty"`
+	MemoryHighTotal      *float64               `protobuf:"fixed64,24,opt,name=MemoryHighTotal,proto3,oneof" json:"MemoryHighTotal,omitempty"`
+	MemoryHighFree       *float64               `protobuf:"fixed64,25,opt,name=MemoryHighFree,proto3,oneof" json:"MemoryHighFree,omitempty"`
+	MemoryLowTotal       *float64               `protobuf:"fixed64,26,opt,name=MemoryLowTotal,proto3,oneof" json:"MemoryLowTotal,omitempty"`
+	MemoryLowFree        *float64               `protobuf:"fixed64,27,opt,name=MemoryLowFree,proto3,oneof" json:"MemoryLowFree,omitempty"`
+	MemorySwapTotal      *float64               `protobuf:"fixed64,28,opt,name=MemorySwapTotal,proto3,oneof" json:"MemorySwapTotal,omitempty"`
+	MemorySwapFree       *float64               `protobuf:"fixed64,29,opt,name=MemorySwapFree,proto3,oneof" json:"MemorySwapFree,omitempty"`
+	MemoryMapped         *float64               `protobuf:"fixed64,30,opt,name=MemoryMapped,proto3,oneof" json:"MemoryMapped,omitempty"`
+	MemoryVmallocTotal   *float64               `protobuf:"fixed64,31,opt,name=MemoryVmallocTotal,proto3,oneof" json:"MemoryVmallocTotal,omitempty"`
+	MemoryVmallocUsed    *float64               `protobuf:"fixed64,32,opt,name=MemoryVmallocUsed,proto3,oneof" json:"MemoryVmallocUsed,omitempty"`
+	MemoryVmallocChunk   *float64               `protobuf:"fixed64,33,opt,name=MemoryVmallocChunk,proto3,oneof" json:"MemoryVmallocChunk,omitempty"`
+	MemoryHugePagesTotal *float64               `protobuf:"fixed64,34,opt,name=MemoryHugePagesTotal,proto3,oneof" json:"MemoryHugePagesTotal,omitempty"`
+	MemoryHugePagesFree  *float64               `protobuf:"fixed64,35,opt,name=MemoryHugePagesFree,proto3,oneof" json:"MemoryHugePagesFree,omitempty"`
+	MemoryHugePagesRsvd  *float64               `protobuf:"fixed64,36,opt,name=MemoryHugePagesRsvd,proto3,oneof" json:"MemoryHugePagesRsvd,omitempty"`
+	MemoryHugePagesSurp  *float64               `protobuf:"fixed64,37,opt,name=MemoryHugePagesSurp,proto3,oneof" json:"MemoryHugePagesSurp,omitempty"`
+	MemoryHugePageSize   *float64               `protobuf:"fixed64,38,opt,name=MemoryHugePageSize,proto3,oneof" json:"MemoryHugePageSize,omitempty"`
+	MemoryAnonHugePages  *float64               `protobuf:"fixed64,39,opt,name=MemoryAnonHugePages,proto3,oneof" json:"MemoryAnonHugePages,omitempty"`
+	DiskUsed             *float64               `protobuf:"fixed64,40,opt,name=DiskUsed,proto3,oneof" json:"DiskUsed,omitempty"`
+	DiskFree             *float64               `protobuf:"fixed64,41,opt,name=DiskFree,proto3,oneof" json:"DiskFree,omitempty"`
+	DiskTotal            *float64               `protobuf:"fixed64,42,opt,name=DiskTotal,proto3,oneof" json:"DiskTotal,omitempty"`
+	DiskInodesUsed       *float64               `protobuf:"fixed64,43,opt,name=DiskInodesUsed,proto3,oneof" json:"DiskInodesUsed,omitempty"`
+	DiskInodesFree       *float64               `protobuf:"fixed64,44,opt,name=DiskInodesFree,proto3,oneof" json:"DiskInodesFree,omitempty"`
+	DiskInodesTotal      *float64               `protobuf:"fixed64,45,opt,name=DiskInodesTotal,proto3,oneof" json:"DiskInodesTotal,omitempty"`
+	NetworkBytesSent     *float64               `protobuf:"fixed64,46,opt,name=NetworkBytesSent,proto3,oneof" json:"NetworkBytesSent,omitempty"`
+	NetworkBytesRecv     *float64               `protobuf:"fixed64,47,opt,name=NetworkBytesRecv,proto3,oneof" json:"NetworkBytesRecv,omitempty"`
+	NetworkPacketsSent   *float64               `protobuf:"fixed64,48,opt,name=NetworkPacketsSent,proto3,oneof" json:"NetworkPacketsSent,omitempty"`
+	NetworkPacketsRecv   *float64               `protobuf:"fixed64,49,opt,name=NetworkPacketsRecv,proto3,oneof" json:"NetworkPacketsRecv,omitempty"`
+	NetworkErrin         *float64               `protobuf:"fixed64,50,opt,name=NetworkErrin,proto3,oneof" json:"NetworkErrin,omitempty"`
+	NetworkErrout        *float64               `protobuf:"fixed64,51,opt,name=NetworkErrout,proto3,oneof" json:"NetworkErrout,omitempty"`
+	NetworkDropin        *float64               `protobuf:"fixed64,52,opt,name=NetworkDropin,proto3,oneof" json:"NetworkDropin,omitempty"`
+	NetworkDropout       *float64               `protobuf:"fixed64,53,opt,name=NetworkDropout,proto3,oneof" json:"NetworkDropout,omitempty"`
+	NetworkFifoin        *float64               `protobuf:"fixed64,54,opt,name=NetworkFifoin,proto3,oneof" json:"NetworkFifoin,omitempty"`
+	NetworkFifoout       *float64               `protobuf:"fixed64,55,opt,name=NetworkFifoout,proto3,oneof" json:"NetworkFifoout,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
-func (x *MacroPodManifest) GetFunctionIngresses() map[string]*FunctionIngressMetadata {
-	if x != nil {
-		return x.FunctionIngresses
-	}
-	return nil
-}
-
-func (x *MacroPodManifest) GetNodeMetrics() map[string]*NodeMetricsMetadata {
-	if x != nil {
-		return x.NodeMetrics
-	}
-	return nil
-}
-
-func (x *MacroPodManifest) GetDefaultConfig() *ConfigStruct {
-	if x != nil {
-		return x.DefaultConfig
-	}
-	return nil
-}
-
-type MacroPodReply struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Reply         *string                `protobuf:"bytes,1,opt,name=Reply,proto3,oneof" json:"Reply,omitempty"`
-	Code          *int32                 `protobuf:"varint,2,opt,name=Code,proto3,oneof" json:"Code,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MacroPodReply) Reset() {
-	*x = MacroPodReply{}
-	mi := &file_macropod_proto_msgTypes[11]
+func (x *MetricsStruct) Reset() {
+	*x = MetricsStruct{}
+	mi := &file_macropod_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MacroPodReply) String() string {
+func (x *MetricsStruct) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MacroPodReply) ProtoMessage() {}
+func (*MetricsStruct) ProtoMessage() {}
 
-func (x *MacroPodReply) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[11]
+func (x *MetricsStruct) ProtoReflect() protoreflect.Message {
+	mi := &file_macropod_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -892,398 +640,427 @@ func (x *MacroPodReply) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MacroPodReply.ProtoReflect.Descriptor instead.
-func (*MacroPodReply) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{11}
+// Deprecated: Use MetricsStruct.ProtoReflect.Descriptor instead.
+func (*MetricsStruct) Descriptor() ([]byte, []int) {
+	return file_macropod_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *MacroPodReply) GetReply() string {
-	if x != nil && x.Reply != nil {
-		return *x.Reply
-	}
-	return ""
-}
-
-func (x *MacroPodReply) GetCode() int32 {
-	if x != nil && x.Code != nil {
-		return *x.Code
+func (x *MetricsStruct) GetUptime() float64 {
+	if x != nil && x.Uptime != nil {
+		return *x.Uptime
 	}
 	return 0
 }
 
-type FunctionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Function      *string                `protobuf:"bytes,1,opt,name=Function,proto3,oneof" json:"Function,omitempty"`
-	Text          *string                `protobuf:"bytes,2,opt,name=Text,proto3,oneof" json:"Text,omitempty"`
-	JSON          *structpb.Struct       `protobuf:"bytes,3,opt,name=JSON,proto3,oneof" json:"JSON,omitempty"`
-	Data          []byte                 `protobuf:"bytes,4,opt,name=Data,proto3,oneof" json:"Data,omitempty"`
-	WorkflowID    *string                `protobuf:"bytes,5,opt,name=WorkflowID,proto3,oneof" json:"WorkflowID,omitempty"`
-	Depth         *int32                 `protobuf:"varint,6,opt,name=Depth,proto3,oneof" json:"Depth,omitempty"`
-	Width         *int32                 `protobuf:"varint,7,opt,name=Width,proto3,oneof" json:"Width,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *FunctionRequest) Reset() {
-	*x = FunctionRequest{}
-	mi := &file_macropod_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *FunctionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FunctionRequest) ProtoMessage() {}
-
-func (x *FunctionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use FunctionRequest.ProtoReflect.Descriptor instead.
-func (*FunctionRequest) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *FunctionRequest) GetFunction() string {
-	if x != nil && x.Function != nil {
-		return *x.Function
-	}
-	return ""
-}
-
-func (x *FunctionRequest) GetText() string {
-	if x != nil && x.Text != nil {
-		return *x.Text
-	}
-	return ""
-}
-
-func (x *FunctionRequest) GetJSON() *structpb.Struct {
-	if x != nil {
-		return x.JSON
-	}
-	return nil
-}
-
-func (x *FunctionRequest) GetData() []byte {
-	if x != nil {
-		return x.Data
-	}
-	return nil
-}
-
-func (x *FunctionRequest) GetWorkflowID() string {
-	if x != nil && x.WorkflowID != nil {
-		return *x.WorkflowID
-	}
-	return ""
-}
-
-func (x *FunctionRequest) GetDepth() int32 {
-	if x != nil && x.Depth != nil {
-		return *x.Depth
+func (x *MetricsStruct) GetLoadAvg1() float64 {
+	if x != nil && x.LoadAvg1 != nil {
+		return *x.LoadAvg1
 	}
 	return 0
 }
 
-func (x *FunctionRequest) GetWidth() int32 {
-	if x != nil && x.Width != nil {
-		return *x.Width
+func (x *MetricsStruct) GetLoadAvg5() float64 {
+	if x != nil && x.LoadAvg5 != nil {
+		return *x.LoadAvg5
 	}
 	return 0
 }
 
-type DeployerRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	WorkflowName  string                 `protobuf:"bytes,1,opt,name=WorkflowName,proto3" json:"WorkflowName,omitempty"`
-	Label         *string                `protobuf:"bytes,2,opt,name=Label,proto3,oneof" json:"Label,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeployerRequest) Reset() {
-	*x = DeployerRequest{}
-	mi := &file_macropod_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeployerRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeployerRequest) ProtoMessage() {}
-
-func (x *DeployerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeployerRequest.ProtoReflect.Descriptor instead.
-func (*DeployerRequest) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *DeployerRequest) GetWorkflowName() string {
-	if x != nil {
-		return x.WorkflowName
-	}
-	return ""
-}
-
-func (x *DeployerRequest) GetLabel() string {
-	if x != nil && x.Label != nil {
-		return *x.Label
-	}
-	return ""
-}
-
-type IngressRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	WorkflowName  string                 `protobuf:"bytes,1,opt,name=WorkflowName,proto3" json:"WorkflowName,omitempty"`
-	Text          *string                `protobuf:"bytes,2,opt,name=Text,proto3,oneof" json:"Text,omitempty"`
-	JSON          *structpb.Struct       `protobuf:"bytes,3,opt,name=JSON,proto3,oneof" json:"JSON,omitempty"`
-	Data          []byte                 `protobuf:"bytes,4,opt,name=Data,proto3,oneof" json:"Data,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IngressRequest) Reset() {
-	*x = IngressRequest{}
-	mi := &file_macropod_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IngressRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IngressRequest) ProtoMessage() {}
-
-func (x *IngressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IngressRequest.ProtoReflect.Descriptor instead.
-func (*IngressRequest) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *IngressRequest) GetWorkflowName() string {
-	if x != nil {
-		return x.WorkflowName
-	}
-	return ""
-}
-
-func (x *IngressRequest) GetText() string {
-	if x != nil && x.Text != nil {
-		return *x.Text
-	}
-	return ""
-}
-
-func (x *IngressRequest) GetJSON() *structpb.Struct {
-	if x != nil {
-		return x.JSON
-	}
-	return nil
-}
-
-func (x *IngressRequest) GetData() []byte {
-	if x != nil {
-		return x.Data
-	}
-	return nil
-}
-
-type IngressEvalRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IngressEvalRequest) Reset() {
-	*x = IngressEvalRequest{}
-	mi := &file_macropod_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IngressEvalRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IngressEvalRequest) ProtoMessage() {}
-
-func (x *IngressEvalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IngressEvalRequest.ProtoReflect.Descriptor instead.
-func (*IngressEvalRequest) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *IngressEvalRequest) GetID() string {
-	if x != nil {
-		return x.ID
-	}
-	return ""
-}
-
-type DeploymentServiceRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	FunctionCall  string                 `protobuf:"bytes,2,opt,name=functionCall,proto3" json:"functionCall,omitempty"`
-	ReplicaNumber int32                  `protobuf:"varint,3,opt,name=replicaNumber,proto3" json:"replicaNumber,omitempty"`
-	Workflow      *string                `protobuf:"bytes,4,opt,name=workflow,proto3,oneof" json:"workflow,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeploymentServiceRequest) Reset() {
-	*x = DeploymentServiceRequest{}
-	mi := &file_macropod_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeploymentServiceRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeploymentServiceRequest) ProtoMessage() {}
-
-func (x *DeploymentServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeploymentServiceRequest.ProtoReflect.Descriptor instead.
-func (*DeploymentServiceRequest) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *DeploymentServiceRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *DeploymentServiceRequest) GetFunctionCall() string {
-	if x != nil {
-		return x.FunctionCall
-	}
-	return ""
-}
-
-func (x *DeploymentServiceRequest) GetReplicaNumber() int32 {
-	if x != nil {
-		return x.ReplicaNumber
+func (x *MetricsStruct) GetLoadAvg15() float64 {
+	if x != nil && x.LoadAvg15 != nil {
+		return *x.LoadAvg15
 	}
 	return 0
 }
 
-func (x *DeploymentServiceRequest) GetWorkflow() string {
-	if x != nil && x.Workflow != nil {
-		return *x.Workflow
+func (x *MetricsStruct) GetCPUUsed() float64 {
+	if x != nil && x.CPUUsed != nil {
+		return *x.CPUUsed
 	}
-	return ""
+	return 0
 }
 
-type DeploymentServiceReply struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeploymentServiceReply) Reset() {
-	*x = DeploymentServiceReply{}
-	mi := &file_macropod_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeploymentServiceReply) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeploymentServiceReply) ProtoMessage() {}
-
-func (x *DeploymentServiceReply) ProtoReflect() protoreflect.Message {
-	mi := &file_macropod_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+func (x *MetricsStruct) GetCPUCountLogical() float64 {
+	if x != nil && x.CPUCountLogical != nil {
+		return *x.CPUCountLogical
 	}
-	return mi.MessageOf(x)
+	return 0
 }
 
-// Deprecated: Use DeploymentServiceReply.ProtoReflect.Descriptor instead.
-func (*DeploymentServiceReply) Descriptor() ([]byte, []int) {
-	return file_macropod_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *DeploymentServiceReply) GetMessage() string {
-	if x != nil {
-		return x.Message
+func (x *MetricsStruct) GetCPUCountPhysical() float64 {
+	if x != nil && x.CPUCountPhysical != nil {
+		return *x.CPUCountPhysical
 	}
-	return ""
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryUsed() float64 {
+	if x != nil && x.MemoryUsed != nil {
+		return *x.MemoryUsed
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryAvailable() float64 {
+	if x != nil && x.MemoryAvailable != nil {
+		return *x.MemoryAvailable
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryTotal() float64 {
+	if x != nil && x.MemoryTotal != nil {
+		return *x.MemoryTotal
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryBuffers() float64 {
+	if x != nil && x.MemoryBuffers != nil {
+		return *x.MemoryBuffers
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryCached() float64 {
+	if x != nil && x.MemoryCached != nil {
+		return *x.MemoryCached
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryWriteBack() float64 {
+	if x != nil && x.MemoryWriteBack != nil {
+		return *x.MemoryWriteBack
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryDirty() float64 {
+	if x != nil && x.MemoryDirty != nil {
+		return *x.MemoryDirty
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryWriteBackTmp() float64 {
+	if x != nil && x.MemoryWriteBackTmp != nil {
+		return *x.MemoryWriteBackTmp
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryShared() float64 {
+	if x != nil && x.MemoryShared != nil {
+		return *x.MemoryShared
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemorySlab() float64 {
+	if x != nil && x.MemorySlab != nil {
+		return *x.MemorySlab
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemorySreclaimable() float64 {
+	if x != nil && x.MemorySreclaimable != nil {
+		return *x.MemorySreclaimable
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemorySunreclaim() float64 {
+	if x != nil && x.MemorySunreclaim != nil {
+		return *x.MemorySunreclaim
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryPageTables() float64 {
+	if x != nil && x.MemoryPageTables != nil {
+		return *x.MemoryPageTables
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemorySwapCached() float64 {
+	if x != nil && x.MemorySwapCached != nil {
+		return *x.MemorySwapCached
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryCommitLimit() float64 {
+	if x != nil && x.MemoryCommitLimit != nil {
+		return *x.MemoryCommitLimit
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryCommittedAS() float64 {
+	if x != nil && x.MemoryCommittedAS != nil {
+		return *x.MemoryCommittedAS
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryHighTotal() float64 {
+	if x != nil && x.MemoryHighTotal != nil {
+		return *x.MemoryHighTotal
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryHighFree() float64 {
+	if x != nil && x.MemoryHighFree != nil {
+		return *x.MemoryHighFree
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryLowTotal() float64 {
+	if x != nil && x.MemoryLowTotal != nil {
+		return *x.MemoryLowTotal
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryLowFree() float64 {
+	if x != nil && x.MemoryLowFree != nil {
+		return *x.MemoryLowFree
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemorySwapTotal() float64 {
+	if x != nil && x.MemorySwapTotal != nil {
+		return *x.MemorySwapTotal
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemorySwapFree() float64 {
+	if x != nil && x.MemorySwapFree != nil {
+		return *x.MemorySwapFree
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryMapped() float64 {
+	if x != nil && x.MemoryMapped != nil {
+		return *x.MemoryMapped
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryVmallocTotal() float64 {
+	if x != nil && x.MemoryVmallocTotal != nil {
+		return *x.MemoryVmallocTotal
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryVmallocUsed() float64 {
+	if x != nil && x.MemoryVmallocUsed != nil {
+		return *x.MemoryVmallocUsed
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryVmallocChunk() float64 {
+	if x != nil && x.MemoryVmallocChunk != nil {
+		return *x.MemoryVmallocChunk
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryHugePagesTotal() float64 {
+	if x != nil && x.MemoryHugePagesTotal != nil {
+		return *x.MemoryHugePagesTotal
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryHugePagesFree() float64 {
+	if x != nil && x.MemoryHugePagesFree != nil {
+		return *x.MemoryHugePagesFree
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryHugePagesRsvd() float64 {
+	if x != nil && x.MemoryHugePagesRsvd != nil {
+		return *x.MemoryHugePagesRsvd
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryHugePagesSurp() float64 {
+	if x != nil && x.MemoryHugePagesSurp != nil {
+		return *x.MemoryHugePagesSurp
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryHugePageSize() float64 {
+	if x != nil && x.MemoryHugePageSize != nil {
+		return *x.MemoryHugePageSize
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetMemoryAnonHugePages() float64 {
+	if x != nil && x.MemoryAnonHugePages != nil {
+		return *x.MemoryAnonHugePages
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetDiskUsed() float64 {
+	if x != nil && x.DiskUsed != nil {
+		return *x.DiskUsed
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetDiskFree() float64 {
+	if x != nil && x.DiskFree != nil {
+		return *x.DiskFree
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetDiskTotal() float64 {
+	if x != nil && x.DiskTotal != nil {
+		return *x.DiskTotal
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetDiskInodesUsed() float64 {
+	if x != nil && x.DiskInodesUsed != nil {
+		return *x.DiskInodesUsed
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetDiskInodesFree() float64 {
+	if x != nil && x.DiskInodesFree != nil {
+		return *x.DiskInodesFree
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetDiskInodesTotal() float64 {
+	if x != nil && x.DiskInodesTotal != nil {
+		return *x.DiskInodesTotal
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkBytesSent() float64 {
+	if x != nil && x.NetworkBytesSent != nil {
+		return *x.NetworkBytesSent
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkBytesRecv() float64 {
+	if x != nil && x.NetworkBytesRecv != nil {
+		return *x.NetworkBytesRecv
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkPacketsSent() float64 {
+	if x != nil && x.NetworkPacketsSent != nil {
+		return *x.NetworkPacketsSent
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkPacketsRecv() float64 {
+	if x != nil && x.NetworkPacketsRecv != nil {
+		return *x.NetworkPacketsRecv
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkErrin() float64 {
+	if x != nil && x.NetworkErrin != nil {
+		return *x.NetworkErrin
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkErrout() float64 {
+	if x != nil && x.NetworkErrout != nil {
+		return *x.NetworkErrout
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkDropin() float64 {
+	if x != nil && x.NetworkDropin != nil {
+		return *x.NetworkDropin
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkDropout() float64 {
+	if x != nil && x.NetworkDropout != nil {
+		return *x.NetworkDropout
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkFifoin() float64 {
+	if x != nil && x.NetworkFifoin != nil {
+		return *x.NetworkFifoin
+	}
+	return 0
+}
+
+func (x *MetricsStruct) GetNetworkFifoout() float64 {
+	if x != nil && x.NetworkFifoout != nil {
+		return *x.NetworkFifoout
+	}
+	return 0
 }
 
 var File_macropod_proto protoreflect.FileDescriptor
 
 const file_macropod_proto_rawDesc = "" +
 	"\n" +
-	"\x0emacropod.proto\x12\bmacropod\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x9f\x03\n" +
+	"\x0emacropod.proto\x12\bmacropod\x1a\x1cgoogle/protobuf/struct.proto\"\x92\x03\n" +
+	"\x0fMacroPodRequest\x12\x17\n" +
+	"\x04Text\x18\x01 \x01(\tH\x00R\x04Text\x88\x01\x01\x120\n" +
+	"\x04JSON\x18\x02 \x01(\v2\x17.google.protobuf.StructH\x01R\x04JSON\x88\x01\x01\x12\x17\n" +
+	"\x04Data\x18\x03 \x01(\fH\x02R\x04Data\x88\x01\x01\x12\x1f\n" +
+	"\bWorkflow\x18\x04 \x01(\tH\x03R\bWorkflow\x88\x01\x01\x12\x1f\n" +
+	"\bFunction\x18\x05 \x01(\tH\x04R\bFunction\x88\x01\x01\x12#\n" +
+	"\n" +
+	"WorkflowID\x18\x06 \x01(\tH\x05R\n" +
+	"WorkflowID\x88\x01\x01\x12\x19\n" +
+	"\x05Depth\x18\a \x01(\x05H\x06R\x05Depth\x88\x01\x01\x12\x19\n" +
+	"\x05Width\x18\b \x01(\x05H\aR\x05Width\x88\x01\x01\x12\x1b\n" +
+	"\x06Target\x18\t \x01(\tH\bR\x06Target\x88\x01\x01B\a\n" +
+	"\x05_TextB\a\n" +
+	"\x05_JSONB\a\n" +
+	"\x05_DataB\v\n" +
+	"\t_WorkflowB\v\n" +
+	"\t_FunctionB\r\n" +
+	"\v_WorkflowIDB\b\n" +
+	"\x06_DepthB\b\n" +
+	"\x06_WidthB\t\n" +
+	"\a_Target\"V\n" +
+	"\rMacroPodReply\x12\x19\n" +
+	"\x05Reply\x18\x01 \x01(\tH\x00R\x05Reply\x88\x01\x01\x12\x17\n" +
+	"\x04Code\x18\x02 \x01(\x05H\x01R\x04Code\x88\x01\x01B\b\n" +
+	"\x06_ReplyB\a\n" +
+	"\x05_Code\"\x9f\x03\n" +
 	"\x0eFunctionStruct\x12\x1a\n" +
 	"\bRegistry\x18\x01 \x01(\tR\bRegistry\x12E\n" +
 	"\tEndpoints\x18\x02 \x03(\v2'.macropod.FunctionStruct.EndpointsEntryR\tEndpoints\x126\n" +
@@ -1315,179 +1092,194 @@ const file_macropod_proto_rawDesc = "" +
 	"\x0e_CommunicationB\x0e\n" +
 	"\f_AggregationB\x14\n" +
 	"\x12_TargetConcurrencyB\b\n" +
-	"\x06_Debug\"\x8d\x01\n" +
-	"\n" +
-	"EvalStruct\x12\x12\n" +
-	"\x04Name\x18\x01 \x01(\tR\x04Name\x124\n" +
-	"\x15WorkflowConcurrencies\x18\x02 \x03(\x05R\x15WorkflowConcurrencies\x12%\n" +
-	"\vInvocations\x18\x03 \x01(\x05H\x00R\vInvocations\x88\x01\x01B\x0e\n" +
-	"\f_Invocations\"\x90\x03\n" +
-	"\x0eWorkflowStruct\x12\x12\n" +
-	"\x04Name\x18\x01 \x01(\tR\x04Name\x12E\n" +
-	"\tFunctions\x18\x02 \x03(\v2'.macropod.WorkflowStruct.FunctionsEntryR\tFunctions\x12\x12\n" +
-	"\x04Text\x18\x03 \x03(\tR\x04Text\x12+\n" +
-	"\x04JSON\x18\x04 \x03(\v2\x17.google.protobuf.StructR\x04JSON\x12\x12\n" +
-	"\x04Data\x18\x05 \x03(\fR\x04Data\x123\n" +
-	"\x06Config\x18\x06 \x01(\v2\x16.macropod.ConfigStructH\x00R\x06Config\x88\x01\x01\x12-\n" +
-	"\x04Eval\x18\a \x01(\v2\x14.macropod.EvalStructH\x01R\x04Eval\x88\x01\x01\x1aV\n" +
-	"\x0eFunctionsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12.\n" +
-	"\x05value\x18\x02 \x01(\v2\x18.macropod.FunctionStructR\x05value:\x028\x01B\t\n" +
-	"\a_ConfigB\a\n" +
-	"\x05_Eval\"\xda\x01\n" +
-	"\vPodMetadata\x12\x17\n" +
-	"\x04Name\x18\x01 \x01(\tH\x00R\x04Name\x88\x01\x01\x12\x1d\n" +
-	"\aVersion\x18\x02 \x01(\x05H\x01R\aVersion\x88\x01\x01\x12#\n" +
-	"\n" +
-	"Entrypoint\x18\x03 \x01(\tH\x02R\n" +
-	"Entrypoint\x88\x01\x01\x12\x1f\n" +
-	"\bNodeName\x18\x04 \x01(\tH\x03R\bNodeName\x88\x01\x01\x12\x1c\n" +
-	"\tFunctions\x18\x05 \x03(\tR\tFunctionsB\a\n" +
-	"\x05_NameB\n" +
-	"\n" +
-	"\b_VersionB\r\n" +
-	"\v_EntrypointB\v\n" +
-	"\t_NodeName\"\x99\x02\n" +
-	"\x12DeploymentMetadata\x12\x0e\n" +
-	"\x02ID\x18\x01 \x01(\x05R\x02ID\x12#\n" +
-	"\n" +
-	"Entrypoint\x18\x02 \x01(\tH\x00R\n" +
-	"Entrypoint\x88\x01\x01\x12)\n" +
-	"\x04Pods\x18\x03 \x03(\v2\x15.macropod.PodMetadataR\x04Pods\x123\n" +
-	"\x12InvocationsCurrent\x18\x04 \x01(\x05H\x01R\x12InvocationsCurrent\x88\x01\x01\x12;\n" +
-	"\bLastUsed\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\bLastUsed\x88\x01\x01B\r\n" +
-	"\v_EntrypointB\x15\n" +
-	"\x13_InvocationsCurrentB\v\n" +
-	"\t_LastUsed\"\xa7\x05\n" +
-	"\x10WorkflowMetadata\x124\n" +
-	"\bWorkflow\x18\x01 \x01(\v2\x18.macropod.WorkflowStructR\bWorkflow\x12H\n" +
-	"\x10DeploymentConfig\x18\x02 \x01(\v2\x1c.macropod.DeploymentMetadataR\x10DeploymentConfig\x12M\n" +
-	"\vDeployments\x18\x03 \x03(\v2+.macropod.WorkflowMetadata.DeploymentsEntryR\vDeployments\x12/\n" +
-	"\x10DeploymentsTotal\x18\x04 \x01(\x05H\x00R\x10DeploymentsTotal\x88\x01\x01\x12)\n" +
-	"\rLatestVersion\x18\x05 \x01(\x05H\x01R\rLatestVersion\x88\x01\x01\x12A\n" +
-	"\vLastUpdated\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\vLastUpdated\x88\x01\x01\x123\n" +
-	"\x12InvocationsCurrent\x18\a \x01(\x05H\x03R\x12InvocationsCurrent\x88\x01\x01\x12/\n" +
-	"\x10InvocationsTotal\x18\b \x01(\x05H\x04R\x10InvocationsTotal\x88\x01\x01\x1a\\\n" +
-	"\x10DeploymentsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x122\n" +
-	"\x05value\x18\x02 \x01(\v2\x1c.macropod.DeploymentMetadataR\x05value:\x028\x01B\x13\n" +
-	"\x11_DeploymentsTotalB\x10\n" +
-	"\x0e_LatestVersionB\x0e\n" +
-	"\f_LastUpdatedB\x15\n" +
-	"\x13_InvocationsCurrentB\x13\n" +
-	"\x11_InvocationsTotal\"\xcd\x02\n" +
-	"\x17WorkflowIngressMetadata\x12\"\n" +
-	"\fWorkflowName\x18\x01 \x01(\tR\fWorkflowName\x12N\n" +
-	"\tIngresses\x18\x02 \x03(\v20.macropod.WorkflowIngressMetadata.IngressesEntryR\tIngresses\x12E\n" +
-	"\x06Labels\x18\x03 \x03(\v2-.macropod.WorkflowIngressMetadata.LabelsEntryR\x06Labels\x1a<\n" +
-	"\x0eIngressesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\x05R\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
-	"\vLabelsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\x05R\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf1\x02\n" +
-	"\x17FunctionIngressMetadata\x12\"\n" +
-	"\fFunctionName\x18\x01 \x01(\tR\fFunctionName\x12\"\n" +
-	"\fWorkflowName\x18\x02 \x01(\tR\fWorkflowName\x12N\n" +
-	"\tIngresses\x18\x03 \x03(\v20.macropod.FunctionIngressMetadata.IngressesEntryR\tIngresses\x12E\n" +
-	"\x06Labels\x18\x04 \x03(\v2-.macropod.FunctionIngressMetadata.LabelsEntryR\x06Labels\x1a<\n" +
-	"\x0eIngressesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\x05R\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
-	"\vLabelsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\x05R\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x89\x01\n" +
-	"\x13NodeMetricsMetadata\x12\x10\n" +
-	"\x03CPU\x18\x01 \x01(\x01R\x03CPU\x12\x16\n" +
-	"\x06Memory\x18\x02 \x01(\x01R\x06Memory\x12 \n" +
-	"\vCPUCapacity\x18\x03 \x01(\x01R\vCPUCapacity\x12&\n" +
-	"\x0eMemoryCapacity\x18\x04 \x01(\x01R\x0eMemoryCapacity\"\xb5\x06\n" +
-	"\x10MacroPodManifest\x12G\n" +
-	"\tWorkflows\x18\x01 \x03(\v2).macropod.MacroPodManifest.WorkflowsEntryR\tWorkflows\x12_\n" +
-	"\x11WorkflowIngresses\x18\x02 \x03(\v21.macropod.MacroPodManifest.WorkflowIngressesEntryR\x11WorkflowIngresses\x12_\n" +
-	"\x11FunctionIngresses\x18\x03 \x03(\v21.macropod.MacroPodManifest.FunctionIngressesEntryR\x11FunctionIngresses\x12M\n" +
-	"\vNodeMetrics\x18\x04 \x03(\v2+.macropod.MacroPodManifest.NodeMetricsEntryR\vNodeMetrics\x12<\n" +
-	"\rDefaultConfig\x18\x05 \x01(\v2\x16.macropod.ConfigStructR\rDefaultConfig\x1aX\n" +
-	"\x0eWorkflowsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x120\n" +
-	"\x05value\x18\x02 \x01(\v2\x1a.macropod.WorkflowMetadataR\x05value:\x028\x01\x1ag\n" +
-	"\x16WorkflowIngressesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x127\n" +
-	"\x05value\x18\x02 \x01(\v2!.macropod.WorkflowIngressMetadataR\x05value:\x028\x01\x1ag\n" +
-	"\x16FunctionIngressesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x127\n" +
-	"\x05value\x18\x02 \x01(\v2!.macropod.FunctionIngressMetadataR\x05value:\x028\x01\x1a]\n" +
-	"\x10NodeMetricsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x123\n" +
-	"\x05value\x18\x02 \x01(\v2\x1d.macropod.NodeMetricsMetadataR\x05value:\x028\x01\"V\n" +
-	"\rMacroPodReply\x12\x19\n" +
-	"\x05Reply\x18\x01 \x01(\tH\x00R\x05Reply\x88\x01\x01\x12\x17\n" +
-	"\x04Code\x18\x02 \x01(\x05H\x01R\x04Code\x88\x01\x01B\b\n" +
-	"\x06_ReplyB\a\n" +
-	"\x05_Code\"\xbc\x02\n" +
-	"\x0fFunctionRequest\x12\x1f\n" +
-	"\bFunction\x18\x01 \x01(\tH\x00R\bFunction\x88\x01\x01\x12\x17\n" +
-	"\x04Text\x18\x02 \x01(\tH\x01R\x04Text\x88\x01\x01\x120\n" +
-	"\x04JSON\x18\x03 \x01(\v2\x17.google.protobuf.StructH\x02R\x04JSON\x88\x01\x01\x12\x17\n" +
-	"\x04Data\x18\x04 \x01(\fH\x03R\x04Data\x88\x01\x01\x12#\n" +
-	"\n" +
-	"WorkflowID\x18\x05 \x01(\tH\x04R\n" +
-	"WorkflowID\x88\x01\x01\x12\x19\n" +
-	"\x05Depth\x18\x06 \x01(\x05H\x05R\x05Depth\x88\x01\x01\x12\x19\n" +
-	"\x05Width\x18\a \x01(\x05H\x06R\x05Width\x88\x01\x01B\v\n" +
-	"\t_FunctionB\a\n" +
-	"\x05_TextB\a\n" +
-	"\x05_JSONB\a\n" +
-	"\x05_DataB\r\n" +
-	"\v_WorkflowIDB\b\n" +
-	"\x06_DepthB\b\n" +
-	"\x06_Width\"Z\n" +
-	"\x0fDeployerRequest\x12\"\n" +
-	"\fWorkflowName\x18\x01 \x01(\tR\fWorkflowName\x12\x19\n" +
-	"\x05Label\x18\x02 \x01(\tH\x00R\x05Label\x88\x01\x01B\b\n" +
-	"\x06_Label\"\xb3\x01\n" +
-	"\x0eIngressRequest\x12\"\n" +
-	"\fWorkflowName\x18\x01 \x01(\tR\fWorkflowName\x12\x17\n" +
+	"\x06_Debug\"\xa2\x01\n" +
+	"\rPayloadStruct\x12\x12\n" +
+	"\x04Type\x18\x01 \x01(\tR\x04Type\x12\x17\n" +
 	"\x04Text\x18\x02 \x01(\tH\x00R\x04Text\x88\x01\x01\x120\n" +
 	"\x04JSON\x18\x03 \x01(\v2\x17.google.protobuf.StructH\x01R\x04JSON\x88\x01\x01\x12\x17\n" +
 	"\x04Data\x18\x04 \x01(\fH\x02R\x04Data\x88\x01\x01B\a\n" +
 	"\x05_TextB\a\n" +
 	"\x05_JSONB\a\n" +
-	"\x05_Data\"$\n" +
-	"\x12IngressEvalRequest\x12\x0e\n" +
-	"\x02ID\x18\x01 \x01(\tR\x02ID\"\xa6\x01\n" +
-	"\x18DeploymentServiceRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\"\n" +
-	"\ffunctionCall\x18\x02 \x01(\tR\ffunctionCall\x12$\n" +
-	"\rreplicaNumber\x18\x03 \x01(\x05R\rreplicaNumber\x12\x1f\n" +
-	"\bworkflow\x18\x04 \x01(\tH\x00R\bworkflow\x88\x01\x01B\v\n" +
-	"\t_workflow\"2\n" +
-	"\x16DeploymentServiceReply\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage2P\n" +
-	"\x10MacroPodFunction\x12<\n" +
-	"\x06Invoke\x12\x19.macropod.FunctionRequest\x1a\x17.macropod.MacroPodReply2\x8d\x05\n" +
-	"\x10MacroPodDeployer\x12R\n" +
+	"\x05_Data\"\xc7\x02\n" +
+	"\x0eWorkflowStruct\x12\x12\n" +
+	"\x04Name\x18\x01 \x01(\tR\x04Name\x12E\n" +
+	"\tFunctions\x18\x02 \x03(\v2'.macropod.WorkflowStruct.FunctionsEntryR\tFunctions\x123\n" +
+	"\x06Config\x18\x03 \x01(\v2\x16.macropod.ConfigStructH\x00R\x06Config\x88\x01\x01\x126\n" +
+	"\aPayload\x18\x04 \x01(\v2\x17.macropod.PayloadStructH\x01R\aPayload\x88\x01\x01\x1aV\n" +
+	"\x0eFunctionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12.\n" +
+	"\x05value\x18\x02 \x01(\v2\x18.macropod.FunctionStructR\x05value:\x028\x01B\t\n" +
+	"\a_ConfigB\n" +
 	"\n" +
-	"Deployment\x12\".macropod.DeploymentServiceRequest\x1a .macropod.DeploymentServiceReply\x129\n" +
+	"\b_Payload\"\xca\x04\n" +
+	"\n" +
+	"EvalStruct\x120\n" +
+	"\x13WorkflowConcurrency\x18\x01 \x03(\x05R\x13WorkflowConcurrency\x12 \n" +
+	"\vInvocations\x18\x02 \x01(\x05R\vInvocations\x12J\n" +
+	"\fExtraTargets\x18\x03 \x03(\v2&.macropod.EvalStruct.ExtraTargetsEntryR\fExtraTargets\x12_\n" +
+	"\x13ExtraTargetsPayload\x18\x04 \x03(\v2-.macropod.EvalStruct.ExtraTargetsPayloadEntryR\x13ExtraTargetsPayload\x12A\n" +
+	"\tWorkflows\x18\x05 \x03(\v2#.macropod.EvalStruct.WorkflowsEntryR\tWorkflows\x1a?\n" +
+	"\x11ExtraTargetsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a_\n" +
+	"\x18ExtraTargetsPayloadEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12-\n" +
+	"\x05value\x18\x02 \x01(\v2\x17.macropod.PayloadStructR\x05value:\x028\x01\x1aV\n" +
+	"\x0eWorkflowsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12.\n" +
+	"\x05value\x18\x02 \x01(\v2\x18.macropod.WorkflowStructR\x05value:\x028\x01\"\xde\x1b\n" +
+	"\rMetricsStruct\x12\x1b\n" +
+	"\x06Uptime\x18\x01 \x01(\x01H\x00R\x06Uptime\x88\x01\x01\x12\x1f\n" +
+	"\bLoadAvg1\x18\x02 \x01(\x01H\x01R\bLoadAvg1\x88\x01\x01\x12\x1f\n" +
+	"\bLoadAvg5\x18\x03 \x01(\x01H\x02R\bLoadAvg5\x88\x01\x01\x12!\n" +
+	"\tLoadAvg15\x18\x04 \x01(\x01H\x03R\tLoadAvg15\x88\x01\x01\x12\x1d\n" +
+	"\aCPUUsed\x18\x05 \x01(\x01H\x04R\aCPUUsed\x88\x01\x01\x12-\n" +
+	"\x0fCPUCountLogical\x18\x06 \x01(\x01H\x05R\x0fCPUCountLogical\x88\x01\x01\x12/\n" +
+	"\x10CPUCountPhysical\x18\a \x01(\x01H\x06R\x10CPUCountPhysical\x88\x01\x01\x12#\n" +
+	"\n" +
+	"MemoryUsed\x18\b \x01(\x01H\aR\n" +
+	"MemoryUsed\x88\x01\x01\x12-\n" +
+	"\x0fMemoryAvailable\x18\t \x01(\x01H\bR\x0fMemoryAvailable\x88\x01\x01\x12%\n" +
+	"\vMemoryTotal\x18\n" +
+	" \x01(\x01H\tR\vMemoryTotal\x88\x01\x01\x12)\n" +
+	"\rMemoryBuffers\x18\v \x01(\x01H\n" +
+	"R\rMemoryBuffers\x88\x01\x01\x12'\n" +
+	"\fMemoryCached\x18\f \x01(\x01H\vR\fMemoryCached\x88\x01\x01\x12-\n" +
+	"\x0fMemoryWriteBack\x18\r \x01(\x01H\fR\x0fMemoryWriteBack\x88\x01\x01\x12%\n" +
+	"\vMemoryDirty\x18\x0e \x01(\x01H\rR\vMemoryDirty\x88\x01\x01\x123\n" +
+	"\x12MemoryWriteBackTmp\x18\x0f \x01(\x01H\x0eR\x12MemoryWriteBackTmp\x88\x01\x01\x12'\n" +
+	"\fMemoryShared\x18\x10 \x01(\x01H\x0fR\fMemoryShared\x88\x01\x01\x12#\n" +
+	"\n" +
+	"MemorySlab\x18\x11 \x01(\x01H\x10R\n" +
+	"MemorySlab\x88\x01\x01\x123\n" +
+	"\x12MemorySreclaimable\x18\x12 \x01(\x01H\x11R\x12MemorySreclaimable\x88\x01\x01\x12/\n" +
+	"\x10MemorySunreclaim\x18\x13 \x01(\x01H\x12R\x10MemorySunreclaim\x88\x01\x01\x12/\n" +
+	"\x10MemoryPageTables\x18\x14 \x01(\x01H\x13R\x10MemoryPageTables\x88\x01\x01\x12/\n" +
+	"\x10MemorySwapCached\x18\x15 \x01(\x01H\x14R\x10MemorySwapCached\x88\x01\x01\x121\n" +
+	"\x11MemoryCommitLimit\x18\x16 \x01(\x01H\x15R\x11MemoryCommitLimit\x88\x01\x01\x121\n" +
+	"\x11MemoryCommittedAS\x18\x17 \x01(\x01H\x16R\x11MemoryCommittedAS\x88\x01\x01\x12-\n" +
+	"\x0fMemoryHighTotal\x18\x18 \x01(\x01H\x17R\x0fMemoryHighTotal\x88\x01\x01\x12+\n" +
+	"\x0eMemoryHighFree\x18\x19 \x01(\x01H\x18R\x0eMemoryHighFree\x88\x01\x01\x12+\n" +
+	"\x0eMemoryLowTotal\x18\x1a \x01(\x01H\x19R\x0eMemoryLowTotal\x88\x01\x01\x12)\n" +
+	"\rMemoryLowFree\x18\x1b \x01(\x01H\x1aR\rMemoryLowFree\x88\x01\x01\x12-\n" +
+	"\x0fMemorySwapTotal\x18\x1c \x01(\x01H\x1bR\x0fMemorySwapTotal\x88\x01\x01\x12+\n" +
+	"\x0eMemorySwapFree\x18\x1d \x01(\x01H\x1cR\x0eMemorySwapFree\x88\x01\x01\x12'\n" +
+	"\fMemoryMapped\x18\x1e \x01(\x01H\x1dR\fMemoryMapped\x88\x01\x01\x123\n" +
+	"\x12MemoryVmallocTotal\x18\x1f \x01(\x01H\x1eR\x12MemoryVmallocTotal\x88\x01\x01\x121\n" +
+	"\x11MemoryVmallocUsed\x18  \x01(\x01H\x1fR\x11MemoryVmallocUsed\x88\x01\x01\x123\n" +
+	"\x12MemoryVmallocChunk\x18! \x01(\x01H R\x12MemoryVmallocChunk\x88\x01\x01\x127\n" +
+	"\x14MemoryHugePagesTotal\x18\" \x01(\x01H!R\x14MemoryHugePagesTotal\x88\x01\x01\x125\n" +
+	"\x13MemoryHugePagesFree\x18# \x01(\x01H\"R\x13MemoryHugePagesFree\x88\x01\x01\x125\n" +
+	"\x13MemoryHugePagesRsvd\x18$ \x01(\x01H#R\x13MemoryHugePagesRsvd\x88\x01\x01\x125\n" +
+	"\x13MemoryHugePagesSurp\x18% \x01(\x01H$R\x13MemoryHugePagesSurp\x88\x01\x01\x123\n" +
+	"\x12MemoryHugePageSize\x18& \x01(\x01H%R\x12MemoryHugePageSize\x88\x01\x01\x125\n" +
+	"\x13MemoryAnonHugePages\x18' \x01(\x01H&R\x13MemoryAnonHugePages\x88\x01\x01\x12\x1f\n" +
+	"\bDiskUsed\x18( \x01(\x01H'R\bDiskUsed\x88\x01\x01\x12\x1f\n" +
+	"\bDiskFree\x18) \x01(\x01H(R\bDiskFree\x88\x01\x01\x12!\n" +
+	"\tDiskTotal\x18* \x01(\x01H)R\tDiskTotal\x88\x01\x01\x12+\n" +
+	"\x0eDiskInodesUsed\x18+ \x01(\x01H*R\x0eDiskInodesUsed\x88\x01\x01\x12+\n" +
+	"\x0eDiskInodesFree\x18, \x01(\x01H+R\x0eDiskInodesFree\x88\x01\x01\x12-\n" +
+	"\x0fDiskInodesTotal\x18- \x01(\x01H,R\x0fDiskInodesTotal\x88\x01\x01\x12/\n" +
+	"\x10NetworkBytesSent\x18. \x01(\x01H-R\x10NetworkBytesSent\x88\x01\x01\x12/\n" +
+	"\x10NetworkBytesRecv\x18/ \x01(\x01H.R\x10NetworkBytesRecv\x88\x01\x01\x123\n" +
+	"\x12NetworkPacketsSent\x180 \x01(\x01H/R\x12NetworkPacketsSent\x88\x01\x01\x123\n" +
+	"\x12NetworkPacketsRecv\x181 \x01(\x01H0R\x12NetworkPacketsRecv\x88\x01\x01\x12'\n" +
+	"\fNetworkErrin\x182 \x01(\x01H1R\fNetworkErrin\x88\x01\x01\x12)\n" +
+	"\rNetworkErrout\x183 \x01(\x01H2R\rNetworkErrout\x88\x01\x01\x12)\n" +
+	"\rNetworkDropin\x184 \x01(\x01H3R\rNetworkDropin\x88\x01\x01\x12+\n" +
+	"\x0eNetworkDropout\x185 \x01(\x01H4R\x0eNetworkDropout\x88\x01\x01\x12)\n" +
+	"\rNetworkFifoin\x186 \x01(\x01H5R\rNetworkFifoin\x88\x01\x01\x12+\n" +
+	"\x0eNetworkFifoout\x187 \x01(\x01H6R\x0eNetworkFifoout\x88\x01\x01B\t\n" +
+	"\a_UptimeB\v\n" +
+	"\t_LoadAvg1B\v\n" +
+	"\t_LoadAvg5B\f\n" +
+	"\n" +
+	"_LoadAvg15B\n" +
+	"\n" +
+	"\b_CPUUsedB\x12\n" +
+	"\x10_CPUCountLogicalB\x13\n" +
+	"\x11_CPUCountPhysicalB\r\n" +
+	"\v_MemoryUsedB\x12\n" +
+	"\x10_MemoryAvailableB\x0e\n" +
+	"\f_MemoryTotalB\x10\n" +
+	"\x0e_MemoryBuffersB\x0f\n" +
+	"\r_MemoryCachedB\x12\n" +
+	"\x10_MemoryWriteBackB\x0e\n" +
+	"\f_MemoryDirtyB\x15\n" +
+	"\x13_MemoryWriteBackTmpB\x0f\n" +
+	"\r_MemorySharedB\r\n" +
+	"\v_MemorySlabB\x15\n" +
+	"\x13_MemorySreclaimableB\x13\n" +
+	"\x11_MemorySunreclaimB\x13\n" +
+	"\x11_MemoryPageTablesB\x13\n" +
+	"\x11_MemorySwapCachedB\x14\n" +
+	"\x12_MemoryCommitLimitB\x14\n" +
+	"\x12_MemoryCommittedASB\x12\n" +
+	"\x10_MemoryHighTotalB\x11\n" +
+	"\x0f_MemoryHighFreeB\x11\n" +
+	"\x0f_MemoryLowTotalB\x10\n" +
+	"\x0e_MemoryLowFreeB\x12\n" +
+	"\x10_MemorySwapTotalB\x11\n" +
+	"\x0f_MemorySwapFreeB\x0f\n" +
+	"\r_MemoryMappedB\x15\n" +
+	"\x13_MemoryVmallocTotalB\x14\n" +
+	"\x12_MemoryVmallocUsedB\x15\n" +
+	"\x13_MemoryVmallocChunkB\x17\n" +
+	"\x15_MemoryHugePagesTotalB\x16\n" +
+	"\x14_MemoryHugePagesFreeB\x16\n" +
+	"\x14_MemoryHugePagesRsvdB\x16\n" +
+	"\x14_MemoryHugePagesSurpB\x15\n" +
+	"\x13_MemoryHugePageSizeB\x16\n" +
+	"\x14_MemoryAnonHugePagesB\v\n" +
+	"\t_DiskUsedB\v\n" +
+	"\t_DiskFreeB\f\n" +
+	"\n" +
+	"_DiskTotalB\x11\n" +
+	"\x0f_DiskInodesUsedB\x11\n" +
+	"\x0f_DiskInodesFreeB\x12\n" +
+	"\x10_DiskInodesTotalB\x13\n" +
+	"\x11_NetworkBytesSentB\x13\n" +
+	"\x11_NetworkBytesRecvB\x15\n" +
+	"\x13_NetworkPacketsSentB\x15\n" +
+	"\x13_NetworkPacketsRecvB\x0f\n" +
+	"\r_NetworkErrinB\x10\n" +
+	"\x0e_NetworkErroutB\x10\n" +
+	"\x0e_NetworkDropinB\x11\n" +
+	"\x0f_NetworkDropoutB\x10\n" +
+	"\x0e_NetworkFifoinB\x11\n" +
+	"\x0f_NetworkFifoout2P\n" +
+	"\x10MacroPodFunction\x12<\n" +
+	"\x06Invoke\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply2\x8e\x02\n" +
+	"\fMacroPodEval\x125\n" +
+	"\x04Eval\x12\x14.macropod.EvalStruct\x1a\x17.macropod.MacroPodReply\x12A\n" +
+	"\vEvalMetrics\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12A\n" +
+	"\vEvalLatency\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12A\n" +
+	"\vEvalSummary\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply2\xa8\x03\n" +
+	"\x0fMacroPodIngress\x129\n" +
+	"\x06Config\x12\x16.macropod.ConfigStruct\x1a\x17.macropod.MacroPodReply\x12D\n" +
+	"\x0eWorkflowInvoke\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12D\n" +
+	"\x0eFunctionInvoke\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12C\n" +
+	"\x0eCreateWorkflow\x12\x18.macropod.WorkflowStruct\x1a\x17.macropod.MacroPodReply\x12C\n" +
+	"\x0eUpdateWorkflow\x12\x18.macropod.WorkflowStruct\x1a\x17.macropod.MacroPodReply\x12D\n" +
+	"\x0eDeleteWorkflow\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply2\xef\x03\n" +
+	"\x10MacroPodDeployer\x129\n" +
 	"\x06Config\x12\x16.macropod.ConfigStruct\x1a\x17.macropod.MacroPodReply\x12C\n" +
 	"\x0eCreateWorkflow\x12\x18.macropod.WorkflowStruct\x1a\x17.macropod.MacroPodReply\x12C\n" +
 	"\x0eUpdateWorkflow\x12\x18.macropod.WorkflowStruct\x1a\x17.macropod.MacroPodReply\x12D\n" +
-	"\x0eDeleteWorkflow\x12\x19.macropod.DeployerRequest\x1a\x17.macropod.MacroPodReply\x12G\n" +
-	"\x11UpdateDeployments\x12\x19.macropod.DeployerRequest\x1a\x17.macropod.MacroPodReply\x12F\n" +
-	"\x10CreateDeployment\x12\x19.macropod.DeployerRequest\x1a\x17.macropod.MacroPodReply\x12?\n" +
-	"\tTTLDelete\x12\x19.macropod.DeployerRequest\x1a\x17.macropod.MacroPodReply\x12H\n" +
-	"\x0eUpdateManifest\x12\x1a.macropod.MacroPodManifest\x1a\x1a.macropod.MacroPodManifest2\xb3\x05\n" +
-	"\x0fMacroPodIngress\x129\n" +
-	"\x06Config\x12\x16.macropod.ConfigStruct\x1a\x17.macropod.MacroPodReply\x12C\n" +
-	"\x0eWorkflowInvoke\x12\x18.macropod.IngressRequest\x1a\x17.macropod.MacroPodReply\x12D\n" +
-	"\x0eFunctionInvoke\x12\x19.macropod.FunctionRequest\x1a\x17.macropod.MacroPodReply\x12C\n" +
-	"\x0eCreateWorkflow\x12\x18.macropod.WorkflowStruct\x1a\x17.macropod.MacroPodReply\x12C\n" +
-	"\x0eUpdateWorkflow\x12\x18.macropod.WorkflowStruct\x1a\x17.macropod.MacroPodReply\x12C\n" +
-	"\x0eDeleteWorkflow\x12\x18.macropod.IngressRequest\x1a\x17.macropod.MacroPodReply\x129\n" +
-	"\x04Eval\x12\x18.macropod.WorkflowStruct\x1a\x17.macropod.MacroPodReply\x12D\n" +
-	"\vEvalMetrics\x12\x1c.macropod.IngressEvalRequest\x1a\x17.macropod.MacroPodReply\x12D\n" +
-	"\vEvalLatency\x12\x1c.macropod.IngressEvalRequest\x1a\x17.macropod.MacroPodReply\x12D\n" +
-	"\vEvalSummary\x12\x1c.macropod.IngressEvalRequest\x1a\x17.macropod.MacroPodReplyB\x0fZ\r./macropod_pbb\x06proto3"
+	"\x0eDeleteWorkflow\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12G\n" +
+	"\x11UpdateDeployments\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12F\n" +
+	"\x10CreateDeployment\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12?\n" +
+	"\tTTLDelete\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply2\x8f\x03\n" +
+	"\x0eMacroPodLogger\x12?\n" +
+	"\tTimestamp\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12;\n" +
+	"\x05Error\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12;\n" +
+	"\x05Print\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12B\n" +
+	"\fGetTimestamp\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12>\n" +
+	"\bGetError\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply\x12>\n" +
+	"\bGetPrint\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MacroPodReply2S\n" +
+	"\x0fMacroPodMetrics\x12@\n" +
+	"\n" +
+	"GetMetrics\x12\x19.macropod.MacroPodRequest\x1a\x17.macropod.MetricsStructB\x0fZ\r./macropod_pbb\x06proto3"
 
 var (
 	file_macropod_proto_rawDescOnce sync.Once
@@ -1501,118 +1293,95 @@ func file_macropod_proto_rawDescGZIP() []byte {
 	return file_macropod_proto_rawDescData
 }
 
-var file_macropod_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_macropod_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_macropod_proto_goTypes = []any{
-	(*FunctionStruct)(nil),           // 0: macropod.FunctionStruct
-	(*ConfigStruct)(nil),             // 1: macropod.ConfigStruct
-	(*EvalStruct)(nil),               // 2: macropod.EvalStruct
-	(*WorkflowStruct)(nil),           // 3: macropod.WorkflowStruct
-	(*PodMetadata)(nil),              // 4: macropod.PodMetadata
-	(*DeploymentMetadata)(nil),       // 5: macropod.DeploymentMetadata
-	(*WorkflowMetadata)(nil),         // 6: macropod.WorkflowMetadata
-	(*WorkflowIngressMetadata)(nil),  // 7: macropod.WorkflowIngressMetadata
-	(*FunctionIngressMetadata)(nil),  // 8: macropod.FunctionIngressMetadata
-	(*NodeMetricsMetadata)(nil),      // 9: macropod.NodeMetricsMetadata
-	(*MacroPodManifest)(nil),         // 10: macropod.MacroPodManifest
-	(*MacroPodReply)(nil),            // 11: macropod.MacroPodReply
-	(*FunctionRequest)(nil),          // 12: macropod.FunctionRequest
-	(*DeployerRequest)(nil),          // 13: macropod.DeployerRequest
-	(*IngressRequest)(nil),           // 14: macropod.IngressRequest
-	(*IngressEvalRequest)(nil),       // 15: macropod.IngressEvalRequest
-	(*DeploymentServiceRequest)(nil), // 16: macropod.DeploymentServiceRequest
-	(*DeploymentServiceReply)(nil),   // 17: macropod.DeploymentServiceReply
-	nil,                              // 18: macropod.FunctionStruct.EndpointsEntry
-	nil,                              // 19: macropod.FunctionStruct.EnvsEntry
-	nil,                              // 20: macropod.FunctionStruct.SecretsEntry
-	nil,                              // 21: macropod.WorkflowStruct.FunctionsEntry
-	nil,                              // 22: macropod.WorkflowMetadata.DeploymentsEntry
-	nil,                              // 23: macropod.WorkflowIngressMetadata.IngressesEntry
-	nil,                              // 24: macropod.WorkflowIngressMetadata.LabelsEntry
-	nil,                              // 25: macropod.FunctionIngressMetadata.IngressesEntry
-	nil,                              // 26: macropod.FunctionIngressMetadata.LabelsEntry
-	nil,                              // 27: macropod.MacroPodManifest.WorkflowsEntry
-	nil,                              // 28: macropod.MacroPodManifest.WorkflowIngressesEntry
-	nil,                              // 29: macropod.MacroPodManifest.FunctionIngressesEntry
-	nil,                              // 30: macropod.MacroPodManifest.NodeMetricsEntry
-	(*structpb.Struct)(nil),          // 31: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),    // 32: google.protobuf.Timestamp
+	(*MacroPodRequest)(nil), // 0: macropod.MacroPodRequest
+	(*MacroPodReply)(nil),   // 1: macropod.MacroPodReply
+	(*FunctionStruct)(nil),  // 2: macropod.FunctionStruct
+	(*ConfigStruct)(nil),    // 3: macropod.ConfigStruct
+	(*PayloadStruct)(nil),   // 4: macropod.PayloadStruct
+	(*WorkflowStruct)(nil),  // 5: macropod.WorkflowStruct
+	(*EvalStruct)(nil),      // 6: macropod.EvalStruct
+	(*MetricsStruct)(nil),   // 7: macropod.MetricsStruct
+	nil,                     // 8: macropod.FunctionStruct.EndpointsEntry
+	nil,                     // 9: macropod.FunctionStruct.EnvsEntry
+	nil,                     // 10: macropod.FunctionStruct.SecretsEntry
+	nil,                     // 11: macropod.WorkflowStruct.FunctionsEntry
+	nil,                     // 12: macropod.EvalStruct.ExtraTargetsEntry
+	nil,                     // 13: macropod.EvalStruct.ExtraTargetsPayloadEntry
+	nil,                     // 14: macropod.EvalStruct.WorkflowsEntry
+	(*structpb.Struct)(nil), // 15: google.protobuf.Struct
 }
 var file_macropod_proto_depIdxs = []int32{
-	18, // 0: macropod.FunctionStruct.Endpoints:type_name -> macropod.FunctionStruct.EndpointsEntry
-	19, // 1: macropod.FunctionStruct.Envs:type_name -> macropod.FunctionStruct.EnvsEntry
-	20, // 2: macropod.FunctionStruct.Secrets:type_name -> macropod.FunctionStruct.SecretsEntry
-	21, // 3: macropod.WorkflowStruct.Functions:type_name -> macropod.WorkflowStruct.FunctionsEntry
-	31, // 4: macropod.WorkflowStruct.JSON:type_name -> google.protobuf.Struct
-	1,  // 5: macropod.WorkflowStruct.Config:type_name -> macropod.ConfigStruct
-	2,  // 6: macropod.WorkflowStruct.Eval:type_name -> macropod.EvalStruct
-	4,  // 7: macropod.DeploymentMetadata.Pods:type_name -> macropod.PodMetadata
-	32, // 8: macropod.DeploymentMetadata.LastUsed:type_name -> google.protobuf.Timestamp
-	3,  // 9: macropod.WorkflowMetadata.Workflow:type_name -> macropod.WorkflowStruct
-	5,  // 10: macropod.WorkflowMetadata.DeploymentConfig:type_name -> macropod.DeploymentMetadata
-	22, // 11: macropod.WorkflowMetadata.Deployments:type_name -> macropod.WorkflowMetadata.DeploymentsEntry
-	32, // 12: macropod.WorkflowMetadata.LastUpdated:type_name -> google.protobuf.Timestamp
-	23, // 13: macropod.WorkflowIngressMetadata.Ingresses:type_name -> macropod.WorkflowIngressMetadata.IngressesEntry
-	24, // 14: macropod.WorkflowIngressMetadata.Labels:type_name -> macropod.WorkflowIngressMetadata.LabelsEntry
-	25, // 15: macropod.FunctionIngressMetadata.Ingresses:type_name -> macropod.FunctionIngressMetadata.IngressesEntry
-	26, // 16: macropod.FunctionIngressMetadata.Labels:type_name -> macropod.FunctionIngressMetadata.LabelsEntry
-	27, // 17: macropod.MacroPodManifest.Workflows:type_name -> macropod.MacroPodManifest.WorkflowsEntry
-	28, // 18: macropod.MacroPodManifest.WorkflowIngresses:type_name -> macropod.MacroPodManifest.WorkflowIngressesEntry
-	29, // 19: macropod.MacroPodManifest.FunctionIngresses:type_name -> macropod.MacroPodManifest.FunctionIngressesEntry
-	30, // 20: macropod.MacroPodManifest.NodeMetrics:type_name -> macropod.MacroPodManifest.NodeMetricsEntry
-	1,  // 21: macropod.MacroPodManifest.DefaultConfig:type_name -> macropod.ConfigStruct
-	31, // 22: macropod.FunctionRequest.JSON:type_name -> google.protobuf.Struct
-	31, // 23: macropod.IngressRequest.JSON:type_name -> google.protobuf.Struct
-	0,  // 24: macropod.WorkflowStruct.FunctionsEntry.value:type_name -> macropod.FunctionStruct
-	5,  // 25: macropod.WorkflowMetadata.DeploymentsEntry.value:type_name -> macropod.DeploymentMetadata
-	6,  // 26: macropod.MacroPodManifest.WorkflowsEntry.value:type_name -> macropod.WorkflowMetadata
-	7,  // 27: macropod.MacroPodManifest.WorkflowIngressesEntry.value:type_name -> macropod.WorkflowIngressMetadata
-	8,  // 28: macropod.MacroPodManifest.FunctionIngressesEntry.value:type_name -> macropod.FunctionIngressMetadata
-	9,  // 29: macropod.MacroPodManifest.NodeMetricsEntry.value:type_name -> macropod.NodeMetricsMetadata
-	12, // 30: macropod.MacroPodFunction.Invoke:input_type -> macropod.FunctionRequest
-	16, // 31: macropod.MacroPodDeployer.Deployment:input_type -> macropod.DeploymentServiceRequest
-	1,  // 32: macropod.MacroPodDeployer.Config:input_type -> macropod.ConfigStruct
-	3,  // 33: macropod.MacroPodDeployer.CreateWorkflow:input_type -> macropod.WorkflowStruct
-	3,  // 34: macropod.MacroPodDeployer.UpdateWorkflow:input_type -> macropod.WorkflowStruct
-	13, // 35: macropod.MacroPodDeployer.DeleteWorkflow:input_type -> macropod.DeployerRequest
-	13, // 36: macropod.MacroPodDeployer.UpdateDeployments:input_type -> macropod.DeployerRequest
-	13, // 37: macropod.MacroPodDeployer.CreateDeployment:input_type -> macropod.DeployerRequest
-	13, // 38: macropod.MacroPodDeployer.TTLDelete:input_type -> macropod.DeployerRequest
-	10, // 39: macropod.MacroPodDeployer.UpdateManifest:input_type -> macropod.MacroPodManifest
-	1,  // 40: macropod.MacroPodIngress.Config:input_type -> macropod.ConfigStruct
-	14, // 41: macropod.MacroPodIngress.WorkflowInvoke:input_type -> macropod.IngressRequest
-	12, // 42: macropod.MacroPodIngress.FunctionInvoke:input_type -> macropod.FunctionRequest
-	3,  // 43: macropod.MacroPodIngress.CreateWorkflow:input_type -> macropod.WorkflowStruct
-	3,  // 44: macropod.MacroPodIngress.UpdateWorkflow:input_type -> macropod.WorkflowStruct
-	14, // 45: macropod.MacroPodIngress.DeleteWorkflow:input_type -> macropod.IngressRequest
-	3,  // 46: macropod.MacroPodIngress.Eval:input_type -> macropod.WorkflowStruct
-	15, // 47: macropod.MacroPodIngress.EvalMetrics:input_type -> macropod.IngressEvalRequest
-	15, // 48: macropod.MacroPodIngress.EvalLatency:input_type -> macropod.IngressEvalRequest
-	15, // 49: macropod.MacroPodIngress.EvalSummary:input_type -> macropod.IngressEvalRequest
-	11, // 50: macropod.MacroPodFunction.Invoke:output_type -> macropod.MacroPodReply
-	17, // 51: macropod.MacroPodDeployer.Deployment:output_type -> macropod.DeploymentServiceReply
-	11, // 52: macropod.MacroPodDeployer.Config:output_type -> macropod.MacroPodReply
-	11, // 53: macropod.MacroPodDeployer.CreateWorkflow:output_type -> macropod.MacroPodReply
-	11, // 54: macropod.MacroPodDeployer.UpdateWorkflow:output_type -> macropod.MacroPodReply
-	11, // 55: macropod.MacroPodDeployer.DeleteWorkflow:output_type -> macropod.MacroPodReply
-	11, // 56: macropod.MacroPodDeployer.UpdateDeployments:output_type -> macropod.MacroPodReply
-	11, // 57: macropod.MacroPodDeployer.CreateDeployment:output_type -> macropod.MacroPodReply
-	11, // 58: macropod.MacroPodDeployer.TTLDelete:output_type -> macropod.MacroPodReply
-	10, // 59: macropod.MacroPodDeployer.UpdateManifest:output_type -> macropod.MacroPodManifest
-	11, // 60: macropod.MacroPodIngress.Config:output_type -> macropod.MacroPodReply
-	11, // 61: macropod.MacroPodIngress.WorkflowInvoke:output_type -> macropod.MacroPodReply
-	11, // 62: macropod.MacroPodIngress.FunctionInvoke:output_type -> macropod.MacroPodReply
-	11, // 63: macropod.MacroPodIngress.CreateWorkflow:output_type -> macropod.MacroPodReply
-	11, // 64: macropod.MacroPodIngress.UpdateWorkflow:output_type -> macropod.MacroPodReply
-	11, // 65: macropod.MacroPodIngress.DeleteWorkflow:output_type -> macropod.MacroPodReply
-	11, // 66: macropod.MacroPodIngress.Eval:output_type -> macropod.MacroPodReply
-	11, // 67: macropod.MacroPodIngress.EvalMetrics:output_type -> macropod.MacroPodReply
-	11, // 68: macropod.MacroPodIngress.EvalLatency:output_type -> macropod.MacroPodReply
-	11, // 69: macropod.MacroPodIngress.EvalSummary:output_type -> macropod.MacroPodReply
-	50, // [50:70] is the sub-list for method output_type
-	30, // [30:50] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	15, // 0: macropod.MacroPodRequest.JSON:type_name -> google.protobuf.Struct
+	8,  // 1: macropod.FunctionStruct.Endpoints:type_name -> macropod.FunctionStruct.EndpointsEntry
+	9,  // 2: macropod.FunctionStruct.Envs:type_name -> macropod.FunctionStruct.EnvsEntry
+	10, // 3: macropod.FunctionStruct.Secrets:type_name -> macropod.FunctionStruct.SecretsEntry
+	15, // 4: macropod.PayloadStruct.JSON:type_name -> google.protobuf.Struct
+	11, // 5: macropod.WorkflowStruct.Functions:type_name -> macropod.WorkflowStruct.FunctionsEntry
+	3,  // 6: macropod.WorkflowStruct.Config:type_name -> macropod.ConfigStruct
+	4,  // 7: macropod.WorkflowStruct.Payload:type_name -> macropod.PayloadStruct
+	12, // 8: macropod.EvalStruct.ExtraTargets:type_name -> macropod.EvalStruct.ExtraTargetsEntry
+	13, // 9: macropod.EvalStruct.ExtraTargetsPayload:type_name -> macropod.EvalStruct.ExtraTargetsPayloadEntry
+	14, // 10: macropod.EvalStruct.Workflows:type_name -> macropod.EvalStruct.WorkflowsEntry
+	2,  // 11: macropod.WorkflowStruct.FunctionsEntry.value:type_name -> macropod.FunctionStruct
+	4,  // 12: macropod.EvalStruct.ExtraTargetsPayloadEntry.value:type_name -> macropod.PayloadStruct
+	5,  // 13: macropod.EvalStruct.WorkflowsEntry.value:type_name -> macropod.WorkflowStruct
+	0,  // 14: macropod.MacroPodFunction.Invoke:input_type -> macropod.MacroPodRequest
+	6,  // 15: macropod.MacroPodEval.Eval:input_type -> macropod.EvalStruct
+	0,  // 16: macropod.MacroPodEval.EvalMetrics:input_type -> macropod.MacroPodRequest
+	0,  // 17: macropod.MacroPodEval.EvalLatency:input_type -> macropod.MacroPodRequest
+	0,  // 18: macropod.MacroPodEval.EvalSummary:input_type -> macropod.MacroPodRequest
+	3,  // 19: macropod.MacroPodIngress.Config:input_type -> macropod.ConfigStruct
+	0,  // 20: macropod.MacroPodIngress.WorkflowInvoke:input_type -> macropod.MacroPodRequest
+	0,  // 21: macropod.MacroPodIngress.FunctionInvoke:input_type -> macropod.MacroPodRequest
+	5,  // 22: macropod.MacroPodIngress.CreateWorkflow:input_type -> macropod.WorkflowStruct
+	5,  // 23: macropod.MacroPodIngress.UpdateWorkflow:input_type -> macropod.WorkflowStruct
+	0,  // 24: macropod.MacroPodIngress.DeleteWorkflow:input_type -> macropod.MacroPodRequest
+	3,  // 25: macropod.MacroPodDeployer.Config:input_type -> macropod.ConfigStruct
+	5,  // 26: macropod.MacroPodDeployer.CreateWorkflow:input_type -> macropod.WorkflowStruct
+	5,  // 27: macropod.MacroPodDeployer.UpdateWorkflow:input_type -> macropod.WorkflowStruct
+	0,  // 28: macropod.MacroPodDeployer.DeleteWorkflow:input_type -> macropod.MacroPodRequest
+	0,  // 29: macropod.MacroPodDeployer.UpdateDeployments:input_type -> macropod.MacroPodRequest
+	0,  // 30: macropod.MacroPodDeployer.CreateDeployment:input_type -> macropod.MacroPodRequest
+	0,  // 31: macropod.MacroPodDeployer.TTLDelete:input_type -> macropod.MacroPodRequest
+	0,  // 32: macropod.MacroPodLogger.Timestamp:input_type -> macropod.MacroPodRequest
+	0,  // 33: macropod.MacroPodLogger.Error:input_type -> macropod.MacroPodRequest
+	0,  // 34: macropod.MacroPodLogger.Print:input_type -> macropod.MacroPodRequest
+	0,  // 35: macropod.MacroPodLogger.GetTimestamp:input_type -> macropod.MacroPodRequest
+	0,  // 36: macropod.MacroPodLogger.GetError:input_type -> macropod.MacroPodRequest
+	0,  // 37: macropod.MacroPodLogger.GetPrint:input_type -> macropod.MacroPodRequest
+	0,  // 38: macropod.MacroPodMetrics.GetMetrics:input_type -> macropod.MacroPodRequest
+	1,  // 39: macropod.MacroPodFunction.Invoke:output_type -> macropod.MacroPodReply
+	1,  // 40: macropod.MacroPodEval.Eval:output_type -> macropod.MacroPodReply
+	1,  // 41: macropod.MacroPodEval.EvalMetrics:output_type -> macropod.MacroPodReply
+	1,  // 42: macropod.MacroPodEval.EvalLatency:output_type -> macropod.MacroPodReply
+	1,  // 43: macropod.MacroPodEval.EvalSummary:output_type -> macropod.MacroPodReply
+	1,  // 44: macropod.MacroPodIngress.Config:output_type -> macropod.MacroPodReply
+	1,  // 45: macropod.MacroPodIngress.WorkflowInvoke:output_type -> macropod.MacroPodReply
+	1,  // 46: macropod.MacroPodIngress.FunctionInvoke:output_type -> macropod.MacroPodReply
+	1,  // 47: macropod.MacroPodIngress.CreateWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 48: macropod.MacroPodIngress.UpdateWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 49: macropod.MacroPodIngress.DeleteWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 50: macropod.MacroPodDeployer.Config:output_type -> macropod.MacroPodReply
+	1,  // 51: macropod.MacroPodDeployer.CreateWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 52: macropod.MacroPodDeployer.UpdateWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 53: macropod.MacroPodDeployer.DeleteWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 54: macropod.MacroPodDeployer.UpdateDeployments:output_type -> macropod.MacroPodReply
+	1,  // 55: macropod.MacroPodDeployer.CreateDeployment:output_type -> macropod.MacroPodReply
+	1,  // 56: macropod.MacroPodDeployer.TTLDelete:output_type -> macropod.MacroPodReply
+	1,  // 57: macropod.MacroPodLogger.Timestamp:output_type -> macropod.MacroPodReply
+	1,  // 58: macropod.MacroPodLogger.Error:output_type -> macropod.MacroPodReply
+	1,  // 59: macropod.MacroPodLogger.Print:output_type -> macropod.MacroPodReply
+	1,  // 60: macropod.MacroPodLogger.GetTimestamp:output_type -> macropod.MacroPodReply
+	1,  // 61: macropod.MacroPodLogger.GetError:output_type -> macropod.MacroPodReply
+	1,  // 62: macropod.MacroPodLogger.GetPrint:output_type -> macropod.MacroPodReply
+	7,  // 63: macropod.MacroPodMetrics.GetMetrics:output_type -> macropod.MetricsStruct
+	39, // [39:64] is the sub-list for method output_type
+	14, // [14:39] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_macropod_proto_init() }
@@ -1620,26 +1389,21 @@ func file_macropod_proto_init() {
 	if File_macropod_proto != nil {
 		return
 	}
+	file_macropod_proto_msgTypes[0].OneofWrappers = []any{}
 	file_macropod_proto_msgTypes[1].OneofWrappers = []any{}
-	file_macropod_proto_msgTypes[2].OneofWrappers = []any{}
 	file_macropod_proto_msgTypes[3].OneofWrappers = []any{}
 	file_macropod_proto_msgTypes[4].OneofWrappers = []any{}
 	file_macropod_proto_msgTypes[5].OneofWrappers = []any{}
-	file_macropod_proto_msgTypes[6].OneofWrappers = []any{}
-	file_macropod_proto_msgTypes[11].OneofWrappers = []any{}
-	file_macropod_proto_msgTypes[12].OneofWrappers = []any{}
-	file_macropod_proto_msgTypes[13].OneofWrappers = []any{}
-	file_macropod_proto_msgTypes[14].OneofWrappers = []any{}
-	file_macropod_proto_msgTypes[16].OneofWrappers = []any{}
+	file_macropod_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_macropod_proto_rawDesc), len(file_macropod_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   31,
+			NumMessages:   15,
 			NumExtensions: 0,
-			NumServices:   3,
+			NumServices:   6,
 		},
 		GoTypes:           file_macropod_proto_goTypes,
 		DependencyIndexes: file_macropod_proto_depIdxs,

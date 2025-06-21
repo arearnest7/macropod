@@ -84,7 +84,7 @@ def stats_handler(req):
 def write_raw_handler(req):
     params = req
     #redisClient.set("raw-" + str(params["id"]), json.dumps(req))
-    response = Invoke(context, "WAGE_FULL", "")[0]
+    response = Invoke(context, "WAGE_UNIFIED", "")[0]
     return response
 
 def format_handler(req):

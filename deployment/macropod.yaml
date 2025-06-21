@@ -6,14 +6,30 @@ spec:
   selector:
     app: macropod
   ports:
-  - port: 80
-    targetPort: 8080
-  - port: 8081
-    target: 8081
-  - port: 8082
-    target: 8082
-  - port: 8083
-    target: 8083
+  - name: eval
+    port: 8000
+    targetPort: 8000
+  - name: ingress
+    port: 8001
+    targetPort: 8001
+  - name: deployer
+    port: 8002
+    targetPort: 8002
+  - name: logger
+    port: 8003
+    targetPort: 8003
+  - name: eval-http
+    port: 9000
+    targetPort: 9000
+  - name: ingress-http
+    port: 9001
+    targetPort: 9001
+  - name: deployer-http
+    port: 9002
+    targetPort: 9002
+  - name: logger-http
+    port: 9003
+    targetPort: 9003
   type: LoadBalancer
   clusterIP: 10.43.190.1
 ---
@@ -74,22 +90,100 @@ spec:
         effect: "NoSchedule"
      containers:
       - name: macropod-eval
-        image: sysdevtamu/macropod-eval:macropod
+        image: sysdevtamu/macropod-eval:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - containerPort: 8000
+        - containerPort: 9000
+        env:
+        - name: SERVICE_PORT
+          value: "8000"
+        - name: HTTP_PORT
+          value: "9000"
+        - name: INGRESS_ADDRESS
+          value: "127.0.0.1:8001"
+        - name: METRICS_DIR
+          value: "/app/metrics/"
+        - name: LATENCY_DIR
+          value: "/app/latency/"
+        - name: SUMMARY_DIR
+          value: "/app/summary/"
+        - name: USERNAME
+          value: "username"
+        - name: PASSWORD
+          value: "password"
+        - name: WORKER_NODES
+          value: "192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24"
       - name: macropod-ingress
-        image: sysdevtamu/macropod-ingress:macropod
+        image: sysdevtamu/macropod-ingress:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 8081
+        - containerPort: 8001
+        - containerPort: 9001
+        env:
+        - name: SERVICE_PORT
+          value: "8001"
+        - name: HTTP_PORT
+          value: "9001"
+        - name: DEPLOYER_ADDRESS
+          value: "127.0.0.1:8002"
+        - name: NAMESPACE
+          value: "macropod-functions"
+        - name: TTL
+          value: 180
+        - name: DEPLOYMENT
+          value: "macropod"
+        - name: COMMUNICATION
+          value: "direct"
+        - name: AGGREGATION
+          value: "agg"
+        - name: TARGET
+          value: -1
+        - name: DEBUG
+          value: 0
       - name: macropod-deployer
-        image: sysdevtamu/macropod-deployer:macropod
+        image: sysdevtamu/macropod-deployer:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 8082
+        - containerPort: 8002
+        - containerPort: 9002
+        env:
+        - name: SERVICE_PORT
+          value: "8002"
+        - name: HTTP_PORT
+          value: "9002"
+        - name: NAMESPACE
+          value: "macropod-functions"
+        - name: INGRESS_ADDRESS
+          value: "127.0.0.1:8001"
+        - name: LOGGER_ADDRESS
+          value: "127.0.0.1:8003"
+        - name: TTL
+          value: 180
+        - name: DEPLOYMENT
+          value: "macropod"
+        - name: COMMUNICATION
+          value: "direct"
+        - name: AGGREGATION
+          value: "agg"
+        - name: TARGET
+          value: -1
+        - name: DEBUG
+          value: 0
       - name: macropod-logger
-        image: sysdevtamu/macropod-logger:macropod
+        image: sysdevtamu/macropod-logger:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 8083
+        - containerPort: 8003
+        - containerPort: 9003
+        env:
+        - name: SERVICE_PORT
+          value: "8003"
+        - name: HTTP_PORT
+          value: "9003"
+        - name: TIMESTAMP_DIR
+          value: "/app/timestamp/"
+        - name: ERROR_DIR
+          value: "/app/error/"
+        - name: PRINT_DIR
+          value: "/app/print/"
