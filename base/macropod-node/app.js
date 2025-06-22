@@ -1,6 +1,7 @@
+const express = require('express');
+const app = express();
 const func = require('./func');
 const rpc = require('./rpc');
-var http = require('http');
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 var packageDefinition = protoLoader.loadSync(
@@ -11,7 +12,7 @@ var packageDefinition = protoLoader.loadSync(
     defaults: true,
     oneofs: true
   });
-var macropod_pb = grpc.loadPackageDefinition(packageDefinition).function;
+var macropod_pb = grpc.loadPackageDefinition(packageDefinition).macropod;
 
 async function Serve_Invoke(request) {
   var reply = "";
@@ -28,7 +29,7 @@ async function Invoke(call, callback) {
   await callback(null, res);
 }
 
-function HTTP_Invoke(req) {
+async function HTTP_Invoke(req) {
   var workflow_id = Math.floor(Math.random() * 100000).toString();
   var request = {
     Workflow: process.env.Workflow,
@@ -36,13 +37,14 @@ function HTTP_Invoke(req) {
     WorkflowID: workflow_id,
     Depth: 0,
     Width: 0,
-    Target: req.url,
+    Target: req.get("host"),
   };
-  var content = req.headers.content-type;
-  var body = '';
+  var content = req.get("Content-Type");
+  var chunks = [];
   req.on('data', (chunk) => {
-    body += chunk;
+    chunks.push(chunk);
   });
+  var body = chunks.join('');
   switch(content) {
     case "text/plain":
       request.Text = body;
@@ -63,23 +65,29 @@ function HTTP_Invoke(req) {
   return results;
 }
 
+app.get('/', async (req, res) => {
+  var reply = await HTTP_Invoke(req);
+  res.send(reply);
+})
+
+app.post('/', async (req, res) => {
+  var reply = await HTTP_Invoke(req);
+  res.send(reply);
+})
+
 function main() {
   var service_port = process.env.SERVICE_PORT;
-  if service_port == "" {
+  if (service_port === "") {
     service_port = "5000"
   }
   var http_port = process.env.HTTP_PORT;
-  if http_port == "" {
+  if (http_port === "") {
     http_port = "6000"
   }
   var server = new grpc.Server({'grpc.max_send_message_length': 1024*1024*200, 'grpc.max_receive_message_length': 1024*1024*200});
   server.addService(macropod_pb.MacroPodFunction.service, {Invoke: Invoke});
   server.bindAsync('0.0.0.0:' + service_port, grpc.ServerCredentials.createInsecure(), () => {});
-  http.createServe(function (req, res) {
-    var results = HTTP_Invoke(req);
-    res.write(results);
-    res.end();
-  }).listen(http_port);
+  app.listen(http_port, () => {})
 }
 
 main();

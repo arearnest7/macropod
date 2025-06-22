@@ -33,7 +33,7 @@ class HTTP_Invoke(Resource):
     def get(self):
         workflow = os.environ["WORKFLOW"]
         function = os.environ["FUNCTION"]
-        workflow_id = str(random.randint(0, 10000000))
+        workflow_id = str(random.randint(0, 100000))
         dw = 0
         target = request.url
         ctx_in = {"Workflow": workflow, "Function": function, "WorkflowID": workflow_id, "Depth": dw, "Width": dw, "Target": target}
@@ -55,7 +55,7 @@ class HTTP_Invoke(Resource):
     def post(self):
         workflow = os.environ["WORKFLOW"]
         function = os.environ["FUNCTION"]
-        workflow_id = str(random.randint(0, 10000000))
+        workflow_id = str(random.randint(0, 100000))
         dw = 0
         target = request.url
         ctx_in = {"Workflow": workflow, "Function": function, "WorkflowID": workflow_id, "Depth": dw, "Width": dw, "Target": target}
@@ -96,6 +96,6 @@ def server_start(id):
 if __name__ == '__main__':
     servers = []
     with futures.ThreadPoolExecutor(max_workers=2) as executor:
-        servers.append(executor.submit(server_start, 0)
-        servers.append(executor.submit(server_start, 1)
+        servers.append(executor.submit(server_start, 0))
+        servers.append(executor.submit(server_start, 1))
     serving = [server for server in servers]

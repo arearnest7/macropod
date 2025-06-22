@@ -8,7 +8,7 @@ var packageDefinition = protoLoader.loadSync(
     defaults: true,
     oneofs: true
   });
-var macropod_pb = grpc.loadPackageDefinition(packageDefinition).function;
+var macropod_pb = grpc.loadPackageDefinition(packageDefinition).macropod;
 
 function Timestamp(context, target, message) {
   var request = {
@@ -20,7 +20,7 @@ function Timestamp(context, target, message) {
     Target: target,
     Text: message
   };
-  if process.env.LOGGER != "" {
+  if (process.env.LOGGER != "") {
     var stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
     stub.Timestamp(request, async function(err, response) {});
   }
@@ -32,7 +32,7 @@ function Error(context, err) {
     Function: context.Function,
     Text: err
   };
-  if process.env.LOGGER != "" {
+  if (process.env.LOGGER != "") {
     var stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
     stub.Error(request, async function(err, response) {});
   }
@@ -44,14 +44,14 @@ function Print(context, message) {
     Function: context.Function,
     Text: message
   };
-  if process.env.LOGGER != "" {
+  if (process.env.LOGGER != "") {
     var stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
     stub.Print(request, async function(err, response) {});
   }
 }
 
 function invoke(dest, request) {
-  if process.env.COMM_TYPE == "direct" {
+  if (process.env.COMM_TYPE == "direct") {
     return new Promise((resolve, reject) => {
       var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
       stub.Invoke(request, async function(err, response) {
@@ -59,8 +59,7 @@ function invoke(dest, request) {
         resolve(response);
       });
     });
-  }
-  else if process.env.COMM_TYPE == "gateway" {
+  } else if (process.env.COMM_TYPE == "gateway") {
     return new Promise((resolve, reject) => {
       var stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
       stub.FunctionInvoke(request, async function(err, response) {
