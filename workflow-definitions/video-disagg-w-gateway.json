@@ -16,6 +16,6 @@
     "Config": {
         "Deployment": "macropod",
         "Communication": "gateway",
-        "Aggregation": "disagg",
+        "Aggregation": "disagg"
     }
 }

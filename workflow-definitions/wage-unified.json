@@ -10,6 +10,6 @@
     "Config": {
         "Deployment": "macropod",
         "Communication": "gateway",
-        "Aggregation": "agg",
+        "Aggregation": "agg"
     }
 }

@@ -34,7 +34,7 @@
             "Config": {
                 "Deployment": "macropod",
                 "Communication": "direct",
-                "Aggregation": "agg",
+                "Aggregation": "agg"
             },
             "Payload": {
                 "Type": "JSON",
@@ -59,7 +59,7 @@
             "Config": {
                 "Deployment": "macropod",
                 "Communication": "gateway",
-                "Aggregation": "disagg",
+                "Aggregation": "disagg"
             },
             "Payload": {
                 "Type": "JSON",
@@ -84,7 +84,7 @@
             "Config": {
                 "Deployment": "macropod",
                 "Communication": "direct",
-                "Aggregation": "disagg",
+                "Aggregation": "disagg"
             },
             "Payload": {
                 "Type": "JSON",
@@ -109,7 +109,7 @@
             "Config": {
                 "Deployment": "macropod",
                 "Communication": "direct",
-                "Aggregation": "dynamic",
+                "Aggregation": "dynamic"
             },
             "Payload": {
                 "Type": "JSON",
@@ -126,7 +126,7 @@
             "Config": {
                 "Deployment": "macropod",
                 "Communication": "gateway",
-                "Aggregation": "agg",
+                "Aggregation": "agg"
             },
             "Payload": {
                 "Type": "JSON",
