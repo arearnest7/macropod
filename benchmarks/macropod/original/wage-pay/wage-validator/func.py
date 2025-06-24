@@ -1,6 +1,5 @@
 from rpc import Invoke_JSON
 import base64
-import requests
 import json
 import random
 import os
@@ -16,8 +15,8 @@ def FunctionHandler(context):
             elif param == 'role' and event[param] not in ROLES:
                 return "fail: invalid role: " + str(event[param]), 200
         elif param in ['id', 'operator']:
-            if not isinstance(event[param], int):
-                return "fail: illegal params: " + str(event[param]) + " not integer", 200
+            if not isinstance(event[param], float):
+                return "fail: illegal params: " + str(event[param]) + " not float", 200 # originally int check, but json object autoconverts to float. computation is the same, so this does not affect results.
         elif param in ['base', 'merit']:
             if not isinstance(event[param], float):
                 return "fail: illegal params: " + str(event[param]) + " not float", 200

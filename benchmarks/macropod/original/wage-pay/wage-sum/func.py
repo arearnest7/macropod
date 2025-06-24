@@ -1,6 +1,5 @@
 from rpc import Invoke_JSON
 import base64
-import requests
 import json
 import os
 import sys

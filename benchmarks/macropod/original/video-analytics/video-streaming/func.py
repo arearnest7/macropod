@@ -1,7 +1,6 @@
 from rpc import Invoke_Data
 import json
 import os
-import requests
 import base64
 
 def FunctionHandler(context):

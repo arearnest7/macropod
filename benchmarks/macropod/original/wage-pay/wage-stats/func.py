@@ -1,6 +1,5 @@
 from rpc import Invoke_Multi_JSON
 import base64
-import requests
 import json
 import time
 from concurrent.futures import ThreadPoolExecutor

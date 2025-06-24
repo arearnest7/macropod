@@ -1,6 +1,5 @@
 from rpc import Invoke_JSON
 import base64
-import requests
 import json
 import random
 import os
@@ -18,5 +17,5 @@ def FunctionHandler(context):
             merit = params['merit']['statistics'][role]
             meritp[role] = merit / base
     params['statistics']['average-merit-percent'] = meritp
-    response = Invoke(context, "WAGE_WRITE_MERIT", {'id': params['id'], 'statistics': params['statistics'], 'operator' : params['operator']})[0]
+    response = Invoke_JSON(context, "WAGE_WRITE_MERIT", {'id': params['id'], 'statistics': params['statistics'], 'operator' : params['operator']})[0]
     return response, 200

@@ -1,6 +1,5 @@
 from rpc import Invoke_JSON
 import base64
-import requests
 import json
 import random
 import os
@@ -20,5 +19,5 @@ def FunctionHandler(context):
             realpay[role] = (1-TAX) * (base + merit) / num
     params['statistics']['average-realpay'] = realpay
 
-    response = Invoke(context, "WAGE_MERIT", params])[0]
+    response = Invoke_JSON(context, "WAGE_MERIT", params)[0]
     return response, 200

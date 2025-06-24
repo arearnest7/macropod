@@ -1,6 +1,5 @@
 from rpc import Invoke_JSON
 import base64
-import requests
 import csv
 import json
 import os
@@ -10,7 +9,7 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def FunctionHandler(context):
-    event = json.loads(context["Text"])
+    event = context["JSON"]
 
     bucket_name = event['bucket_name']
     file_key = event['file_key']
@@ -19,6 +18,8 @@ def FunctionHandler(context):
 
     lines = response.split('\n')
 
+    results = []
+
     for row in csv.DictReader(lines):
-        response = Invoke_JSON(context, "SENTIMENT_PRODUCT_OR_SERVICE", row])[0]
-    return response, 200
+        results = Invoke_JSON(context, "SENTIMENT_PRODUCT_OR_SERVICE", row)
+    return results[0], 200

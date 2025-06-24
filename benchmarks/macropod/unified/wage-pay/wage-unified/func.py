@@ -1,6 +1,5 @@
 from rpc import Invoke
 import base64
-import requests
 import json
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -81,13 +80,13 @@ def stats_handler(req):
     results = [f for f in fs]
     return "processed batch at " + str(time.time())
 
-def write_raw_handler(req):
+def write_raw_handler(context, req):
     params = req
     #redisClient.set("raw-" + str(params["id"]), json.dumps(req))
-    response = Invoke(context, "WAGE_UNIFIED", "")[0]
+    response, code = Invoke(context, "WAGE_UNIFIED", "")
     return response
 
-def format_handler(req):
+def format_handler(context, req):
     params = req
     params['INSURANCE'] = INSURANCE
 
@@ -97,9 +96,9 @@ def format_handler(req):
     realpay = (1-TAX) * (params['base'] + params['merit'])
     params['realpay'] = realpay
 
-    return write_raw_handler(params)
+    return write_raw_handler(context, params)
 
-def validator_handler(req):
+def validator_handler(context, req):
     event = req
     for param in ['id', 'name', 'role', 'base', 'merit', 'operator']:
         if param in ['name', 'role']:
@@ -108,8 +107,8 @@ def validator_handler(req):
             elif param == 'role' and event[param] not in ROLES:
                 return "fail: invalid role: " + str(event[param])
         elif param in ['id', 'operator']:
-            if not isinstance(event[param], int):
-                return "fail: illegal params: " + str(event[param]) + " not integer"
+            if not isinstance(event[param], float):
+                return "fail: illegal params: " + str(event[param]) + " not float" # originally int check, but json object autoconverts to float. computation is the same, so this does not affect results.
         elif param in ['base', 'merit']:
             if not isinstance(event[param], float):
                 return "fail: illegal params: " + str(event[param]) + " not float"
@@ -117,13 +116,13 @@ def validator_handler(req):
                 return "fail: illegal params: " + str(event[param]) + " not between 1 and 8 inclusively"
         else:
             return "fail: missing param: " + param
-    return format_handler(event)
+    return format_handler(context, event)
 
 def FunctionHandler(context):
     event = context["JSON"]
     response = ""
     if len(event) > 0:
-        response = validator_handler(event)
+        response = validator_handler(context, event)
     else:
         response = stats_handler(event)
     return response, 200

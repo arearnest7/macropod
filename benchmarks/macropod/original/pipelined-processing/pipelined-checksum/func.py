@@ -10,7 +10,7 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def FunctionHandler(context):
-    event = context["JSON"]
+    event = context["JSON"]["to_checksum"]
     data = open("original-" + event[0], 'rb').read()
     md5 = hashlib.md5(data).hexdigest()
     if event[1] == md5:

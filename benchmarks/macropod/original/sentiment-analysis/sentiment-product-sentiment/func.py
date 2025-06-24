@@ -1,6 +1,5 @@
 from rpc import Invoke_JSON
 import base64
-import requests
 import os
 import json
 import random
@@ -30,5 +29,5 @@ def FunctionHandler(context):
         'productID': event['productID'],
         'feedback': event['feedback']
     }
-    response = Invoke_JSON(context, "SENTIMENT_PRODUCT_RESULT", payload)[0]
-    return response, 200
+    response = Invoke_JSON(context, "SENTIMENT_PRODUCT_RESULT", payload)
+    return response[0], 200

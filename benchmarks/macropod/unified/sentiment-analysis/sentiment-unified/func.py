@@ -1,6 +1,5 @@
 from rpc import Invoke
 import base64
-import requests
 import json
 import pprint
 import csv

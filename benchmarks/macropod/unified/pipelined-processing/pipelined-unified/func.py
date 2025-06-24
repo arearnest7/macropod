@@ -1,6 +1,5 @@
 from rpc import Invoke
 import base64
-import requests
 import os
 import json
 import string
@@ -104,7 +103,7 @@ def FunctionHandler(context):
             fs.append(executor.submit(zip_handler, to_zip[0]))
         if to_encrypt:
             fs.append(executor.submit(encrypt_handler, to_encrypt[0]))
-    results = [f.result()[0] for f in fs]
+    results = [f.result() for f in fs]
     if to_checksum or to_zip:
         if to_checksum and "success" not in results[0]:
             to_checksum = []

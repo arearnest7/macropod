@@ -1,5 +1,5 @@
-from rpc import Invoke
 from __future__ import print_function
+from rpc import Invoke
 from flask import Request
 import json
 from torchvision import transforms
@@ -16,7 +16,6 @@ import cv2
 import tempfile
 import argparse
 import socket
-import requests
 
 from concurrent.futures import ThreadPoolExecutor
 import base64

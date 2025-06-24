@@ -10,7 +10,6 @@ import cv2
 import tempfile
 import argparse
 import socket
-import requests
 import base64
 
 from concurrent.futures import ThreadPoolExecutor

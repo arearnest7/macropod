@@ -10,7 +10,7 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def FunctionHandler(context):
-    event = context["TEXT"]
+    event = context["Text"]
     data = open("checksumed-" + event, 'rb').read()
     with open("/tmp/" + event, "wb") as f:
         f.write(data)

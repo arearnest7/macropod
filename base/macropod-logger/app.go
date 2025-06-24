@@ -84,7 +84,7 @@ func Serve_Print(request *pb.MacroPodRequest) {
     if !exists {
         print_lock[request.GetWorkflow()] = make(map[string]*sync.Mutex)
     }
-    _, exists = timestamp_lock[request.GetWorkflow()][request.GetFunction()]
+    _, exists = print_lock[request.GetWorkflow()][request.GetFunction()]
     if !exists {
         m := sync.Mutex{}
         print_lock[request.GetWorkflow()][request.GetFunction()] = &m
@@ -122,6 +122,7 @@ func Serve_GetTimestamp(request *pb.MacroPodRequest) (string) {
         }
     }
     b, _ := os.ReadFile(timestamp_dir + request.GetWorkflow() + "/" + request.GetFunction())
+    timestamp_lock[request.GetWorkflow()][request.GetFunction()].Unlock()
     return string(b)
 }
 
@@ -144,6 +145,7 @@ func Serve_GetError(request *pb.MacroPodRequest) (string) {
         }
     }
     b, _ := os.ReadFile(error_dir + request.GetWorkflow() + "/" + request.GetFunction())
+    error_lock[request.GetWorkflow()][request.GetFunction()].Unlock()
     return string(b)
 }
 
@@ -166,6 +168,7 @@ func Serve_GetPrint(request *pb.MacroPodRequest) (string) {
         }
     }
     b, _ := os.ReadFile(print_dir + request.GetWorkflow() + "/" + request.GetFunction())
+    print_lock[request.GetWorkflow()][request.GetFunction()].Unlock()
     return string(b)
 }
 

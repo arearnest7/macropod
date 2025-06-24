@@ -1,6 +1,5 @@
 from rpc import Invoke_JSON
 import base64
-import requests
 import json
 import pprint
 import random
@@ -23,5 +22,5 @@ def FunctionHandler(context):
             'bucket_name': bucket_name,
             'file_key': file_key
         }
-    response = Invoke_JSON(context, "SENTIMENT_READ_CSV", input)[0]
-    return response, 200
+    response = Invoke_JSON(context, "SENTIMENT_READ_CSV", input)
+    return response[0], 200
