@@ -73,7 +73,7 @@ func Metrics_Check() {
             worker_node_setup = "&& echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian  $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
             worker_node_setup = "&& sudo apt-get update -y"
             worker_node_setup = "&& sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y"
-            worker_node_setup = "&& sudo docker run -d -p 10000:100000 -p 11000:11000 -e SERVICE_PORT=\"10000\" -e HTTP_PORT=\"11000\" sysdevtamu/macropod-metrics:latest"
+            worker_node_setup = "&& sudo docker run -d -p 10000:10000 -p 11000:11000 -e SERVICE_PORT=\"10000\" -e HTTP_PORT=\"11000\" sysdevtamu/macropod-metrics:latest"
             cmd := exec.Command("echo", password, "|", "sshpass", "-p", password, "ssh", username + "@" + worker_node, "-tt", worker_node_setup)
             cmd.Run()
         }
@@ -662,6 +662,8 @@ func main() {
     s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))
     pb.RegisterMacroPodEvalServer(s, &EvalService{})
 
+    Ingress_Check()
+    Metrics_Check()
     go s.Serve(l)
 
     h := http.NewServeMux()
