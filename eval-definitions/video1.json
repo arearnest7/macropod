@@ -1,0 +1,15 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 1,
+    "ExtraTargets": {
+        "kn-video-original": "http://video-streaming.knative-functions.192.168.56.20.sslip.io"
+    },
+    "ExtraTargetsPayload": {
+        "kn-video-original": {
+            "Type": "JSON",
+            "JSON": {"video": "video.mp4"}
+        }
+    },
+    "Workflows": {
+    }
+}
