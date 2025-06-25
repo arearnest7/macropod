@@ -181,6 +181,7 @@ func (s *MetricsService) GetMetrics(ctx context.Context, req *pb.MacroPodRequest
 }
 
 func HTTP_GetMetrics(res http.ResponseWriter, req *http.Request) {
+    fmt.Print("request processing")
     results := Serve_GetMetrics()
     res_txt := ""
     res_txt += strconv.FormatFloat(results.GetUptime(), 'f', -1, 64) + ","
@@ -238,7 +239,7 @@ func HTTP_GetMetrics(res http.ResponseWriter, req *http.Request) {
     res_txt += strconv.FormatFloat(results.GetNetworkDropout(), 'f', -1, 64) + ","
     res_txt += strconv.FormatFloat(results.GetNetworkFifoin(), 'f', -1, 64) + ","
     res_txt += strconv.FormatFloat(results.GetNetworkFifoout(), 'f', -1, 64) + "\n"
-
+    fmt.Printf("%s\n",res_txt)
     fmt.Fprint(res, res_txt)
 }
 

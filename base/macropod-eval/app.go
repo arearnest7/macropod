@@ -38,8 +38,6 @@ var (
     latency_dir     string
     summary_dir     string
     ingress_address string
-    username        string
-    password        string
     worker_nodes    []string
 
     ingress_channel *grpc.ClientConn
@@ -64,19 +62,6 @@ func Metrics_Check() {
             metrics_channel[worker_node], _ = grpc.Dial(worker_node + ":10000", grpc.WithInsecure())
             metrics_stub[worker_node] = pb.NewMacroPodMetricsClient(metrics_channel[worker_node])
         }
-        if metrics_channel[worker_node].GetState() != connectivity.Ready {
-            worker_node_setup := "sudo apt-get update -y"
-            worker_node_setup = "&& sudo apt install -y ca-certificates curl"
-            worker_node_setup = "&& sudo install -m 0755 -d /etc/apt/keyrings"
-            worker_node_setup = "&& sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc"
-            worker_node_setup = "&& sudo chmod a+r /etc/apt/keyrings/docker.asc"
-            worker_node_setup = "&& echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian  $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
-            worker_node_setup = "&& sudo apt-get update -y"
-            worker_node_setup = "&& sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y"
-            worker_node_setup = "&& sudo docker run -d -p 10000:10000 -p 11000:11000 -e SERVICE_PORT=\"10000\" -e HTTP_PORT=\"11000\" sysdevtamu/macropod-metrics:latest"
-            cmd := exec.Command("echo", password, "|", "sshpass", "-p", password, "ssh", username + "@" + worker_node, "-tt", worker_node_setup)
-            cmd.Run()
-        }
         for metrics_channel[worker_node].GetState() != connectivity.Ready {
             metrics_channel[worker_node], _ = grpc.Dial(worker_node + ":10000", grpc.WithInsecure())
             metrics_stub[worker_node] = pb.NewMacroPodMetricsClient(metrics_channel[worker_node])
@@ -94,7 +79,7 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
     }
     for i, _ := range worker_nodes {
         for _, metric := range metrics {
-            labels = append(labels, metric + "_" + string(i+1))
+            labels = append(labels, metric + "_" + strconv.Itoa(i+1))
         }
     }
     metrics_out.Write(labels)
@@ -107,7 +92,11 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
             line[metric] = float64(0)
         }
         for i, worker_node := range worker_nodes {
-            res, _ := metrics_stub[worker_node].GetMetrics(context.Background(), &pb.MacroPodRequest{})
+            res, err := metrics_stub[worker_node].GetMetrics(context.Background(), &pb.MacroPodRequest{})
+	    if err != nil {
+			fmt.Printf("%s\n",err)
+	    }
+	    //fmt.Printf("%v\n",res)
             cpu_percent = append(cpu_percent, res.GetCPUUsed())
             cpu_cores = append(cpu_cores, res.GetCPUCountPhysical())
             line["cpu_count_logical"] += res.GetCPUCountLogical()
@@ -165,61 +154,61 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
             line["network_fifo_in"] += res.GetNetworkFifoin()
             line["network_fifo_out"] += res.GetNetworkFifoout()
 
-            line["cpu_" + string(i+1)] = res.GetCPUUsed()
-            line["cpu_count_logical_" + string(i+1)] = res.GetCPUCountLogical()
-            line["cpu_count_physical_" + string(i+1)] = res.GetCPUCountPhysical()
-            line["uptime_" + string(i+1)] = res.GetUptime()
-            line["loadavg1_" + string(i+1)] = res.GetLoadAvg1()
-            line["loadavg5_" + string(i+1)] = res.GetLoadAvg5()
-            line["loadavg15_" + string(i+1)] = res.GetLoadAvg15()
-            line["memory_used_" + string(i+1)] = res.GetMemoryUsed()
-            line["memory_available_" + string(i+1)] = res.GetMemoryAvailable()
-            line["memory_total_" + string(i+1)] = res.GetMemoryTotal()
-            line["memory_buffers_" + string(i+1)] = res.GetMemoryBuffers()
-            line["memory_cached_" + string(i+1)] = res.GetMemoryCached()
-            line["memory_writeback_" + string(i+1)] = res.GetMemoryWriteBack()
-            line["memory_dirty_" + string(i+1)] = res.GetMemoryDirty()
-            line["memory_writeback_tmp_" + string(i+1)] = res.GetMemoryWriteBackTmp()
-            line["memory_shared_" + string(i+1)] = res.GetMemoryShared()
-            line["memory_slab_" + string(i+1)] = res.GetMemorySlab()
-            line["memory_sreclaimable_" + string(i+1)] = res.GetMemorySreclaimable()
-            line["memory_sunreclaim_" + string(i+1)] = res.GetMemorySunreclaim()
-            line["memory_page_tables_" + string(i+1)] = res.GetMemoryPageTables()
-            line["memory_swap_cached_" + string(i+1)] = res.GetMemorySwapCached()
-            line["memory_commit_limit_" + string(i+1)] = res.GetMemoryCommitLimit()
-            line["memory_committed_as_" + string(i+1)] = res.GetMemoryCommittedAS()
-            line["memory_high_total_" + string(i+1)] = res.GetMemoryHighTotal()
-            line["memory_high_free_" + string(i+1)] = res.GetMemoryHighFree()
-            line["memory_low_total_" + string(i+1)] = res.GetMemoryLowTotal()
-            line["memory_low_free_" + string(i+1)] = res.GetMemoryLowFree()
-            line["memory_swap_total_" + string(i+1)] = res.GetMemorySwapTotal()
-            line["memory_swap_free_" + string(i+1)] = res.GetMemorySwapFree()
-            line["memory_mapped_" + string(i+1)] = res.GetMemoryMapped()
-            line["memory_vmalloc_total_" + string(i+1)] = res.GetMemoryVmallocTotal()
-            line["memory_vmalloc_used_" + string(i+1)] = res.GetMemoryVmallocUsed()
-            line["memory_vmalloc_chunk_" + string(i+1)] = res.GetMemoryVmallocChunk()
-            line["memory_huge_pages_total_" + string(i+1)] = res.GetMemoryHugePagesTotal()
-            line["memory_huge_pages_free_" + string(i+1)] = res.GetMemoryHugePagesFree()
-            line["memory_huge_pages_rsvd_" + string(i+1)] = res.GetMemoryHugePagesRsvd()
-            line["memory_huge_pages_surp_" + string(i+1)] = res.GetMemoryHugePagesSurp()
-            line["memory_huge_page_size_" + string(i+1)] = res.GetMemoryHugePageSize()
-            line["memory_anon_huge_pages_" + string(i+1)] = res.GetMemoryAnonHugePages()
-            line["disk_used_" + string(i+1)] = res.GetDiskUsed()
-            line["disk_free_" + string(i+1)] = res.GetDiskFree()
-            line["disk_total_" + string(i+1)] = res.GetDiskTotal()
-            line["disk_inodes_used_" + string(i+1)] = res.GetDiskInodesUsed()
-            line["disk_inodes_free_" + string(i+1)] = res.GetDiskInodesFree()
-            line["disk_inodes_total_" + string(i+1)] = res.GetDiskInodesTotal()
-            line["network_bytes_sent_" + string(i+1)] = res.GetNetworkBytesSent()
-            line["network_bytes_recv_" + string(i+1)] = res.GetNetworkBytesRecv()
-            line["network_packets_sent_" + string(i+1)] = res.GetNetworkPacketsSent()
-            line["network_packets_recv_" + string(i+1)] = res.GetNetworkPacketsRecv()
-            line["network_err_in_" + string(i+1)] = res.GetNetworkErrin()
-            line["network_err_out_" + string(i+1)] = res.GetNetworkErrout()
-            line["network_drop_in_" + string(i+1)] = res.GetNetworkDropin()
-            line["network_drop_out_" + string(i+1)] = res.GetNetworkDropout()
-            line["network_fifo_in_" + string(i+1)] = res.GetNetworkFifoin()
-            line["network_fifo_out_" + string(i+1)] = res.GetNetworkFifoout()
+            line["cpu_" + strconv.Itoa(i+1)] = res.GetCPUUsed()
+            line["cpu_count_logical_" + strconv.Itoa(i+1)] = res.GetCPUCountLogical()
+            line["cpu_count_physical_" + strconv.Itoa(i+1)] = res.GetCPUCountPhysical()
+            line["uptime_" + strconv.Itoa(i+1)] = res.GetUptime()
+            line["loadavg1_" + strconv.Itoa(i+1)] = res.GetLoadAvg1()
+            line["loadavg5_" + strconv.Itoa(i+1)] = res.GetLoadAvg5()
+            line["loadavg15_" + strconv.Itoa(i+1)] = res.GetLoadAvg15()
+            line["memory_used_" + strconv.Itoa(i+1)] = res.GetMemoryUsed()
+            line["memory_available_" + strconv.Itoa(i+1)] = res.GetMemoryAvailable()
+            line["memory_total_" + strconv.Itoa(i+1)] = res.GetMemoryTotal()
+            line["memory_buffers_" + strconv.Itoa(i+1)] = res.GetMemoryBuffers()
+            line["memory_cached_" + strconv.Itoa(i+1)] = res.GetMemoryCached()
+            line["memory_writeback_" + strconv.Itoa(i+1)] = res.GetMemoryWriteBack()
+            line["memory_dirty_" + strconv.Itoa(i+1)] = res.GetMemoryDirty()
+            line["memory_writeback_tmp_" + strconv.Itoa(i+1)] = res.GetMemoryWriteBackTmp()
+            line["memory_shared_" + strconv.Itoa(i+1)] = res.GetMemoryShared()
+            line["memory_slab_" + strconv.Itoa(i+1)] = res.GetMemorySlab()
+            line["memory_sreclaimable_" + strconv.Itoa(i+1)] = res.GetMemorySreclaimable()
+            line["memory_sunreclaim_" + strconv.Itoa(i+1)] = res.GetMemorySunreclaim()
+            line["memory_page_tables_" + strconv.Itoa(i+1)] = res.GetMemoryPageTables()
+            line["memory_swap_cached_" + strconv.Itoa(i+1)] = res.GetMemorySwapCached()
+            line["memory_commit_limit_" + strconv.Itoa(i+1)] = res.GetMemoryCommitLimit()
+            line["memory_committed_as_" + strconv.Itoa(i+1)] = res.GetMemoryCommittedAS()
+            line["memory_high_total_" + strconv.Itoa(i+1)] = res.GetMemoryHighTotal()
+            line["memory_high_free_" + strconv.Itoa(i+1)] = res.GetMemoryHighFree()
+            line["memory_low_total_" + strconv.Itoa(i+1)] = res.GetMemoryLowTotal()
+            line["memory_low_free_" + strconv.Itoa(i+1)] = res.GetMemoryLowFree()
+            line["memory_swap_total_" + strconv.Itoa(i+1)] = res.GetMemorySwapTotal()
+            line["memory_swap_free_" + strconv.Itoa(i+1)] = res.GetMemorySwapFree()
+            line["memory_mapped_" + strconv.Itoa(i+1)] = res.GetMemoryMapped()
+            line["memory_vmalloc_total_" + strconv.Itoa(i+1)] = res.GetMemoryVmallocTotal()
+            line["memory_vmalloc_used_" + strconv.Itoa(i+1)] = res.GetMemoryVmallocUsed()
+            line["memory_vmalloc_chunk_" + strconv.Itoa(i+1)] = res.GetMemoryVmallocChunk()
+            line["memory_huge_pages_total_" + strconv.Itoa(i+1)] = res.GetMemoryHugePagesTotal()
+            line["memory_huge_pages_free_" + strconv.Itoa(i+1)] = res.GetMemoryHugePagesFree()
+            line["memory_huge_pages_rsvd_" + strconv.Itoa(i+1)] = res.GetMemoryHugePagesRsvd()
+            line["memory_huge_pages_surp_" + strconv.Itoa(i+1)] = res.GetMemoryHugePagesSurp()
+            line["memory_huge_page_size_" + strconv.Itoa(i+1)] = res.GetMemoryHugePageSize()
+            line["memory_anon_huge_pages_" + strconv.Itoa(i+1)] = res.GetMemoryAnonHugePages()
+            line["disk_used_" + strconv.Itoa(i+1)] = res.GetDiskUsed()
+            line["disk_free_" + strconv.Itoa(i+1)] = res.GetDiskFree()
+            line["disk_total_" + strconv.Itoa(i+1)] = res.GetDiskTotal()
+            line["disk_inodes_used_" + strconv.Itoa(i+1)] = res.GetDiskInodesUsed()
+            line["disk_inodes_free_" + strconv.Itoa(i+1)] = res.GetDiskInodesFree()
+            line["disk_inodes_total_" + strconv.Itoa(i+1)] = res.GetDiskInodesTotal()
+            line["network_bytes_sent_" + strconv.Itoa(i+1)] = res.GetNetworkBytesSent()
+            line["network_bytes_recv_" + strconv.Itoa(i+1)] = res.GetNetworkBytesRecv()
+            line["network_packets_sent_" + strconv.Itoa(i+1)] = res.GetNetworkPacketsSent()
+            line["network_packets_recv_" + strconv.Itoa(i+1)] = res.GetNetworkPacketsRecv()
+            line["network_err_in_" + strconv.Itoa(i+1)] = res.GetNetworkErrin()
+            line["network_err_out_" + strconv.Itoa(i+1)] = res.GetNetworkErrout()
+            line["network_drop_in_" + strconv.Itoa(i+1)] = res.GetNetworkDropin()
+            line["network_drop_out_" + strconv.Itoa(i+1)] = res.GetNetworkDropout()
+            line["network_fifo_in_" + strconv.Itoa(i+1)] = res.GetNetworkFifoin()
+            line["network_fifo_out_" + strconv.Itoa(i+1)] = res.GetNetworkFifoout()
         }
         for i, _ := range cpu_percent {
             cpu_total += cpu_percent[i] * cpu_cores[i]
@@ -227,31 +216,36 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
         line["cpu"] = cpu_total / line["cpu_count_physical"]
         timestamp := time.Now().UTC().Format("2006-01-02 15:04:05 UTC")
         line_s := []string{timestamp, *benchmark, *concurrency, *phase}
-        _, benchmark_exists := peak[*benchmark]
-        if !benchmark_exists && *benchmark != "" {
-            peak[*benchmark] = make(map[string]map[string]map[string]float64)
+        benchmark_temp := *benchmark
+        concurrency_temp := *concurrency
+        phase_temp := *phase
+        _, benchmark_exists := peak[benchmark_temp]
+        if !benchmark_exists && benchmark_temp != "" {
+            peak[benchmark_temp] = make(map[string]map[string]map[string]float64)
         }
-        _, concurrency_exists := peak[*benchmark][*concurrency]
-        if !concurrency_exists && *concurrency != ""{
-            peak[*benchmark][*concurrency] = make(map[string]map[string]float64)
+        _, concurrency_exists := peak[benchmark_temp][concurrency_temp]
+        if !concurrency_exists && concurrency_temp != ""{
+            peak[benchmark_temp][concurrency_temp] = make(map[string]map[string]float64)
         }
-        _, phase_exists := peak[*benchmark][*concurrency][*phase]
-        if !phase_exists && *phase != "" {
-            peak[*benchmark][*concurrency][*phase] = make(map[string]float64)
+        _, phase_exists := peak[benchmark_temp][concurrency_temp][phase_temp]
+        if !phase_exists && phase_temp != "" {
+            peak[benchmark_temp][concurrency_temp][phase_temp] = make(map[string]float64)
         }
         for _, metric := range metrics {
             val := strconv.FormatFloat(line[metric], 'f', -1, 64)
             line_s = append(line_s, val)
-            if peak[*benchmark][*concurrency][*phase][metric] < line[metric] {
-                peak[*benchmark][*concurrency][*phase][metric] = line[metric]
+            if benchmark_temp != "" && concurrency_temp != "" && phase_temp != "" && peak[benchmark_temp][concurrency_temp][phase_temp][metric] < line[metric] {
+                //fmt.Println(benchmark_temp + " " + concurrency_temp + " " + phase_temp + " " + metric)
+                //fmt.Println("val: " + val)
+                peak[benchmark_temp][concurrency_temp][phase_temp][metric] = line[metric]
             }
         }
         for i, _ := range worker_nodes {
             for _, metric := range metrics {
-                val := strconv.FormatFloat(line[metric + "_" + string(i)], 'f', -1, 64)
+                val := strconv.FormatFloat(line[metric + "_" + strconv.Itoa(i+1)], 'f', -1, 64)
                 line_s = append(line_s, val)
-                if peak[*benchmark][*concurrency][*phase][metric + "_" + string(i)] < line[metric + "_" + string(i)] {
-                    peak[*benchmark][*concurrency][*phase][metric + "_" + string(i)] = line[metric + "_" + string(i)]
+                if benchmark_temp != "" && concurrency_temp != "" && phase_temp != "" && peak[benchmark_temp][concurrency_temp][phase_temp][metric + "_" + strconv.Itoa(i+1)] < line[metric + "_" + strconv.Itoa(i+1)] {
+                    peak[benchmark_temp][concurrency_temp][phase_temp][metric + "_" + strconv.Itoa(i+1)] = line[metric + "_" + strconv.Itoa(i+1)]
                 }
             }
         }
@@ -262,6 +256,7 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
 }
 
 func Collect_Latency(workflow string, t string, j map[string]interface{}, d []byte) (LatencyResult) {
+    fmt.Println("collecting grpc")
     s := time.Now()
     jstruct, _ := structpb.NewStruct(j)
     ingress_stub.WorkflowInvoke(context.Background(), &pb.MacroPodRequest{Workflow: &workflow, Text: &t, JSON: jstruct, Data: d})
@@ -273,6 +268,7 @@ func Collect_Latency(workflow string, t string, j map[string]interface{}, d []by
 }
 
 func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
+    fmt.Println("collecting http text")
     s := time.Now()
     cmd := exec.Command("curl", "-X", "POST", "-d", t, "-H", "Content-Type: plain/txt", target)
     cmd.Run()
@@ -284,6 +280,7 @@ func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
 }
 
 func Collect_Latency_HTTP_JSON(target string, j map[string]interface{}) (LatencyResult) {
+    fmt.Println("collecting http json")
     s := time.Now()
     payload, _ := json.Marshal(j)
     cmd := exec.Command("curl", "-X", "POST", "-d", string(payload), "-H", "Content-Type: application/json", target)
@@ -296,6 +293,7 @@ func Collect_Latency_HTTP_JSON(target string, j map[string]interface{}) (Latency
 }
 
 func Collect_Latency_HTTP_Data(target string, d []byte) (LatencyResult) {
+    fmt.Println("collecting http data")
     s := time.Now()
     cmd := exec.Command("curl", "-X", "POST", "-d", string(d), "-H", "Content-Type: application/octet-stream", target)
     cmd.Run()
@@ -331,6 +329,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
     r_s, _ := os.Create(summary_dir + eval_id)
     latency_out := csv.NewWriter(r_l)
     latency_out.Write([]string{"benchmark", "concurrency", "phase", "latency", "start_time", "end_time"})
+    latency_out.Flush()
     summary_out := csv.NewWriter(r_s)
     summary_labels := []string{"benchmark", "concurrency", "phase", "latency_p99"}
     for _, metric := range metrics {
@@ -338,16 +337,27 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
     }
     for i, _ := range worker_nodes {
         for _, metric := range metrics {
-            summary_labels = append(summary_labels, metric + "_" + string(i+1) + "_" + "peak")
+            summary_labels = append(summary_labels, metric + "_" + strconv.Itoa(i+1) + "_peak")
         }
     }
     summary_out.Write(summary_labels)
+    summary_out.Flush()
+    //fmt.Println(summary_labels)
     for workflow_name, workflow := range request.GetWorkflows() {
         for _, c := range request.GetWorkflowConcurrency() {
             ingress_stub.CreateWorkflow(context.Background(), workflow)
             benchmark = workflow_name
-            concurrency = string(c)
+            concurrency = strconv.Itoa(int(c))
             phase = "cold_start"
+            //fmt.Println(benchmark + " " + concurrency + " " + phase)
+            _, benchmark_exists := latency[benchmark]
+            if !benchmark_exists && benchmark != "" {
+                latency[benchmark] = make(map[string]map[string][]float64)
+            }
+            _, concurrency_exists := latency[benchmark][concurrency]
+            if !concurrency_exists && concurrency != ""{
+                latency[benchmark][concurrency] = make(map[string][]float64)
+            }
             inv_c := make(chan LatencyResult)
             cnt := 0
             total_sent := 0
@@ -375,11 +385,13 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     l := <-inv_c
                     concurrency_latency = append(concurrency_latency, l.Latency)
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
+                    latency_out.Flush()
                     cnt -= 1
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
             phase = "warm_start"
+            //fmt.Println(benchmark + " " + concurrency + " " + phase)
             inv_c = make(chan LatencyResult)
             cnt = 0
             total_sent = 0
@@ -407,6 +419,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     l := <-inv_c
                     concurrency_latency = append(concurrency_latency, l.Latency)
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
+                    latency_out.Flush()
                     cnt -= 1
                 }
             }
@@ -414,14 +427,24 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
             benchmark = ""
             concurrency = ""
             phase = ""
-            ingress_stub.DeleteWorkflow(context.Background(), &pb.MacroPodRequest{Workflow: &workflow_name})
+            wf_delete := workflow.GetName()
+            ingress_stub.DeleteWorkflow(context.Background(), &pb.MacroPodRequest{Workflow: &wf_delete})
         }
     }
     for workflow_name, target := range request.GetExtraTargets() {
         for _, c := range request.GetWorkflowConcurrency() {
             benchmark = workflow_name
-            concurrency = string(c)
+            concurrency = strconv.Itoa(int(c))
             phase = "cold_start"
+            //fmt.Println(benchmark + " " + concurrency + " " + phase)
+            _, benchmark_exists := latency[benchmark]
+            if !benchmark_exists && benchmark != "" {
+                latency[benchmark] = make(map[string]map[string][]float64)
+            }
+            _, concurrency_exists := latency[benchmark][concurrency]
+            if !concurrency_exists && concurrency != ""{
+                latency[benchmark][concurrency] = make(map[string][]float64)
+            }
             inv_c := make(chan LatencyResult)
             cnt := 0
             total_sent := 0
@@ -453,11 +476,13 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     l := <-inv_c
                     concurrency_latency = append(concurrency_latency, l.Latency)
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
+                    latency_out.Flush()
                     cnt -= 1
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
             phase = "warm_start"
+            //fmt.Println(benchmark + " " + concurrency + " " + phase)
             inv_c = make(chan LatencyResult)
             cnt = 0
             total_sent = 0
@@ -489,6 +514,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     l := <-inv_c
                     concurrency_latency = append(concurrency_latency, l.Latency)
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
+                    latency_out.Flush()
                     cnt -= 1
                 }
             }
@@ -499,22 +525,24 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
             time.Sleep(300 * time.Second)
         }
     }
+    //fmt.Println("done collection, waiting 30 seconds....")
     collect = false
     time.Sleep(30 * time.Second)
+    //fmt.Println("30 seconds are up....")
     phases := []string{"cold_start", "warm_start"}
     for workflow_name, _ := range request.GetWorkflows() {
         for _, c := range request.GetWorkflowConcurrency() {
             for _, p := range phases {
-                line := []string{workflow_name, string(c), p}
-                p99_latency, _ := stats.Percentile(latency[workflow_name][string(c)][p], 99)
+                line := []string{workflow_name, strconv.Itoa(int(c)), p}
+                p99_latency, _ := stats.Percentile(latency[workflow_name][strconv.Itoa(int(c))][p], 99)
                 line = append(line, strconv.FormatFloat(p99_latency, 'f', -1, 64))
                 for _, metric := range metrics {
-                    val := strconv.FormatFloat(peak[workflow_name][string(c)][p][metric], 'f', -1, 64)
+                    val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric], 'f', -1, 64)
                     line = append(line, val)
                 }
                 for i, _ := range worker_nodes {
                     for _, metric := range metrics {
-                        val := strconv.FormatFloat(peak[workflow_name][string(c)][p][metric + "_" + string(i+1)], 'f', -1, 64)
+                        val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric + "_" + strconv.Itoa(i+1)], 'f', -1, 64)
                         line = append(line, val)
                     }
                 }
@@ -526,16 +554,16 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
     for workflow_name, _ := range request.GetExtraTargets() {
         for _, c := range request.GetWorkflowConcurrency() {
             for _, p := range phases {
-                line := []string{workflow_name, string(c), p}
-                p99_latency, _ := stats.Percentile(latency[workflow_name][string(c)][p], 99)
+                line := []string{workflow_name, strconv.Itoa(int(c)), p}
+                p99_latency, _ := stats.Percentile(latency[workflow_name][strconv.Itoa(int(c))][p], 99)
                 line = append(line, strconv.FormatFloat(p99_latency, 'f', -1, 64))
                 for _, metric := range metrics {
-                    val := strconv.FormatFloat(peak[workflow_name][string(c)][p][metric], 'f', -1, 64)
+                    val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric], 'f', -1, 64)
                     line = append(line, val)
                 }
                 for i, _ := range worker_nodes {
                     for _, metric := range metrics {
-                        val := strconv.FormatFloat(peak[workflow_name][string(c)][p][metric + "_" + string(i+1)], 'f', -1, 64)
+                        val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric + "_" + strconv.Itoa(i+1)], 'f', -1, 64)
                         line = append(line, val)
                     }
                 }
@@ -544,6 +572,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
             }
         }
     }
+    //fmt.Println(eval_id)
     return eval_id
 }
 
@@ -587,7 +616,7 @@ func (s *EvalService) EvalSummary(ctx context.Context, req *pb.MacroPodRequest) 
 }
 
 func HTTP_Help(res http.ResponseWriter, req *http.Request) {
-    help_print := "TODO\n"
+    help_print := "Macropod Eval function\n"
     fmt.Fprint(res, help_print)
 }
 
@@ -595,6 +624,7 @@ func HTTP_Eval(res http.ResponseWriter, req *http.Request) {
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.EvalStruct{}
     json.Unmarshal(body, &request)
+    fmt.Printf("%v\n", request)
     id := Serve_Eval(&request)
     fmt.Fprint(res, id)
 }
@@ -645,14 +675,6 @@ func main() {
     if summary_dir == "" {
         summary_dir = "/app/summary/"
     }
-    username = os.Getenv("USERNAME")
-    if username == "" {
-        username = "username"
-    }
-    password = os.Getenv("PASSWORD")
-    if password == "" {
-        password = "password"
-    }
     worker_nodes_str := os.Getenv("WORKER_NODES")
     if worker_nodes_str == "" {
         worker_nodes_str = "192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24"
@@ -661,11 +683,9 @@ func main() {
     l, _ := net.Listen("tcp", ":" + service_port)
     s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))
     pb.RegisterMacroPodEvalServer(s, &EvalService{})
-
     Ingress_Check()
     Metrics_Check()
     go s.Serve(l)
-
     h := http.NewServeMux()
     h.HandleFunc("/", HTTP_Help)
     h.HandleFunc("/eval/start", HTTP_Eval)

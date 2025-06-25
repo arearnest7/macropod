@@ -429,8 +429,10 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
     if workflows[request.GetWorkflow()].GetConfig() != nil && workflows[request.GetWorkflow()].GetConfig().GetAggregation() != "" {
         aggregation = workflows[request.GetWorkflow()].GetConfig().GetAggregation()
     }
+    dataLock.Unlock()
     switch aggregation {
         case "dynamic":
+            dataLock.Lock()
             if workflow_fully_disaggregated[request.GetWorkflow()] {
                 dataLock.Unlock()
                 return "0"
@@ -441,10 +443,12 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
             var nodes NodeMetricList
             data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
             if err != nil {
+                dataLock.Unlock()
                 return "0"
             }
             err = json.Unmarshal(data, &nodes)
             if err != nil {
+                dataLock.Unlock()
                 return "0"
             }
             for _, node := range nodes.Items {
@@ -498,7 +502,6 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
             dataLock.Unlock()
             return "0"
         default:
-            dataLock.Unlock()
             return "0"
     }
 }
@@ -983,11 +986,11 @@ func main() {
     if http_port == "" {
         http_port = "9000"
     }
-    ingress_address := os.Getenv("INGRESS_ADDRESS")
+    ingress_address = os.Getenv("INGRESS_ADDRESS")
     if ingress_address == "" {
         ingress_address = "127.0.0.1:8001"
     }
-    logger_address := os.Getenv("LOGGER_ADDRESS")
+    logger_address = os.Getenv("LOGGER_ADDRESS")
     if logger_address == "" {
         logger_address = "127.0.0.1:8003"
     }

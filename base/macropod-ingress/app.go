@@ -82,13 +82,13 @@ func Debug(message string, debug_level int) {
 }
 
 func Deployer_Check() {
-    dataLock.Lock()
     for deployer_channel == nil || deployer_channel.GetState() != connectivity.Ready {
+        dataLock.Lock()
         deployer_channel, _ = grpc.Dial(deployer_address, grpc.WithInsecure())
         deployer_stub = pb.NewMacroPodDeployerClient(deployer_channel)
         time.Sleep(10 * time.Millisecond)
+        dataLock.Unlock()
     }
-    dataLock.Unlock()
 }
 
 func IfPodsAreRunning(workflow_replica string, namespace string) bool {
@@ -465,6 +465,7 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
     delete(workflow_invocations_current, request.GetWorkflow())
     delete(workflow_invocations_total, request.GetWorkflow())
     delete(entry_function, request.GetWorkflow())
+    dataLock.Unlock()
     Debug("WF_DELETE_END " + request.GetWorkflow(), 2)
     return "Workflow \"" + request.GetWorkflow() + "\" has been successfully deleted.\n"
 }

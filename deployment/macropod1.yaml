@@ -140,7 +140,7 @@ spec:
         - name: TARGET
           value: "-1"
         - name: DEBUG
-          value: "0"
+          value: "5"
       - name: macropod-deployer
         image: sysdevtamu/macropod-deployer:latest
         imagePullPolicy: Always
@@ -155,9 +155,9 @@ spec:
         - name: NAMESPACE
           value: "macropod-functions"
         - name: INGRESS_ADDRESS
-          value: "127.0.0.1:8001"
+          value: "macropod-service.default.svc.cluster.local:8001"
         - name: LOGGER_ADDRESS
-          value: "127.0.0.1:8003"
+          value: "macropod-service.default.svc.cluster.local:8003"
         - name: TTL
           value: "180"
         - name: DEPLOYMENT
@@ -169,7 +169,7 @@ spec:
         - name: TARGET
           value: "-1"
         - name: DEBUG
-          value: "0"
+          value: "5"
       - name: macropod-logger
         image: sysdevtamu/macropod-logger:latest
         imagePullPolicy: Always
@@ -187,3 +187,33 @@ spec:
           value: "/app/error/"
         - name: PRINT_DIR
           value: "/app/print/"
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: macropod-metric-server
+spec:
+  selector:
+    matchLabels:
+      name:  macropod-metric-server
+  template:
+    metadata:
+      labels:
+        name:  macropod-metric-server
+    spec:
+      containers:
+        - name:  macropod-metric-server
+          image: sysdevtamu/macropod-metrics:latest
+          env:
+          - name: SERVICE_PORT
+            value: "10000"
+          - name: HTTP_PORT
+            value: "11000"
+          ports:
+            - name: http
+              containerPort: 11000
+              hostPort: 11000
+            - name: grpc
+              containerPort: 10000
+              hostPort: 10000
