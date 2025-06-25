@@ -8,7 +8,7 @@ for definition in ${definitions[@]}; do
 	sudo ./deploy-$definition-unified.sh $HOST
 	sudo ./deploy-$definition-original.sh $HOST
 	cd ..
-	id=curl -X POST -d @eval-definitions/$definition.json http://10.43.190.1:9000/eval/start
+	id="$(curl -X POST -d @eval-definitions/$definition.json http://10.43.190.1:9000/eval/start)"
 	curl http://10.43.190.1:9000/eval/metrics/$id > $DIR/$definition-metrics.csv
 	curl http://10.43.190.1:9000/eval/latency/$id > $DIR/$definition-latency.csv
 	curl http://10.43.190.1:9000/eval/summary/$id > $DIR/$definition-summary.csv
