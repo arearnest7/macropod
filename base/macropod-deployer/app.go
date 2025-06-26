@@ -510,6 +510,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) (string) {
     if !bypass {
         dataLock.Lock()
         if _, exists := workflows[request.GetWorkflow()]; !exists {
+	    Debug("Workflow definition not found", 0)
             dataLock.Unlock()
             return "0"
         }
@@ -954,6 +955,7 @@ func HTTP_UpdateDeployments(res http.ResponseWriter, req *http.Request) {
 
 func HTTP_CreateDeployment(res http.ResponseWriter, req *http.Request) {
     workflow := req.PathValue("workflow")
+    Debug("Creating deployment", 0)
     request := pb.MacroPodRequest{Workflow: &workflow}
     results := Serve_CreateDeployment(&request, false)
     fmt.Fprint(res, results)

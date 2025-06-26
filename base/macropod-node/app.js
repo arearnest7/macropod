@@ -40,11 +40,10 @@ async function HTTP_Invoke(req) {
     Target: req.get("host"),
   };
   var content = req.get("Content-Type");
-  var chunks = [];
-  req.on('data', (chunk) => {
-    chunks.push(chunk);
+  var body = '';
+  await req.on('data', chunk => {
+    body += chunk.toString();
   });
-  var body = chunks.join('');
   switch(content) {
     case "text/plain":
       request.Text = body;
@@ -54,7 +53,7 @@ async function HTTP_Invoke(req) {
       request.JSON = j;
       break;
     case "application/octet-stream":
-      var d = Array.from(Buffer.from(body));
+      var d = Buffer.from(body);
       request.Data = d;
       break;
     default:

@@ -297,6 +297,7 @@ func GetTarget(triggered bool, workflow_name string, target string) (string, boo
         triggered = true
         Deployer_Check()
         create_deployment_request := pb.MacroPodRequest{Workflow: &workflow_name}
+	Debug("sending request to create deployments\n", 0)
         go deployer_stub.CreateDeployment(context.Background(), &create_deployment_request)
     }
     dataLock.Unlock()

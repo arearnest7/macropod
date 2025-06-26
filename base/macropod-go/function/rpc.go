@@ -29,9 +29,9 @@ func Timestamp(ctx_in Context, target string, message string) {
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &ctx_in.Function, WorkflowID: &ctx_in.WorkflowID, Depth: &ctx_in.Depth, Width: &ctx_in.Width, Target: &target, Text: &message}
     logger := os.Getenv("LOGGER")
     if logger != "" {
-        channel, _ := grpc.Dial(os.Getenv(logger), grpc.WithDefaultCallOptions())
+        channel, _ := grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
         stub := pb.NewMacroPodLoggerClient(channel)
-        go stub.Timestamp(ctx, &req)
+        stub.Timestamp(ctx, &req)
         channel.Close()
         cancel()
     }
@@ -43,9 +43,9 @@ func Error(ctx_in Context, err error) {
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &ctx_in.Function, Text: &text}
     logger := os.Getenv("LOGGER")
     if logger != "" {
-        channel, _ := grpc.Dial(os.Getenv(logger), grpc.WithDefaultCallOptions())
+        channel, _ := grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
         stub := pb.NewMacroPodLoggerClient(channel)
-        go stub.Error(ctx, &req)
+        stub.Error(ctx, &req)
         channel.Close()
         cancel()
     }
@@ -56,9 +56,9 @@ func Print(ctx_in Context, message string) {
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &ctx_in.Function, Text: &message}
     logger := os.Getenv("LOGGER")
     if logger != "" {
-        channel, _ := grpc.Dial(os.Getenv(logger), grpc.WithDefaultCallOptions())
+        channel, _ := grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
         stub := pb.NewMacroPodLoggerClient(channel)
-        go stub.Print(ctx, &req)
+        stub.Print(ctx, &req)
         channel.Close()
         cancel()
     }

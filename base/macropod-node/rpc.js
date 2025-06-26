@@ -210,4 +210,4 @@ async function Invoke_Multi_Data(context, dest, payloads) {
 }
 
 // Export the function
-module.exports = { Invoke };
+module.exports = { Timestamp, Error, Print, Invoke, Invoke_JSON, Invoke_Data, Invoke_Multi, Invoke_Multi_JSON, Invoke_Multi_Data };

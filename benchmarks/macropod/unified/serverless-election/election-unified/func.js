@@ -77,11 +77,11 @@ const get_results_handler = async (body) => {
 
 async function FunctionHandler(context) {
 	var body = context.JSON;
-	if (body.requestType ==  'get_results') {
+	if (body["requestType"] ==  'get_results') {
 		let [reply, code] = await get_results_handler(body);
 		return [reply, code];
 	}
-	else if (body.requestType == 'vote') {
+	else if (body["requestType"] == 'vote') {
 		let [reply, code] = await vote_enqueuer_handler(body);
 		return [reply, code];
 	}

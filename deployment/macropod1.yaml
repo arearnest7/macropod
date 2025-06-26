@@ -83,6 +83,8 @@ spec:
       labels:
         app: macropod
     spec:
+     nodeSelector: 
+        kubernetes.io/hostname: sys-dev-vm-1
      serviceAccountName: macropod-service-account
      tolerations:
       - key: "master-node"
@@ -108,10 +110,6 @@ spec:
           value: "/app/latency/"
         - name: SUMMARY_DIR
           value: "/app/summary/"
-        - name: USERNAME
-          value: "sysdev"
-        - name: PASSWORD
-          value: "Master_Storm_2423"
         - name: WORKER_NODES
           value: "192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24"
       - name: macropod-ingress
