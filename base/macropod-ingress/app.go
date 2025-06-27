@@ -557,6 +557,7 @@ func HTTP_CreateWorkflow(res http.ResponseWriter, req *http.Request) {
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.WorkflowStruct{}
     json.Unmarshal(body, &request)
+    fmt.Printf("\nBody : %s\n request : %v\n", body, request)
     results := Serve_CreateWorkflow(&request)
     fmt.Fprint(res, results)
 }

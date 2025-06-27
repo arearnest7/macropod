@@ -38,13 +38,6 @@ class MacroPodReply(_message.Message):
 
 class FunctionStruct(_message.Message):
     __slots__ = ("Registry", "Endpoints", "Envs", "Secrets")
-    class EndpointsEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: str
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
     class EnvsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -64,10 +57,10 @@ class FunctionStruct(_message.Message):
     ENVS_FIELD_NUMBER: _ClassVar[int]
     SECRETS_FIELD_NUMBER: _ClassVar[int]
     Registry: str
-    Endpoints: _containers.ScalarMap[str, str]
+    Endpoints: _containers.RepeatedScalarFieldContainer[str]
     Envs: _containers.ScalarMap[str, str]
     Secrets: _containers.ScalarMap[str, str]
-    def __init__(self, Registry: _Optional[str] = ..., Endpoints: _Optional[_Mapping[str, str]] = ..., Envs: _Optional[_Mapping[str, str]] = ..., Secrets: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    def __init__(self, Registry: _Optional[str] = ..., Endpoints: _Optional[_Iterable[str]] = ..., Envs: _Optional[_Mapping[str, str]] = ..., Secrets: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class ConfigStruct(_message.Message):
     __slots__ = ("Namespace", "TTL", "Deployment", "Communication", "Aggregation", "TargetConcurrency", "Debug")

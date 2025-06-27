@@ -113,8 +113,10 @@ func CreateInitialPod(workflow_name string) {
     var frontend_func string
     var endpoints []string
     func_endpoint := make(map[string][]string)
+    fmt.Printf("Workflow Functions: %v\n", workflows[workflow_name].Functions)
     for func_name, function := range workflows[workflow_name].Functions {
-        for _, endpoint := range function.Endpoints {
+            fmt.Printf("Workflow Endpoints for function %s : %v\n", function, function.Endpoints)
+	    for _, endpoint := range function.Endpoints {
             func_endpoint[func_name] = append(func_endpoint[func_name], endpoint)
             if !slices.Contains(endpoints, endpoint) {
                 if func_name != endpoint {
@@ -131,16 +133,19 @@ func CreateInitialPod(workflow_name string) {
 
     }
     var pod_list []string
+    Debug("Frontend function is: "+frontend_func+"\n", 3)
     pod_list = append(pod_list, frontend_func)
     initial_pod = bfs_initial_pod(initial_pod, workflow_name, pod_list)
+    fmt.Printf("Initial Pod: %v\n", initial_pod)
     aggregation := default_config.GetAggregation()
+    Debug("aggreagtion:" + aggregation + "\n",0)
     if workflows[workflow_name].GetConfig() != nil && workflows[workflow_name].GetConfig().GetAggregation() != "" {
         aggregation = workflows[workflow_name].GetConfig().GetAggregation()
     }
     if aggregation == "agg" {
         workflow_pods[workflow_name] = make([][]string, 0)
         workflow_pods[workflow_name] = append(workflow_pods[workflow_name], initial_pod)
-    } else if aggregation == "disagg" {
+} else if aggregation == "disagg" {
         pods_disagg := make([][]string, 0)
         for _, container := range initial_pod {
             container_pod := make([]string, 0)
@@ -384,7 +389,7 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
             kclient.NetworkingV1().Ingresses(namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
         }
         for {
-            Debug("waiting for " + request.GetWorkflow() + " to delete", 4)
+            Debug("waiting for " + request.GetWorkflow() + " to delete", 5)
             deployments_list, _ := kclient.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
             if deployments_list == nil || len(deployments_list.Items) == 0 {
                 break
@@ -507,8 +512,9 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
 }
 
 func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) (string) {
+   
     if !bypass {
-        dataLock.Lock()
+	dataLock.Lock()
         if _, exists := workflows[request.GetWorkflow()]; !exists {
 	    Debug("Workflow definition not found", 0)
             dataLock.Unlock()
@@ -534,7 +540,18 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) (string) {
     }
     switch deployment {
         case "macropod":
-            dataLock.Lock()
+	   dataLock.Lock()
+
+	   		if _, exists := workflows[request.GetWorkflow()]; !exists {
+			dataLock.Unlock()
+			fmt.Print("workflow not found")
+			return "0"
+		}
+        if len(workflow_pods[request.GetWorkflow()]) == 0 {
+            dataLock.Unlock()
+			fmt.Print("workflow pods empty")
+			return "0"
+        }
             var nodes NodeMetricList
             data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
             if err != nil {
@@ -577,9 +594,11 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) (string) {
                 "version":          strconv.Itoa(workflow_latest_version[request.GetWorkflow()]),
             }
             pathType := networkingv1.PathTypePrefix
+	    fmt.Printf("Workflow config: %v\n",workflow_pods[request.GetWorkflow()])
             service_name_ingress := strings.ToLower(strings.ReplaceAll(workflow_pods[request.GetWorkflow()][0][0], "_", "-")) + "-" + replicaNumber
             workflow_deployments[request.GetWorkflow()][request.GetWorkflow() + "-" + replicaNumber] = make(map[string]string)
             node_index := start_node
+	    Debug(strconv.Itoa(len(workflow_pods[request.GetWorkflow()])),0)
             for _, pod := range workflow_pods[request.GetWorkflow()] {
                 node_sel := ""
                 for node_sel == "" {
@@ -821,7 +840,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) (string) {
             }
             dataLock.Unlock()
             return "0"
-        default:
+        default: 
             return "0"
     }
 }
@@ -876,7 +895,8 @@ func (s *DeployerService) Config(ctx context.Context, req *pb.ConfigStruct) (*pb
 }
 
 func (s *DeployerService) CreateWorkflow(ctx context.Context, req *pb.WorkflowStruct) (*pb.MacroPodReply, error) {
-    reply := Serve_CreateWorkflow(req)
+   fmt.Printf("\n----- request : %v ------\n", req)
+   reply := Serve_CreateWorkflow(req)
     results := pb.MacroPodReply{Reply: &reply}
     return &results, nil
 }
@@ -924,9 +944,11 @@ func HTTP_Config(res http.ResponseWriter, req *http.Request) {
 }
 
 func HTTP_CreateWorkflow(res http.ResponseWriter, req *http.Request) {
+    Debug("creating workflow",4)
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.WorkflowStruct{}
     json.Unmarshal(body, &request)
+    fmt.Printf("\nbody %s\n request %v\n", body, req)
     results := Serve_CreateWorkflow(&request)
     fmt.Fprint(res, results)
 }

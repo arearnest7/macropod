@@ -185,7 +185,7 @@ func (x *MacroPodReply) GetCode() int32 {
 type FunctionStruct struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Registry      string                 `protobuf:"bytes,1,opt,name=Registry,proto3" json:"Registry,omitempty"`
-	Endpoints     map[string]string      `protobuf:"bytes,2,rep,name=Endpoints,proto3" json:"Endpoints,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Endpoints     []string               `protobuf:"bytes,2,rep,name=Endpoints,proto3" json:"Endpoints,omitempty"`
 	Envs          map[string]string      `protobuf:"bytes,3,rep,name=Envs,proto3" json:"Envs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Secrets       map[string]string      `protobuf:"bytes,4,rep,name=Secrets,proto3" json:"Secrets,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
@@ -229,7 +229,7 @@ func (x *FunctionStruct) GetRegistry() string {
 	return ""
 }
 
-func (x *FunctionStruct) GetEndpoints() map[string]string {
+func (x *FunctionStruct) GetEndpoints() []string {
 	if x != nil {
 		return x.Endpoints
 	}
@@ -1060,15 +1060,12 @@ const file_macropod_proto_rawDesc = "" +
 	"\x05Reply\x18\x01 \x01(\tH\x00R\x05Reply\x88\x01\x01\x12\x17\n" +
 	"\x04Code\x18\x02 \x01(\x05H\x01R\x04Code\x88\x01\x01B\b\n" +
 	"\x06_ReplyB\a\n" +
-	"\x05_Code\"\x9f\x03\n" +
+	"\x05_Code\"\xb8\x02\n" +
 	"\x0eFunctionStruct\x12\x1a\n" +
-	"\bRegistry\x18\x01 \x01(\tR\bRegistry\x12E\n" +
-	"\tEndpoints\x18\x02 \x03(\v2'.macropod.FunctionStruct.EndpointsEntryR\tEndpoints\x126\n" +
+	"\bRegistry\x18\x01 \x01(\tR\bRegistry\x12\x1c\n" +
+	"\tEndpoints\x18\x02 \x03(\tR\tEndpoints\x126\n" +
 	"\x04Envs\x18\x03 \x03(\v2\".macropod.FunctionStruct.EnvsEntryR\x04Envs\x12?\n" +
-	"\aSecrets\x18\x04 \x03(\v2%.macropod.FunctionStruct.SecretsEntryR\aSecrets\x1a<\n" +
-	"\x0eEndpointsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a7\n" +
+	"\aSecrets\x18\x04 \x03(\v2%.macropod.FunctionStruct.SecretsEntryR\aSecrets\x1a7\n" +
 	"\tEnvsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a:\n" +
@@ -1293,7 +1290,7 @@ func file_macropod_proto_rawDescGZIP() []byte {
 	return file_macropod_proto_rawDescData
 }
 
-var file_macropod_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_macropod_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_macropod_proto_goTypes = []any{
 	(*MacroPodRequest)(nil), // 0: macropod.MacroPodRequest
 	(*MacroPodReply)(nil),   // 1: macropod.MacroPodReply
@@ -1303,85 +1300,83 @@ var file_macropod_proto_goTypes = []any{
 	(*WorkflowStruct)(nil),  // 5: macropod.WorkflowStruct
 	(*EvalStruct)(nil),      // 6: macropod.EvalStruct
 	(*MetricsStruct)(nil),   // 7: macropod.MetricsStruct
-	nil,                     // 8: macropod.FunctionStruct.EndpointsEntry
-	nil,                     // 9: macropod.FunctionStruct.EnvsEntry
-	nil,                     // 10: macropod.FunctionStruct.SecretsEntry
-	nil,                     // 11: macropod.WorkflowStruct.FunctionsEntry
-	nil,                     // 12: macropod.EvalStruct.ExtraTargetsEntry
-	nil,                     // 13: macropod.EvalStruct.ExtraTargetsPayloadEntry
-	nil,                     // 14: macropod.EvalStruct.WorkflowsEntry
-	(*structpb.Struct)(nil), // 15: google.protobuf.Struct
+	nil,                     // 8: macropod.FunctionStruct.EnvsEntry
+	nil,                     // 9: macropod.FunctionStruct.SecretsEntry
+	nil,                     // 10: macropod.WorkflowStruct.FunctionsEntry
+	nil,                     // 11: macropod.EvalStruct.ExtraTargetsEntry
+	nil,                     // 12: macropod.EvalStruct.ExtraTargetsPayloadEntry
+	nil,                     // 13: macropod.EvalStruct.WorkflowsEntry
+	(*structpb.Struct)(nil), // 14: google.protobuf.Struct
 }
 var file_macropod_proto_depIdxs = []int32{
-	15, // 0: macropod.MacroPodRequest.JSON:type_name -> google.protobuf.Struct
-	8,  // 1: macropod.FunctionStruct.Endpoints:type_name -> macropod.FunctionStruct.EndpointsEntry
-	9,  // 2: macropod.FunctionStruct.Envs:type_name -> macropod.FunctionStruct.EnvsEntry
-	10, // 3: macropod.FunctionStruct.Secrets:type_name -> macropod.FunctionStruct.SecretsEntry
-	15, // 4: macropod.PayloadStruct.JSON:type_name -> google.protobuf.Struct
-	11, // 5: macropod.WorkflowStruct.Functions:type_name -> macropod.WorkflowStruct.FunctionsEntry
-	3,  // 6: macropod.WorkflowStruct.Config:type_name -> macropod.ConfigStruct
-	4,  // 7: macropod.WorkflowStruct.Payload:type_name -> macropod.PayloadStruct
-	12, // 8: macropod.EvalStruct.ExtraTargets:type_name -> macropod.EvalStruct.ExtraTargetsEntry
-	13, // 9: macropod.EvalStruct.ExtraTargetsPayload:type_name -> macropod.EvalStruct.ExtraTargetsPayloadEntry
-	14, // 10: macropod.EvalStruct.Workflows:type_name -> macropod.EvalStruct.WorkflowsEntry
-	2,  // 11: macropod.WorkflowStruct.FunctionsEntry.value:type_name -> macropod.FunctionStruct
-	4,  // 12: macropod.EvalStruct.ExtraTargetsPayloadEntry.value:type_name -> macropod.PayloadStruct
-	5,  // 13: macropod.EvalStruct.WorkflowsEntry.value:type_name -> macropod.WorkflowStruct
-	0,  // 14: macropod.MacroPodFunction.Invoke:input_type -> macropod.MacroPodRequest
-	6,  // 15: macropod.MacroPodEval.Eval:input_type -> macropod.EvalStruct
-	0,  // 16: macropod.MacroPodEval.EvalMetrics:input_type -> macropod.MacroPodRequest
-	0,  // 17: macropod.MacroPodEval.EvalLatency:input_type -> macropod.MacroPodRequest
-	0,  // 18: macropod.MacroPodEval.EvalSummary:input_type -> macropod.MacroPodRequest
-	3,  // 19: macropod.MacroPodIngress.Config:input_type -> macropod.ConfigStruct
-	0,  // 20: macropod.MacroPodIngress.WorkflowInvoke:input_type -> macropod.MacroPodRequest
-	0,  // 21: macropod.MacroPodIngress.FunctionInvoke:input_type -> macropod.MacroPodRequest
-	5,  // 22: macropod.MacroPodIngress.CreateWorkflow:input_type -> macropod.WorkflowStruct
-	5,  // 23: macropod.MacroPodIngress.UpdateWorkflow:input_type -> macropod.WorkflowStruct
-	0,  // 24: macropod.MacroPodIngress.DeleteWorkflow:input_type -> macropod.MacroPodRequest
-	3,  // 25: macropod.MacroPodDeployer.Config:input_type -> macropod.ConfigStruct
-	5,  // 26: macropod.MacroPodDeployer.CreateWorkflow:input_type -> macropod.WorkflowStruct
-	5,  // 27: macropod.MacroPodDeployer.UpdateWorkflow:input_type -> macropod.WorkflowStruct
-	0,  // 28: macropod.MacroPodDeployer.DeleteWorkflow:input_type -> macropod.MacroPodRequest
-	0,  // 29: macropod.MacroPodDeployer.UpdateDeployments:input_type -> macropod.MacroPodRequest
-	0,  // 30: macropod.MacroPodDeployer.CreateDeployment:input_type -> macropod.MacroPodRequest
-	0,  // 31: macropod.MacroPodDeployer.TTLDelete:input_type -> macropod.MacroPodRequest
-	0,  // 32: macropod.MacroPodLogger.Timestamp:input_type -> macropod.MacroPodRequest
-	0,  // 33: macropod.MacroPodLogger.Error:input_type -> macropod.MacroPodRequest
-	0,  // 34: macropod.MacroPodLogger.Print:input_type -> macropod.MacroPodRequest
-	0,  // 35: macropod.MacroPodLogger.GetTimestamp:input_type -> macropod.MacroPodRequest
-	0,  // 36: macropod.MacroPodLogger.GetError:input_type -> macropod.MacroPodRequest
-	0,  // 37: macropod.MacroPodLogger.GetPrint:input_type -> macropod.MacroPodRequest
-	0,  // 38: macropod.MacroPodMetrics.GetMetrics:input_type -> macropod.MacroPodRequest
-	1,  // 39: macropod.MacroPodFunction.Invoke:output_type -> macropod.MacroPodReply
-	1,  // 40: macropod.MacroPodEval.Eval:output_type -> macropod.MacroPodReply
-	1,  // 41: macropod.MacroPodEval.EvalMetrics:output_type -> macropod.MacroPodReply
-	1,  // 42: macropod.MacroPodEval.EvalLatency:output_type -> macropod.MacroPodReply
-	1,  // 43: macropod.MacroPodEval.EvalSummary:output_type -> macropod.MacroPodReply
-	1,  // 44: macropod.MacroPodIngress.Config:output_type -> macropod.MacroPodReply
-	1,  // 45: macropod.MacroPodIngress.WorkflowInvoke:output_type -> macropod.MacroPodReply
-	1,  // 46: macropod.MacroPodIngress.FunctionInvoke:output_type -> macropod.MacroPodReply
-	1,  // 47: macropod.MacroPodIngress.CreateWorkflow:output_type -> macropod.MacroPodReply
-	1,  // 48: macropod.MacroPodIngress.UpdateWorkflow:output_type -> macropod.MacroPodReply
-	1,  // 49: macropod.MacroPodIngress.DeleteWorkflow:output_type -> macropod.MacroPodReply
-	1,  // 50: macropod.MacroPodDeployer.Config:output_type -> macropod.MacroPodReply
-	1,  // 51: macropod.MacroPodDeployer.CreateWorkflow:output_type -> macropod.MacroPodReply
-	1,  // 52: macropod.MacroPodDeployer.UpdateWorkflow:output_type -> macropod.MacroPodReply
-	1,  // 53: macropod.MacroPodDeployer.DeleteWorkflow:output_type -> macropod.MacroPodReply
-	1,  // 54: macropod.MacroPodDeployer.UpdateDeployments:output_type -> macropod.MacroPodReply
-	1,  // 55: macropod.MacroPodDeployer.CreateDeployment:output_type -> macropod.MacroPodReply
-	1,  // 56: macropod.MacroPodDeployer.TTLDelete:output_type -> macropod.MacroPodReply
-	1,  // 57: macropod.MacroPodLogger.Timestamp:output_type -> macropod.MacroPodReply
-	1,  // 58: macropod.MacroPodLogger.Error:output_type -> macropod.MacroPodReply
-	1,  // 59: macropod.MacroPodLogger.Print:output_type -> macropod.MacroPodReply
-	1,  // 60: macropod.MacroPodLogger.GetTimestamp:output_type -> macropod.MacroPodReply
-	1,  // 61: macropod.MacroPodLogger.GetError:output_type -> macropod.MacroPodReply
-	1,  // 62: macropod.MacroPodLogger.GetPrint:output_type -> macropod.MacroPodReply
-	7,  // 63: macropod.MacroPodMetrics.GetMetrics:output_type -> macropod.MetricsStruct
-	39, // [39:64] is the sub-list for method output_type
-	14, // [14:39] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	14, // 0: macropod.MacroPodRequest.JSON:type_name -> google.protobuf.Struct
+	8,  // 1: macropod.FunctionStruct.Envs:type_name -> macropod.FunctionStruct.EnvsEntry
+	9,  // 2: macropod.FunctionStruct.Secrets:type_name -> macropod.FunctionStruct.SecretsEntry
+	14, // 3: macropod.PayloadStruct.JSON:type_name -> google.protobuf.Struct
+	10, // 4: macropod.WorkflowStruct.Functions:type_name -> macropod.WorkflowStruct.FunctionsEntry
+	3,  // 5: macropod.WorkflowStruct.Config:type_name -> macropod.ConfigStruct
+	4,  // 6: macropod.WorkflowStruct.Payload:type_name -> macropod.PayloadStruct
+	11, // 7: macropod.EvalStruct.ExtraTargets:type_name -> macropod.EvalStruct.ExtraTargetsEntry
+	12, // 8: macropod.EvalStruct.ExtraTargetsPayload:type_name -> macropod.EvalStruct.ExtraTargetsPayloadEntry
+	13, // 9: macropod.EvalStruct.Workflows:type_name -> macropod.EvalStruct.WorkflowsEntry
+	2,  // 10: macropod.WorkflowStruct.FunctionsEntry.value:type_name -> macropod.FunctionStruct
+	4,  // 11: macropod.EvalStruct.ExtraTargetsPayloadEntry.value:type_name -> macropod.PayloadStruct
+	5,  // 12: macropod.EvalStruct.WorkflowsEntry.value:type_name -> macropod.WorkflowStruct
+	0,  // 13: macropod.MacroPodFunction.Invoke:input_type -> macropod.MacroPodRequest
+	6,  // 14: macropod.MacroPodEval.Eval:input_type -> macropod.EvalStruct
+	0,  // 15: macropod.MacroPodEval.EvalMetrics:input_type -> macropod.MacroPodRequest
+	0,  // 16: macropod.MacroPodEval.EvalLatency:input_type -> macropod.MacroPodRequest
+	0,  // 17: macropod.MacroPodEval.EvalSummary:input_type -> macropod.MacroPodRequest
+	3,  // 18: macropod.MacroPodIngress.Config:input_type -> macropod.ConfigStruct
+	0,  // 19: macropod.MacroPodIngress.WorkflowInvoke:input_type -> macropod.MacroPodRequest
+	0,  // 20: macropod.MacroPodIngress.FunctionInvoke:input_type -> macropod.MacroPodRequest
+	5,  // 21: macropod.MacroPodIngress.CreateWorkflow:input_type -> macropod.WorkflowStruct
+	5,  // 22: macropod.MacroPodIngress.UpdateWorkflow:input_type -> macropod.WorkflowStruct
+	0,  // 23: macropod.MacroPodIngress.DeleteWorkflow:input_type -> macropod.MacroPodRequest
+	3,  // 24: macropod.MacroPodDeployer.Config:input_type -> macropod.ConfigStruct
+	5,  // 25: macropod.MacroPodDeployer.CreateWorkflow:input_type -> macropod.WorkflowStruct
+	5,  // 26: macropod.MacroPodDeployer.UpdateWorkflow:input_type -> macropod.WorkflowStruct
+	0,  // 27: macropod.MacroPodDeployer.DeleteWorkflow:input_type -> macropod.MacroPodRequest
+	0,  // 28: macropod.MacroPodDeployer.UpdateDeployments:input_type -> macropod.MacroPodRequest
+	0,  // 29: macropod.MacroPodDeployer.CreateDeployment:input_type -> macropod.MacroPodRequest
+	0,  // 30: macropod.MacroPodDeployer.TTLDelete:input_type -> macropod.MacroPodRequest
+	0,  // 31: macropod.MacroPodLogger.Timestamp:input_type -> macropod.MacroPodRequest
+	0,  // 32: macropod.MacroPodLogger.Error:input_type -> macropod.MacroPodRequest
+	0,  // 33: macropod.MacroPodLogger.Print:input_type -> macropod.MacroPodRequest
+	0,  // 34: macropod.MacroPodLogger.GetTimestamp:input_type -> macropod.MacroPodRequest
+	0,  // 35: macropod.MacroPodLogger.GetError:input_type -> macropod.MacroPodRequest
+	0,  // 36: macropod.MacroPodLogger.GetPrint:input_type -> macropod.MacroPodRequest
+	0,  // 37: macropod.MacroPodMetrics.GetMetrics:input_type -> macropod.MacroPodRequest
+	1,  // 38: macropod.MacroPodFunction.Invoke:output_type -> macropod.MacroPodReply
+	1,  // 39: macropod.MacroPodEval.Eval:output_type -> macropod.MacroPodReply
+	1,  // 40: macropod.MacroPodEval.EvalMetrics:output_type -> macropod.MacroPodReply
+	1,  // 41: macropod.MacroPodEval.EvalLatency:output_type -> macropod.MacroPodReply
+	1,  // 42: macropod.MacroPodEval.EvalSummary:output_type -> macropod.MacroPodReply
+	1,  // 43: macropod.MacroPodIngress.Config:output_type -> macropod.MacroPodReply
+	1,  // 44: macropod.MacroPodIngress.WorkflowInvoke:output_type -> macropod.MacroPodReply
+	1,  // 45: macropod.MacroPodIngress.FunctionInvoke:output_type -> macropod.MacroPodReply
+	1,  // 46: macropod.MacroPodIngress.CreateWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 47: macropod.MacroPodIngress.UpdateWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 48: macropod.MacroPodIngress.DeleteWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 49: macropod.MacroPodDeployer.Config:output_type -> macropod.MacroPodReply
+	1,  // 50: macropod.MacroPodDeployer.CreateWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 51: macropod.MacroPodDeployer.UpdateWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 52: macropod.MacroPodDeployer.DeleteWorkflow:output_type -> macropod.MacroPodReply
+	1,  // 53: macropod.MacroPodDeployer.UpdateDeployments:output_type -> macropod.MacroPodReply
+	1,  // 54: macropod.MacroPodDeployer.CreateDeployment:output_type -> macropod.MacroPodReply
+	1,  // 55: macropod.MacroPodDeployer.TTLDelete:output_type -> macropod.MacroPodReply
+	1,  // 56: macropod.MacroPodLogger.Timestamp:output_type -> macropod.MacroPodReply
+	1,  // 57: macropod.MacroPodLogger.Error:output_type -> macropod.MacroPodReply
+	1,  // 58: macropod.MacroPodLogger.Print:output_type -> macropod.MacroPodReply
+	1,  // 59: macropod.MacroPodLogger.GetTimestamp:output_type -> macropod.MacroPodReply
+	1,  // 60: macropod.MacroPodLogger.GetError:output_type -> macropod.MacroPodReply
+	1,  // 61: macropod.MacroPodLogger.GetPrint:output_type -> macropod.MacroPodReply
+	7,  // 62: macropod.MacroPodMetrics.GetMetrics:output_type -> macropod.MetricsStruct
+	38, // [38:63] is the sub-list for method output_type
+	13, // [13:38] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_macropod_proto_init() }
@@ -1401,7 +1396,7 @@ func file_macropod_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_macropod_proto_rawDesc), len(file_macropod_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   6,
 		},

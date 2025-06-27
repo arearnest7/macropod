@@ -23,7 +23,7 @@ message MacroPodReply {
 
 message FunctionStruct {
     string Registry = 1;
-    map<string, string> Endpoints = 2;
+    repeated string Endpoints = 2;
     map<string, string> Envs = 3;
     map<string, string> Secrets = 4;
 }
