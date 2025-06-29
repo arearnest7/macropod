@@ -20,11 +20,25 @@ async function Serve_Invoke(request) {
   await rpc.Timestamp(request, "", "request");
   [reply, code] = await func.FunctionHandler(request);
   await rpc.Timestamp(request, "", "request_end");
-  var res = {reply: reply, code: code};
+  var res = {Reply: reply, Code: code};
   return res;
 }
 
 async function Invoke(call, callback) {
+  var j = {};
+  if (call.request.JSON && call.request.JSON.fields) {
+    for (var key in call.request.JSON.fields) {
+      if (call.request.JSON.fields[key].stringValue !== undefined) {
+        j[key] = call.request.JSON.fields[key].stringValue
+      } else if (call.request.JSON.fields[key].numberValue !== undefined) {
+        j[key] = call.request.JSON.fields[key].numberValue
+      } else if (call.request.JSON.fields[key].boolValue !== undefined) {
+        j[key] = call.request.JSON.fields[key].boolValue
+      } else if (call.request.JSON.fields[key].nullValue !== undefined) {
+        j[key] = call.request.JSON.fields[key].nullValue
+      }
+    }
+  }
   var request = {
     Workflow: call.request.Workflow,
     Function: call.request.Function,
@@ -32,7 +46,7 @@ async function Invoke(call, callback) {
     Depth: call.request.Depth,
     Width: call.request.Width,
     Target: call.request.Target,
-    JSON: call.request.JSON.toJavaScript(),
+    JSON: j,
     Data: call.request.Data,
     Text: call.request.Text,
   };
@@ -77,12 +91,12 @@ async function HTTP_Invoke(req) {
 
 app.get('/', async (req, res) => {
   var reply = await HTTP_Invoke(req);
-  res.send(reply["reply"]);
+  res.send(reply["Reply"]);
 })
 
 app.post('/', async (req, res) => {
   var reply = await HTTP_Invoke(req);
-  res.send(reply["reply"]);
+  res.send(reply["Reply"]);
 })
 
 function main() {

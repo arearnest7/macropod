@@ -88,25 +88,38 @@ async function Invoke(context, dest, payload) {
     Depth: context.Depth+1,
     Width: 0
   };
-  let [reply, code] = await invoke(dest, request);
+  let response = await invoke(dest, request);
   await Timestamp(context, dest, "Invoke_End");
-  return [reply, code];
+  return [response.Reply, response.Code];
 }
 
 async function Invoke_JSON(context, dest, payload) {
   await Timestamp(context, dest, "Invoke_JSON");
+  payload_s = {fields: {}};
+  for (var key in payload) {
+    payload_s.fields[key] = {};
+    if (typeof payload[key] === "string") {
+      payload_s.fields[key].stringValue = payload[key];
+    } else if (typeof payload[key] === "number") {
+      payload_s.fields[key].numberValue = payload[key];
+    } else if (typeof payload[key] === "bool") {
+      payload_s.fields[key].boolValue = payload[key];
+    } else if (typeof payload[key] === "null") {
+      payload_s.fields[key].nullValue = payload[key];
+    }
+  }
   var request = {
     Workflow: context.Workflow,
     Function: dest,
     Target: process.env[dest],
-    JSON: payload,
+    JSON: payload_s,
     WorkflowID: context.WorkflowID,
     Depth: context.Depth+1,
     Width: 0
   };
-  let [reply, code] = await invoke(dest, request);
+  let response = await invoke(dest, request);
   await Timestamp(context, dest, "Invoke_JSON_End");
-  return [reply, code];
+  return [response.Reply, response.Code];
 }
 
 async function Invoke_Data(context, dest, payload) {
@@ -120,9 +133,9 @@ async function Invoke_Data(context, dest, payload) {
     Depth: context.Depth+1,
     Width: 0
   };
-  let [reply, code] = await invoke(dest, request);
+  let response = await invoke(dest, request);
   await Timestamp(context, dest, "Invoke_Data_End");
-  return [reply, code];
+  return [response.Reply, response.Code];
 }
 
 async function Invoke_Multi(context, dest, payloads) {
@@ -158,11 +171,24 @@ async function Invoke_Multi_JSON(context, dest, payloads) {
   var tl = new Array();
   var i = 0;
   for (let payload of payloads) {
+    payload_s = {fields: {}};
+    for (var key in payload) {
+      payload_s.fields[key] = {};
+      if (typeof payload[key] === "string") {
+        payload_s.fields[key].stringValue = payload[key];
+      } else if (typeof payload[key] === "number") {
+        payload_s.fields[key].numberValue = payload[key];
+      } else if (typeof payload[key] === "bool") {
+        payload_s.fields[key].boolValue = payload[key];
+      } else if (typeof payload[key] === "null") {
+        payload_s.fields[key].nullValue = payload[key];
+      }
+    }
     var request = {
       Workflow: context.Workflow,
       Function: dest,
       Target: process.env[dest],
-      JSON: payload,
+      JSON: payload_s,
       WorkflowID: context.WorkflowID,
       Depth: context.Depth+1,
       Width: i
