@@ -14,16 +14,16 @@ for i in ${worker_nodes[@]}; do echo $passwd | sshpass -p $passwd ssh $user@$i -
 host_name=$(hostname)
 sudo kubectl taint nodes $host_name master-node=master-node:NoSchedule
 # omit below if knative is not needed
-#sudo kubectl apply -f deployment/knative/serving-crds.yaml
-#sudo kubectl apply -f deployment/knative/serving-core.yaml
-#sudo kubectl apply -f deployment/knative/istio-ns.yaml
-#sudo kubectl apply -f deployment/knative/istio.yaml
-#sudo kubectl apply -f deployment/knative/net-istio.yaml
-#sudo kubectl apply -f deployment/knative/autoscaler.yaml
-#sleep 60s
-#sudo kubectl get daemonset -A -o jsonpath='{range .items[*]}{.metadata.name}{" -n "}{.metadata.namespace}{"\n"}{end}' | while read -r line; do sudo kubectl patch daemonset $line --patch-file deployment/knative/daemonset.yaml; done;
-#sudo kubectl apply -f deployment/knative/serving-default-domain.yaml
-#sleep 60s
+sudo kubectl apply -f deployment/knative/serving-crds.yaml
+sudo kubectl apply -f deployment/knative/serving-core.yaml
+sudo kubectl apply -f deployment/knative/istio-ns.yaml
+sudo kubectl apply -f deployment/knative/istio.yaml
+sudo kubectl apply -f deployment/knative/net-istio.yaml
+sudo kubectl apply -f deployment/knative/autoscaler.yaml
+sleep 60s
+sudo kubectl get daemonset -A -o jsonpath='{range .items[*]}{.metadata.name}{" -n "}{.metadata.namespace}{"\n"}{end}' | while read -r line; do sudo kubectl patch daemonset $line --patch-file deployment/knative/daemonset.yaml; done;
+sudo kubectl apply -f deployment/knative/serving-default-domain.yaml
+sleep 60s
 #
 sed -i "s/kubernetes.io\/hostname: sysdev-tamu-1/kubernetes.io\/hostname: $host_name/g" deployment/macropod.yaml
 sed -i "s/value: \"192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24\"/value: \"$worker_nodes\"/g" deployment/macropod.yaml
