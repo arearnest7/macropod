@@ -70,6 +70,7 @@ func Nearby(context Context) string {
     //        fmt.Printf("rates error: %v", err)
     //        return ""
     //}
+    fmt.Println(string(r))
     ratesRet, _ := Invoke_JSON(context, requestURL2, r)
     //rates, _ := ioutil.ReadAll(ratesRet)
     // TODO(hw): add simple ranking algo to order hotel ids:

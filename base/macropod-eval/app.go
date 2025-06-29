@@ -256,11 +256,13 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
 }
 
 func Collect_Latency(workflow string, t string, j map[string]interface{}, d []byte) (LatencyResult) {
-    fmt.Println("collecting grpc")
+    //fmt.Println("collecting grpc")
+    ctx, cancel := context.WithTimeout(context.Background(), time.Second * 180)
     s := time.Now()
     jstruct, _ := structpb.NewStruct(j)
-    ingress_stub.WorkflowInvoke(context.Background(), &pb.MacroPodRequest{Workflow: &workflow, Text: &t, JSON: jstruct, Data: d})
+    ingress_stub.WorkflowInvoke(ctx, &pb.MacroPodRequest{Workflow: &workflow, Text: &t, JSON: jstruct, Data: d})
     e := time.Now()
+    cancel()
     latency := e.Sub(s).Seconds()
     start_s := s.UTC().Format("2006-01-02 15:04:05 UTC")
     end_s := e.UTC().Format("2006-01-02 15:04:05 UTC")
@@ -268,9 +270,9 @@ func Collect_Latency(workflow string, t string, j map[string]interface{}, d []by
 }
 
 func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
-    fmt.Println("collecting http text")
+    //fmt.Println("collecting http text")
     s := time.Now()
-    cmd := exec.Command("curl", "-X", "POST", "-d", t, "-H", "Content-Type: plain/txt", target)
+    cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", t, "-H", "Content-Type: plain/txt", target)
     cmd.Run()
     e := time.Now()
     latency := e.Sub(s).Seconds()
@@ -280,10 +282,10 @@ func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
 }
 
 func Collect_Latency_HTTP_JSON(target string, j map[string]interface{}) (LatencyResult) {
-    fmt.Println("collecting http json")
+    //fmt.Println("collecting http json")
     s := time.Now()
     payload, _ := json.Marshal(j)
-    cmd := exec.Command("curl", "-X", "POST", "-d", string(payload), "-H", "Content-Type: application/json", target)
+    cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", string(payload), "-H", "Content-Type: application/json", target)
     cmd.Run()
     e := time.Now()
     latency := e.Sub(s).Seconds()
@@ -293,9 +295,9 @@ func Collect_Latency_HTTP_JSON(target string, j map[string]interface{}) (Latency
 }
 
 func Collect_Latency_HTTP_Data(target string, d []byte) (LatencyResult) {
-    fmt.Println("collecting http data")
+    //fmt.Println("collecting http data")
     s := time.Now()
-    cmd := exec.Command("curl", "-X", "POST", "-d", string(d), "-H", "Content-Type: application/octet-stream", target)
+    cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", string(d), "-H", "Content-Type: application/octet-stream", target)
     cmd.Run()
     e := time.Now()
     latency := e.Sub(s).Seconds()
@@ -387,6 +389,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
                     latency_out.Flush()
                     cnt -= 1
+                    fmt.Println("processed " + benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(cnt) + " remain unprocessed")
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
@@ -421,9 +424,11 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
                     latency_out.Flush()
                     cnt -= 1
+                    fmt.Println("processed " + benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(cnt) + " remain unprocessed")
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
+            fmt.Println(benchmark + "-" + concurrency + " has been completed... deleting from ingress now...")
             benchmark = ""
             concurrency = ""
             phase = ""
@@ -478,6 +483,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
                     latency_out.Flush()
                     cnt -= 1
+                    fmt.Println("processed " + benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(cnt) + " remain unprocessed")
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
@@ -516,9 +522,11 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
                     latency_out.Flush()
                     cnt -= 1
+                    fmt.Println("processed " + benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(cnt) + " remain unprocessed")
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
+            fmt.Println(benchmark + "-" + concurrency + " has been completed... sleeping 300 seconds")
             benchmark = ""
             concurrency = ""
             phase = ""

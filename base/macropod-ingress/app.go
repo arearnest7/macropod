@@ -86,8 +86,9 @@ func Deployer_Check() {
         dataLock.Lock()
         deployer_channel, _ = grpc.Dial(deployer_address, grpc.WithInsecure())
         deployer_stub = pb.NewMacroPodDeployerClient(deployer_channel)
-        time.Sleep(10 * time.Millisecond)
+        Debug("attempting rebuild deployer stub...", 5)
         dataLock.Unlock()
+        time.Sleep(10 * time.Millisecond)
     }
 }
 
@@ -133,11 +134,14 @@ func WatchTTL() {
     for {
         currentTime := time.Now()
         for name, timestamp := range service_timestamp {
+            dataLock.Lock()
             elapsedTime := currentTime.Sub(timestamp)
-            if elapsedTime.Seconds() > float64(service_ttl[name]) {
+            cnt := service_count[name]
+            dataLock.Unlock()
+            if elapsedTime.Seconds() > float64(service_ttl[name]) && cnt == 0 {
                 service_name := strings.Split(name, ".")[0]
                 namespace := strings.Split(name, ".")[1]
-                Debug("Deleting service and deployment of " + service_name  + " because of TTL", 1)
+                Debug("Deleting service and deployment of " + service_name  + " because of TTL: " + currentTime.UTC().Format("2006-01-02 15:04:05.000000 UTC") + " - " + timestamp.UTC().Format("2006-01-02 15:04:05.000000 UTC") + " > " + strconv.Itoa(int(service_ttl[name])), 1)
                 service, exists := k.CoreV1().Services(namespace).Get(context.Background(), service_name, metav1.GetOptions{})
                 if exists == nil {
                     dataLock.Lock()
@@ -382,19 +386,27 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
     service_count[target]--
     workflow_invocations_current[workflow_name]--
     dataLock.Unlock()
-    Debug("request was served by: " + target, 3)
+    Debug("workflow invoke request was served by: " + target, 3)
     return response.GetReply(), status
 }
 
 func Serve_FunctionInvoke(request *pb.MacroPodRequest) (string, int32) {
-    stub := service_stub[request.GetTarget()]
-    response, _ := stub.Invoke(context.Background(), request)
+   Debug("got invoke request",5)
+    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+    channel, _ := grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+    stub := pb.NewMacroPodFunctionClient(channel)
+    response, _ := stub.Invoke(ctx, request)
+    channel.Close()
+    cancel()
     status := response.GetCode()
-    Debug("request was served by: " + request.GetTarget(), 3)
+    Debug("function invoke request was served by: " + request.GetTarget(), 3)
     return response.GetReply(), status
 }
 
 func Serve_CreateWorkflow(request *pb.WorkflowStruct) (string) {
+    if request.GetName() == "" {
+        return "Workflow definition is malformed\n"
+    }
     Debug("WF_CREATE " + request.GetName(), 2)
     _, exists := workflows[request.GetName()]
     if exists {
@@ -421,6 +433,9 @@ func Serve_CreateWorkflow(request *pb.WorkflowStruct) (string) {
 }
 
 func Serve_UpdateWorkflow(request *pb.WorkflowStruct) (string) {
+    if request.GetName() == "" {
+        return "Workflow definition is malformed\n"
+    }
     Debug("WF_UPDATE " + request.GetName(), 2)
     delete_request := pb.MacroPodRequest{Workflow: &request.Name}
     Serve_DeleteWorkflow(&delete_request)
@@ -430,6 +445,9 @@ func Serve_UpdateWorkflow(request *pb.WorkflowStruct) (string) {
 }
 
 func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
+    if request.GetWorkflow() == "" {
+        return "Workflow name is missing\n"
+    }
     Debug("WF_DELETE " + request.GetWorkflow(), 2)
     label_workflow := "workflow_name=" + request.GetWorkflow()
     config, err := rest.InClusterConfig()
@@ -627,6 +645,7 @@ func main() {
     s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))
     pb.RegisterMacroPodIngressServer(s, &IngressService{})
 
+    Deployer_Check()
     go WatchTTL()
     go WatchIngress()
     go s.Serve(l)

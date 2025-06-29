@@ -336,6 +336,9 @@ func Serve_Config(request *pb.ConfigStruct) (string) {
 }
 
 func Serve_CreateWorkflow(request *pb.WorkflowStruct) (string) {
+    if request.GetName() == "" {
+        return "Workflow definition is malformed\n"
+    }
     dataLock.Lock()
     _, exists := workflows[request.GetName()]
     if exists {
@@ -350,6 +353,9 @@ func Serve_CreateWorkflow(request *pb.WorkflowStruct) (string) {
 }
 
 func Serve_UpdateWorkflow(request *pb.WorkflowStruct) (string) {
+    if request.GetName() == "" {
+        return "Workflow definition is malformed\n"
+    }
     delete_request := pb.MacroPodRequest{Workflow: &request.Name}
     Serve_DeleteWorkflow(&delete_request)
     function := Serve_CreateWorkflow(request)
@@ -357,6 +363,9 @@ func Serve_UpdateWorkflow(request *pb.WorkflowStruct) (string) {
 }
 
 func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
+    if request.GetWorkflow() == "" {
+        return "Workflow name is missing\n"
+    }
     dataLock.Lock()
     _, exists := workflows[request.GetWorkflow()]
     dataLock.Unlock()
@@ -448,12 +457,10 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
             var nodes NodeMetricList
             data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
             if err != nil {
-                dataLock.Unlock()
                 return "0"
             }
             err = json.Unmarshal(data, &nodes)
             if err != nil {
-                dataLock.Unlock()
                 return "0"
             }
             for _, node := range nodes.Items {
@@ -512,7 +519,6 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
 }
 
 func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) (string) {
-   
     if !bypass {
 	dataLock.Lock()
         if _, exists := workflows[request.GetWorkflow()]; !exists {
@@ -541,17 +547,16 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) (string) {
     switch deployment {
         case "macropod":
 	   dataLock.Lock()
-
-	   		if _, exists := workflows[request.GetWorkflow()]; !exists {
-			dataLock.Unlock()
-			fmt.Print("workflow not found")
-			return "0"
-		}
-        if len(workflow_pods[request.GetWorkflow()]) == 0 {
-            dataLock.Unlock()
-			fmt.Print("workflow pods empty")
-			return "0"
-        }
+	   if _, exists := workflows[request.GetWorkflow()]; !exists {
+               dataLock.Unlock()
+               fmt.Print("workflow not found")
+               return "0"
+           }
+           if len(workflow_pods[request.GetWorkflow()]) == 0 {
+               dataLock.Unlock()
+               fmt.Print("workflow pods empty")
+               return "0"
+            }
             var nodes NodeMetricList
             data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
             if err != nil {
@@ -840,7 +845,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) (string) {
             }
             dataLock.Unlock()
             return "0"
-        default: 
+        default:
             return "0"
     }
 }

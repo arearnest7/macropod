@@ -1,0 +1,27 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 1,
+    "ExtraTargets": {
+    },
+    "ExtraTargetsPayload": {
+    },
+    "Workflows": {
+        "macropod-video-unified": {
+            "Name": "video",
+            "Functions": {
+                "VIDEO_UNIFIED": {
+                    "Registry": "sysdevtamu/video-unified:latest"
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "gateway",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"video": "video.mp4"}
+            }
+        }
+    }
+}

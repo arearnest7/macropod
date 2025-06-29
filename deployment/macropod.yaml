@@ -83,6 +83,8 @@ spec:
       labels:
         app: macropod
     spec:
+     nodeSelector:
+        kubernetes.io/hostname: sysdev-tamu-1
      serviceAccountName: macropod-service-account
      tolerations:
       - key: "master-node"
@@ -136,7 +138,7 @@ spec:
         - name: TARGET
           value: "-1"
         - name: DEBUG
-          value: "0"
+          value: "5"
       - name: macropod-deployer
         image: sysdevtamu/macropod-deployer:latest
         imagePullPolicy: Always
@@ -165,7 +167,7 @@ spec:
         - name: TARGET
           value: "-1"
         - name: DEBUG
-          value: "0"
+          value: "5"
       - name: macropod-logger
         image: sysdevtamu/macropod-logger:latest
         imagePullPolicy: Always

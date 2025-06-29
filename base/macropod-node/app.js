@@ -25,7 +25,18 @@ async function Serve_Invoke(request) {
 }
 
 async function Invoke(call, callback) {
-  const res = await Serve_Invoke(call.request);
+  var request = {
+    Workflow: call.request.Workflow,
+    Function: call.request.Function,
+    WorkflowID: call.request.WorkflowID,
+    Depth: call.request.Depth,
+    Width: call.request.Width,
+    Target: call.request.Target,
+    JSON: call.request.JSON.toJavaScript(),
+    Data: call.request.Data,
+    Text: call.request.Text,
+  };
+  const res = await Serve_Invoke(request);
   await callback(null, res);
 }
 
@@ -66,12 +77,12 @@ async function HTTP_Invoke(req) {
 
 app.get('/', async (req, res) => {
   var reply = await HTTP_Invoke(req);
-  res.send(reply);
+  res.send(reply["reply"]);
 })
 
 app.post('/', async (req, res) => {
   var reply = await HTTP_Invoke(req);
-  res.send(reply);
+  res.send(reply["reply"]);
 })
 
 function main() {

@@ -83,7 +83,7 @@ spec:
       labels:
         app: macropod
     spec:
-     nodeSelector: 
+     nodeSelector:
         kubernetes.io/hostname: sys-dev-vm-1
      serviceAccountName: macropod-service-account
      tolerations:

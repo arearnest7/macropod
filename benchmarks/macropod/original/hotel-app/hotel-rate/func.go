@@ -57,6 +57,11 @@ func GetRates(req map[string]interface{}) string {
 
     // fmt.Printf("Hotel Ids: %+v\n", req.HotelIds)
 
+    fmt.Println(req)
+    if req["HotelIds"] == nil {
+        return ""
+    }
+
     for _, hotelID := range req["HotelIds"].([]string) {
         // first check memcached
         _, err := "not nil", memcache.ErrCacheMiss

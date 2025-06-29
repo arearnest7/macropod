@@ -34,7 +34,7 @@
                 },
                 "ELECTION_VOTE_PROCESSOR": {
                     "Registry": "sysdevtamu/election-vote-processor:latest",
-                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
             },
             "Config": {
@@ -65,7 +65,7 @@
                 },
                 "ELECTION_VOTE_PROCESSOR": {
                     "Registry": "sysdevtamu/election-vote-processor:latest",
-                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
             },
             "Config": {
@@ -96,7 +96,7 @@
                 },
                 "ELECTION_VOTE_PROCESSOR": {
                     "Registry": "sysdevtamu/election-vote-processor:latest",
-                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
             },
             "Config": {
@@ -127,7 +127,7 @@
                 },
                 "ELECTION_VOTE_PROCESSOR": {
                     "Registry": "sysdevtamu/election-vote-processor:latest",
-                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
             },
             "Config": {
