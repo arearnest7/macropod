@@ -10,7 +10,7 @@ sleep 30s
 sudo cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
 echo "export KUBECONFIG=/root/.kube/config" | sudo tee -a /root/.profile >> /dev/null
 export token=$(sudo cat /var/lib/rancher/k3s/server/node-token)
-for i in ${worker_nodes[@]}; do echo $passwd | sshpass -p $passwd ssh $user@$i -tt "sudo apt-get install ca-certificates curl gnupg -y && curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"agent --server https://$host:6443 --token $token --flannel-iface=$iface --node-external-ip $i\" sh -"; done;
+for i in ${worker_nodes[@]}; do echo $passwd | sshpass -p $passwd ssh $user@$i -tt -o StrictHostKeyChecking=no "sudo apt-get install ca-certificates curl gnupg -y && curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"agent --server https://$host:6443 --token $token --flannel-iface=$iface --node-external-ip $i\" sh -"; done;
 host_name=$(hostname)
 sudo kubectl taint nodes $host_name master-node=master-node:NoSchedule
 # omit below if knative is not needed
