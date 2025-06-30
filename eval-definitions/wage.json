@@ -160,54 +160,6 @@
                 "JSON": {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694}
             }
         },
-        "macropod-wage-dynamic": {
-            "Name": "wage",
-            "Functions": {
-                "WAGE_AVG": {
-                    "Registry": "sysdevtamu/wage-avg:latest",
-                    "Endpoints": ["WAGE_MERIT"]
-                },
-                "WAGE_FORMAT": {
-                    "Registry": "sysdevtamu/wage-format:latest",
-                    "Endpoints": ["WAGE_WRITE_RAW"]
-                },
-                "WAGE_MERIT": {
-                    "Registry": "sysdevtamu/wage-merit:latest",
-                    "Endpoints": ["WAGE_WRITE_MERIT"]
-                },
-                "WAGE_STATS": {
-                    "Registry": "sysdevtamu/wage-stats:latest",
-                    "Endpoints": ["WAGE_SUM"],
-                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
-                },
-                "WAGE_SUM": {
-                    "Registry": "sysdevtamu/wage-sum:latest",
-                    "Endpoints": ["WAGE_AVG"]
-                },
-                "WAGE_VALIDATOR": {
-                    "Registry": "sysdevtamu/wage-validator:latest",
-                    "Endpoints": ["WAGE_FORMAT"]
-                },
-                "WAGE_WRITE_MERIT": {
-                    "Registry": "sysdevtamu/wage-write-merit:latest",
-                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
-                },
-                "WAGE_WRITE_RAW": {
-                    "Registry": "sysdevtamu/wage-write-raw:latest",
-                    "Endpoints": ["WAGE_STATS"],
-                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
-                }
-            },
-            "Config": {
-                "Deployment": "macropod",
-                "Communication": "direct",
-                "Aggregation": "dynamic"
-            },
-            "Payload": {
-                "Type": "JSON",
-                "JSON": {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694}
-            }
-        },
         "macropod-wage-unified": {
             "Name": "wage",
             "Functions": {

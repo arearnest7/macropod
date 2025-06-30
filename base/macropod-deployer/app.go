@@ -159,6 +159,7 @@ func CreateInitialPod(workflow_name string) {
     }
     workflow_initial_pods[workflow_name] = initial_pod
     workflow_latest_version[workflow_name] = 1
+    workflow_last_updated[workflow_name] = time.Now()
 }
 
 // return in bytes
@@ -388,6 +389,7 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
             Debug(err.Error(), 0)
         }
         for _, deployment := range deployments.Items {
+	    Debug("deleting the deployment "+deployment.ObjectMeta.Name, 5)
             kclient.AppsV1().Deployments(namespace).Delete(context.Background(), deployment.ObjectMeta.Name, metav1.DeleteOptions{})
         }
         ingresses, err := kclient.NetworkingV1().Ingresses(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
@@ -398,8 +400,9 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
             kclient.NetworkingV1().Ingresses(namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
         }
         for {
-            Debug("waiting for " + request.GetWorkflow() + " to delete", 5)
-            deployments_list, _ := kclient.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+            //Debug("waiting for " + request.GetWorkflow() + " to delete", 5)
+            Debug("waiting for " + request.GetWorkflow() + "with label" + label_workflow + " to delete", 5)
+	    deployments_list, _ := kclient.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
             if deployments_list == nil || len(deployments_list.Items) == 0 {
                 break
             }
@@ -435,6 +438,7 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
     if workflows[request.GetWorkflow()].GetConfig() != nil && workflows[request.GetWorkflow()].GetConfig().GetTTL() != 0 {
         ttl = workflows[request.GetWorkflow()].GetConfig().GetTTL()
     }
+    fmt.Printf("%d seconds passed since last update",time.Duration(time.Since(workflow_last_updated[request.GetWorkflow()]).Seconds()))
     if time.Since(workflow_last_updated[request.GetWorkflow()]) < time.Second*time.Duration(ttl) {
         dataLock.Unlock()
         return "0"
@@ -447,12 +451,15 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
     switch aggregation {
         case "dynamic":
             dataLock.Lock()
+	    if time.Since(workflow_last_updated[request.GetWorkflow()]) < time.Second*time.Duration(ttl) {
+              dataLock.Unlock()
+              return "0"
+            }
             if workflow_fully_disaggregated[request.GetWorkflow()] {
                 dataLock.Unlock()
                 return "0"
             }
             workflow_updating[request.GetWorkflow()] = true
-            dataLock.Unlock()
             // get the percentage of the node utilisation
             var nodes NodeMetricList
             data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
@@ -468,18 +475,20 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
                 if exists && value == "true" {
                     continue
                 }
-                dataLock.Lock()
+                
                 node_name := node.Metadata.Name
                 usage_mem, _ := memory_raw_to_float(node.Usage.Memory)
                 usage_cpu, _ := cpu_raw_to_float(node.Usage.CPU)
                 percentage_cpu := (usage_cpu / nodeCapacityCPU[node_name]) * 100
                 percentage_mem := (usage_mem / nodeCapacityMemory[node_name]) * 100
-                dataLock.Unlock()
+               
                 if percentage_mem > 70 || percentage_cpu > 70 {
-                    dataLock.Lock()
+                    
+		   // Debug(".....................updating..........",5)
                     workflow_latest_version[request.GetWorkflow()] += 1
                     var pods_updated [][]string
                     for _, pod := range workflow_pods[request.GetWorkflow()] {
+			 fmt.Printf("pod :%v\n",pod)
                         if len(pod) > 1 {
                             idx := int(math.Floor(float64(len(pod)) / 2))
                             pods_updated = append(pods_updated, pod[:idx])
@@ -488,6 +497,7 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
                             pods_updated = append(pods_updated, pod)
                         }
                     }
+		    fmt.Printf("updatinggggggg %v", pods_updated)
 
                     pod_2_or_more := false
                     for _, pod := range pods_updated {
@@ -506,8 +516,6 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) (string) {
                     return "2"
                 }
             }
-
-            dataLock.Lock()
             if _, exists := workflows[request.GetWorkflow()]; exists {
                 workflow_updating[request.GetWorkflow()] = false
             }
@@ -861,6 +869,7 @@ func Serve_TTLDelete(request *pb.MacroPodRequest) (string) {
     }
     dataLock.Unlock()
     labels_replica := "workflow_replica=" + labels
+    Debug("deleting request of "+labels_replica, 2)
     services, err := kclient.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
     if err != nil {
         Debug(err.Error(), 0)

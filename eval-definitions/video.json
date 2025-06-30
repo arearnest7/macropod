@@ -91,31 +91,6 @@
                 "JSON": {"video": "video.mp4"}
             }
         },
-        "macropod-video-dynamic": {
-            "Name": "video",
-            "Functions": {
-                "VIDEO_DECODER": {
-                    "Registry": "sysdevtamu/video-decoder:latest",
-                    "Endpoints": ["VIDEO_RECOG"]
-                },
-                "VIDEO_RECOG": {
-                    "Registry": "sysdevtamu/video-recog:latest"
-                },
-                "VIDEO_STREAMING": {
-                    "Registry": "sysdevtamu/video-streaming:latest",
-                    "Endpoints": ["VIDEO_DECODER"]
-                }
-            },
-            "Config": {
-                "Deployment": "macropod",
-                "Communication": "direct",
-                "Aggregation": "dynamic"
-            },
-            "Payload": {
-                "Type": "JSON",
-                "JSON": {"video": "video.mp4"}
-            }
-        },
         "macropod-video-unified": {
             "Name": "video",
             "Functions": {

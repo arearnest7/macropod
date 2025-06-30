@@ -162,12 +162,16 @@ func WatchTTL() {
                         delete(service_ttl, service.Name)
                         dataLock.Unlock()
                     }
-                    for {
+                    for  {
+			if labels == ""{
+				break
+			}
                         ttl_request := pb.MacroPodRequest{Workflow: &workflow_name, Target: &labels}
+                        Debug("deleting resources for" + labels, 5)
                         go deployer_stub.TTLDelete(context.Background(), &ttl_request)
                         time.Sleep(100 * time.Millisecond)
-                        deployments_list, _ := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels})
-                        if deployments_list == nil || len(deployments_list.Items) == 0 {
+                        deployments_list, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels})
+			if err != nil || deployments_list == nil || len(deployments_list.Items) == 0 {
                             break
                         }
                     }
@@ -452,6 +456,7 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
         return "Workflow name is missing\n"
     }
     Debug("WF_DELETE " + request.GetWorkflow(), 2)
+    deployer_stub.DeleteWorkflow(context.Background(), request)
     label_workflow := "workflow_name=" + request.GetWorkflow()
     config, err := rest.InClusterConfig()
     if err != nil {
@@ -479,7 +484,6 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
         delete(service_ttl, service.Name)
         dataLock.Unlock()
     }
-    deployer_stub.DeleteWorkflow(context.Background(), request)
     dataLock.Lock()
     delete(workflows, request.GetWorkflow())
     delete(workflow_target_concurrency, request.GetWorkflow())
