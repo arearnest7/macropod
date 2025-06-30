@@ -142,8 +142,8 @@ func WatchTTL() {
                 service_name := strings.Split(name, ".")[0]
                 namespace := strings.Split(name, ".")[1]
                 Debug("Deleting service and deployment of " + service_name  + " because of TTL: " + currentTime.UTC().Format("2006-01-02 15:04:05.000000 UTC") + " - " + timestamp.UTC().Format("2006-01-02 15:04:05.000000 UTC") + " > " + strconv.Itoa(int(service_ttl[name])), 1)
-                service, exists := k.CoreV1().Services(namespace).Get(context.Background(), service_name, metav1.GetOptions{})
-                if exists != nil {
+                service, _ := k.CoreV1().Services(namespace).Get(context.Background(), service_name, metav1.GetOptions{})
+                if service != nil {
                     dataLock.Lock()
                     workflow_name := service.Labels["workflow_name"]
                     labels := service.Labels["workflow_replica"]
@@ -171,6 +171,14 @@ func WatchTTL() {
                             break
                         }
                     }
+                } else {
+                    dataLock.Lock()
+                    delete(service_count, name)
+                    delete(service_timestamp, name)
+                    delete(service_channel, name)
+                    delete(service_stub, name)
+                    delete(service_ttl, name)
+                    dataLock.Unlock()
                 }
             }
             time.Sleep(time.Second)
