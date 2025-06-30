@@ -76,7 +76,7 @@ var (
 )
 
 func Debug(message string, debug_level int) {
-    if default_config.GetDebug() > int32(debug_level) {
+    if default_config.GetDebug() >= int32(debug_level) {
         fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message + "\n")
     }
 }
