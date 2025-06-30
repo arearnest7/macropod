@@ -143,7 +143,7 @@ func WatchTTL() {
                 namespace := strings.Split(name, ".")[1]
                 Debug("Deleting service and deployment of " + service_name  + " because of TTL: " + currentTime.UTC().Format("2006-01-02 15:04:05.000000 UTC") + " - " + timestamp.UTC().Format("2006-01-02 15:04:05.000000 UTC") + " > " + strconv.Itoa(int(service_ttl[name])), 1)
                 service, exists := k.CoreV1().Services(namespace).Get(context.Background(), service_name, metav1.GetOptions{})
-                if exists == nil {
+                if exists != nil {
                     dataLock.Lock()
                     workflow_name := service.Labels["workflow_name"]
                     labels := service.Labels["workflow_replica"]
@@ -163,7 +163,6 @@ func WatchTTL() {
                         dataLock.Unlock()
                     }
                     for {
-                        Deployer_Check()
                         ttl_request := pb.MacroPodRequest{Workflow: &workflow_name, Target: &labels}
                         go deployer_stub.TTLDelete(context.Background(), &ttl_request)
                         time.Sleep(100 * time.Millisecond)
@@ -299,7 +298,6 @@ func GetTarget(triggered bool, workflow_name string, target string) (string, boo
     }
     if !triggered && len(service_target[workflow_name]) < workflow_invocations_current[workflow_name]{
         triggered = true
-        Deployer_Check()
         create_deployment_request := pb.MacroPodRequest{Workflow: &workflow_name}
 	Debug("sending request to create deployments\n", 0)
         go deployer_stub.CreateDeployment(context.Background(), &create_deployment_request)
@@ -336,7 +334,6 @@ func Serve_Config(request *pb.ConfigStruct) (string) {
         default_config.TargetConcurrency = &target
     }
     dataLock.Unlock()
-    Deployer_Check()
     _, err := deployer_stub.Config(context.Background(), request)
     if err != nil {
         Debug(err.Error(), 0)
@@ -376,7 +373,6 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
     request.Width = &dw
     status := int32(0)
     var response *pb.MacroPodReply
-    Deployer_Check()
     update_request := pb.MacroPodRequest{Workflow: &workflow_name, WorkflowID: &invocations_current}
     go deployer_stub.UpdateDeployments(context.Background(), &update_request)
     stub := service_stub[target]
@@ -393,7 +389,7 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
 func Serve_FunctionInvoke(request *pb.MacroPodRequest) (string, int32) {
    Debug("got invoke request",5)
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-    channel, _ := grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+    channel, _ := grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
     stub := pb.NewMacroPodFunctionClient(channel)
     response, _ := stub.Invoke(ctx, request)
     channel.Close()
@@ -422,7 +418,6 @@ func Serve_CreateWorkflow(request *pb.WorkflowStruct) (string) {
     workflow_invocations_current[request.GetName()] = 0
     workflow_invocations_total[request.GetName()] = 0
     dataLock.Unlock()
-    Deployer_Check()
     results, _ := deployer_stub.CreateWorkflow(context.Background(), request)
     entrypoint := results.GetReply()
     dataLock.Lock()
@@ -476,7 +471,6 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
         delete(service_ttl, service.Name)
         dataLock.Unlock()
     }
-    Deployer_Check()
     deployer_stub.DeleteWorkflow(context.Background(), request)
     dataLock.Lock()
     delete(workflows, request.GetWorkflow())
