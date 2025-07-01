@@ -111,7 +111,7 @@ spec:
         - name: SUMMARY_DIR
           value: "/app/summary/"
         - name: WORKER_NODES
-          value: "192.168.1.19"
+          value: "192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24"
       - name: macropod-ingress
         image: sysdevtamu/macropod-ingress:latest
         imagePullPolicy: Always
