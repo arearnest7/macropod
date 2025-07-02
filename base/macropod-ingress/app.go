@@ -456,8 +456,13 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
         return "Workflow name is missing\n"
     }
     Debug("WF_DELETE " + request.GetWorkflow(), 2)
-    deployer_stub.DeleteWorkflow(context.Background(), request)
+    response, err := deployer_stub.DeleteWorkflow(context.Background(), request)
+    if err != nil {
+	Debug("error in response of delete "+err.Error(), 5)
+    }
+    fmt.Printf("response: %v", response)
     label_workflow := "workflow_name=" + request.GetWorkflow()
+    fmt.Printf("delete request for %s", label_workflow)
     config, err := rest.InClusterConfig()
     if err != nil {
         Debug("Failed to get in-cluster config: " + err.Error(), 0)

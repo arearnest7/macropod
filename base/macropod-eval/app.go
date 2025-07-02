@@ -434,6 +434,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
             phase = ""
             wf_delete := workflow.GetName()
             ingress_stub.DeleteWorkflow(context.Background(), &pb.MacroPodRequest{Workflow: &wf_delete})
+            time.Sleep(300 * time.Second)
         }
     }
     for workflow_name, target := range request.GetExtraTargets() {
