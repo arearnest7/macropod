@@ -29,9 +29,11 @@ var (
     error_lock     = make(map[string]map[string]*sync.Mutex)
     print_dir      string
     print_lock     = make(map[string]map[string]*sync.Mutex)
+    dataLock     sync.Mutex
 )
 
 func Serve_Timestamp(request *pb.MacroPodRequest) {
+    dataLock.Lock()
     _, exists := timestamp_lock[request.GetWorkflow()]
     if !exists {
         timestamp_lock[request.GetWorkflow()] = make(map[string]*sync.Mutex)
@@ -41,6 +43,7 @@ func Serve_Timestamp(request *pb.MacroPodRequest) {
         m := sync.Mutex{}
         timestamp_lock[request.GetWorkflow()][request.GetFunction()] = &m
     }
+    dataLock.Unlock()
     timestamp_lock[request.GetWorkflow()][request.GetFunction()].Lock()
     if _, err := os.Stat(timestamp_dir + request.GetWorkflow()); err != nil {
         if os.IsNotExist(err) {
@@ -56,6 +59,7 @@ func Serve_Timestamp(request *pb.MacroPodRequest) {
 }
 
 func Serve_Error(request *pb.MacroPodRequest) {
+    dataLock.Lock()
     _, exists := error_lock[request.GetWorkflow()]
     if !exists {
         error_lock[request.GetWorkflow()] = make(map[string]*sync.Mutex)
@@ -65,6 +69,7 @@ func Serve_Error(request *pb.MacroPodRequest) {
         m := sync.Mutex{}
         error_lock[request.GetWorkflow()][request.GetFunction()] = &m
     }
+    dataLock.Unlock()
     error_lock[request.GetWorkflow()][request.GetFunction()].Lock()
     if _, err := os.Stat(error_dir + request.GetWorkflow()); err != nil {
         if os.IsNotExist(err) {
@@ -80,6 +85,7 @@ func Serve_Error(request *pb.MacroPodRequest) {
 }
 
 func Serve_Print(request *pb.MacroPodRequest) {
+    dataLock.Lock()
     _, exists := print_lock[request.GetWorkflow()]
     if !exists {
         print_lock[request.GetWorkflow()] = make(map[string]*sync.Mutex)
@@ -89,6 +95,7 @@ func Serve_Print(request *pb.MacroPodRequest) {
         m := sync.Mutex{}
         print_lock[request.GetWorkflow()][request.GetFunction()] = &m
     }
+    dataLock.Unlock()
     print_lock[request.GetWorkflow()][request.GetFunction()].Lock()
     if _, err := os.Stat(print_dir + request.GetWorkflow()); err != nil {
         if os.IsNotExist(err) {
@@ -104,6 +111,7 @@ func Serve_Print(request *pb.MacroPodRequest) {
 }
 
 func Serve_GetTimestamp(request *pb.MacroPodRequest) (string) {
+    dataLock.Lock()
     _, exists := timestamp_lock[request.GetWorkflow()]
     if !exists {
         timestamp_lock[request.GetWorkflow()] = make(map[string]*sync.Mutex)
@@ -113,6 +121,7 @@ func Serve_GetTimestamp(request *pb.MacroPodRequest) (string) {
         m := sync.Mutex{}
         timestamp_lock[request.GetWorkflow()][request.GetFunction()] = &m
     }
+    dataLock.Unlock()
     timestamp_lock[request.GetWorkflow()][request.GetFunction()].Lock()
     if _, err := os.Stat(timestamp_dir + request.GetWorkflow()); err != nil {
         if os.IsNotExist(err) {
@@ -127,6 +136,7 @@ func Serve_GetTimestamp(request *pb.MacroPodRequest) (string) {
 }
 
 func Serve_GetError(request *pb.MacroPodRequest) (string) {
+    dataLock.Lock()
     _, exists := error_lock[request.GetWorkflow()]
     if !exists {
         error_lock[request.GetWorkflow()] = make(map[string]*sync.Mutex)
@@ -136,6 +146,7 @@ func Serve_GetError(request *pb.MacroPodRequest) (string) {
         m := sync.Mutex{}
         error_lock[request.GetWorkflow()][request.GetFunction()] = &m
     }
+    dataLock.Unlock()
     error_lock[request.GetWorkflow()][request.GetFunction()].Lock()
     if _, err := os.Stat(error_dir + request.GetWorkflow()); err != nil {
         if os.IsNotExist(err) {
@@ -150,6 +161,7 @@ func Serve_GetError(request *pb.MacroPodRequest) (string) {
 }
 
 func Serve_GetPrint(request *pb.MacroPodRequest) (string) {
+    dataLock.Lock()
     _, exists := print_lock[request.GetWorkflow()]
     if !exists {
         print_lock[request.GetWorkflow()] = make(map[string]*sync.Mutex)
@@ -159,6 +171,7 @@ func Serve_GetPrint(request *pb.MacroPodRequest) (string) {
         m := sync.Mutex{}
         print_lock[request.GetWorkflow()][request.GetFunction()] = &m
     }
+    dataLock.Unlock()
     print_lock[request.GetWorkflow()][request.GetFunction()].Lock()
     if _, err := os.Stat(print_dir + request.GetWorkflow()); err != nil {
         if os.IsNotExist(err) {
