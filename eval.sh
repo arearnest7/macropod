@@ -17,5 +17,7 @@ for definition in ${definitions[@]}; do
 	sudo ./remove-$definition-unified.sh
 	sudo ./remove-$definition-original.sh
 	cd ..
+        kubectl delete ns knative-functions
+        kubectl create ns knative-functions
 	sleep 600s
 done;
