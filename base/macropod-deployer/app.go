@@ -245,9 +245,11 @@ func CheckNodeStatus() {
             for _, condition := range node.Status.Conditions {
                 if condition.Type == "Ready" && condition.Status != "True" {
                     dataLock.Lock()
+                    Debug("lock acquired", 6)
                     delete(nodeCapacityCPU, node.Name)
                     delete(nodeCapacityMemory, node.Name)
                     dataLock.Unlock()
+                    Debug("lock released", 6)
                     notReady = true
                 }
             }
@@ -264,9 +266,11 @@ func CheckNodeStatus() {
                 panic(err)
             }
             dataLock.Lock()
+            Debug("lock acquired", 6)
             nodeCapacityCPU[node.Name] = cpu_float
             nodeCapacityMemory[node.Name] = mem_float
             dataLock.Unlock()
+            Debug("lock released", 6)
         }
         time.Sleep(30 * time.Second)
     }
@@ -274,16 +278,20 @@ func CheckNodeStatus() {
 
 func NodeReclaim(workflow_name string) {
     dataLock.Lock()
+    Debug("lock acquired", 6)
     reclaim_replicas := workflow_deployments[workflow_name]
     namespace := default_config.GetNamespace()
     if workflows[workflow_name].GetConfig() != nil && workflows[workflow_name].GetConfig().GetNamespace() != "" {
         namespace = workflows[workflow_name].GetConfig().GetNamespace()
     }
     dataLock.Unlock()
+    Debug("lock released", 6)
     for replica_name, _ := range reclaim_replicas {
         dataLock.Lock()
+        Debug("lock acquired", 6)
         delete(workflow_deployments[workflow_name], replica_name)
         dataLock.Unlock()
+        Debug("lock released", 6)
         labels_replica := "workflow_replica=" + replica_name
         services, err := kclient.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
         if err != nil {
@@ -318,12 +326,15 @@ func NodeReclaim(workflow_name string) {
         Serve_CreateDeployment(&request, true)
     }
     dataLock.Lock()
+    Debug("lock acquired", 6)
     workflow_updating[workflow_name] = false
     dataLock.Unlock()
+    Debug("lock released", 6)
 }
 
 func Serve_Config(request *pb.ConfigStruct) string {
     dataLock.Lock()
+    Debug("lock acquired", 6)
     default_config = request
     config_txt := ""
     config_txt += "Namespace: " + default_config.GetNamespace() + "\n"
@@ -334,6 +345,7 @@ func Serve_Config(request *pb.ConfigStruct) string {
     config_txt += "TargetConcurrency: " + string(default_config.GetTargetConcurrency()) + "\n"
     config_txt += "Debug: " + string(default_config.GetDebug()) + "\n"
     dataLock.Unlock()
+    Debug("lock released", 6)
     return config_txt
 }
 
@@ -343,9 +355,11 @@ func Serve_CreateWorkflow(request *pb.WorkflowStruct) string {
         return "Workflow definition is malformed\n"
     }
     dataLock.Lock()
+    Debug("lock acquired", 6)
     _, exists := workflows[request.GetName()]
     if exists {
         dataLock.Unlock()
+        Debug("lock released", 6)
         return ""
     }
     workflows[request.GetName()] = request
@@ -353,6 +367,7 @@ func Serve_CreateWorkflow(request *pb.WorkflowStruct) string {
     CreateInitialPod(request.GetName())
     entrypoint := workflow_pods[request.GetName()][0][0]
     dataLock.Unlock()
+    Debug("lock released", 6)
     return entrypoint
 }
 
@@ -376,7 +391,7 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
     }
     cancelFunc()
     dataLock.Lock()
-    Debug("acquired data lock to delete the resources", 5)
+    Debug("lock acquired", 6)
     label_workflow := "workflow_name=" + request.GetWorkflow()
     namespace := default_config.GetNamespace()
     if workflows[request.GetWorkflow()].GetConfig() != nil && workflows[request.GetWorkflow()].GetConfig().GetNamespace() != "" {
@@ -393,6 +408,7 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
     delete(workflow_initial_pods, request.GetWorkflow())
     delete(workflow_fully_disaggregated, request.GetWorkflow())
     dataLock.Unlock()
+    Debug("lock released", 6)
     //Debug("data lock acquired for delete, no more creations",5)
     // Debug("deleting workflow " + request.GetWorkflow(), 2)
     services, err := kclient.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
@@ -432,14 +448,18 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
 }
 
 func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
+    Debug("update request",6)
     dataLock.Lock()
+    Debug("lock acquired", 6)
     if _, exists := workflows[request.GetWorkflow()]; !exists {
         Debug("workflow is not present", 3)
         dataLock.Unlock()
+        Debug("lock released", 6)
         return "0"
     }
     if workflow_updating[request.GetWorkflow()] {
         dataLock.Unlock()
+        Debug("lock released", 6)
         return "1"
     }
     ttl := default_config.GetTTL()
@@ -449,6 +469,7 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
     //fmt.Printf("%d seconds passed since last update",time.Duration(time.Since(workflow_last_updated[request.GetWorkflow()]).Seconds()))
     if time.Since(workflow_last_updated[request.GetWorkflow()]) < time.Second*time.Duration(ttl) {
         dataLock.Unlock()
+        Debug("lock released", 6)
         return "0"
     }
     aggregation := default_config.GetAggregation()
@@ -456,15 +477,19 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
         aggregation = workflows[request.GetWorkflow()].GetConfig().GetAggregation()
     }
     dataLock.Unlock()
+    Debug("lock released", 6)
     switch aggregation {
     case "dynamic":
         dataLock.Lock()
+        Debug("lock acquired", 6)
         if time.Since(workflow_last_updated[request.GetWorkflow()]) < time.Second*time.Duration(ttl) {
             dataLock.Unlock()
+            Debug("lock released", 6)
             return "0"
         }
         if workflow_fully_disaggregated[request.GetWorkflow()] {
             dataLock.Unlock()
+            Debug("lock released", 6)
             return "0"
         }
         workflow_updating[request.GetWorkflow()] = true
@@ -473,11 +498,13 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
         data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
         if err != nil {
             dataLock.Unlock()
+            Debug("lock released", 6)
             return "0"
         }
         err = json.Unmarshal(data, &nodes)
         if err != nil {
             dataLock.Unlock()
+            Debug("lock released", 6)
             return "0"
         }
         for _, node := range nodes.Items {
@@ -523,6 +550,7 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
                 workflow_last_updated[request.GetWorkflow()] = time.Now()
                 go NodeReclaim(request.GetWorkflow())
                 dataLock.Unlock()
+                Debug("lock released", 6)
                 return "2"
             }
         }
@@ -530,6 +558,7 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
             workflow_updating[request.GetWorkflow()] = false
         }
         dataLock.Unlock()
+        Debug("lock released", 6)
         return "0"
     default:
         return "0"
@@ -546,22 +575,26 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
         return "0"
     default:
         dataLock.Lock()
+        Debug("lock acquired", 6)
         contextLock.Lock()
         lockMacropod := deletecontext
         contextLock.Unlock()
         select {
         case <- lockMacropod.Done():
             dataLock.Unlock()
+             Debug("lock released", 6)
             return "0"
         default:
         if !bypass {
             if _, exists := workflows[request.GetWorkflow()]; !exists {
                 Debug("Workflow definition not found", 0)
                 dataLock.Unlock()
+                 Debug("lock released", 6)
                 return "0"
             }
             if workflow_updating[request.GetWorkflow()] {
                 dataLock.Unlock()
+                 Debug("lock released", 6)
                 return "1"
             }
         }
@@ -583,11 +616,13 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
 
             if _, exists := workflows[request.GetWorkflow()]; !exists {
                 dataLock.Unlock()
+                 Debug("lock released", 6)
                 fmt.Print("workflow not found")
                 return "0"
             }
             if len(workflow_pods[request.GetWorkflow()]) == 0 {
                 dataLock.Unlock()
+                 Debug("lock released", 6)
                 fmt.Print("workflow pods empty")
                 return "0"
             }
@@ -595,11 +630,13 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
             data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
             if err != nil {
                 dataLock.Unlock()
+                 Debug("lock released", 6)
                 return "0"
             }
             err = json.Unmarshal(data, &nodes)
             if err != nil {
                 dataLock.Unlock()
+                 Debug("lock released", 6)
                 return "0"
             }
             start_node := -1
@@ -622,6 +659,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
             }
             if start_node == -1 {
                 dataLock.Unlock()
+                 Debug("lock released", 6)
                 return "0"
             }
             replicaNumber := strconv.Itoa(workflow_replica_count[request.GetWorkflow()])
@@ -774,6 +812,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                     if err != nil {
                         Debug("unable to create deployment "+strings.ToLower(pod[0])+" for "+namespace+" - "+err.Error(), 0)
                         dataLock.Unlock()
+                         Debug("lock released", 6)
                         return "0"
                     }
                 } else {
@@ -827,6 +866,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                     if err != nil {
                         Debug("unable to create service "+strings.ToLower(pod[0])+"-"+replicaNumber+" for "+namespace+" - "+err.Error(), 0)
                         dataLock.Unlock()
+                         Debug("lock released", 6)
                         return "0"
                     }
                 } else {
@@ -834,6 +874,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                     if err != nil {
                         Debug("unable to update service "+strings.ToLower(pod[0])+"-"+replicaNumber+" for "+namespace+" - "+err.Error(), 0)
                         dataLock.Unlock()
+                         Debug("lock released", 6)
                         return "0"
                     }
                 }
@@ -875,13 +916,15 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
             if err != nil {
                 Debug("unable to create ingress for "+namespace+" - "+err.Error(), 0)
                 dataLock.Unlock()
+                 Debug("lock released", 6)
                 return "0"
             }
             dataLock.Unlock()
-            Debug("released data lock", 5)
+            Debug("released data lock", 6)
             return "0"
         default:
             dataLock.Unlock()
+             Debug("lock released", 6)
             return "0"
         }
     }
@@ -893,12 +936,14 @@ func Serve_TTLDelete(request *pb.MacroPodRequest) string {
     cancelFunc()
     Debug("delete TTL "+labels, 2)
     dataLock.Lock()
+    Debug("lock acquired", 6)
     delete(workflow_deployments[request.GetWorkflow()], labels)
     namespace := default_config.GetNamespace()
     if workflows[request.GetWorkflow()].GetConfig() != nil && workflows[request.GetWorkflow()].GetConfig().GetNamespace() != "" {
         namespace = workflows[request.GetWorkflow()].GetConfig().GetNamespace()
     }
     dataLock.Unlock()
+     Debug("lock released", 6)
     labels_replica := "workflow_replica=" + labels
     Debug("deleting request of "+labels_replica+"test", 2)
     fmt.Printf("deleting with labels: %s + namespace: %s\n", labels_replica, namespace)
@@ -953,11 +998,12 @@ func (s *DeployerService) CreateWorkflow(ctx context.Context, req *pb.WorkflowSt
 func (s *DeployerService) UpdateWorkflow(ctx context.Context, req *pb.WorkflowStruct) (*pb.MacroPodReply, error) {
     reply := Serve_UpdateWorkflow(req)
     results := pb.MacroPodReply{Reply: &reply}
+    Debug("returning from update",6)
     return &results, nil
 }
 
 func (s *DeployerService) DeleteWorkflow(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
-    Debug("request to delete workflow", 5)
+    Debug("request to delete workflow", 6)
     reply := Serve_DeleteWorkflow(req)
     results := pb.MacroPodReply{Reply: &reply}
     return &results, nil
@@ -1120,4 +1166,3 @@ func main() {
     h.HandleFunc("/ttl", HTTP_TTLDelete)
     http.ListenAndServe(":"+http_port, h)
 }
-

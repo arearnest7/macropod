@@ -112,6 +112,8 @@ spec:
           value: "/app/summary/"
         - name: WORKER_NODES
           value: "192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24"
+        - name: DEBUG
+          value: "0"
       - name: macropod-ingress
         image: sysdevtamu/macropod-ingress:latest
         imagePullPolicy: Always
@@ -138,7 +140,7 @@ spec:
         - name: TARGET
           value: "-1"
         - name: DEBUG
-          value: "5"
+          value: "0"
       - name: macropod-deployer
         image: sysdevtamu/macropod-deployer:latest
         imagePullPolicy: Always
@@ -167,7 +169,7 @@ spec:
         - name: TARGET
           value: "-1"
         - name: DEBUG
-          value: "5"
+          value: "0"
       - name: macropod-logger
         image: sysdevtamu/macropod-logger:latest
         imagePullPolicy: Always

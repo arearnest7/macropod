@@ -1,62 +1,66 @@
 package main
+
 import (
-    pb "app/macropod_pb"
-    structpb "google.golang.org/protobuf/types/known/structpb"
+	pb "app/macropod_pb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 
-    "os"
-    "fmt"
-    "strconv"
-    "math/rand"
-    "encoding/json"
-    "io/ioutil"
-    "time"
-    "sync"
-    "strings"    
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"math/rand"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 
-    networkingv1 "k8s.io/api/networking/v1"
-    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-    "k8s.io/apimachinery/pkg/watch"
-    "k8s.io/client-go/kubernetes"
-    "k8s.io/client-go/rest"
-    "k8s.io/client-go/tools/cache"
-    toolsWatch "k8s.io/client-go/tools/watch"
+	networkingv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
+	toolsWatch "k8s.io/client-go/tools/watch"
 
-    "net"
-    "net/http"
+	"net"
+	"net/http"
 
-    "google.golang.org/grpc"
-    "golang.org/x/net/context"
-    "google.golang.org/grpc/connectivity"
-    "google.golang.org/grpc/credentials/insecure"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type IngressService struct {
-    pb.UnimplementedMacroPodIngressServer
+	pb.UnimplementedMacroPodIngressServer
 }
 
 var (
-    workflows                    = make(map[string]*pb.WorkflowStruct)
-    workflow_target_concurrency  = make(map[string]int32)
-    workflow_invocations_current = make(map[string]int)
-    workflow_invocations_total   = make(map[string]int)
-    entry_function               = make(map[string]string)
+	workflows                    = make(map[string]*pb.WorkflowStruct)
+	workflow_target_concurrency  = make(map[string]int32)
+	workflow_invocations_current = make(map[string]int)
+	workflow_invocations_total   = make(map[string]int)
+	entry_function               = make(map[string]string)
 
-    service_target               = make(map[string][]string)
-    service_channel              = make(map[string]*grpc.ClientConn)
-    service_stub                 = make(map[string]pb.MacroPodFunctionClient)
-    service_count                = make(map[string]int)
-    service_timestamp            = make(map[string]time.Time)
-    service_ttl                  = make(map[string]int32)
+	service_target    = make(map[string][]string)
+	service_channel   = make(map[string]*grpc.ClientConn)
+	service_stub      = make(map[string]pb.MacroPodFunctionClient)
+	service_count     = make(map[string]int)
+	service_timestamp = make(map[string]time.Time)
+	service_ttl       = make(map[string]int32)
 
-    deployer_channel             *grpc.ClientConn
-    deployer_stub                pb.MacroPodDeployerClient
+	deployer_channel        *grpc.ClientConn
+	deployer_stub           pb.MacroPodDeployerClient
+	deployer_update_stub    pb.MacroPodDeployerClient
+	deployer_update_channel *grpc.ClientConn
 
-    default_config               *pb.ConfigStruct
-    deployer_address             string
+	default_config   *pb.ConfigStruct
+	deployer_address string
+	updateRun        bool
+	dataLock         sync.Mutex
+	createRun  bool
 
-    dataLock                     sync.Mutex
-
-    retrypolicy                  = `{
+	retrypolicy = `{
         "methodConfig": [{
         "name": [{}],
         "waitForReady": true,
@@ -75,50 +79,69 @@ var (
 )
 
 func Debug(message string, debug_level int) {
-    if default_config.GetDebug() >= int32(debug_level) {
-        fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message + "\n")
-    }
+	if default_config.GetDebug() >= int32(debug_level) {
+		fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message + "\n")
+	}
 }
 
 func Deployer_Check() {
-    for deployer_channel == nil || deployer_channel.GetState() != connectivity.Ready {
-        deployer_channel, _ = grpc.Dial(deployer_address, grpc.WithInsecure())
-        deployer_stub = pb.NewMacroPodDeployerClient(deployer_channel)
-        Debug("attempting rebuild deployer stub...", 5)
-        time.Sleep(10 * time.Millisecond)
-    }
-   }
-
-func IfPodsAreRunning(workflow_replica string, namespace string) bool {
-    label_replica := "workflow_replica=" + workflow_replica
-    config, err := rest.InClusterConfig()
-    if err != nil {
-        Debug("Failed to get in-cluster config: " + err.Error(), 0)
-        return false
-    }
-    k, err := kubernetes.NewForConfig(config)
-    if err != nil {
-        Debug("Failed to create k: " + err.Error(), 0)
-    }
-    pods, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_replica})
-    if err != nil {
-        Debug(err.Error(), 0)
-        return false
-    }
-    for _, pod := range pods.Items {
-        if pod.Status.Phase != "Running" {
-            return false
-        }
-        for _, container_status := range pod.Status.ContainerStatuses {
-            if container_status.State.Running == nil {
-                return false
-            }
-        }
-    }
-    return true
+	for deployer_channel == nil {
+		deployer_channel, _ = grpc.Dial(deployer_address, grpc.WithInsecure())
+		deployer_stub = pb.NewMacroPodDeployerClient(deployer_channel)
+		Debug("attempting rebuild deployer stub...", 5)
+		time.Sleep(10 * time.Millisecond)
+	}
+	for deployer_channel.GetState() != connectivity.Ready {
+		Debug("waiting for deployer stub to be ready", 5)
+		time.Sleep(10 * time.Millisecond)
+	}
 }
 
-func WatchTTL(){
+// Create a separate channel for each area of high load in the application (as per the documentation)
+func Deployer_Update_Check() {
+	for deployer_update_channel == nil {
+		deployer_update_channel, _ = grpc.Dial(deployer_address, grpc.WithInsecure())
+		deployer_update_stub = pb.NewMacroPodDeployerClient(deployer_channel)
+		Debug("attempting rebuild deployer update stub...", 5)
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	for deployer_update_channel.GetState() != connectivity.Ready {
+		Debug("waiting for deployer update stub to be ready", 5)
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+func IfPodsAreRunning(workflow_replica string, namespace string) bool {
+	label_replica := "workflow_replica=" + workflow_replica
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		Debug("Failed to get in-cluster config: "+err.Error(), 0)
+		return false
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		Debug("Failed to create k: "+err.Error(), 0)
+	}
+	pods, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_replica})
+	if err != nil {
+		Debug(err.Error(), 0)
+		return false
+	}
+	for _, pod := range pods.Items {
+		if pod.Status.Phase != "Running" {
+			return false
+		}
+		for _, container_status := range pod.Status.ContainerStatuses {
+			if container_status.State.Running == nil {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func WatchTTL() {
 	Debug("watch TTL", 3)
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -180,271 +203,291 @@ func WatchTTL(){
 
 }
 
-
 func UpdateHostTargets(ingress *networkingv1.Ingress) {
-    for _, rule := range ingress.Spec.Rules {
-        if rule.HTTP != nil {
-            for _, path := range rule.HTTP.Paths {
-                serviceName := path.Backend.Service.Name
-                namespace := ingress.Namespace
-                port := path.Backend.Service.Port.Number
-                dataLock.Lock()
-                workflow_name := ingress.Labels["workflow_name"]
-                hostname := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
-                replica_name := ingress.Labels["workflow_replica"]
-                dataLock.Unlock()
-                for !IfPodsAreRunning(replica_name, namespace) {}
-                //Debug("service found: " + hostname, 2)
-                channel, _ := grpc.Dial(hostname, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
-                stub := pb.NewMacroPodFunctionClient(channel)
-                for channel.GetState() != connectivity.Ready {
-                    time.Sleep(10 * time.Millisecond)
-                }
-                dataLock.Lock()
-		
-		_, exists := workflows[workflow_name]
-                if exists {
-		Debug("service found: "+hostname,2)
-                service_count[hostname] = 0
-                service_timestamp[hostname] = time.Now()
-                service_target[workflow_name] = append(service_target[workflow_name], hostname)
-                service_channel[hostname] = channel
-                service_stub[hostname] = stub
-                service_ttl[hostname] = default_config.GetTTL()
-                if workflows[workflow_name].GetConfig() != nil && workflows[workflow_name].GetConfig().GetTTL() != 0 {
-                    service_ttl[hostname] = workflows[workflow_name].GetConfig().GetTTL()
-                }
+	for _, rule := range ingress.Spec.Rules {
+		if rule.HTTP != nil {
+			for _, path := range rule.HTTP.Paths {
+				serviceName := path.Backend.Service.Name
+				namespace := ingress.Namespace
+				port := path.Backend.Service.Port.Number
+				dataLock.Lock()
+				workflow_name := ingress.Labels["workflow_name"]
+				hostname := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+				replica_name := ingress.Labels["workflow_replica"]
+				dataLock.Unlock()
+				for !IfPodsAreRunning(replica_name, namespace) {
+				}
+				//Debug("service found: " + hostname, 2)
+				channel, _ := grpc.Dial(hostname, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
+				stub := pb.NewMacroPodFunctionClient(channel)
+				for channel.GetState() != connectivity.Ready {
+					time.Sleep(10 * time.Millisecond)
+				}
+				dataLock.Lock()
+
+				_, exists := workflows[workflow_name]
+				if exists {
+					Debug("service found: "+hostname, 2)
+					service_count[hostname] = 0
+					service_timestamp[hostname] = time.Now()
+					service_target[workflow_name] = append(service_target[workflow_name], hostname)
+					service_channel[hostname] = channel
+					service_stub[hostname] = stub
+					service_ttl[hostname] = default_config.GetTTL()
+					if workflows[workflow_name].GetConfig() != nil && workflows[workflow_name].GetConfig().GetTTL() != 0 {
+						service_ttl[hostname] = workflows[workflow_name].GetConfig().GetTTL()
+					}
+				}
+				//fmt.Printf("INGRESS: service target %v\n", service_target)
+				dataLock.Unlock()
+			}
+		}
 	}
-		//fmt.Printf("INGRESS: service target %v\n", service_target)
-                dataLock.Unlock()
-            }
-        }
-    }
 }
 
 func DeleteHostTargets(ingress *networkingv1.Ingress) {
-    for _, rule := range ingress.Spec.Rules {
-        if rule.HTTP != nil {
-            for _, path := range rule.HTTP.Paths {
-                serviceName := path.Backend.Service.Name
-                namespace := ingress.Namespace
-                port := path.Backend.Service.Port.Number
-                workflow_name := ingress.Labels["workflow_name"]
-                hostname_deleted := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
-                dataLock.Lock()
-                for i, val := range service_target[workflow_name] {
-                    if val == hostname_deleted {
-                        service_target[workflow_name] = append(service_target[workflow_name][:i], service_target[workflow_name][i+1:]...)
-                        Debug("deleting " + hostname_deleted, 2)
-                        if _, exists := service_count[hostname_deleted]; exists {
-                            delete(service_count, hostname_deleted)
-                            delete(service_timestamp, hostname_deleted)
-                            delete(service_channel, hostname_deleted)
-                            delete(service_stub, hostname_deleted)
-                            delete(service_ttl, hostname_deleted)
-                        }
-                        break
-                    }
-                }
-                dataLock.Unlock()
-            }
-        }
-    }
+	for _, rule := range ingress.Spec.Rules {
+		if rule.HTTP != nil {
+			for _, path := range rule.HTTP.Paths {
+				serviceName := path.Backend.Service.Name
+				namespace := ingress.Namespace
+				port := path.Backend.Service.Port.Number
+				workflow_name := ingress.Labels["workflow_name"]
+				hostname_deleted := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+				dataLock.Lock()
+				for i, val := range service_target[workflow_name] {
+					if val == hostname_deleted {
+						service_target[workflow_name] = append(service_target[workflow_name][:i], service_target[workflow_name][i+1:]...)
+						Debug("deleting "+hostname_deleted, 2)
+						if _, exists := service_count[hostname_deleted]; exists {
+							delete(service_count, hostname_deleted)
+							delete(service_timestamp, hostname_deleted)
+							delete(service_channel, hostname_deleted)
+							delete(service_stub, hostname_deleted)
+							delete(service_ttl, hostname_deleted)
+						}
+						break
+					}
+				}
+				dataLock.Unlock()
+			}
+		}
+	}
 }
 
 func WatchIngress() {
-    config, err := rest.InClusterConfig()
-    if err != nil {
-        Debug("Failed to get in-cluster config: " + err.Error(), 0)
-    }
-    k, err := kubernetes.NewForConfig(config)
-    if err != nil {
-        Debug("Failed to create k: " + err.Error(), 0)
-    }
-    //reference: https://blog.mimacom.com/k8s-watch-resources/
-    watchFunc := func(options metav1.ListOptions) (watch.Interface, error) {
-        return k.NetworkingV1().Ingresses("").Watch(context.Background(), metav1.ListOptions{})
-    }
-    watcher, _ := toolsWatch.NewRetryWatcher("1", &cache.ListWatch{WatchFunc: watchFunc})
-    for event := range watcher.ResultChan() {
-        ingress, ok := event.Object.(*networkingv1.Ingress)
-        if !ok {
-            continue
-        }
-        switch event.Type {
-        case watch.Added, watch.Modified:
-            UpdateHostTargets(ingress)
-        case watch.Deleted:
-            DeleteHostTargets(ingress)
-        }
-    }
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		Debug("Failed to get in-cluster config: "+err.Error(), 0)
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		Debug("Failed to create k: "+err.Error(), 0)
+	}
+	//reference: https://blog.mimacom.com/k8s-watch-resources/
+	watchFunc := func(options metav1.ListOptions) (watch.Interface, error) {
+		return k.NetworkingV1().Ingresses("").Watch(context.Background(), metav1.ListOptions{})
+	}
+	watcher, _ := toolsWatch.NewRetryWatcher("1", &cache.ListWatch{WatchFunc: watchFunc})
+	for event := range watcher.ResultChan() {
+		ingress, ok := event.Object.(*networkingv1.Ingress)
+		if !ok {
+			continue
+		}
+		switch event.Type {
+		case watch.Added, watch.Modified:
+			UpdateHostTargets(ingress)
+		case watch.Deleted:
+			DeleteHostTargets(ingress)
+		}
+	}
 }
 
+func runCreateFunction(create_deployment_request pb.MacroPodRequest) {
+	Debug("create request to deployer", 6)
+	createRun = true
+	deployer_stub.CreateDeployment(context.Background(), &create_deployment_request)
+	createRun = false
+	Debug("set  createRun to false", 6)
+	return
+}
 func GetTarget(triggered bool, workflow_name string, target string) (string, bool) {
-    dataLock.Lock()
-    if len(service_target[workflow_name]) > 0 {
-        idx := workflow_invocations_total[workflow_name] % len(service_target[workflow_name])
-        service := service_target[workflow_name][idx]
-        target_concurrency, target_concurrency_set := workflow_target_concurrency[workflow_name]
-        channel, service_channel_exists := service_channel[service]
-        if service_channel_exists && channel.GetState() == connectivity.Ready {
-            if !target_concurrency_set || int(target_concurrency) == -1 || service_count[service] < int(target_concurrency) {
-                target = service
-                service_count[service]++
-                service_timestamp[service] = time.Now()
-            }
-        }
-    }
-    if !triggered && len(service_target[workflow_name]) < workflow_invocations_current[workflow_name]{
-        triggered = true
-        create_deployment_request := pb.MacroPodRequest{Workflow: &workflow_name}
-         //Debug("sending request to create deployments\n", 0)
-        go deployer_stub.CreateDeployment(context.Background(), &create_deployment_request)
-    }
-    dataLock.Unlock()
-    return target, triggered
+	dataLock.Lock()
+	if len(service_target[workflow_name]) > 0 {
+		idx := workflow_invocations_total[workflow_name] % len(service_target[workflow_name])
+		service := service_target[workflow_name][idx]
+		target_concurrency, target_concurrency_set := workflow_target_concurrency[workflow_name]
+		channel, service_channel_exists := service_channel[service]
+		if service_channel_exists && channel.GetState() == connectivity.Ready {
+			if !target_concurrency_set || int(target_concurrency) == -1 || service_count[service] < int(target_concurrency) {
+				target = service
+				service_count[service]++
+				service_timestamp[service] = time.Now()
+			}
+		}
+	}
+	if !triggered && len(service_target[workflow_name]) < workflow_invocations_current[workflow_name] {
+		triggered = true
+		create_deployment_request := pb.MacroPodRequest{Workflow: &workflow_name}
+		//Debug("sending request to create deployments\n", 0)
+		if !createRun {
+			go runCreateFunction(create_deployment_request)
+		}
+	}
+	dataLock.Unlock()
+	return target, triggered
 }
 
-func Serve_Config(request *pb.ConfigStruct) (string) {
-    dataLock.Lock()
-    default_config = request
-    if default_config.GetNamespace() == "" {
-        namespace := "macropod-functions"
-        default_config.Namespace = &namespace
-    }
-    if default_config.GetTTL() == 0 {
-        ttl := int32(180)
-        default_config.TTL = &ttl
-    }
-    if default_config.GetDeployment() == "" {
-        deployment := "macropod"
-        default_config.Deployment = &deployment
-    }
-    if default_config.GetCommunication() == "" {
-        communication := "direct"
-        default_config.Communication = &communication
-    }
-    if default_config.GetAggregation() == "" {
-        aggregation := "agg"
-        default_config.Aggregation = &aggregation
-    }
-    if default_config.GetTargetConcurrency() == 0 {
-        target := int32(-1)
-        default_config.TargetConcurrency = &target
-    }
-    dataLock.Unlock()
-    _, err := deployer_stub.Config(context.Background(), request)
-    if err != nil {
-        Debug(err.Error(), 0)
-        return ""
-    }
-    dataLock.Lock()
-    config_txt := ""
-    config_txt += "Namespace: " + default_config.GetNamespace() + "\n"
-    config_txt += "TTL: " + string(default_config.GetTTL()) + "\n"
-    config_txt += "Deployment: " + default_config.GetDeployment() + "\n"
-    config_txt += "Communication: " + default_config.GetCommunication() + "\n"
-    config_txt += "Aggregation: " + default_config.GetAggregation() + "\n"
-    config_txt += "TargetConcurrency: " + string(default_config.GetTargetConcurrency()) + "\n"
-    config_txt += "Debug: " + string(default_config.GetDebug()) + "\n"
-    dataLock.Unlock()
-    return config_txt
+func Serve_Config(request *pb.ConfigStruct) string {
+	dataLock.Lock()
+	default_config = request
+	if default_config.GetNamespace() == "" {
+		namespace := "macropod-functions"
+		default_config.Namespace = &namespace
+	}
+	if default_config.GetTTL() == 0 {
+		ttl := int32(180)
+		default_config.TTL = &ttl
+	}
+	if default_config.GetDeployment() == "" {
+		deployment := "macropod"
+		default_config.Deployment = &deployment
+	}
+	if default_config.GetCommunication() == "" {
+		communication := "direct"
+		default_config.Communication = &communication
+	}
+	if default_config.GetAggregation() == "" {
+		aggregation := "agg"
+		default_config.Aggregation = &aggregation
+	}
+	if default_config.GetTargetConcurrency() == 0 {
+		target := int32(-1)
+		default_config.TargetConcurrency = &target
+	}
+	dataLock.Unlock()
+	_, err := deployer_stub.Config(context.Background(), request)
+	if err != nil {
+		Debug(err.Error(), 0)
+		return ""
+	}
+	dataLock.Lock()
+	config_txt := ""
+	config_txt += "Namespace: " + default_config.GetNamespace() + "\n"
+	config_txt += "TTL: " + string(default_config.GetTTL()) + "\n"
+	config_txt += "Deployment: " + default_config.GetDeployment() + "\n"
+	config_txt += "Communication: " + default_config.GetCommunication() + "\n"
+	config_txt += "Aggregation: " + default_config.GetAggregation() + "\n"
+	config_txt += "TargetConcurrency: " + string(default_config.GetTargetConcurrency()) + "\n"
+	config_txt += "Debug: " + string(default_config.GetDebug()) + "\n"
+	dataLock.Unlock()
+	return config_txt
 }
-
+func runUpdateFunction(update_request pb.MacroPodRequest) {
+	Debug("update request to deployer", 6)
+	updateRun = true
+	deployer_update_stub.UpdateDeployments(context.Background(), &update_request)
+	updateRun = false
+	Debug("set updateRun to false", 6)
+	return
+}
 func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
-    workflow_name := request.GetWorkflow()
-    function_name := entry_function[workflow_name]
-    request.Function = &function_name
-    dataLock.Lock()
-    workflow_invocations_current[workflow_name]++
-    invocations_current := strconv.Itoa(workflow_invocations_current[workflow_name])
-    workflow_invocations_total[workflow_name]++
-    dataLock.Unlock()
-    target := ""
-    triggered := false
-    for target == "" {
-        target, triggered = GetTarget(triggered, workflow_name, target)
-    }
-    Debug("target set to  "+target,6)
-    workflow_id := strconv.Itoa(rand.Intn(100000))
-    dw := int32(0)
-    request.WorkflowID = &workflow_id
-    request.Depth = &dw
-    request.Width = &dw
-    status := int32(0)
-    var response *pb.MacroPodReply
-    update_request := pb.MacroPodRequest{Workflow: &workflow_name, WorkflowID: &invocations_current}
-    go deployer_stub.UpdateDeployments(context.Background(), &update_request)
-    dataLock.Lock()
-    stub := service_stub[target]
-    response, err  := stub.Invoke(context.Background(), request)
-    if err != nil {
-	Debug("error while request "+ err.Error(),3)
-    }
-    dataLock.Unlock()
-    status = response.GetCode()
-    dataLock.Lock()
-    service_count[target]--
-    workflow_invocations_current[workflow_name]--
-    dataLock.Unlock()
-    Debug("workflow invoke request was served by: " + target, 6)
-    return response.GetReply(), status
+	workflow_name := request.GetWorkflow()
+	function_name := entry_function[workflow_name]
+	request.Function = &function_name
+	dataLock.Lock()
+	workflow_invocations_current[workflow_name]++
+	invocations_current := strconv.Itoa(workflow_invocations_current[workflow_name])
+	workflow_invocations_total[workflow_name]++
+	dataLock.Unlock()
+	target := ""
+	triggered := false
+	for target == "" {
+		target, triggered = GetTarget(triggered, workflow_name, target)
+	}
+	Debug("target set to  "+target, 6)
+	workflow_id := strconv.Itoa(rand.Intn(100000))
+	dw := int32(0)
+	request.WorkflowID = &workflow_id
+	request.Depth = &dw
+	request.Width = &dw
+	status := int32(0)
+	var response *pb.MacroPodReply
+	update_request := pb.MacroPodRequest{Workflow: &workflow_name, WorkflowID: &invocations_current}
+
+	dataLock.Lock()
+	if !updateRun {
+		go runUpdateFunction(update_request)
+	}
+	stub := service_stub[target]
+	dataLock.Unlock()
+	response, err := stub.Invoke(context.Background(), request)
+	if err != nil {
+		Debug("error while request "+err.Error(), 3)
+	}
+	status = response.GetCode()
+	dataLock.Lock()
+	service_count[target]--
+	workflow_invocations_current[workflow_name]--
+	dataLock.Unlock()
+	Debug("workflow invoke request was served by: "+target, 6)
+	return response.GetReply(), status
 }
 
 func Serve_FunctionInvoke(request *pb.MacroPodRequest) (string, int32) {
-    Debug("got invoke request",3)
-    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-    channel, _ := grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
-    stub := pb.NewMacroPodFunctionClient(channel)
-    response, _ := stub.Invoke(ctx, request)
-    channel.Close()
-    cancel()
-    status := response.GetCode()
-    Debug("function invoke request was served by: " + request.GetTarget(), 6)
-    return response.GetReply(), status
+	Debug("got invoke request", 3)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	channel, _ := grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
+	stub := pb.NewMacroPodFunctionClient(channel)
+	response, _ := stub.Invoke(ctx, request)
+	channel.Close()
+	cancel()
+	status := response.GetCode()
+	Debug("function invoke request was served by: "+request.GetTarget(), 6)
+	return response.GetReply(), status
 }
 
-func Serve_CreateWorkflow(request *pb.WorkflowStruct) (string) {
-    if request.GetName() == "" {
-        return "Workflow definition is malformed\n"
-    }
-    Debug("WF_CREATE " + request.GetName(), 2)
-    _, exists := workflows[request.GetName()]
-    if exists {
-        Debug("WF_CREATE_END_EXISTS " + request.GetName(), 2)
-        return "Workflow already exists\n"
-    }
-    dataLock.Lock()
-    workflows[request.GetName()] = request
-    workflow_target_concurrency[request.GetName()] = default_config.GetTargetConcurrency()
-    if request.GetConfig() != nil && request.GetConfig().GetTargetConcurrency() != 0 {
-        workflow_target_concurrency[request.GetName()] = request.GetConfig().GetTargetConcurrency()
-    }
-    workflow_invocations_current[request.GetName()] = 0
-    workflow_invocations_total[request.GetName()] = 0
-    dataLock.Unlock()
-    results, _ := deployer_stub.CreateWorkflow(context.Background(), request)
-    entrypoint := results.GetReply()
-    dataLock.Lock()
-    entry_function[request.GetName()] = entrypoint
-    dataLock.Unlock()
-    Debug("WF_CREATE_END " + request.GetName(), 2)
-    return "Workflow created successfully. Invoke your workflow with /workflow/invoke/" + request.GetName() + "\n"
+func Serve_CreateWorkflow(request *pb.WorkflowStruct) string {
+	if request.GetName() == "" {
+		return "Workflow definition is malformed\n"
+	}
+	Debug("WF_CREATE "+request.GetName(), 2)
+	_, exists := workflows[request.GetName()]
+	if exists {
+		Debug("WF_CREATE_END_EXISTS "+request.GetName(), 2)
+		return "Workflow already exists\n"
+	}
+	dataLock.Lock()
+	workflows[request.GetName()] = request
+	workflow_target_concurrency[request.GetName()] = default_config.GetTargetConcurrency()
+	if request.GetConfig() != nil && request.GetConfig().GetTargetConcurrency() != 0 {
+		workflow_target_concurrency[request.GetName()] = request.GetConfig().GetTargetConcurrency()
+	}
+	workflow_invocations_current[request.GetName()] = 0
+	workflow_invocations_total[request.GetName()] = 0
+	dataLock.Unlock()
+	results, _ := deployer_stub.CreateWorkflow(context.Background(), request)
+	entrypoint := results.GetReply()
+	dataLock.Lock()
+	entry_function[request.GetName()] = entrypoint
+	dataLock.Unlock()
+	Debug("WF_CREATE_END "+request.GetName(), 2)
+	return "Workflow created successfully. Invoke your workflow with /workflow/invoke/" + request.GetName() + "\n"
 }
 
-func Serve_UpdateWorkflow(request *pb.WorkflowStruct) (string) {
-    if request.GetName() == "" {
-        return "Workflow definition is malformed\n"
-    }
-    Debug("WF_UPDATE " + request.GetName(), 2)
-    delete_request := pb.MacroPodRequest{Workflow: &request.Name}
-    Serve_DeleteWorkflow(&delete_request)
-    Serve_CreateWorkflow(request)
-    Debug("WF_UPDATE_END" + request.GetName(), 2)
-    return "Workflow " + request.GetName() + " has been updated.\n"
+func Serve_UpdateWorkflow(request *pb.WorkflowStruct) string {
+	if request.GetName() == "" {
+		return "Workflow definition is malformed\n"
+	}
+	Debug("WF_UPDATE "+request.GetName(), 2)
+	delete_request := pb.MacroPodRequest{Workflow: &request.Name}
+	Serve_DeleteWorkflow(&delete_request)
+	Serve_CreateWorkflow(request)
+	Debug("WF_UPDATE_END"+request.GetName(), 2)
+	return "Workflow " + request.GetName() + " has been updated.\n"
 }
 
-func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
+func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
 	if request.GetWorkflow() == "" {
 		return "Workflow name is missing\n"
 	}
@@ -476,21 +519,21 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
 					serviceName := path.Backend.Service.Name
 					namespace := ingress.Namespace
 					port := path.Backend.Service.Port.Number
-					
+
 					hostname_deleted := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
-                    Debug("DELETE: "+ hostname_deleted + " is deleted\n",3)
+					Debug("DELETE: "+hostname_deleted+" is deleted\n", 3)
 					dataLock.Lock()
 					delete(service_count, hostname_deleted)
 					delete(service_timestamp, hostname_deleted)
 					delete(service_channel, hostname_deleted)
 					delete(service_stub, hostname_deleted)
 					delete(service_ttl, hostname_deleted)
-                    dataLock.Unlock()
+					dataLock.Unlock()
 				}
 
 			}
 		}
-		
+
 	}
 	response, err := deployer_stub.DeleteWorkflow(context.Background(), request)
 	if err != nil {
@@ -505,183 +548,184 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
 	delete(workflow_invocations_current, request.GetWorkflow())
 	delete(workflow_invocations_total, request.GetWorkflow())
 	delete(entry_function, request.GetWorkflow())
-    fmt.Printf("service target %v\n service_count :%v\n", service_target, service_count)
+	fmt.Printf("service target %v\n service_count :%v\n", service_target, service_count)
 	dataLock.Unlock()
 	Debug("WF_DELETE_END "+request.GetWorkflow(), 2)
 	return "Workflow \"" + request.GetWorkflow() + "\" has been successfully deleted.\n"
 
-
-
 }
 
 func (s *IngressService) Config(ctx context.Context, req *pb.ConfigStruct) (*pb.MacroPodReply, error) {
-    reply := Serve_Config(req)
-    results := pb.MacroPodReply{Reply: &reply}
-    return &results, nil
+	reply := Serve_Config(req)
+	results := pb.MacroPodReply{Reply: &reply}
+	return &results, nil
 }
 
 func (s *IngressService) WorkflowInvoke(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
-    function := entry_function[req.GetWorkflow()]
-    req.Function = &function
-    reply, code := Serve_WorkflowInvoke(req)
-    results := pb.MacroPodReply{Reply: &reply, Code: &code}
-    return &results, nil
+	function := entry_function[req.GetWorkflow()]
+	req.Function = &function
+	reply, code := Serve_WorkflowInvoke(req)
+	results := pb.MacroPodReply{Reply: &reply, Code: &code}
+	return &results, nil
 }
 
 func (s *IngressService) FunctionInvoke(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
-    reply, code := Serve_FunctionInvoke(req)
-    results := pb.MacroPodReply{Reply: &reply, Code: &code}
-    return &results, nil
+	reply, code := Serve_FunctionInvoke(req)
+	results := pb.MacroPodReply{Reply: &reply, Code: &code}
+	return &results, nil
 }
 
 func (s *IngressService) CreateWorkflow(ctx context.Context, req *pb.WorkflowStruct) (*pb.MacroPodReply, error) {
-    reply := Serve_CreateWorkflow(req)
-    results := pb.MacroPodReply{Reply: &reply}
-    return &results, nil
+	reply := Serve_CreateWorkflow(req)
+	results := pb.MacroPodReply{Reply: &reply}
+	return &results, nil
 }
 
 func (s *IngressService) UpdateWorkflow(ctx context.Context, req *pb.WorkflowStruct) (*pb.MacroPodReply, error) {
-    reply := Serve_UpdateWorkflow(req)
-    results := pb.MacroPodReply{Reply: &reply}
-    return &results, nil
+	reply := Serve_UpdateWorkflow(req)
+	results := pb.MacroPodReply{Reply: &reply}
+	return &results, nil
 }
 
 func (s *IngressService) DeleteWorkflow(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
-    reply := Serve_DeleteWorkflow(req)
-    results := pb.MacroPodReply{Reply: &reply}
-    return &results, nil
+	reply := Serve_DeleteWorkflow(req)
+	results := pb.MacroPodReply{Reply: &reply}
+	return &results, nil
 }
 
 func HTTP_Help(res http.ResponseWriter, req *http.Request) {
-    help_print := "TODO\n"
-    fmt.Fprint(res, help_print)
+	help_print := "TODO\n"
+	fmt.Fprint(res, help_print)
 }
 
 func HTTP_Config(res http.ResponseWriter, req *http.Request) {
-    body, _ := ioutil.ReadAll(req.Body)
-    request := pb.ConfigStruct{}
-    json.Unmarshal(body, &request)
-    Serve_Config(&request)
+	body, _ := ioutil.ReadAll(req.Body)
+	request := pb.ConfigStruct{}
+	json.Unmarshal(body, &request)
+	Serve_Config(&request)
 }
 
 func HTTP_WorkflowInvoke(res http.ResponseWriter, req *http.Request) {
-    workflow := req.PathValue("workflow")
-    function := entry_function[workflow]
-    request := pb.MacroPodRequest{Workflow: &workflow, Function: &function}
-    body, _ := ioutil.ReadAll(req.Body)
-    switch content := req.Header.Get("Content-Type"); content {
-        case "text/plain":
-            t := string(body)
-            request.Text = &t
-        case "application/json":
-            j_i := make(map[string]interface{})
-            json.Unmarshal(body, &j_i)
-            j, _ := structpb.NewStruct(j_i)
-            request.JSON = j
-        case "application/octet-stream":
-            request.Data = body
-        default:
-            t := string(body)
-            request.Text = &t
-    }
-    results, _ := Serve_WorkflowInvoke(&request)
-    fmt.Fprint(res, results)
+	workflow := req.PathValue("workflow")
+	function := entry_function[workflow]
+	request := pb.MacroPodRequest{Workflow: &workflow, Function: &function}
+	body, _ := ioutil.ReadAll(req.Body)
+	switch content := req.Header.Get("Content-Type"); content {
+	case "text/plain":
+		t := string(body)
+		request.Text = &t
+	case "application/json":
+		j_i := make(map[string]interface{})
+		json.Unmarshal(body, &j_i)
+		j, _ := structpb.NewStruct(j_i)
+		request.JSON = j
+	case "application/octet-stream":
+		request.Data = body
+	default:
+		t := string(body)
+		request.Text = &t
+	}
+	results, _ := Serve_WorkflowInvoke(&request)
+	fmt.Fprint(res, results)
 }
 
 func HTTP_FunctionInvoke(res http.ResponseWriter, req *http.Request) {
-    body, _ := ioutil.ReadAll(req.Body)
-    request := pb.MacroPodRequest{}
-    json.Unmarshal(body, &request)
-    results, _ := Serve_FunctionInvoke(&request)
-    fmt.Fprint(res, results)
+	body, _ := ioutil.ReadAll(req.Body)
+	request := pb.MacroPodRequest{}
+	json.Unmarshal(body, &request)
+	results, _ := Serve_FunctionInvoke(&request)
+	fmt.Fprint(res, results)
 }
 
 func HTTP_CreateWorkflow(res http.ResponseWriter, req *http.Request) {
-    body, _ := ioutil.ReadAll(req.Body)
-    request := pb.WorkflowStruct{}
-    json.Unmarshal(body, &request)
-    fmt.Printf("\nBody : %s\n request : %v\n", body, request)
-    results := Serve_CreateWorkflow(&request)
-    fmt.Fprint(res, results)
+	body, _ := ioutil.ReadAll(req.Body)
+	request := pb.WorkflowStruct{}
+	json.Unmarshal(body, &request)
+	fmt.Printf("\nBody : %s\n request : %v\n", body, request)
+	results := Serve_CreateWorkflow(&request)
+	fmt.Fprint(res, results)
 }
 
 func HTTP_UpdateWorkflow(res http.ResponseWriter, req *http.Request) {
-    body, _ := ioutil.ReadAll(req.Body)
-    request := pb.WorkflowStruct{}
-    json.Unmarshal(body, &request)
-    results := Serve_UpdateWorkflow(&request)
-    fmt.Fprint(res, results)
+	body, _ := ioutil.ReadAll(req.Body)
+	request := pb.WorkflowStruct{}
+	json.Unmarshal(body, &request)
+	results := Serve_UpdateWorkflow(&request)
+	fmt.Fprint(res, results)
 }
 
 func HTTP_DeleteWorkflow(res http.ResponseWriter, req *http.Request) {
-    workflow := req.PathValue("workflow")
-    request := pb.MacroPodRequest{Workflow: &workflow}
-    results := Serve_DeleteWorkflow(&request)
-    fmt.Fprint(res, results)
+	workflow := req.PathValue("workflow")
+	request := pb.MacroPodRequest{Workflow: &workflow}
+	results := Serve_DeleteWorkflow(&request)
+	fmt.Fprint(res, results)
 }
 
 func main() {
-    service_port := os.Getenv("SERVICE_PORT")
-    if service_port == "" {
-        service_port = "8000"
-    }
-    http_port := os.Getenv("HTTP_PORT")
-    if http_port == "" {
-        http_port = "9000"
-    }
-    deployer_address = os.Getenv("DEPLOYER_ADDRESS")
-    if deployer_address == "" {
-        deployer_address = "127.0.0.1:8002"
-    }
-    namespace := os.Getenv("NAMESPACE")
-    if namespace == "" {
-        namespace = "macropod-functions"
-    }
-    ttl, err := strconv.Atoi(os.Getenv("TTL"))
-    if err != nil {
-        ttl = 180
-    }
-    deployment := os.Getenv("DEPLOYMENT")
-    if deployment == "" {
-        deployment = "macropod"
-    }
-    communication := os.Getenv("COMMUNICATION")
-    if communication == "" {
-        communication = "direct"
-    }
-    aggregation := os.Getenv("AGGREGATION")
-    if aggregation == "" {
-        aggregation = "agg"
-    }
-    target_concurrency, err := strconv.Atoi(os.Getenv("TARGET_CONCURRENCY"))
-    if err != nil {
-        target_concurrency = -1
-    }
-    debug, err := strconv.Atoi(os.Getenv("DEBUG"))
-    if err != nil {
-        debug = 0
-    }
-    ttl_i := int32(ttl)
-    target_concurrency_i := int32(target_concurrency)
-    debug_i := int32(debug)
-    c := pb.ConfigStruct{Namespace: &namespace, TTL: &ttl_i, Deployment: &deployment, Communication: &communication, Aggregation: &aggregation, TargetConcurrency: &target_concurrency_i, Debug: &debug_i}
-    default_config = &c
-    l, _ := net.Listen("tcp", ":" + service_port)
-    s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))
-    pb.RegisterMacroPodIngressServer(s, &IngressService{})
+	service_port := os.Getenv("SERVICE_PORT")
+	if service_port == "" {
+		service_port = "8000"
+	}
+	http_port := os.Getenv("HTTP_PORT")
+	if http_port == "" {
+		http_port = "9000"
+	}
+	deployer_address = os.Getenv("DEPLOYER_ADDRESS")
+	if deployer_address == "" {
+		deployer_address = "127.0.0.1:8002"
+	}
+	namespace := os.Getenv("NAMESPACE")
+	if namespace == "" {
+		namespace = "macropod-functions"
+	}
+	ttl, err := strconv.Atoi(os.Getenv("TTL"))
+	if err != nil {
+		ttl = 180
+	}
+	deployment := os.Getenv("DEPLOYMENT")
+	if deployment == "" {
+		deployment = "macropod"
+	}
+	communication := os.Getenv("COMMUNICATION")
+	if communication == "" {
+		communication = "direct"
+	}
+	aggregation := os.Getenv("AGGREGATION")
+	if aggregation == "" {
+		aggregation = "agg"
+	}
+	target_concurrency, err := strconv.Atoi(os.Getenv("TARGET_CONCURRENCY"))
+	if err != nil {
+		target_concurrency = -1
+	}
+	debug, err := strconv.Atoi(os.Getenv("DEBUG"))
+	if err != nil {
+		debug = 0
+	}
+	ttl_i := int32(ttl)
+	target_concurrency_i := int32(target_concurrency)
+	debug_i := int32(debug)
+	c := pb.ConfigStruct{Namespace: &namespace, TTL: &ttl_i, Deployment: &deployment, Communication: &communication, Aggregation: &aggregation, TargetConcurrency: &target_concurrency_i, Debug: &debug_i}
+	default_config = &c
+	l, _ := net.Listen("tcp", ":"+service_port)
+	s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))
+	pb.RegisterMacroPodIngressServer(s, &IngressService{})
+	updateRun = false
+	createRun = false
+	Deployer_Check()
+	Deployer_Update_Check()
+	go WatchTTL()
+	go WatchIngress()
+	go s.Serve(l)
 
-    Deployer_Check()
-    go WatchTTL()
-    go WatchIngress()
-    go s.Serve(l)
-
-    h := http.NewServeMux()
-    h.HandleFunc("/", HTTP_Help)
-    h.HandleFunc("/config", HTTP_Config)
-    h.HandleFunc("/workflow/invoke/{workflow}", HTTP_WorkflowInvoke)
-    h.HandleFunc("/function/invoke", HTTP_FunctionInvoke)
-    h.HandleFunc("/workflow/create", HTTP_CreateWorkflow)
-    h.HandleFunc("/workflow/update", HTTP_UpdateWorkflow)
-    h.HandleFunc("/workflow/delete/{workflow}", HTTP_DeleteWorkflow)
-    http.ListenAndServe(":" + http_port, h)
+	h := http.NewServeMux()
+	h.HandleFunc("/", HTTP_Help)
+	h.HandleFunc("/config", HTTP_Config)
+	h.HandleFunc("/workflow/invoke/{workflow}", HTTP_WorkflowInvoke)
+	h.HandleFunc("/function/invoke", HTTP_FunctionInvoke)
+	h.HandleFunc("/workflow/create", HTTP_CreateWorkflow)
+	h.HandleFunc("/workflow/update", HTTP_UpdateWorkflow)
+	h.HandleFunc("/workflow/delete/{workflow}", HTTP_DeleteWorkflow)
+	http.ListenAndServe(":"+http_port, h)
 }
+

@@ -39,6 +39,7 @@ var (
     summary_dir     string
     ingress_address string
     worker_nodes    []string
+    debug           int
 
     ingress_channel *grpc.ClientConn
     ingress_stub    pb.MacroPodIngressClient
@@ -47,23 +48,40 @@ var (
     metrics_stub    = make(map[string]pb.MacroPodMetricsClient)
 )
 
+func Debug(message string, debug_level int) {
+    if debug >= debug_level {
+        fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message + "\n")
+    }
+}
+
 func Ingress_Check() {
+    var err error
     for ingress_channel == nil || ingress_channel.GetState() != connectivity.Ready {
-        ingress_channel, _ = grpc.Dial(ingress_address, grpc.WithInsecure())
+        ingress_channel, err = grpc.Dial(ingress_address, grpc.WithInsecure())
+        if err != nil {
+            Debug(err.Error(), 0)
+        }
         ingress_stub = pb.NewMacroPodIngressClient(ingress_channel)
         time.Sleep(10 * time.Millisecond)
     }
 }
 
 func Metrics_Check() {
+    var err error
     for _, worker_node := range worker_nodes {
         _, exists := metrics_channel[worker_node]
         if !exists {
-            metrics_channel[worker_node], _ = grpc.Dial(worker_node + ":10000", grpc.WithInsecure())
+            metrics_channel[worker_node], err = grpc.Dial(worker_node + ":10000", grpc.WithInsecure())
+            if err != nil {
+                Debug(err.Error(), 0)
+            }
             metrics_stub[worker_node] = pb.NewMacroPodMetricsClient(metrics_channel[worker_node])
         }
         for metrics_channel[worker_node].GetState() != connectivity.Ready {
-            metrics_channel[worker_node], _ = grpc.Dial(worker_node + ":10000", grpc.WithInsecure())
+            metrics_channel[worker_node], err = grpc.Dial(worker_node + ":10000", grpc.WithInsecure())
+            if err != nil {
+                Debug(err.Error(), 0)
+            }
             metrics_stub[worker_node] = pb.NewMacroPodMetricsClient(metrics_channel[worker_node])
             time.Sleep(10 * time.Millisecond)
         }
@@ -94,9 +112,8 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
         for i, worker_node := range worker_nodes {
             res, err := metrics_stub[worker_node].GetMetrics(context.Background(), &pb.MacroPodRequest{})
 	    if err != nil {
-			fmt.Printf("%s\n",err)
+                Debug(err.Error(), 0)
 	    }
-	    //fmt.Printf("%v\n",res)
             cpu_percent = append(cpu_percent, res.GetCPUUsed())
             cpu_cores = append(cpu_cores, res.GetCPUCountPhysical())
             line["cpu_count_logical"] += res.GetCPUCountLogical()
@@ -235,8 +252,6 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
             val := strconv.FormatFloat(line[metric], 'f', -1, 64)
             line_s = append(line_s, val)
             if benchmark_temp != "" && concurrency_temp != "" && phase_temp != "" && peak[benchmark_temp][concurrency_temp][phase_temp][metric] < line[metric] {
-                //fmt.Println(benchmark_temp + " " + concurrency_temp + " " + phase_temp + " " + metric)
-                //fmt.Println("val: " + val)
                 peak[benchmark_temp][concurrency_temp][phase_temp][metric] = line[metric]
             }
         }
@@ -256,12 +271,15 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
 }
 
 func Collect_Latency(workflow string, t string, j map[string]interface{}, d []byte) (LatencyResult) {
-    //fmt.Println("collecting grpc")
     ctx, cancel := context.WithTimeout(context.Background(), time.Second * 180)
     s := time.Now()
     jstruct, _ := structpb.NewStruct(j)
-    ingress_stub.WorkflowInvoke(ctx, &pb.MacroPodRequest{Workflow: &workflow, Text: &t, JSON: jstruct, Data: d})
+    response, err := ingress_stub.WorkflowInvoke(ctx, &pb.MacroPodRequest{Workflow: &workflow, Text: &t, JSON: jstruct, Data: d})
+    if err != nil {
+        Debug(err.Error(), 0)
+    }
     e := time.Now()
+    Debug("grpc reply: " + response.GetReply(), 2)
     cancel()
     latency := e.Sub(s).Seconds()
     start_s := s.UTC().Format("2006-01-02 15:04:05 UTC")
@@ -270,11 +288,15 @@ func Collect_Latency(workflow string, t string, j map[string]interface{}, d []by
 }
 
 func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
-    //fmt.Println("collecting http text")
     s := time.Now()
     cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", t, "-H", "Content-Type: plain/txt", target)
-    cmd.Run()
+    Debug(cmd.String(), 3)
+    out, err := cmd.Output()
+    if err != nil {
+        Debug(err.Error(), 0)
+    }
     e := time.Now()
+    Debug("http reply: " + string(out), 2)
     latency := e.Sub(s).Seconds()
     start_s := s.UTC().Format("2006-01-02 15:04:05 UTC")
     end_s := e.UTC().Format("2006-01-02 15:04:05 UTC")
@@ -282,17 +304,16 @@ func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
 }
 
 func Collect_Latency_HTTP_JSON(target string, j map[string]interface{}) (LatencyResult) {
-    //fmt.Println("collecting http json")
     s := time.Now()
     payload, _ := json.Marshal(j)
     cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", string(payload), "-H", "Content-Type: application/json", target)
-    err := cmd.Run()
+    Debug(cmd.String(), 3)
+    out, err := cmd.Output()
     if err != nil {
-        fmt.Println(err.Error())
-    } else {
-        fmt.Println("http json returned successfully?")
+        Debug(err.Error(), 0)
     }
     e := time.Now()
+    Debug("http reply: " + string(out), 2)
     latency := e.Sub(s).Seconds()
     start_s := s.UTC().Format("2006-01-02 15:04:05 UTC")
     end_s := e.UTC().Format("2006-01-02 15:04:05 UTC")
@@ -300,11 +321,15 @@ func Collect_Latency_HTTP_JSON(target string, j map[string]interface{}) (Latency
 }
 
 func Collect_Latency_HTTP_Data(target string, d []byte) (LatencyResult) {
-    //fmt.Println("collecting http data")
     s := time.Now()
     cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", string(d), "-H", "Content-Type: application/octet-stream", target)
-    cmd.Run()
+    Debug(cmd.String(), 3)
+    out, err := cmd.Output()
+    if err != nil {
+        Debug(err.Error(), 0)
+    }
     e := time.Now()
+    Debug("http reply: " + string(out), 2)
     latency := e.Sub(s).Seconds()
     start_s := s.UTC().Format("2006-01-02 15:04:05 UTC")
     end_s := e.UTC().Format("2006-01-02 15:04:05 UTC")
@@ -349,14 +374,12 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
     }
     summary_out.Write(summary_labels)
     summary_out.Flush()
-    //fmt.Println(summary_labels)
     for workflow_name, workflow := range request.GetWorkflows() {
         for _, c := range request.GetWorkflowConcurrency() {
             ingress_stub.CreateWorkflow(context.Background(), workflow)
             benchmark = workflow_name
             concurrency = strconv.Itoa(int(c))
             phase = "cold_start"
-            //fmt.Println(benchmark + " " + concurrency + " " + phase)
             _, benchmark_exists := latency[benchmark]
             if !benchmark_exists && benchmark != "" {
                 latency[benchmark] = make(map[string]map[string][]float64)
@@ -394,12 +417,11 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
                     latency_out.Flush()
                     cnt -= 1
-                    fmt.Println("processed " + benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(cnt) + " remain unprocessed")
+                    Debug(benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(len(concurrency_latency)) + " processed", 2)
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
             phase = "warm_start"
-            //fmt.Println(benchmark + " " + concurrency + " " + phase)
             inv_c = make(chan LatencyResult)
             cnt = 0
             total_sent = 0
@@ -429,17 +451,18 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
                     latency_out.Flush()
                     cnt -= 1
-                    fmt.Println("processed " + benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(cnt) + " remain unprocessed")
+                    Debug(benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(len(concurrency_latency)) + " processed", 2)
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
-            fmt.Println(benchmark + "-" + concurrency + " has been completed... deleting from ingress now...")
+            Debug(benchmark + "-" + concurrency + " has been completed... deleting from ingress now...", 1)
             benchmark = ""
             concurrency = ""
             phase = ""
             wf_delete := workflow.GetName()
             ingress_stub.DeleteWorkflow(context.Background(), &pb.MacroPodRequest{Workflow: &wf_delete})
             time.Sleep(300 * time.Second)
+            Debug(benchmark + "-" + concurrency + " has been deleted", 1)
         }
     }
     for workflow_name, target := range request.GetExtraTargets() {
@@ -447,7 +470,6 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
             benchmark = workflow_name
             concurrency = strconv.Itoa(int(c))
             phase = "cold_start"
-            //fmt.Println(benchmark + " " + concurrency + " " + phase)
             _, benchmark_exists := latency[benchmark]
             if !benchmark_exists && benchmark != "" {
                 latency[benchmark] = make(map[string]map[string][]float64)
@@ -489,12 +511,11 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
                     latency_out.Flush()
                     cnt -= 1
-                    fmt.Println("processed " + benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(cnt) + " remain unprocessed")
+                    Debug(benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(len(concurrency_latency)) + " processed", 2)
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
             phase = "warm_start"
-            //fmt.Println(benchmark + " " + concurrency + " " + phase)
             inv_c = make(chan LatencyResult)
             cnt = 0
             total_sent = 0
@@ -528,21 +549,20 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     latency_out.Write([]string{benchmark, concurrency, phase, strconv.FormatFloat(l.Latency, 'f', -1, 64), l.Start, l.End})
                     latency_out.Flush()
                     cnt -= 1
-                    fmt.Println("processed " + benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(cnt) + " remain unprocessed")
+                    Debug(benchmark + "," + concurrency + "," + phase + ": " + strconv.Itoa(len(concurrency_latency)) + " processed", 2)
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
-            fmt.Println(benchmark + "-" + concurrency + " has been completed... sleeping 300 seconds")
+            Debug(benchmark + "-" + concurrency + " has been completed... sleeping 300 seconds", 1)
             benchmark = ""
             concurrency = ""
             phase = ""
             time.Sleep(300 * time.Second)
+            Debug(benchmark + "-" + concurrency + " sleep cycle done", 1)
         }
     }
-    //fmt.Println("done collection, waiting 30 seconds....")
     collect = false
     time.Sleep(30 * time.Second)
-    //fmt.Println("30 seconds are up....")
     phases := []string{"cold_start", "warm_start"}
     for workflow_name, _ := range request.GetWorkflows() {
         for _, c := range request.GetWorkflowConcurrency() {
@@ -586,7 +606,6 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
             }
         }
     }
-    //fmt.Println(eval_id)
     return eval_id
 }
 
@@ -638,7 +657,6 @@ func HTTP_Eval(res http.ResponseWriter, req *http.Request) {
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.EvalStruct{}
     json.Unmarshal(body, &request)
-    fmt.Printf("%v\n", request)
     id := Serve_Eval(&request)
     fmt.Fprint(res, id)
 }
@@ -694,6 +712,11 @@ func main() {
         worker_nodes_str = "192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24"
     }
     worker_nodes = strings.Split(worker_nodes_str, " ")
+    var err error
+    debug, err = strconv.Atoi(os.Getenv("DEBUG"))
+    if err != nil {
+        debug = 0
+    }
     l, _ := net.Listen("tcp", ":" + service_port)
     s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))
     pb.RegisterMacroPodEvalServer(s, &EvalService{})
