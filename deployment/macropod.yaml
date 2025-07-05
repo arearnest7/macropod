@@ -104,6 +104,8 @@ spec:
           value: "9000"
         - name: INGRESS_ADDRESS
           value: "127.0.0.1:8001"
+        - name: INGRESS_ADDRESS_HTTP
+          value: "127.0.0.1:9001"
         - name: METRICS_DIR
           value: "/app/metrics/"
         - name: LATENCY_DIR

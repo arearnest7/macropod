@@ -2,7 +2,6 @@ package main
 
 import (
     pb "app/macropod_pb"
-    structpb "google.golang.org/protobuf/types/known/structpb"
 
     "os"
     "fmt"
@@ -34,18 +33,19 @@ type LatencyResult struct {
 }
 
 var (
-    metrics_dir     string
-    latency_dir     string
-    summary_dir     string
-    ingress_address string
-    worker_nodes    []string
-    debug           int
+    metrics_dir          string
+    latency_dir          string
+    summary_dir          string
+    ingress_address      string
+    ingress_address_http string
+    worker_nodes         []string
+    debug                int
 
-    ingress_channel *grpc.ClientConn
-    ingress_stub    pb.MacroPodIngressClient
+    ingress_channel      *grpc.ClientConn
+    ingress_stub         pb.MacroPodIngressClient
 
-    metrics_channel = make(map[string]*grpc.ClientConn)
-    metrics_stub    = make(map[string]pb.MacroPodMetricsClient)
+    metrics_channel      = make(map[string]*grpc.ClientConn)
+    metrics_stub         = make(map[string]pb.MacroPodMetricsClient)
 )
 
 func Debug(message string, debug_level int) {
@@ -56,12 +56,17 @@ func Debug(message string, debug_level int) {
 
 func Ingress_Check() {
     var err error
-    for ingress_channel == nil || ingress_channel.GetState() != connectivity.Ready {
+    for ingress_channel == nil {
         ingress_channel, err = grpc.Dial(ingress_address, grpc.WithInsecure())
         if err != nil {
             Debug(err.Error(), 0)
         }
         ingress_stub = pb.NewMacroPodIngressClient(ingress_channel)
+        Debug("attempting rebuild ingress stub...", 5)
+        time.Sleep(10 * time.Millisecond)
+    }
+    for ingress_channel.GetState() != connectivity.Ready {
+        Debug("waiting for ingress stub to be ready", 5)
         time.Sleep(10 * time.Millisecond)
     }
 }
@@ -76,13 +81,10 @@ func Metrics_Check() {
                 Debug(err.Error(), 0)
             }
             metrics_stub[worker_node] = pb.NewMacroPodMetricsClient(metrics_channel[worker_node])
+            Debug("attempting rebuild metrics stub...", 5)
         }
         for metrics_channel[worker_node].GetState() != connectivity.Ready {
-            metrics_channel[worker_node], err = grpc.Dial(worker_node + ":10000", grpc.WithInsecure())
-            if err != nil {
-                Debug(err.Error(), 0)
-            }
-            metrics_stub[worker_node] = pb.NewMacroPodMetricsClient(metrics_channel[worker_node])
+            Debug("waiting for metrics stub to be ready", 5)
             time.Sleep(10 * time.Millisecond)
         }
     }
@@ -270,23 +272,6 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
     }
 }
 
-func Collect_Latency(workflow string, t string, j map[string]interface{}, d []byte) (LatencyResult) {
-    ctx, cancel := context.WithTimeout(context.Background(), time.Second * 180)
-    s := time.Now()
-    jstruct, _ := structpb.NewStruct(j)
-    response, err := ingress_stub.WorkflowInvoke(ctx, &pb.MacroPodRequest{Workflow: &workflow, Text: &t, JSON: jstruct, Data: d})
-    if err != nil {
-        Debug(err.Error(), 0)
-    }
-    e := time.Now()
-    Debug("grpc reply: " + response.GetReply(), 2)
-    cancel()
-    latency := e.Sub(s).Seconds()
-    start_s := s.UTC().Format("2006-01-02 15:04:05 UTC")
-    end_s := e.UTC().Format("2006-01-02 15:04:05 UTC")
-    return LatencyResult{Latency: latency, Start: start_s, End: end_s}
-}
-
 func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
     s := time.Now()
     cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", t, "-H", "Content-Type: plain/txt", target)
@@ -401,13 +386,17 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                         if workflow.GetPayload() != nil {
                             if workflow.GetPayload().GetType() == "Text" {
                                 t = workflow.GetPayload().GetText()
+                                inv_c <- Collect_Latency_HTTP_Text("http://" + ingress_address_http + "/workflow/invoke/" + workflow.GetName(), t)
                             } else if workflow.GetPayload().GetType() == "JSON" {
                                 j = workflow.GetPayload().GetJSON().AsMap()
+                                inv_c <- Collect_Latency_HTTP_JSON("http://" + ingress_address_http + "/workflow/invoke/" + workflow.GetName(), j)
                             } else if workflow.GetPayload().GetType() == "Data" {
                                 d = workflow.GetPayload().GetData()
+                                inv_c <- Collect_Latency_HTTP_Data("http://" + ingress_address_http + "/workflow/invoke/" + workflow.GetName(), d)
                             }
+                        } else {
+                            inv_c <- Collect_Latency_HTTP_Text("http://" + ingress_address_http + "/workflow/invoke/" + workflow.GetName(), t)
                         }
-                        inv_c <- Collect_Latency(workflow.GetName(), t, j, d)
                     }()
                     cnt += 1
                     total_sent += 1
@@ -435,13 +424,17 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                         if workflow.GetPayload() != nil {
                             if workflow.GetPayload().GetType() == "Text" {
                                 t = workflow.GetPayload().GetText()
+                                inv_c <- Collect_Latency_HTTP_Text("http://" + ingress_address_http + "/workflow/invoke/" + workflow.GetName(), t)
                             } else if workflow.GetPayload().GetType() == "JSON" {
                                 j = workflow.GetPayload().GetJSON().AsMap()
+                                inv_c <- Collect_Latency_HTTP_JSON("http://" + ingress_address_http + "/workflow/invoke/" + workflow.GetName(), j)
                             } else if workflow.GetPayload().GetType() == "Data" {
                                 d = workflow.GetPayload().GetData()
+                                inv_c <- Collect_Latency_HTTP_Data("http://" + ingress_address_http + "/workflow/invoke/" + workflow.GetName(), d)
                             }
+                        } else {
+                            inv_c <- Collect_Latency_HTTP_Text("http://" + ingress_address_http + "/workflow/invoke/" + workflow.GetName(), t)
                         }
-                        inv_c <- Collect_Latency(workflow.GetName(), t, j, d)
                     }()
                     cnt += 1
                     total_sent += 1
@@ -694,6 +687,10 @@ func main() {
     ingress_address = os.Getenv("INGRESS_ADDRESS")
     if ingress_address == "" {
         ingress_address = "127.0.0.1:8001"
+    }
+    ingress_address_http = os.Getenv("INGRESS_ADDRESS_HTTP")
+    if ingress_address_http == "" {
+        ingress_address_http = "127.0.0.1:9001"
     }
     metrics_dir = os.Getenv("METRICS_DIR")
     if metrics_dir == "" {
