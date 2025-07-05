@@ -1,5 +1,4 @@
 package main
-
 import (
     pb "app/macropod_pb"
     structpb "google.golang.org/protobuf/types/known/structpb"
@@ -12,7 +11,7 @@ import (
     "io/ioutil"
     "time"
     "sync"
-    "strings"
+    "strings"    
 
     networkingv1 "k8s.io/api/networking/v1"
     metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -82,16 +81,13 @@ func Debug(message string, debug_level int) {
 }
 
 func Deployer_Check() {
-    dataLock.Lock()
     for deployer_channel == nil || deployer_channel.GetState() != connectivity.Ready {
         deployer_channel, _ = grpc.Dial(deployer_address, grpc.WithInsecure())
         deployer_stub = pb.NewMacroPodDeployerClient(deployer_channel)
         Debug("attempting rebuild deployer stub...", 5)
-        dataLock.Unlock()
         time.Sleep(10 * time.Millisecond)
     }
-    dataLock.Unlock()
-}
+   }
 
 func IfPodsAreRunning(workflow_replica string, namespace string) bool {
     label_replica := "workflow_replica=" + workflow_replica
@@ -122,76 +118,68 @@ func IfPodsAreRunning(workflow_replica string, namespace string) bool {
     return true
 }
 
-func WatchTTL() {
-    Debug("watch TTL", 3)
-    config, err := rest.InClusterConfig()
-    if err != nil {
-        Debug("Failed to get in-cluster config: " + err.Error(), 0)
-    }
-    k, err := kubernetes.NewForConfig(config)
-    if err != nil {
-        Debug("Failed to create k: " + err.Error(), 0)
-    }
-    for {
-        currentTime := time.Now()
-        for name, timestamp := range service_timestamp {
-            dataLock.Lock()
-            elapsedTime := currentTime.Sub(timestamp)
-            cnt := service_count[name]
-            ttl := float64(service_ttl[name])
-            dataLock.Unlock()
-            if elapsedTime.Seconds() > ttl && cnt == 0 {
-                service_name := strings.Split(name, ".")[0]
-                namespace := strings.Split(name, ".")[1]
-                Debug("Deleting service and deployment of " + service_name  + " because of TTL: " + currentTime.UTC().Format("2006-01-02 15:04:05.000000 UTC") + " - " + timestamp.UTC().Format("2006-01-02 15:04:05.000000 UTC") + " > " + strconv.Itoa(int(ttl)), 1)
-                service, _ := k.CoreV1().Services(namespace).Get(context.Background(), service_name, metav1.GetOptions{})
-                if service != nil {
-                    dataLock.Lock()
-                    workflow_name := service.Labels["workflow_name"]
-                    labels := service.Labels["workflow_replica"]
-                    dataLock.Unlock()
-                    labels_replica := "workflow_replica=" + labels
-                    services, err := k.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-                    if err != nil {
-                        Debug(err.Error(), 0)
-                    }
-                    for _, service := range services.Items {
-                        dataLock.Lock()
-                        delete(service_count, service.Name)
-                        delete(service_timestamp, service.Name)
-                        delete(service_channel, service.Name)
-                        delete(service_stub, service.Name)
-                        delete(service_ttl, service.Name)
-                        dataLock.Unlock()
-                    }
-                    for  {
-            if labels == ""{
-                break
-            }
-                        ttl_request := pb.MacroPodRequest{Workflow: &workflow_name, Target: &labels}
-                        Debug("deleting resources for" + labels, 5)
-                        go deployer_stub.TTLDelete(context.Background(), &ttl_request)
-                        time.Sleep(100 * time.Millisecond)
-                        deployments_list, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels})
-            if err != nil || deployments_list == nil || len(deployments_list.Items) == 0 {
-                            break
-                        }
-                    }
-                } else {
-                    dataLock.Lock()
-                    delete(service_count, name)
-                    delete(service_timestamp, name)
-                    delete(service_channel, name)
-                    delete(service_stub, name)
-                    delete(service_ttl, name)
-                    dataLock.Unlock()
-                }
-            }
-            time.Sleep(time.Second)
-        }
-    }
+func WatchTTL(){
+	Debug("watch TTL", 3)
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		Debug("Failed to get in-cluster config: "+err.Error(), 0)
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		Debug("Failed to create k: "+err.Error(), 0)
+	}
+	for {
+		currentTime := time.Now()
+		for name, timestamp := range service_timestamp {
+			dataLock.Lock()
+			elapsedTime := currentTime.Sub(timestamp)
+			cnt := service_count[name]
+			ttl := float64(service_ttl[name])
+			dataLock.Unlock()
+			if elapsedTime.Seconds() > ttl && cnt == 0 {
+				service_name := strings.Split(name, ".")[0]
+				namespace := strings.Split(name, ".")[1]
+				Debug("Deleting service and deployment of "+service_name+" because of TTL: "+currentTime.UTC().Format("2006-01-02 15:04:05.000000 UTC")+" - "+timestamp.UTC().Format("2006-01-02 15:04:05.000000 UTC")+" > "+strconv.Itoa(int(ttl)), 1)
+				service, _ := k.CoreV1().Services(namespace).Get(context.Background(), service_name, metav1.GetOptions{})
+				if service != nil {
+					dataLock.Lock()
+					workflow_name := service.Labels["workflow_name"]
+					labels := service.Labels["workflow_replica"]
+					dataLock.Unlock()
+					//labels_replica := "workflow_replica=" + labels
+					dataLock.Lock()
+					for i, val := range service_target[workflow_name] {
+						if val == name {
+							service_target[workflow_name] = append(service_target[workflow_name][:i], service_target[workflow_name][i+1:]...)
+							delete(service_count, name)
+							delete(service_timestamp, name)
+							delete(service_channel, name)
+							delete(service_stub, name)
+							delete(service_ttl, name)
+						}
+					}
+					dataLock.Unlock()
+					for {
+						if labels == "" {
+							break
+						}
+						ttl_request := pb.MacroPodRequest{Workflow: &workflow_name, Target: &labels}
+						Debug("deleting resources for"+labels, 5)
+						go deployer_stub.TTLDelete(context.Background(), &ttl_request)
+						time.Sleep(100 * time.Millisecond)
+						deployments_list, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels})
+						if err != nil || deployments_list == nil || len(deployments_list.Items) == 0 {
+							break
+						}
+					}
+				}
+			}
+			time.Sleep(time.Second)
+		}
+	}
 
 }
+
 
 func UpdateHostTargets(ingress *networkingv1.Ingress) {
     for _, rule := range ingress.Spec.Rules {
@@ -206,13 +194,17 @@ func UpdateHostTargets(ingress *networkingv1.Ingress) {
                 replica_name := ingress.Labels["workflow_replica"]
                 dataLock.Unlock()
                 for !IfPodsAreRunning(replica_name, namespace) {}
-                Debug("service found: " + hostname, 2)
+                //Debug("service found: " + hostname, 2)
                 channel, _ := grpc.Dial(hostname, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
                 stub := pb.NewMacroPodFunctionClient(channel)
                 for channel.GetState() != connectivity.Ready {
                     time.Sleep(10 * time.Millisecond)
                 }
                 dataLock.Lock()
+		
+		_, exists := workflows[workflow_name]
+                if exists {
+		Debug("service found: "+hostname,2)
                 service_count[hostname] = 0
                 service_timestamp[hostname] = time.Now()
                 service_target[workflow_name] = append(service_target[workflow_name], hostname)
@@ -222,6 +214,8 @@ func UpdateHostTargets(ingress *networkingv1.Ingress) {
                 if workflows[workflow_name].GetConfig() != nil && workflows[workflow_name].GetConfig().GetTTL() != 0 {
                     service_ttl[hostname] = workflows[workflow_name].GetConfig().GetTTL()
                 }
+	}
+		//fmt.Printf("INGRESS: service target %v\n", service_target)
                 dataLock.Unlock()
             }
         }
@@ -304,7 +298,7 @@ func GetTarget(triggered bool, workflow_name string, target string) (string, boo
     if !triggered && len(service_target[workflow_name]) < workflow_invocations_current[workflow_name]{
         triggered = true
         create_deployment_request := pb.MacroPodRequest{Workflow: &workflow_name}
-    Debug("sending request to create deployments\n", 0)
+         //Debug("sending request to create deployments\n", 0)
         go deployer_stub.CreateDeployment(context.Background(), &create_deployment_request)
     }
     dataLock.Unlock()
@@ -371,6 +365,7 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
     for target == "" {
         target, triggered = GetTarget(triggered, workflow_name, target)
     }
+    Debug("target set to  "+target,6)
     workflow_id := strconv.Itoa(rand.Intn(100000))
     dw := int32(0)
     request.WorkflowID = &workflow_id
@@ -382,19 +377,22 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
     go deployer_stub.UpdateDeployments(context.Background(), &update_request)
     dataLock.Lock()
     stub := service_stub[target]
-    response, _ = stub.Invoke(context.Background(), request)
+    response, err  := stub.Invoke(context.Background(), request)
+    if err != nil {
+	Debug("error while request "+ err.Error(),3)
+    }
     dataLock.Unlock()
     status = response.GetCode()
     dataLock.Lock()
     service_count[target]--
     workflow_invocations_current[workflow_name]--
     dataLock.Unlock()
-    Debug("workflow invoke request was served by: " + target, 3)
+    Debug("workflow invoke request was served by: " + target, 6)
     return response.GetReply(), status
 }
 
 func Serve_FunctionInvoke(request *pb.MacroPodRequest) (string, int32) {
-    Debug("got invoke request",5)
+    Debug("got invoke request",3)
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
     channel, _ := grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
     stub := pb.NewMacroPodFunctionClient(channel)
@@ -402,7 +400,7 @@ func Serve_FunctionInvoke(request *pb.MacroPodRequest) (string, int32) {
     channel.Close()
     cancel()
     status := response.GetCode()
-    Debug("function invoke request was served by: " + request.GetTarget(), 3)
+    Debug("function invoke request was served by: " + request.GetTarget(), 6)
     return response.GetReply(), status
 }
 
@@ -447,54 +445,73 @@ func Serve_UpdateWorkflow(request *pb.WorkflowStruct) (string) {
 }
 
 func Serve_DeleteWorkflow(request *pb.MacroPodRequest) (string) {
-    if request.GetWorkflow() == "" {
-        return "Workflow name is missing\n"
-    }
-    Debug("WF_DELETE " + request.GetWorkflow(), 2)
-    response, err := deployer_stub.DeleteWorkflow(context.Background(), request)
-    if err != nil {
-    Debug("error in response of delete "+err.Error(), 5)
-    }
-    fmt.Printf("response: %v", response)
-    label_workflow := "workflow_name=" + request.GetWorkflow()
-    fmt.Printf("delete request for %s", label_workflow)
-    config, err := rest.InClusterConfig()
-    if err != nil {
-        Debug("Failed to get in-cluster config: " + err.Error(), 0)
-    }
-    k, err := kubernetes.NewForConfig(config)
-    if err != nil {
-        Debug("Failed to create k: " + err.Error(), 0)
-    }
-    namespace := default_config.GetNamespace()
-    dataLock.Lock()
-    if workflows[request.GetWorkflow()].GetConfig() != nil && workflows[request.GetWorkflow()].GetConfig().GetNamespace() != "" {
-        namespace = workflows[request.GetWorkflow()].GetConfig().GetNamespace()
-    }
-    dataLock.Unlock()
-    services, err := k.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
-    if err != nil {
-        Debug(err.Error(), 0)
-    }
-    for _, service := range services.Items {
-        dataLock.Lock()
-        delete(service_target, service.Name)
-        delete(service_count, service.Name)
-        delete(service_timestamp, service.Name)
-        delete(service_channel, service.Name)
-        delete(service_stub, service.Name)
-        delete(service_ttl, service.Name)
-        dataLock.Unlock()
-    }
-    dataLock.Lock()
-    delete(workflows, request.GetWorkflow())
-    delete(workflow_target_concurrency, request.GetWorkflow())
-    delete(workflow_invocations_current, request.GetWorkflow())
-    delete(workflow_invocations_total, request.GetWorkflow())
-    delete(entry_function, request.GetWorkflow())
-    dataLock.Unlock()
-    Debug("WF_DELETE_END " + request.GetWorkflow(), 2)
-    return "Workflow \"" + request.GetWorkflow() + "\" has been successfully deleted.\n"
+	if request.GetWorkflow() == "" {
+		return "Workflow name is missing\n"
+	}
+	Debug("WF_DELETE "+request.GetWorkflow(), 2)
+	label_workflow := "workflow_name=" + request.GetWorkflow()
+	fmt.Printf("delete request for %s", label_workflow)
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		Debug("Failed to get in-cluster config: "+err.Error(), 0)
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		Debug("Failed to create k: "+err.Error(), 0)
+	}
+	namespace := default_config.GetNamespace()
+	dataLock.Lock()
+	if workflows[request.GetWorkflow()].GetConfig() != nil && workflows[request.GetWorkflow()].GetConfig().GetNamespace() != "" {
+		namespace = workflows[request.GetWorkflow()].GetConfig().GetNamespace()
+	}
+	dataLock.Unlock()
+	ingresses, err := k.NetworkingV1().Ingresses(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
+	if err != nil {
+		Debug(err.Error(), 0)
+	}
+	for _, ingress := range ingresses.Items {
+		for _, rule := range ingress.Spec.Rules {
+			if rule.HTTP != nil {
+				for _, path := range rule.HTTP.Paths {
+					serviceName := path.Backend.Service.Name
+					namespace := ingress.Namespace
+					port := path.Backend.Service.Port.Number
+					
+					hostname_deleted := fmt.Sprintf("%s.%s.svc.cluster.local:%d", serviceName, namespace, port)
+                    Debug("DELETE: "+ hostname_deleted + " is deleted\n",3)
+					dataLock.Lock()
+					delete(service_count, hostname_deleted)
+					delete(service_timestamp, hostname_deleted)
+					delete(service_channel, hostname_deleted)
+					delete(service_stub, hostname_deleted)
+					delete(service_ttl, hostname_deleted)
+                    dataLock.Unlock()
+				}
+
+			}
+		}
+		
+	}
+	response, err := deployer_stub.DeleteWorkflow(context.Background(), request)
+	if err != nil {
+		Debug("error in response of delete "+err.Error(), 5)
+	}
+	fmt.Printf("response: %v", response)
+
+	dataLock.Lock()
+	delete(service_target, request.GetWorkflow())
+	delete(workflows, request.GetWorkflow())
+	delete(workflow_target_concurrency, request.GetWorkflow())
+	delete(workflow_invocations_current, request.GetWorkflow())
+	delete(workflow_invocations_total, request.GetWorkflow())
+	delete(entry_function, request.GetWorkflow())
+    fmt.Printf("service target %v\n service_count :%v\n", service_target, service_count)
+	dataLock.Unlock()
+	Debug("WF_DELETE_END "+request.GetWorkflow(), 2)
+	return "Workflow \"" + request.GetWorkflow() + "\" has been successfully deleted.\n"
+
+
+
 }
 
 func (s *IngressService) Config(ctx context.Context, req *pb.ConfigStruct) (*pb.MacroPodReply, error) {

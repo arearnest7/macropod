@@ -363,6 +363,7 @@ func Serve_UpdateWorkflow(request *pb.WorkflowStruct) string {
     delete_request := pb.MacroPodRequest{Workflow: &request.Name}
     Serve_DeleteWorkflow(&delete_request)
     function := Serve_CreateWorkflow(request)
+    deletecontext, cancelFunc = context.WithCancel(context.Background())
     return function
 }
 
@@ -889,6 +890,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
 
 func Serve_TTLDelete(request *pb.MacroPodRequest) string {
     labels := request.GetTarget()
+    cancelFunc()
     Debug("delete TTL "+labels, 2)
     dataLock.Lock()
     delete(workflow_deployments[request.GetWorkflow()], labels)
@@ -898,13 +900,14 @@ func Serve_TTLDelete(request *pb.MacroPodRequest) string {
     }
     dataLock.Unlock()
     labels_replica := "workflow_replica=" + labels
-    Debug("deleting request of "+labels_replica, 2)
-    fmt.Printf("deleting with labels: %s\n", labels_replica)
+    Debug("deleting request of "+labels_replica+"test", 2)
+    fmt.Printf("deleting with labels: %s + namespace: %s\n", labels_replica, namespace)
     services, err := kclient.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
     if err != nil {
         Debug(err.Error(), 0)
     }
     for _, service := range services.Items {
+	fmt.Printf("deleting............%s\n", service.ObjectMeta.Name)
         kclient.CoreV1().Services(namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
     }
     deployments, err := kclient.AppsV1().Deployments(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
@@ -923,12 +926,14 @@ func Serve_TTLDelete(request *pb.MacroPodRequest) string {
     }
 
     for {
-        deployments_list, _ := kclient.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
-        if deployments_list == nil || len(deployments_list.Items) == 0 {
+	Debug("TTL: waiting for resources to be deleted",5)
+        deployments_list, err := kclient.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
+        if err != nil || deployments_list == nil || len(deployments_list.Items) == 0 {
             break
         }
         time.Sleep(10 * time.Millisecond)
     }
+    deletecontext, cancelFunc = context.WithCancel(context.Background())
     return ""
 }
 

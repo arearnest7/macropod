@@ -286,7 +286,12 @@ func Collect_Latency_HTTP_JSON(target string, j map[string]interface{}) (Latency
     s := time.Now()
     payload, _ := json.Marshal(j)
     cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", string(payload), "-H", "Content-Type: application/json", target)
-    cmd.Run()
+    err := cmd.Run()
+    if err != nil {
+        fmt.Println(err.Error())
+    } else {
+        fmt.Println("http json returned successfully?")
+    }
     e := time.Now()
     latency := e.Sub(s).Seconds()
     start_s := s.UTC().Format("2006-01-02 15:04:05 UTC")
