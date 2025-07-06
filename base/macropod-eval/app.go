@@ -322,6 +322,7 @@ func Collect_Latency_HTTP_Data(target string, d []byte) (LatencyResult) {
 }
 
 func Serve_Eval(request *pb.EvalStruct) (string) {
+    Debug("Eval_Start", 0)
     Ingress_Check()
     if _, err := os.Stat(metrics_dir); os.IsNotExist(err) {
         os.Mkdir(metrics_dir, 0777)
@@ -555,7 +556,9 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
         }
     }
     collect = false
+    Debug("collection ended... waiting 30 seconds...", 0)
     time.Sleep(30 * time.Second)
+    Debug("collection wait cycle ended. processing results to summary...", 0)
     phases := []string{"cold_start", "warm_start"}
     for workflow_name, _ := range request.GetWorkflows() {
         for _, c := range request.GetWorkflowConcurrency() {
@@ -599,6 +602,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
             }
         }
     }
+    Debug("collection processing ended", 0)
     return eval_id
 }
 
