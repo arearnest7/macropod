@@ -58,7 +58,7 @@ var (
 	deployer_address string
 	updateRun        bool
 	dataLock         sync.Mutex
-	createRun  bool
+	createRun        bool
 
 	retrypolicy = `{
         "methodConfig": [{
@@ -153,8 +153,16 @@ func WatchTTL() {
 	}
 	for {
 		currentTime := time.Now()
-		for name, timestamp := range service_timestamp {
+                dataLock.Lock()
+                var service_timestamp_check []string
+                for name, _ := range service_timestamp {
+                    service_timestamp_check = append(service_timestamp_check, name)
+                }
+                dataLock.Unlock()
+		var deleted_services []string
+		for _, name := range service_timestamp_check {
 			dataLock.Lock()
+                        timestamp := service_timestamp[name]
 			elapsedTime := currentTime.Sub(timestamp)
 			cnt := service_count[name]
 			ttl := float64(service_ttl[name])
@@ -175,7 +183,11 @@ func WatchTTL() {
 						if val == name {
 							service_target[workflow_name] = append(service_target[workflow_name][:i], service_target[workflow_name][i+1:]...)
 							delete(service_count, name)
-							delete(service_timestamp, name)
+							deleted_services = append(deleted_services,name)
+                                                        _, channel_exists := service_channel[name]
+                                                        if channel_exists {
+                                                            service_channel[name].Close()
+                                                        }
 							delete(service_channel, name)
 							delete(service_stub, name)
 							delete(service_ttl, name)
@@ -197,11 +209,18 @@ func WatchTTL() {
 					}
 				}
 			}
-			time.Sleep(time.Second)
 		}
+                dataLock.Lock()
+		for _, sname := range deleted_services {
+		    delete(service_timestamp, sname)
+		}
+                dataLock.Unlock()
+		time.Sleep(time.Second)
 	}
 
 }
+
+
 
 func UpdateHostTargets(ingress *networkingv1.Ingress) {
 	for _, rule := range ingress.Spec.Rules {
@@ -262,6 +281,10 @@ func DeleteHostTargets(ingress *networkingv1.Ingress) {
 						if _, exists := service_count[hostname_deleted]; exists {
 							delete(service_count, hostname_deleted)
 							delete(service_timestamp, hostname_deleted)
+							_, channel_exists := service_channel[hostname_deleted]
+                                                        if channel_exists {
+                                                            service_channel[hostname_deleted].Close()
+                                                        }
 							delete(service_channel, hostname_deleted)
 							delete(service_stub, hostname_deleted)
 							delete(service_ttl, hostname_deleted)
@@ -303,16 +326,17 @@ func WatchIngress() {
 	}
 }
 
-func runCreateFunction(create_deployment_request pb.MacroPodRequest) {
+func runCreateFunction(workflow_name_for_create string) {
 	Debug("create request to deployer", 6)
 	createRun = true
+	create_deployment_request := pb.MacroPodRequest{Workflow: &workflow_name_for_create}
 	deployer_stub.CreateDeployment(context.Background(), &create_deployment_request)
 	createRun = false
 	Debug("set  createRun to false", 6)
 	return
 }
-func GetTarget(triggered bool, workflow_name string, target string) (string, bool) {
-	dataLock.Lock()
+func GetTarget(triggered bool, workflow_name string, target string) (pb.MacroPodFunctionClient, string, bool) {
+
 	if len(service_target[workflow_name]) > 0 {
 		idx := workflow_invocations_total[workflow_name] % len(service_target[workflow_name])
 		service := service_target[workflow_name][idx]
@@ -328,14 +352,15 @@ func GetTarget(triggered bool, workflow_name string, target string) (string, boo
 	}
 	if !triggered && len(service_target[workflow_name]) < workflow_invocations_current[workflow_name] {
 		triggered = true
-		create_deployment_request := pb.MacroPodRequest{Workflow: &workflow_name}
+		//create_deployment_request := pb.MacroPodRequest{Workflow: &workflow_name}
 		//Debug("sending request to create deployments\n", 0)
 		if !createRun {
-			go runCreateFunction(create_deployment_request)
+			go runCreateFunction(workflow_name)
 		}
 	}
-	dataLock.Unlock()
-	return target, triggered
+	stub_to_return := service_stub[target]
+
+	return stub_to_return, target, triggered
 }
 
 func Serve_Config(request *pb.ConfigStruct) string {
@@ -395,15 +420,21 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
 	workflow_name := request.GetWorkflow()
 	function_name := entry_function[workflow_name]
 	request.Function = &function_name
-	dataLock.Lock()
-	workflow_invocations_current[workflow_name]++
-	invocations_current := strconv.Itoa(workflow_invocations_current[workflow_name])
-	workflow_invocations_total[workflow_name]++
-	dataLock.Unlock()
-	target := ""
+	var stub pb.MacroPodFunctionClient
 	triggered := false
+	var invocations_current string 
+	invoked := false
+	target := ""
 	for target == "" {
-		target, triggered = GetTarget(triggered, workflow_name, target)
+		dataLock.Lock()
+		if !invoked {
+			workflow_invocations_current[workflow_name]++
+			invocations_current = strconv.Itoa(workflow_invocations_current[workflow_name])
+			workflow_invocations_total[workflow_name]++
+			invoked = true
+		}
+		stub, target, triggered = GetTarget(triggered, workflow_name, target)
+		dataLock.Unlock()
 	}
 	Debug("target set to  "+target, 6)
 	workflow_id := strconv.Itoa(rand.Intn(100000))
@@ -414,19 +445,15 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
 	status := int32(0)
 	var response *pb.MacroPodReply
 	update_request := pb.MacroPodRequest{Workflow: &workflow_name, WorkflowID: &invocations_current}
-
-	dataLock.Lock()
-	if !updateRun {
-		go runUpdateFunction(update_request)
-	}
-	stub := service_stub[target]
-	dataLock.Unlock()
 	response, err := stub.Invoke(context.Background(), request)
 	if err != nil {
 		Debug("error while request "+err.Error(), 3)
 	}
 	status = response.GetCode()
 	dataLock.Lock()
+	if !updateRun {
+		go runUpdateFunction(update_request)
+	}
 	service_count[target]--
 	workflow_invocations_current[workflow_name]--
 	dataLock.Unlock()
@@ -525,6 +552,10 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
 					dataLock.Lock()
 					delete(service_count, hostname_deleted)
 					delete(service_timestamp, hostname_deleted)
+                                        _, channel_exists := service_channel[hostname_deleted]
+                                        if channel_exists {
+					    service_channel[hostname_deleted].Close()
+                                        }
 					delete(service_channel, hostname_deleted)
 					delete(service_stub, hostname_deleted)
 					delete(service_ttl, hostname_deleted)
