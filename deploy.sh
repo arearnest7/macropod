@@ -28,5 +28,5 @@ sleep 60s
 sed -i "s/kubernetes.io\/hostname: sysdev-tamu-1/kubernetes.io\/hostname: $host_name/g" deployment/macropod.yaml
 sed -i "s/value: \"192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24\"/value: \"$4\"/g" deployment/macropod.yaml
 sudo kubectl apply -f deployment/macropod.yaml
-sed -i "s/\"value: \"$4\"/value: \"192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24\"/g" deployment/macropod.yaml
+sed -i "s/value: \"$4\"/value: \"192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24\"/g" deployment/macropod.yaml
 sed -i "s/kubernetes.io\/hostname: $host_name/kubernetes.io\/hostname: sysdev-tamu-1/g" deployment/macropod.yaml
