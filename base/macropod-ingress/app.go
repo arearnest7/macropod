@@ -168,82 +168,100 @@ func IfPodsAreRunning(workflow_replica string, namespace string) bool {
 }
 
 func WatchTTL() {
-    Debug("watch TTL", 3)
-    config, err := rest.InClusterConfig()
-    if err != nil {
-        Debug("Failed to get in-cluster config: "+err.Error(), 0)
-    }
-    k, err := kubernetes.NewForConfig(config)
-    if err != nil {
-        Debug("Failed to create k: "+err.Error(), 0)
-    }
-    for {
-        currentTime := time.Now()
-                dataLock.Lock()
-                var service_timestamp_check []string
-                for name, _ := range service_timestamp {
-                    service_timestamp_check = append(service_timestamp_check, name)
-                }
-                dataLock.Unlock()
-        var deleted_services []string
-        for _, name := range service_timestamp_check {
-            dataLock.Lock()
-            timestamp := service_timestamp[name]
-            elapsedTime := currentTime.Sub(timestamp)
-            cnt := service_count[name]
-            ttl := float64(service_ttl[name])
-            dataLock.Unlock()
-            if elapsedTime.Seconds() > ttl && cnt == 0 {
-                service_name := strings.Split(name, ".")[0]
-                namespace := strings.Split(name, ".")[1]
-                Debug("Deleting service and deployment of "+service_name+" because of TTL: "+currentTime.UTC().Format("2006-01-02 15:04:05.000000 UTC")+" - "+timestamp.UTC().Format("2006-01-02 15:04:05.000000 UTC")+" > "+strconv.Itoa(int(ttl)), 1)
-                service, err := k.CoreV1().Services(namespace).Get(context.Background(), service_name, metav1.GetOptions{})
-                if service != nil && err == nil {
-                    dataLock.Lock()
-                    workflow_name := service.Labels["workflow_name"]
-                    labels := service.Labels["workflow_replica"]
-                    dataLock.Unlock()
-                    //labels_replica := "workflow_replica=" + labels
-                    dataLock.Lock()
-                    for i, val := range service_target[workflow_name] {
-                        if val == name {
-                            service_target[workflow_name] = append(service_target[workflow_name][:i], service_target[workflow_name][i+1:]...)
-                            delete(service_count, name)
-                            deleted_services = append(deleted_services,name)
-                            _, channel_exists := service_channel[name]
-                            if channel_exists {
-                                service_channel[name].Close()
-                            }
-                            delete(service_channel, name)
-                            delete(service_stub, name)
-                            delete(service_ttl, name)
-                        }
-                    }
-                    dataLock.Unlock()
-                    for {
-                        if labels == "" {
-                            break
-                        }
-                        ttl_request := pb.MacroPodRequest{Workflow: &workflow_name, Target: &labels}
-                        Debug("deleting resources for"+labels, 5)
-                        go deployer_stub.TTLDelete(context.Background(), &ttl_request)
-                        time.Sleep(100 * time.Millisecond)
-                        deployments_list, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels})
-                        if err != nil || deployments_list == nil || len(deployments_list.Items) == 0 {
-                            break
-                        }
-                    }
-                }
-            }
-        }
-        dataLock.Lock()
-        for _, sname := range deleted_services {
-            delete(service_timestamp, sname)
-        }
-        dataLock.Unlock()
-        time.Sleep(time.Second)
-    }
-
+	Debug("watch TTL", 3)
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		Debug("Failed to get in-cluster config: "+err.Error(), 0)
+	}
+	k, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		Debug("Failed to create k: "+err.Error(), 0)
+	}
+	for {
+		currentTime := time.Now()
+		dataLock.Lock()
+		var service_timestamp_check []string
+		for name, _ := range service_timestamp {
+			service_timestamp_check = append(service_timestamp_check, name)
+		}
+		dataLock.Unlock()
+		var deleted_services []string
+		for _, name := range service_timestamp_check {
+			dataLock.Lock()
+			timestamp := service_timestamp[name]
+			elapsedTime := currentTime.Sub(timestamp)
+			cnt := service_count[name]
+			ttl := float64(service_ttl[name])
+			dataLock.Unlock()
+			if elapsedTime.Seconds() > ttl && cnt == 0 {
+				service_name := strings.Split(name, ".")[0]
+				namespace := strings.Split(name, ".")[1]
+				Debug("Deleting service and deployment of "+service_name+" because of TTL: "+currentTime.UTC().Format("2006-01-02 15:04:05.000000 UTC")+" - "+timestamp.UTC().Format("2006-01-02 15:04:05.000000 UTC")+" > "+strconv.Itoa(int(ttl)), 1)
+				service, err := k.CoreV1().Services(namespace).Get(context.Background(), service_name, metav1.GetOptions{})
+				if service != nil && err == nil {
+					dataLock.Lock()
+					workflow_name := service.Labels["workflow_name"]
+					labels := service.Labels["workflow_replica"]
+					dataLock.Unlock()
+					//labels_replica := "workflow_replica=" + labels
+					dataLock.Lock()
+					for i, val := range service_target[workflow_name] {
+						if val == name {
+							service_target[workflow_name] = append(service_target[workflow_name][:i], service_target[workflow_name][i+1:]...)
+							delete(service_count, name)
+							deleted_services = append(deleted_services, name)
+							_, channel_exists := service_channel[name]
+							if channel_exists {
+								service_channel[name].Close()
+							}
+							delete(service_channel, name)
+							delete(service_stub, name)
+							delete(service_ttl, name)
+						}
+					}
+					dataLock.Unlock()
+					for {
+						if labels == "" {
+							break
+						}
+						ttl_request := pb.MacroPodRequest{Workflow: &workflow_name, Target: &labels}
+						Debug("deleting resources for"+labels, 5)
+						go deployer_stub.TTLDelete(context.Background(), &ttl_request)
+						time.Sleep(100 * time.Millisecond)
+						deployments_list, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels})
+						if err != nil || deployments_list == nil || len(deployments_list.Items) == 0 {
+							break
+						}
+					}
+				} else {
+					dataLock.Lock()
+					for workflow_name_val, _ := range service_target {
+						for i, val := range service_target[workflow_name_val] {
+							if val == name {
+								service_target[workflow_name_val] = append(service_target[workflow_name_val][:i], service_target[workflow_name_val][i+1:]...)
+								delete(service_count, name)
+								deleted_services = append(deleted_services, name)
+								_, channel_exists := service_channel[name]
+								if channel_exists {
+									service_channel[name].Close()
+								}
+								delete(service_channel, name)
+								delete(service_stub, name)
+								delete(service_ttl, name)
+							}
+						}
+						dataLock.Unlock()
+					}
+				}
+			}
+		}
+		dataLock.Lock()
+		for _, sname := range deleted_services {
+			delete(service_timestamp, sname)
+		}
+		dataLock.Unlock()
+		time.Sleep(time.Second)
+	}
 }
 
 func UpdateHostTargets(ingress *networkingv1.Ingress) {
