@@ -157,9 +157,7 @@ spec:
         - name: NAMESPACE
           value: "macropod-functions"
         - name: INGRESS_ADDRESS
-          value: "macropod-service.default.svc.cluster.local:8001"
-        - name: LOGGER_ADDRESS
-          value: "macropod-service.default.svc.cluster.local:8003"
+          value: "10.43.190.1:8001"
         - name: TTL
           value: "180"
         - name: DEPLOYMENT

@@ -20,7 +20,7 @@ function Timestamp(context, target, message) {
     Target: target,
     Text: message
   };
-  if (process.env.LOGGER != "") {
+  if (process.env.Logger && process.env.LOGGER != "") {
     var stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
     stub.Timestamp(request, async function(err, response) {});
   }
@@ -32,7 +32,7 @@ function Error(context, err) {
     Function: context.Function,
     Text: err
   };
-  if (process.env.LOGGER != "") {
+  if (process.env.Logger && process.env.LOGGER != "") {
     var stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
     stub.Error(request, async function(err, response) {});
   }
@@ -44,7 +44,7 @@ function Print(context, message) {
     Function: context.Function,
     Text: message
   };
-  if (process.env.LOGGER != "") {
+  if (process.env.Logger && process.env.LOGGER != "") {
     var stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
     stub.Print(request, async function(err, response) {});
   }

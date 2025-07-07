@@ -748,7 +748,9 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                     env = append(env, corev1.EnvVar{Name: "WORKFLOW", Value: request.GetWorkflow()})
                     env = append(env, corev1.EnvVar{Name: "FUNCTION", Value: container})
                     env = append(env, corev1.EnvVar{Name: "INGRESS", Value: ingress_address})
-                    env = append(env, corev1.EnvVar{Name: "LOGGER", Value: logger_address})
+                    if logger_address != "" {
+                        env = append(env, corev1.EnvVar{Name: "LOGGER", Value: logger_address})
+                    }
                     env = append(env, corev1.EnvVar{Name: "COMM_TYPE", Value: communication})
                     for _, endpoint := range function.Endpoints {
                         in_pod := false
@@ -1112,9 +1114,6 @@ func main() {
         ingress_address = "127.0.0.1:8001"
     }
     logger_address = os.Getenv("LOGGER_ADDRESS")
-    if logger_address == "" {
-        logger_address = "127.0.0.1:8003"
-    }
     namespace := os.Getenv("NAMESPACE")
     if namespace == "" {
         namespace = "macropod-functions"

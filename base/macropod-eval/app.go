@@ -66,8 +66,20 @@ func Ingress_Check() {
         time.Sleep(10 * time.Millisecond)
     }
     for ingress_channel.GetState() != connectivity.Ready {
-        Debug("waiting for ingress stub to be ready", 5)
-        time.Sleep(10 * time.Millisecond)
+        if ingress_channel.GetState() == connectivity.Connecting {
+            Debug("waiting for ingress stub to be finish connecting", 5)
+            time.Sleep(10 * time.Millisecond)
+        } else if ingress_channel.GetState() == connectivity.TransientFailure || ingress_channel.GetState() == connectivity.Shutdown {
+            ingress_channel, err = grpc.Dial(ingress_address, grpc.WithInsecure())
+            if err != nil {
+                Debug(err.Error(), 0)
+            }
+            ingress_stub = pb.NewMacroPodIngressClient(ingress_channel)
+            Debug("attempting rebuild ingress stub due to transient failure or shutdown...", 5)
+            time.Sleep(10 * time.Millisecond)
+        } else {
+            break
+        }
     }
 }
 
@@ -84,8 +96,20 @@ func Metrics_Check() {
             Debug("attempting rebuild metrics stub...", 5)
         }
         for metrics_channel[worker_node].GetState() != connectivity.Ready {
-            Debug("waiting for metrics stub to be ready", 5)
-            time.Sleep(10 * time.Millisecond)
+            if ingress_channel.GetState() == connectivity.Connecting {
+                Debug("waiting for metrics stub to be finish connecting", 5)
+                time.Sleep(10 * time.Millisecond)
+            } else if metrics_channel[worker_node].GetState() == connectivity.TransientFailure || metrics_channel[worker_node].GetState() == connectivity.Shutdown {
+                metrics_channel[worker_node], err = grpc.Dial(worker_node + ":10000", grpc.WithInsecure())
+                if err != nil {
+                    Debug(err.Error(), 0)
+                }
+                metrics_stub[worker_node] = pb.NewMacroPodMetricsClient(metrics_channel[worker_node])
+                Debug("attempting rebuild metrics stub due to transient failure or shutdown...", 5)
+                time.Sleep(10 * time.Millisecond)
+            } else {
+                break
+            }
         }
     }
 }

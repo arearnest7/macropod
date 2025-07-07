@@ -12,21 +12,21 @@ opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_
 
 def Timestamp(context, target, message):
     req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=context["Function"], WorkflowID=context["WorkflowID"], Depth=context["Depth"], Width=context["Width"], Target=target, Text=message)
-    if "LOGGER" in os.environ:
+    if "LOGGER" in os.environ and os.environ["LOGGER"] != "":
         with grpc.insecure_channel(os.environ["LOGGER"], options=opts,) as channel:
             stub = pb_grpc.MacroPodLoggerStub(channel)
             stub.Timestamp(req)
 
 def Error(context, err):
     req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=context["Function"], Text=err)
-    if "LOGGER" in os.environ:
+    if "LOGGER" in os.environ and os.environ["LOGGER"] != "":
         with grpc.insecure_channel(os.environ["LOGGER"], options=opts,) as channel:
             stub = pb_grpc.MacroPodLoggerStub(channel)
             stub.Error(req)
 
 def Print(context, message):
     req = pb.MacroPodRequest(Workflow=context["Workflow"], Function=context["Function"], Text=message)
-    if "LOGGER" in os.environ:
+    if "LOGGER" in os.environ and os.environ["LOGGER"] != "":
         with grpc.insecure_channel(os.environ["LOGGER"], options=opts,) as channel:
             stub = pb_grpc.MacroPodLoggerStub(channel)
             stub.Print(req)
