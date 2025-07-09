@@ -572,7 +572,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
     select {
     case <-localctx.Done():
         Debug("delete workflow has been called, hence cancelling",5)
-        return "0"
+        return "1"
     default:
         dataLock.Lock()
         Debug("lock acquired", 6)
@@ -583,14 +583,14 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
         case <- lockMacropod.Done():
             dataLock.Unlock()
              Debug("lock released", 6)
-            return "0"
+            return "1"
         default:
         if !bypass {
             if _, exists := workflows[request.GetWorkflow()]; !exists {
                 Debug("Workflow definition not found", 0)
                 dataLock.Unlock()
                  Debug("lock released", 6)
-                return "0"
+                return "1"
             }
             if workflow_updating[request.GetWorkflow()] {
                 dataLock.Unlock()
@@ -618,26 +618,26 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                 dataLock.Unlock()
                  Debug("lock released", 6)
                 fmt.Print("workflow not found")
-                return "0"
+                return "1"
             }
             if len(workflow_pods[request.GetWorkflow()]) == 0 {
                 dataLock.Unlock()
                  Debug("lock released", 6)
                 fmt.Print("workflow pods empty")
-                return "0"
+                return "1"
             }
             var nodes NodeMetricList
             data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
             if err != nil {
                 dataLock.Unlock()
                  Debug("lock released", 6)
-                return "0"
+                return "1"
             }
             err = json.Unmarshal(data, &nodes)
             if err != nil {
                 dataLock.Unlock()
                  Debug("lock released", 6)
-                return "0"
+                return "1"
             }
             start_node := -1
             for i, node := range nodes.Items {
@@ -660,7 +660,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
             if start_node == -1 {
                 dataLock.Unlock()
                  Debug("lock released", 6)
-                return "0"
+                return "1"
             }
             replicaNumber := strconv.Itoa(workflow_replica_count[request.GetWorkflow()])
             workflow_replica_count[request.GetWorkflow()]++
@@ -815,7 +815,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                         Debug("unable to create deployment "+strings.ToLower(pod[0])+" for "+namespace+" - "+err.Error(), 0)
                         dataLock.Unlock()
                          Debug("lock released", 6)
-                        return "0"
+                        return "1"
                     }
                 } else {
                     Debug("Updating the existing deployment "+deployment.Name, 0)
@@ -869,7 +869,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                         Debug("unable to create service "+strings.ToLower(pod[0])+"-"+replicaNumber+" for "+namespace+" - "+err.Error(), 0)
                         dataLock.Unlock()
                          Debug("lock released", 6)
-                        return "0"
+                        return "1"
                     }
                 } else {
                     _, err := kclient.CoreV1().Services(namespace).Update(context.Background(), service, metav1.UpdateOptions{})
@@ -877,7 +877,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                         Debug("unable to update service "+strings.ToLower(pod[0])+"-"+replicaNumber+" for "+namespace+" - "+err.Error(), 0)
                         dataLock.Unlock()
                          Debug("lock released", 6)
-                        return "0"
+                        return "1"
                     }
                 }
             }
@@ -919,7 +919,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                 Debug("unable to create ingress for "+namespace+" - "+err.Error(), 0)
                 dataLock.Unlock()
                  Debug("lock released", 6)
-                return "0"
+                return "1"
             }
             dataLock.Unlock()
             Debug("released data lock", 6)
@@ -927,12 +927,11 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
         default:
             dataLock.Unlock()
              Debug("lock released", 6)
-            return "0"
+            return "1"
         }
     }
     }
 }
-
 func Serve_TTLDelete(request *pb.MacroPodRequest) string {
     labels := request.GetTarget()
     cancelFunc()

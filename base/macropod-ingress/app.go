@@ -97,6 +97,7 @@ func Deployer_Check() {
 			Debug("waiting for deployer stub to be finish connecting", 5)
 			time.Sleep(10 * time.Millisecond)
 		} else if deployer_channel.GetState() == connectivity.TransientFailure || deployer_channel.GetState() == connectivity.Shutdown {
+                        deployer_channel.Close()
 			deployer_channel, err = grpc.Dial(deployer_address, grpc.WithInsecure())
 			if err != nil {
 				Debug(err.Error(), 0)
@@ -125,6 +126,7 @@ func Deployer_Update_Check() {
 			Debug("waiting for deployer update stub to be finish connecting", 5)
 			time.Sleep(10 * time.Millisecond)
 		} else if deployer_update_channel.GetState() == connectivity.TransientFailure || deployer_update_channel.GetState() == connectivity.Shutdown {
+                        deployer_update_channel.Close()
 			deployer_update_channel, err = grpc.Dial(deployer_address, grpc.WithInsecure())
 			if err != nil {
 				Debug(err.Error(), 0)
@@ -549,7 +551,9 @@ func Serve_CreateWorkflow(request *pb.WorkflowStruct) string {
 	workflow_invocations_current[request.GetName()] = 0
 	workflow_functions_created[request.GetName()] = 0
 	workflow_invocations_total[request.GetName()] = 0
-	dataLock.Unlock()
+        Deployer_Check()
+        Deployer_Update_Check()
+        dataLock.Unlock()
 	results, _ := deployer_stub.CreateWorkflow(context.Background(), request)
 	entrypoint := results.GetReply()
 	dataLock.Lock()
@@ -623,6 +627,10 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
 		}
 
 	}
+        dataLock.Lock()
+        Deployer_Check()
+        Deployer_Update_Check()
+        dataLock.Unlock()
 	response, err := deployer_stub.DeleteWorkflow(context.Background(), request)
 	if err != nil {
 		Debug("error in response of delete "+err.Error(), 5)
