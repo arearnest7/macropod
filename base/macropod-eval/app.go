@@ -40,6 +40,7 @@ var (
     ingress_address_http string
     worker_nodes         []string
     debug                int
+    ttl                  string
 
     ingress_channel      *grpc.ClientConn
     ingress_stub         pb.MacroPodIngressClient
@@ -298,7 +299,7 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
 
 func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
     s := time.Now()
-    cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", t, "-H", "Content-Type: plain/txt", target)
+    cmd := exec.Command("curl", "-m", ttl, "-X", "POST", "-d", t, "-H", "Content-Type: plain/txt", target)
     Debug(cmd.String(), 3)
     out, err := cmd.Output()
     if err != nil {
@@ -315,7 +316,7 @@ func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
 func Collect_Latency_HTTP_JSON(target string, j map[string]interface{}) (LatencyResult) {
     s := time.Now()
     payload, _ := json.Marshal(j)
-    cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", string(payload), "-H", "Content-Type: application/json", target)
+    cmd := exec.Command("curl", "-m", ttl, "-X", "POST", "-d", string(payload), "-H", "Content-Type: application/json", target)
     Debug(cmd.String(), 3)
     out, err := cmd.Output()
     if err != nil {
@@ -331,7 +332,7 @@ func Collect_Latency_HTTP_JSON(target string, j map[string]interface{}) (Latency
 
 func Collect_Latency_HTTP_Data(target string, d []byte) (LatencyResult) {
     s := time.Now()
-    cmd := exec.Command("curl", "-m", "180", "-X", "POST", "-d", string(d), "-H", "Content-Type: application/octet-stream", target)
+    cmd := exec.Command("curl", "-m", ttl, "-X", "POST", "-d", string(d), "-H", "Content-Type: application/octet-stream", target)
     Debug(cmd.String(), 3)
     out, err := cmd.Output()
     if err != nil {
@@ -373,7 +374,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
     latency_out.Write([]string{"benchmark", "concurrency", "phase", "latency", "start_time", "end_time"})
     latency_out.Flush()
     summary_out := csv.NewWriter(r_s)
-    summary_labels := []string{"benchmark", "concurrency", "phase", "latency_p99"}
+    summary_labels := []string{"benchmark", "concurrency", "phase", "latency_median", "latency_p99"}
     for _, metric := range metrics {
         summary_labels = append(summary_labels, metric + "_" + "peak")
     }
@@ -588,7 +589,9 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
         for _, c := range request.GetWorkflowConcurrency() {
             for _, p := range phases {
                 line := []string{workflow_name, strconv.Itoa(int(c)), p}
+                median_latency, _ := stats.Median(latency[workflow_name][strconv.Itoa(int(c))][p])
                 p99_latency, _ := stats.Percentile(latency[workflow_name][strconv.Itoa(int(c))][p], 99)
+                line = append(line, strconv.FormatFloat(median_latency, 'f', -1, 64))
                 line = append(line, strconv.FormatFloat(p99_latency, 'f', -1, 64))
                 for _, metric := range metrics {
                     val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric], 'f', -1, 64)
@@ -609,7 +612,9 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
         for _, c := range request.GetWorkflowConcurrency() {
             for _, p := range phases {
                 line := []string{workflow_name, strconv.Itoa(int(c)), p}
+                median_latency, _ := stats.Median(latency[workflow_name][strconv.Itoa(int(c))][p])
                 p99_latency, _ := stats.Percentile(latency[workflow_name][strconv.Itoa(int(c))][p], 99)
+                line = append(line, strconv.FormatFloat(median_latency, 'f', -1, 64))
                 line = append(line, strconv.FormatFloat(p99_latency, 'f', -1, 64))
                 for _, metric := range metrics {
                     val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric], 'f', -1, 64)
@@ -741,6 +746,10 @@ func main() {
     debug, err = strconv.Atoi(os.Getenv("DEBUG"))
     if err != nil {
         debug = 0
+    }
+    ttl = os.Getenv("TTL")
+    if ttl == "" {
+        ttl = "360"
     }
     l, _ := net.Listen("tcp", ":" + service_port)
     s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))
