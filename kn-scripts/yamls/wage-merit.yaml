@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: wage-merit
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/wage-merit:kn
+          env:
+          - name: WAGE_WRITE_MERIT
+            value: http://wage-write-merit.knative-functions.127.0.0.1.sslip.io

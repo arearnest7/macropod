@@ -1,4 +1,4 @@
-from rpc import RPC
+from rpc import Invoke
 import base64
 import os
 import json
@@ -10,7 +10,7 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def FunctionHandler(context):
-    event = json.loads(context["Request"])
+    event = context["JSON"]["to_checksum"]
     data = open("original-" + event[0], 'rb').read()
     md5 = hashlib.md5(data).hexdigest()
     if event[1] == md5:

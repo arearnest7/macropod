@@ -1,0 +1,183 @@
+{
+    "WorkflowConcurrency": [8, 16, 20, 40, 80, 100],
+    "Invocations": 1000,
+    "ExtraTargets": {
+        "kn-wage-original": "http://wage-validator.knative-functions.192.168.56.20.sslip.io",
+        "kn-wage-unified": "http://wage-unified.knative-functions.192.168.56.20.sslip.io"
+    },
+    "ExtraTargetsPayload": {
+        "kn-wage-original": {
+            "Type": "JSON",
+            "JSON": {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694}
+        },
+        "kn-wage-unified": {
+            "Type": "JSON",
+            "JSON": {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694}
+        }
+    },
+    "Workflows": {
+        "macropod-wage-agg": {
+            "Name": "wage",
+            "Functions": {
+                "WAGE_AVG": {
+                    "Registry": "sysdevtamu/wage-avg:latest",
+                    "Endpoints": ["WAGE_MERIT"]
+                },
+                "WAGE_FORMAT": {
+                    "Registry": "sysdevtamu/wage-format:latest",
+                    "Endpoints": ["WAGE_WRITE_RAW"]
+                },
+                "WAGE_MERIT": {
+                    "Registry": "sysdevtamu/wage-merit:latest",
+                    "Endpoints": ["WAGE_WRITE_MERIT"]
+                },
+                "WAGE_STATS": {
+                    "Registry": "sysdevtamu/wage-stats:latest",
+                    "Endpoints": ["WAGE_SUM"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "WAGE_SUM": {
+                    "Registry": "sysdevtamu/wage-sum:latest",
+                    "Endpoints": ["WAGE_AVG"]
+                },
+                "WAGE_VALIDATOR": {
+                    "Registry": "sysdevtamu/wage-validator:latest",
+                    "Endpoints": ["WAGE_FORMAT"]
+                },
+                "WAGE_WRITE_MERIT": {
+                    "Registry": "sysdevtamu/wage-write-merit:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "WAGE_WRITE_RAW": {
+                    "Registry": "sysdevtamu/wage-write-raw:latest",
+                    "Endpoints": ["WAGE_STATS"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "direct",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694}
+            }
+        },
+        "macropod-wage-disagg-w-gateway": {
+            "Name": "wage",
+            "Functions": {
+                "WAGE_AVG": {
+                    "Registry": "sysdevtamu/wage-avg:latest",
+                    "Endpoints": ["WAGE_MERIT"]
+                },
+                "WAGE_FORMAT": {
+                    "Registry": "sysdevtamu/wage-format:latest",
+                    "Endpoints": ["WAGE_WRITE_RAW"]
+                },
+                "WAGE_MERIT": {
+                    "Registry": "sysdevtamu/wage-merit:latest",
+                    "Endpoints": ["WAGE_WRITE_MERIT"]
+                },
+                "WAGE_STATS": {
+                    "Registry": "sysdevtamu/wage-stats:latest",
+                    "Endpoints": ["WAGE_SUM"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "WAGE_SUM": {
+                    "Registry": "sysdevtamu/wage-sum:latest",
+                    "Endpoints": ["WAGE_AVG"]
+                },
+                "WAGE_VALIDATOR": {
+                    "Registry": "sysdevtamu/wage-validator:latest",
+                    "Endpoints": ["WAGE_FORMAT"]
+                },
+                "WAGE_WRITE_MERIT": {
+                    "Registry": "sysdevtamu/wage-write-merit:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "WAGE_WRITE_RAW": {
+                    "Registry": "sysdevtamu/wage-write-raw:latest",
+                    "Endpoints": ["WAGE_STATS"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "gateway",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694}
+            }
+        },
+        "macropod-wage-disagg-wo-gateway": {
+            "Name": "wage",
+            "Functions": {
+                "WAGE_AVG": {
+                    "Registry": "sysdevtamu/wage-avg:latest",
+                    "Endpoints": ["WAGE_MERIT"]
+                },
+                "WAGE_FORMAT": {
+                    "Registry": "sysdevtamu/wage-format:latest",
+                    "Endpoints": ["WAGE_WRITE_RAW"]
+                },
+                "WAGE_MERIT": {
+                    "Registry": "sysdevtamu/wage-merit:latest",
+                    "Endpoints": ["WAGE_WRITE_MERIT"]
+                },
+                "WAGE_STATS": {
+                    "Registry": "sysdevtamu/wage-stats:latest",
+                    "Endpoints": ["WAGE_SUM"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "WAGE_SUM": {
+                    "Registry": "sysdevtamu/wage-sum:latest",
+                    "Endpoints": ["WAGE_AVG"]
+                },
+                "WAGE_VALIDATOR": {
+                    "Registry": "sysdevtamu/wage-validator:latest",
+                    "Endpoints": ["WAGE_FORMAT"]
+                },
+                "WAGE_WRITE_MERIT": {
+                    "Registry": "sysdevtamu/wage-write-merit:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "WAGE_WRITE_RAW": {
+                    "Registry": "sysdevtamu/wage-write-raw:latest",
+                    "Endpoints": ["WAGE_STATS"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "direct",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694}
+            }
+        },
+        "macropod-wage-unified": {
+            "Name": "wage",
+            "Functions": {
+                "WAGE_UNIFIED": {
+                    "Registry": "sysdevtamu/wage-unified:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
+                    "Endpoints": ["WAGE_UNIFIED"]
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "gateway",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694}
+            }
+        }
+    }
+}

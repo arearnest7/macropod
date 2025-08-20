@@ -1,0 +1,14 @@
+{
+    "Name": "hotel",
+    "Functions": {
+        "HOTEL_UNIFIED": {
+            "Registry": "sysdevtamu/hotel-unified:latest",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "gateway",
+        "Aggregation": "agg"
+    }
+}

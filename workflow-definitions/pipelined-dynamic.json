@@ -1,0 +1,26 @@
+{
+    "Name": "pipelined",
+    "Functions": {
+        "PIPELINED_CHECKSUM": {
+            "Registry": "sysdevtamu/pipelined-checksum:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        },
+        "PIPELINED_ENCRYPT": {
+            "Registry": "sysdevtamu/pipelined-encrypt:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        },
+        "PIPELINED_MAIN": {
+            "Registry": "sysdevtamu/pipelined-main:latest",
+            "Endpoints": ["PIPELINED_MAIN", "PIPELINED_CHECKSUM", "PIPELINED_ZIP", "PIPELINED_ENCRYPT"]
+        },
+        "PIPELINED_ZIP": {
+            "Registry": "sysdevtamu/pipelined-zip:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "direct",
+        "Aggregation": "dynamic"
+    }
+}

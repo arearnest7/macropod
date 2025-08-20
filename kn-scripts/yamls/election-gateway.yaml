@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: election-gateway
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/election-gateway:kn
+          env:
+          - name: ELECTION_GET_RESULTS
+            value: http://election-get-results.knative-functions.127.0.0.1.sslip.io
+          - name: ELECTION_VOTE_ENQUEUER
+            value: http://election-vote-enqueuer.knative-functions.127.0.0.1.sslip.io

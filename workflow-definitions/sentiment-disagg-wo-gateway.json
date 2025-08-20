@@ -1,0 +1,52 @@
+{
+    "Name": "sentiment",
+    "Functions": {
+        "SENTIMENT_CFAIL": {
+            "Registry": "sysdevtamu/sentiment-cfail:latest"
+        },
+        "SENTIMENT_DB": {
+            "Registry": "sysdevtamu/sentiment-db:latest"
+        },
+        "SENTIMENT_MAIN": {
+            "Registry": "sysdevtamu/sentiment-main:latest",
+            "Endpoints": ["SENTIMENT_READ_CSV"]
+        },
+        "SENTIMENT_PRODUCT_OR_SERVICE": {
+            "Registry": "sysdevtamu/sentiment-product-or-service:latest",
+            "Endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"]
+        },
+        "SENTIMENT_PRODUCT_RESULT": {
+            "Registry": "sysdevtamu/sentiment-product-result:latest",
+            "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
+        },
+        "SENTIMENT_PRODUCT_SENTIMENT": {
+            "Registry": "sysdevtamu/sentiment-product-sentiment:latest",
+            "Endpoints": ["SENTIMENT_PRODUCT_RESULT"]
+        },
+        "SENTIMENT_READ_CSV": {
+            "Registry": "sysdevtamu/sentiment-read-csv:latest",
+            "Endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        },
+        "SENTIMENT_SERVICE_RESULT": {
+            "Registry": "sysdevtamu/sentiment-service-result:latest",
+            "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
+        },
+        "SENTIMENT_SERVICE_SENTIMENT": {
+            "Registry": "sysdevtamu/sentiment-service-sentiment:latest",
+            "Endpoints": ["SENTIMENT_SERVICE_RESULT"]
+        },
+        "SENTIMENT_SFAIL": {
+            "Registry": "sysdevtamu/sentiment-sfail:latest"
+        },
+        "SENTIMENT_SNS": {
+            "Registry": "sysdevtamu/sentiment-sns:latest",
+            "Endpoints": ["SENTIMENT_DB"]
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "direct",
+        "Aggregation": "disagg"
+    }
+}

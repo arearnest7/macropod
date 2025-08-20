@@ -1,0 +1,131 @@
+{
+    "WorkflowConcurrency": [8, 16, 20, 40, 80, 100],
+    "Invocations": 1000,
+    "ExtraTargets": {
+        "kn-election-original": "http://election-gateway.knative-functions.192.168.56.20.sslip.io",
+        "kn-election-unified": "http://election-unified.knative-functions.192.168.56.20.sslip.io"
+    },
+    "ExtraTargetsPayload": {
+        "kn-election-original": {
+            "Type": "JSON",
+            "JSON": {"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}
+        },
+        "kn-election-unified": {
+            "Type": "JSON",
+            "JSON": {"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}
+        }
+    },
+    "Workflows": {
+        "macropod-election-agg": {
+            "Name": "election",
+            "Functions": {
+                "ELECTION_GATEWAY": {
+                    "Registry": "sysdevtamu/election-gateway:latest",
+                    "Endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"]
+                },
+                "ELECTION_GET_RESULTS": {
+                    "Registry": "sysdevtamu/election-get-results:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "ELECTION_VOTE_ENQUEUER": {
+                    "Registry": "sysdevtamu/election-vote-enqueuer:latest",
+                    "Endpoints": ["ELECTION_VOTE_PROCESSOR"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "ELECTION_VOTE_PROCESSOR": {
+                    "Registry": "sysdevtamu/election-vote-processor:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "direct",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}
+            }
+        },
+        "macropod-election-disagg-w-gateway": {
+            "Name": "election",
+            "Functions": {
+                "ELECTION_GATEWAY": {
+                    "Registry": "sysdevtamu/election-gateway:latest",
+                    "Endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"]
+                },
+                "ELECTION_GET_RESULTS": {
+                    "Registry": "sysdevtamu/election-get-results:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "ELECTION_VOTE_ENQUEUER": {
+                    "Registry": "sysdevtamu/election-vote-enqueuer:latest",
+                    "Endpoints": ["ELECTION_VOTE_PROCESSOR"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "ELECTION_VOTE_PROCESSOR": {
+                    "Registry": "sysdevtamu/election-vote-processor:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "gateway",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}
+            }
+        },
+        "macropod-election-disagg-wo-gateway": {
+            "Name": "election",
+            "Functions": {
+                "ELECTION_GATEWAY": {
+                    "Registry": "sysdevtamu/election-gateway:latest",
+                    "Endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"]
+                },
+                "ELECTION_GET_RESULTS": {
+                    "Registry": "sysdevtamu/election-get-results:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "ELECTION_VOTE_ENQUEUER": {
+                    "Registry": "sysdevtamu/election-vote-enqueuer:latest",
+                    "Endpoints": ["ELECTION_VOTE_PROCESSOR"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "ELECTION_VOTE_PROCESSOR": {
+                    "Registry": "sysdevtamu/election-vote-processor:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "direct",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}
+            }
+        },
+        "macropod-election-unified": {
+            "Name": "election",
+            "Functions": {
+                "ELECTION_UNIFIED": {
+                    "Registry": "sysdevtamu/election-unified:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "gateway",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}
+            }
+        }
+    }
+}

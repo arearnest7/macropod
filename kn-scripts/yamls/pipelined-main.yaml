@@ -1,0 +1,19 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: pipelined-main
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/pipelined-main:kn
+          env:
+          - name: PIPELINED_CHECKSUM
+            value: http://pipelined-checksum.knative-functions.127.0.0.1.sslip.io
+          - name: PIPELINED_ZIP
+            value: http://pipelined-zip.knative-functions.127.0.0.1.sslip.io
+          - name: PIPELINED_ENCRYPT
+            value: http://pipelined-encrypt.knative-functions.127.0.0.1.sslip.io
+          - name: PIPELINED_MAIN
+            value: http://pipelined-main.knative-functions.127.0.0.1.sslip.io

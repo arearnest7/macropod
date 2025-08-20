@@ -1,20 +1,17 @@
-from rpc import RPC
+from rpc import Invoke_JSON
 import base64
-import requests
 import json
 import random
 import os
 
 def FunctionHandler(context):
-    event = json.loads(context["Request"])
+    event = context["JSON"]
     results = ""
-    payload = []
-    payload.append(context["Request"])
     if event["sentiment"] == "POSITIVE" or event["sentiment"] == "NEUTRAL":
-        results = RPC(context, os.environ["SENTIMENT_DB"], payload)[0]
+        results = Invoke_JSON(context, "SENTIMENT_DB", event)
     elif event["sentiment"] == "NEGATIVE":
-        results = RPC(context, os.environ["SENTIMENT_SNS"], payload)[0]
+        results = Invoke_JSON(context, "SENTIMENT_SNS", event)
     else:
-        results = RPC(context, os.environ["SENTIMENT_SFAIL"], payload)[0]
+        results = Invoke_JSON(context, "SENTIMENT_SFAIL", event)
 
-    return results, 200
+    return results[0], 200

@@ -1,6 +1,6 @@
-from rpc import RPC
+from rpc import Invoke
+from rpc import Invoke_JSON
 import base64
-import requests
 import os
 import json
 import string
@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import random
 
 def FunctionHandler(context):
-    body = json.loads(context["Request"])
+    body = context["JSON"]
     if body["manifest"]:
         to_checksum = body["manifest"][0]
     else:
@@ -23,15 +23,15 @@ def FunctionHandler(context):
     fs = []
     with ThreadPoolExecutor(max_workers=3) as executor:
         if to_checksum:
-            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_CHECKSUM"], [json.dumps(to_checksum).encode()]))
+            fs.append(executor.submit(Invoke_JSON, context, "PIPELINED_CHECKSUM", {"to_checksum": to_checksum}))
         if to_zip:
-            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ZIP"], [json.dumps(to_zip).encode()]))
+            fs.append(executor.submit(Invoke, context, "PIPELINED_ZIP", to_zip[0]))
         if to_encrypt:
-            fs.append(executor.submit(RPC, context, os.environ["PIPELINED_ENCRYPT"], [json.dumps(to_encrypt).encode()]))
+            fs.append(executor.submit(Invoke, context, "PIPELINED_ENCRYPT", to_encrypt[0]))
     results = [f.result()[0] for f in fs]
     if to_checksum or to_zip:
         if to_checksum and "success" not in results[0]:
             to_checksum = []
-        response = RPC(context, os.environ["PIPELINED_MAIN"], [json.dumps({"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip}).encode()])[0]
+        response, code = Invoke_JSON(context, "PIPELINED_MAIN", {"manifest": new_manifest, "to_zip": to_checksum, "to_encrypt": to_zip})
         return response, 200
     return "success", 200

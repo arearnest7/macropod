@@ -1,0 +1,9 @@
+parliament-functions==0.1.0
+numpy<2
+environs
+pycapnp
+opencv-python-headless
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.12.0+cpu
+torchvision==0.13.0+cpu
+torchaudio==0.12.0

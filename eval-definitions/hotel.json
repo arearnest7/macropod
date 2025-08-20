@@ -1,0 +1,176 @@
+{
+    "WorkflowConcurrency": [8, 16, 20, 40, 80, 100],
+    "Invocations": 1000,
+    "ExtraTargets": {
+        "kn-hotel-original": "http://hotel-frontend.knative-functions.192.168.56.20.sslip.io",
+        "kn-hotel-unified": "http://hotel-unified.knative-functions.192.168.56.20.sslip.io"
+    },
+    "ExtraTargetsPayload": {
+        "kn-hotel-original": {
+            "Type": "JSON",
+            "JSON": {"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}
+        },
+        "kn-hotel-unified": {
+            "Type": "JSON",
+            "JSON": {"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}
+        }
+    },
+    "Workflows": {
+        "macropod-hotel-agg": {
+            "Name": "hotel",
+            "Functions": {
+                "HOTEL_FRONTEND": {
+                    "Registry": "sysdevtamu/hotel-frontend:latest",
+                    "Endpoints": ["HOTEL_SEARCH", "HOTEL_RECOMMEND", "HOTEL_RESERVE", "HOTEL_USER"]
+                },
+                "HOTEL_GEO": {
+                    "Registry": "sysdevtamu/hotel-geo:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_PROFILE": {
+                    "Registry": "sysdevtamu/hotel-profile:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_RATE": {
+                    "Registry": "sysdevtamu/hotel-rate:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_RECOMMEND": {
+                    "Registry": "sysdevtamu/hotel-recommend:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_RESERVE": {
+                    "Registry": "sysdevtamu/hotel-reserve:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_SEARCH": {
+                    "Registry": "sysdevtamu/hotel-search:latest",
+                    "Endpoints": ["HOTEL_PROFILE", "HOTEL_GEO", "HOTEL_RATE"]
+                },
+                "HOTEL_USER": {
+                    "Registry": "sysdevtamu/hotel-user:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "direct",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}
+            }
+        },
+        "macropod-hotel-disagg-w-gateway": {
+            "Name": "hotel",
+            "Functions": {
+                "HOTEL_FRONTEND": {
+                    "Registry": "sysdevtamu/hotel-frontend:latest",
+                    "Endpoints": ["HOTEL_SEARCH", "HOTEL_RECOMMEND", "HOTEL_RESERVE", "HOTEL_USER"]
+                },
+                "HOTEL_GEO": {
+                    "Registry": "sysdevtamu/hotel-geo:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_PROFILE": {
+                    "Registry": "sysdevtamu/hotel-profile:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_RATE": {
+                    "Registry": "sysdevtamu/hotel-rate:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_RECOMMEND": {
+                    "Registry": "sysdevtamu/hotel-recommend:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_RESERVE": {
+                    "Registry": "sysdevtamu/hotel-reserve:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_SEARCH": {
+                    "Registry": "sysdevtamu/hotel-search:latest",
+                    "Endpoints": ["HOTEL_PROFILE", "HOTEL_GEO", "HOTEL_RATE"]
+                },
+                "HOTEL_USER": {
+                    "Registry": "sysdevtamu/hotel-user:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "gateway",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}
+            }
+        },
+        "macropod-hotel-disagg-wo-gateway": {
+            "Name": "hotel",
+            "Functions": {
+                "HOTEL_FRONTEND": {
+                    "Registry": "sysdevtamu/hotel-frontend:latest",
+                    "Endpoints": ["HOTEL_SEARCH", "HOTEL_RECOMMEND", "HOTEL_RESERVE", "HOTEL_USER"]
+                },
+                "HOTEL_GEO": {
+                    "Registry": "sysdevtamu/hotel-geo:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_PROFILE": {
+                    "Registry": "sysdevtamu/hotel-profile:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_RATE": {
+                    "Registry": "sysdevtamu/hotel-rate:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_RECOMMEND": {
+                    "Registry": "sysdevtamu/hotel-recommend:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_RESERVE": {
+                    "Registry": "sysdevtamu/hotel-reserve:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                },
+                "HOTEL_SEARCH": {
+                    "Registry": "sysdevtamu/hotel-search:latest",
+                    "Endpoints": ["HOTEL_PROFILE", "HOTEL_GEO", "HOTEL_RATE"]
+                },
+                "HOTEL_USER": {
+                    "Registry": "sysdevtamu/hotel-user:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "direct",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}
+            }
+        },
+        "macropod-hotel-unified": {
+            "Name": "hotel",
+            "Functions": {
+                "HOTEL_UNIFIED": {
+                    "Registry": "sysdevtamu/hotel-unified:latest",
+                    "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "gateway",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}
+            }
+        }
+    }
+}

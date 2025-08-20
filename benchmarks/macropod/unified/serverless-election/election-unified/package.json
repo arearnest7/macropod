@@ -1,0 +1,6 @@
+{
+  "name": "macropod-node",
+  "dependencies": {
+    "redis": ">=4.6.10"
+  }
+}

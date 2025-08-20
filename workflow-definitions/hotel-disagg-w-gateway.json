@@ -1,0 +1,42 @@
+{
+    "Name": "hotel",
+    "Functions": {
+        "HOTEL_FRONTEND": {
+            "Registry": "sysdevtamu/hotel-frontend:latest",
+            "Endpoints": ["HOTEL_SEARCH", "HOTEL_RECOMMEND", "HOTEL_RESERVE", "HOTEL_USER"]
+        },
+        "HOTEL_GEO": {
+            "Registry": "sysdevtamu/hotel-geo:latest",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_PROFILE": {
+            "Registry": "sysdevtamu/hotel-profile:latest",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_RATE": {
+            "Registry": "sysdevtamu/hotel-rate:latest",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_RECOMMEND": {
+            "Registry": "sysdevtamu/hotel-recommend:latest",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_RESERVE": {
+            "Registry": "sysdevtamu/hotel-reserve:latest",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        },
+        "HOTEL_SEARCH": {
+            "Registry": "sysdevtamu/hotel-search:latest",
+            "Endpoints": ["HOTEL_PROFILE", "HOTEL_GEO", "HOTEL_RATE"]
+        },
+        "HOTEL_USER": {
+            "Registry": "sysdevtamu/hotel-user:latest",
+            "Envs": {"HOTEL_APP_DATABASE": "mongodb://10.42.2.96:27017", "HOTEL_APP_MEMCACHED": "10.42.4.93:11211"}
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "gateway",
+        "Aggregation": "disagg"
+    }
+}

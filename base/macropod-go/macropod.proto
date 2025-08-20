@@ -1,0 +1,162 @@
+syntax = "proto3";
+import "google/protobuf/struct.proto";
+
+package macropod;
+option go_package = "./macropod_pb";
+
+message MacroPodRequest {
+    optional string Text = 1;
+    optional google.protobuf.Struct JSON = 2;
+    optional bytes Data = 3;
+    optional string Workflow = 4;
+    optional string Function = 5;
+    optional string WorkflowID = 6;
+    optional int32 Depth = 7;
+    optional int32 Width = 8;
+    optional string Target = 9;
+}
+
+message MacroPodReply {
+    optional string Reply = 1;
+    optional int32 Code = 2;
+}
+
+message FunctionStruct {
+    string Registry = 1;
+    repeated string Endpoints = 2;
+    map<string, string> Envs = 3;
+    map<string, string> Secrets = 4;
+}
+
+message ConfigStruct {
+    optional string Namespace = 1;
+    optional int32 TTL = 2;
+    optional string Deployment = 3;
+    optional string Communication = 4;
+    optional string Aggregation = 5;
+    optional int32 TargetConcurrency = 6;
+    optional int32 Debug = 7;
+}
+
+message PayloadStruct {
+    string Type = 1;
+    optional string Text = 2;
+    optional google.protobuf.Struct JSON = 3;
+    optional bytes Data = 4;
+}
+
+message WorkflowStruct {
+    string Name = 1;
+    map<string, FunctionStruct> Functions = 2;
+    optional ConfigStruct Config = 3;
+    optional PayloadStruct Payload = 4;
+}
+
+message EvalStruct {
+    repeated int32 WorkflowConcurrency = 1;
+    int32 Invocations = 2;
+    map<string, string> ExtraTargets = 3;
+    map<string, PayloadStruct> ExtraTargetsPayload = 4;
+    map<string, WorkflowStruct> Workflows = 5;
+}
+
+message MetricsStruct {
+    optional double Uptime = 1;
+    optional double LoadAvg1 = 2;
+    optional double LoadAvg5 = 3;
+    optional double LoadAvg15 = 4;
+    optional double CPUUsed = 5;
+    optional double CPUCountLogical = 6;
+    optional double CPUCountPhysical = 7;
+    optional double MemoryUsed = 8;
+    optional double MemoryAvailable = 9;
+    optional double MemoryTotal = 10;
+    optional double MemoryBuffers = 11;
+    optional double MemoryCached = 12;
+    optional double MemoryWriteBack = 13;
+    optional double MemoryDirty = 14;
+    optional double MemoryWriteBackTmp = 15;
+    optional double MemoryShared = 16;
+    optional double MemorySlab = 17;
+    optional double MemorySreclaimable = 18;
+    optional double MemorySunreclaim = 19;
+    optional double MemoryPageTables = 20;
+    optional double MemorySwapCached = 21;
+    optional double MemoryCommitLimit = 22;
+    optional double MemoryCommittedAS = 23;
+    optional double MemoryHighTotal = 24;
+    optional double MemoryHighFree = 25;
+    optional double MemoryLowTotal = 26;
+    optional double MemoryLowFree = 27;
+    optional double MemorySwapTotal = 28;
+    optional double MemorySwapFree = 29;
+    optional double MemoryMapped = 30;
+    optional double MemoryVmallocTotal = 31;
+    optional double MemoryVmallocUsed = 32;
+    optional double MemoryVmallocChunk = 33;
+    optional double MemoryHugePagesTotal = 34;
+    optional double MemoryHugePagesFree = 35;
+    optional double MemoryHugePagesRsvd = 36;
+    optional double MemoryHugePagesSurp = 37;
+    optional double MemoryHugePageSize = 38;
+    optional double MemoryAnonHugePages = 39;
+    optional double DiskUsed = 40;
+    optional double DiskFree = 41;
+    optional double DiskTotal = 42;
+    optional double DiskInodesUsed = 43;
+    optional double DiskInodesFree = 44;
+    optional double DiskInodesTotal = 45;
+    optional double NetworkBytesSent = 46;
+    optional double NetworkBytesRecv = 47;
+    optional double NetworkPacketsSent = 48;
+    optional double NetworkPacketsRecv = 49;
+    optional double NetworkErrin = 50;
+    optional double NetworkErrout = 51;
+    optional double NetworkDropin = 52;
+    optional double NetworkDropout = 53;
+    optional double NetworkFifoin = 54;
+    optional double NetworkFifoout = 55;
+}
+
+service MacroPodFunction {
+    rpc Invoke(MacroPodRequest) returns (MacroPodReply);
+}
+
+service MacroPodEval {
+    rpc Eval(EvalStruct) returns (MacroPodReply);
+    rpc EvalMetrics(MacroPodRequest) returns (MacroPodReply);
+    rpc EvalLatency(MacroPodRequest) returns (MacroPodReply);
+    rpc EvalSummary(MacroPodRequest) returns (MacroPodReply);    
+}
+
+service MacroPodIngress {
+    rpc Config(ConfigStruct) returns (MacroPodReply);
+    rpc WorkflowInvoke(MacroPodRequest) returns (MacroPodReply);
+    rpc FunctionInvoke(MacroPodRequest) returns (MacroPodReply);
+    rpc CreateWorkflow(WorkflowStruct) returns (MacroPodReply);
+    rpc UpdateWorkflow(WorkflowStruct) returns (MacroPodReply);
+    rpc DeleteWorkflow(MacroPodRequest) returns (MacroPodReply);
+}
+
+service MacroPodDeployer {
+    rpc Config(ConfigStruct) returns (MacroPodReply);
+    rpc CreateWorkflow(WorkflowStruct) returns (MacroPodReply);
+    rpc UpdateWorkflow(WorkflowStruct) returns (MacroPodReply);
+    rpc DeleteWorkflow(MacroPodRequest) returns (MacroPodReply);
+    rpc UpdateDeployments(MacroPodRequest) returns (MacroPodReply);
+    rpc CreateDeployment(MacroPodRequest) returns (MacroPodReply);
+    rpc TTLDelete(MacroPodRequest) returns (MacroPodReply);
+}
+
+service MacroPodLogger {
+    rpc Timestamp(MacroPodRequest) returns (MacroPodReply);
+    rpc Error(MacroPodRequest) returns (MacroPodReply);
+    rpc Print(MacroPodRequest) returns (MacroPodReply);
+    rpc GetTimestamp(MacroPodRequest) returns (MacroPodReply);
+    rpc GetError(MacroPodRequest) returns (MacroPodReply);
+    rpc GetPrint(MacroPodRequest) returns (MacroPodReply);
+}
+
+service MacroPodMetrics {
+    rpc GetMetrics(MacroPodRequest) returns (MetricsStruct);
+}

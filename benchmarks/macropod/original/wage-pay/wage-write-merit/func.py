@@ -1,4 +1,4 @@
-from rpc import RPC
+from rpc import Invoke
 import base64
 import json
 import os
@@ -9,7 +9,7 @@ import random
 #redisClient = redis.Redis(host=os.environ['REDIS_URL'], password=os.environ['REDIS_PASSWORD'])
 
 def FunctionHandler(context):
-    params = json.loads(context["Request"])
+    params = context["JSON"]
 
     #redisClient.set("merit-" + str(params["id"]), json.dumps(params))
 

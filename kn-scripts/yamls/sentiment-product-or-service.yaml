@@ -1,0 +1,17 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sentiment-product-or-service
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/sentiment-product-or-service:kn
+          env:
+          - name: SENTIMENT_PRODUCT_SENTIMENT
+            value: http://sentiment-product-sentiment.knative-functions.127.0.0.1.sslip.io
+          - name: SENTIMENT_SERVICE_SENTIMENT
+            value: http://sentiment-service-sentiment.knative-functions.127.0.0.1.sslip.io
+          - name: SENTIMENT_CFAIL
+            value: http://sentiment-cfail.knative-functions.127.0.0.1.sslip.io

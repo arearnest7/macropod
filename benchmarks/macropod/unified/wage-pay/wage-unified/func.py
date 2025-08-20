@@ -1,0 +1,128 @@
+from rpc import Invoke
+import base64
+import json
+import time
+from concurrent.futures import ThreadPoolExecutor
+import os
+import datetime
+import redis
+import random
+
+TAX = 0.0387
+INSURANCE = 1500
+ROLES = ['staff', 'teamleader', 'manager']
+
+#redisClient = redis.Redis(host=os.environ["REDIS_URL"],password=os.environ["REDIS_PASSWORD"])
+
+
+def write_merit_handler(req):
+    params = req
+    #redisClient.set("merit-" + str(params["id"]), json.dumps(req))
+
+    return str(params["id"]) + " statistics uploaded/updated"
+
+def wage_merit_handler(req):
+    params = req
+    meritp = {'staff': 0, 'teamleader': 0, 'manager': 0}
+    for role in ROLES:
+        num = params['total']['statistics'][role+'-number']
+        if num != 0:
+            base = params['base']['statistics'][role]
+        merit = params['merit']['statistics'][role]
+        meritp[role] = merit / base
+    params['statistics']['average-merit-percent'] = meritp
+    return write_merit_handler({'id': params['id'], 'statistics': params['statistics'], 'operator' : params['operator']})
+
+def wage_avg_handler(req):
+    params = req
+
+    realpay = {'staff': 0, 'teamleader': 0, 'manager': 0}
+    for role in ROLES:
+        num = params['total']['statistics'][role+'-number']
+        if num != 0:
+            base = params['base']['statistics'][role]
+            merit = params['merit']['statistics'][role]
+            realpay[role] = (1-TAX) * (base + merit) / num
+    params['statistics']['average-realpay'] = realpay
+
+    return wage_merit_handler(params)
+
+def wage_sum_handler(req):
+    params = req
+    temp = json.loads(open(params["operator"], 'r').read())
+    params["operator"] = temp["operator"]
+    params["id"] = temp["id"]
+    stats = {'total': params['total']['statistics']['total'] }
+    params['statistics'] = stats
+
+    return wage_avg_handler(params)
+
+def stats_handler(req):
+    manifest = []
+
+    total = {'statistics': {'total': 0, 'staff-number': 0, 'teamleader-number': 0, 'manager-number': 0}}
+    base = {'statistics': {'staff': 0, 'teamleader': 0, 'manager': 0}}
+    merit = {'statistics': {'staff': 0, 'teamleader': 0, 'manager': 0}}
+
+    for key in range(0,100):
+        doc = json.loads(open(str(key), 'r').read())
+        total['statistics']['total'] += doc['total']
+        total['statistics'][doc['role']+'-number'] += 1
+        base['statistics'][doc['role']] += doc['base']
+        merit['statistics'][doc['role']] += doc['merit']
+        manifest.append(str(key))
+
+    fs = []
+    with ThreadPoolExecutor(max_workers=len(manifest)) as executor:
+        for obj in manifest:
+            if obj != "raw/":
+                fs.append(executor.submit(wage_sum_handler, {'total': total, 'base': base, 'merit': merit, 'operator': obj}))
+    results = [f for f in fs]
+    return "processed batch at " + str(time.time())
+
+def write_raw_handler(context, req):
+    params = req
+    #redisClient.set("raw-" + str(params["id"]), json.dumps(req))
+    response, code = Invoke(context, "WAGE_UNIFIED", "")
+    return response
+
+def format_handler(context, req):
+    params = req
+    params['INSURANCE'] = INSURANCE
+
+    total = INSURANCE + params['base'] + params['merit']
+    params['total'] = total
+
+    realpay = (1-TAX) * (params['base'] + params['merit'])
+    params['realpay'] = realpay
+
+    return write_raw_handler(context, params)
+
+def validator_handler(context, req):
+    event = req
+    for param in ['id', 'name', 'role', 'base', 'merit', 'operator']:
+        if param in ['name', 'role']:
+            if not isinstance(event[param], str):
+                return "fail: illegal params: " + str(event[param]) + " not string"
+            elif param == 'role' and event[param] not in ROLES:
+                return "fail: invalid role: " + str(event[param])
+        elif param in ['id', 'operator']:
+            if not isinstance(event[param], float):
+                return "fail: illegal params: " + str(event[param]) + " not float" # originally int check, but json object autoconverts to float. computation is the same, so this does not affect results.
+        elif param in ['base', 'merit']:
+            if not isinstance(event[param], float):
+                return "fail: illegal params: " + str(event[param]) + " not float"
+            elif event[param] < 1 or event[param] > 8:
+                return "fail: illegal params: " + str(event[param]) + " not between 1 and 8 inclusively"
+        else:
+            return "fail: missing param: " + param
+    return format_handler(context, event)
+
+def FunctionHandler(context):
+    event = context["JSON"]
+    response = ""
+    if len(event) > 0:
+        response = validator_handler(context, event)
+    else:
+        response = stats_handler(event)
+    return response, 200

@@ -1,7 +1,6 @@
 FROM sysdevtamu/macropod-go:latest
-WORKDIR /app
+COPY Dockerfile .
 COPY go.mod .
 COPY func.go ./function
-RUN go mod tidy
+RUN go mod tidy 2> /dev/null
 RUN go build -o main .
-CMD ["/app/main"]

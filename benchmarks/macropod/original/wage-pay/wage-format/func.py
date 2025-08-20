@@ -1,6 +1,5 @@
-from rpc import RPC
+from rpc import Invoke_JSON
 import base64
-import requests
 import json
 import random
 import os
@@ -9,8 +8,7 @@ TAX = 0.0387
 INSURANCE = 1500
 
 def FunctionHandler(context):
-    params = json.loads(context["Request"])
-    print(type(params))
+    params = context["JSON"]
     params['INSURANCE'] = INSURANCE
 
     total = INSURANCE + params['base'] + params['merit']
@@ -19,5 +17,5 @@ def FunctionHandler(context):
     realpay = (1-TAX) * (params['base'] + params['merit'])
     params['realpay'] = realpay
 
-    response = RPC(context, os.environ["WAGE_WRITE_RAW"], [json.dumps(params).encode()])[0]
+    response = Invoke_JSON(context, "WAGE_WRITE_RAW", params)[0]
     return response, 200

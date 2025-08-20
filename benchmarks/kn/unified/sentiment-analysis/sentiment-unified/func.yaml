@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: sentiment-unified
+runtime: python
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/sentiment-unified:kn
+imageDigest: sha256:677877a4578c802f9e5957b7748e7e5ad1af3ac0fbbd799a25aebf082a6f1147
+created: 2023-12-03T21:08:33.226898249-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: 127.0.0.1
+  - name: REDIS_PASSWORD
+    value: password
+deploy:
+  namespace: default

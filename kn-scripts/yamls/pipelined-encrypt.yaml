@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: pipelined-encrypt
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/pipelined-encrypt:kn
+          env:
+          - name: REDIS_URL
+            value: 127.0.0.1
+          - name: REDIS_PASSWORD
+            value: password

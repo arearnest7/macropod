@@ -1,0 +1,206 @@
+{
+    "WorkflowConcurrency": [8, 16, 20, 40, 80, 100],
+    "Invocations": 1000,
+    "ExtraTargets": {
+        "kn-sentiment-original": "http://sentiment-main.knative-functions.192.168.56.20.sslip.io",
+        "kn-sentiment-unified": "http://sentiment-unified.knative-functions.192.168.56.20.sslip.io"
+    },
+    "ExtraTargetsPayload": {
+        "kn-sentiment-original": {
+            "Type": "JSON",
+            "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+        },
+        "kn-sentiment-unified": {
+            "Type": "JSON",
+            "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+        }
+    },
+    "Workflows": {
+        "macropod-sentiment-agg": {
+            "Name": "sentiment",
+            "Functions": {
+                "SENTIMENT_CFAIL": {
+                    "Registry": "sysdevtamu/sentiment-cfail:latest"
+                },
+                "SENTIMENT_DB": {
+                    "Registry": "sysdevtamu/sentiment-db:latest"
+                },
+                "SENTIMENT_MAIN": {
+                    "Registry": "sysdevtamu/sentiment-main:latest",
+                    "Endpoints": ["SENTIMENT_READ_CSV"]
+                },
+                "SENTIMENT_PRODUCT_OR_SERVICE": {
+                    "Registry": "sysdevtamu/sentiment-product-or-service:latest",
+                    "Endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"]
+                },
+                "SENTIMENT_PRODUCT_RESULT": {
+                    "Registry": "sysdevtamu/sentiment-product-result:latest",
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
+                },
+                "SENTIMENT_PRODUCT_SENTIMENT": {
+                    "Registry": "sysdevtamu/sentiment-product-sentiment:latest",
+                    "Endpoints": ["SENTIMENT_PRODUCT_RESULT"]
+                },
+                "SENTIMENT_READ_CSV": {
+                    "Registry": "sysdevtamu/sentiment-read-csv:latest",
+                    "Endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "SENTIMENT_SERVICE_RESULT": {
+                    "Registry": "sysdevtamu/sentiment-service-result:latest",
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
+                },
+                "SENTIMENT_SERVICE_SENTIMENT": {
+                    "Registry": "sysdevtamu/sentiment-service-sentiment:latest",
+                    "Endpoints": ["SENTIMENT_SERVICE_RESULT"]
+                },
+                "SENTIMENT_SFAIL": {
+                    "Registry": "sysdevtamu/sentiment-sfail:latest"
+                },
+                "SENTIMENT_SNS": {
+                    "Registry": "sysdevtamu/sentiment-sns:latest",
+                    "Endpoints": ["SENTIMENT_DB"]
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "direct",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+            }
+        },
+        "macropod-sentiment-disagg-w-gateway": {
+            "Name": "sentiment",
+            "Functions": {
+                "SENTIMENT_CFAIL": {
+                    "Registry": "sysdevtamu/sentiment-cfail:latest"
+                },
+                "SENTIMENT_DB": {
+                    "Registry": "sysdevtamu/sentiment-db:latest"
+                },
+                "SENTIMENT_MAIN": {
+                    "Registry": "sysdevtamu/sentiment-main:latest",
+                    "Endpoints": ["SENTIMENT_READ_CSV"]
+                },
+                "SENTIMENT_PRODUCT_OR_SERVICE": {
+                    "Registry": "sysdevtamu/sentiment-product-or-service:latest",
+                    "Endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"]
+                },
+                "SENTIMENT_PRODUCT_RESULT": {
+                    "Registry": "sysdevtamu/sentiment-product-result:latest",
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
+                },
+                "SENTIMENT_PRODUCT_SENTIMENT": {
+                    "Registry": "sysdevtamu/sentiment-product-sentiment:latest",
+                    "Endpoints": ["SENTIMENT_PRODUCT_RESULT"]
+                },
+                "SENTIMENT_READ_CSV": {
+                    "Registry": "sysdevtamu/sentiment-read-csv:latest",
+                    "Endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "SENTIMENT_SERVICE_RESULT": {
+                    "Registry": "sysdevtamu/sentiment-service-result:latest",
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
+                },
+                "SENTIMENT_SERVICE_SENTIMENT": {
+                    "Registry": "sysdevtamu/sentiment-service-sentiment:latest",
+                    "Endpoints": ["SENTIMENT_SERVICE_RESULT"]
+                },
+                "SENTIMENT_SFAIL": {
+                    "Registry": "sysdevtamu/sentiment-sfail:latest"
+                },
+                "SENTIMENT_SNS": {
+                    "Registry": "sysdevtamu/sentiment-sns:latest",
+                    "Endpoints": ["SENTIMENT_DB"]
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "gateway",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+            }
+        },
+        "macropod-sentiment-disagg-wo-gateway": {
+            "Name": "sentiment",
+            "Functions": {
+                "SENTIMENT_CFAIL": {
+                    "Registry": "sysdevtamu/sentiment-cfail:latest"
+                },
+                "SENTIMENT_DB": {
+                    "Registry": "sysdevtamu/sentiment-db:latest"
+                },
+                "SENTIMENT_MAIN": {
+                    "Registry": "sysdevtamu/sentiment-main:latest",
+                    "Endpoints": ["SENTIMENT_READ_CSV"]
+                },
+                "SENTIMENT_PRODUCT_OR_SERVICE": {
+                    "Registry": "sysdevtamu/sentiment-product-or-service:latest",
+                    "Endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"]
+                },
+                "SENTIMENT_PRODUCT_RESULT": {
+                    "Registry": "sysdevtamu/sentiment-product-result:latest",
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
+                },
+                "SENTIMENT_PRODUCT_SENTIMENT": {
+                    "Registry": "sysdevtamu/sentiment-product-sentiment:latest",
+                    "Endpoints": ["SENTIMENT_PRODUCT_RESULT"]
+                },
+                "SENTIMENT_READ_CSV": {
+                    "Registry": "sysdevtamu/sentiment-read-csv:latest",
+                    "Endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "SENTIMENT_SERVICE_RESULT": {
+                    "Registry": "sysdevtamu/sentiment-service-result:latest",
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
+                },
+                "SENTIMENT_SERVICE_SENTIMENT": {
+                    "Registry": "sysdevtamu/sentiment-service-sentiment:latest",
+                    "Endpoints": ["SENTIMENT_SERVICE_RESULT"]
+                },
+                "SENTIMENT_SFAIL": {
+                    "Registry": "sysdevtamu/sentiment-sfail:latest"
+                },
+                "SENTIMENT_SNS": {
+                    "Registry": "sysdevtamu/sentiment-sns:latest",
+                    "Endpoints": ["SENTIMENT_DB"]
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "direct",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+            }
+        },
+        "macropod-sentiment-unified": {
+            "Name": "sentiment",
+            "Functions": {
+                "SENTIMENT_UNIFIED": {
+                    "Registry": "sysdevtamu/sentiment-unified:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Deployment": "macropod",
+                "Communication": "gateway",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+            }
+        }
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "Name": "election",
+    "Functions": {
+        "ELECTION_UNIFIED": {
+            "Registry": "sysdevtamu/election-unified:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "gateway",
+        "Aggregation": "agg"
+    }
+}

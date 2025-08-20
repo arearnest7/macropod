@@ -3,7 +3,7 @@ name: hotel-search
 runtime: go
 registry: docker.io/sysdevtamu
 image: docker.io/sysdevtamu/hotel-search:kn
-imageDigest: sha256:164d969c6e4ba83a13989dbc8654bd380f8b14e8f1d6cc066c0c977405e8b22d
+imageDigest: sha256:a1ddb549d2ce747e3846af6cbc8f3c0a97058c0e65fe5d6b59f3fb7ccb1f6826
 created: 2023-10-26T19:30:27.307416579-05:00
 build:
   builder: pack

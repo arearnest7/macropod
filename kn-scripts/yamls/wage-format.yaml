@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: wage-format
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/wage-format:kn
+          env:
+          - name: WAGE_WRITE_RAW
+            value: http://wage-write-raw.knative-functions.127.0.0.1.sslip.io

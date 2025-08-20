@@ -1,0 +1,17 @@
+specVersion: 0.35.0
+name: election-unified
+runtime: node
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/election-unified:kn
+imageDigest: sha256:c36f40a1f16882d9bf2b238289f31f9648f534e8242c842c99a729771339acfc
+created: 2023-10-20T09:54:18.57851076-05:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: 127.0.0.1
+  - name: REDIS_PASSWORD
+    value: password
+deploy:
+  namespace: default

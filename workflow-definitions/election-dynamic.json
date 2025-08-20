@@ -1,0 +1,27 @@
+{
+    "Name": "election",
+    "Functions": {
+        "ELECTION_GATEWAY": {
+            "Registry": "sysdevtamu/election-gateway:latest",
+            "Endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"]
+        },
+        "ELECTION_GET_RESULTS": {
+            "Registry": "sysdevtamu/election-get-results:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        },
+        "ELECTION_VOTE_ENQUEUER": {
+            "Registry": "sysdevtamu/election-vote-enqueuer:latest",
+            "Endpoints": ["ELECTION_VOTE_PROCESSOR"],
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        },
+        "ELECTION_VOTE_PROCESSOR": {
+            "Registry": "sysdevtamu/election-vote-processor:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "direct",
+        "Aggregation": "dynamic"
+    }
+}

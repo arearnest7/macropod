@@ -1,0 +1,19 @@
+specVersion: 0.35.0
+name: wage-unified
+runtime: python
+registry: docker.io/sysdevtamu
+image: docker.io/sysdevtamu/wage-unified:kn
+imageDigest: sha256:066ffe7fa2422144c434ea93c0336c1a275b5137cb8218b24464793840a30ef5
+created: 2023-12-03T21:08:48.450495924-06:00
+build:
+  builder: pack
+run:
+  envs:
+  - name: REDIS_URL
+    value: 127.0.0.1
+  - name: REDIS_PASSWORD
+    value: password
+  - name: WAGE_FULL
+    value: http://wage-unified.knative-functions.127.0.0.1.sslip.io
+deploy:
+  namespace: default

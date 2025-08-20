@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: wage-validator
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/sysdevtamu/wage-validator:kn
+          env:
+          - name: WAGE_FORMAT
+            value: http://wage-format.knative-functions.127.0.0.1.sslip.io
