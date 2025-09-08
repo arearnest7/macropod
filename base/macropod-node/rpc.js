@@ -10,6 +10,11 @@ var packageDefinition = protoLoader.loadSync(
   });
 var macropod_pb = grpc.loadPackageDefinition(packageDefinition).macropod;
 
+// purpose: send a message to logger (if enabled) to dictate a timestamp of function operation across multiple replicas.
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  target: invocation target for the RPC (if it exists); otherwise null
+//  message: message to be stored on the logger if logging is enabled
 function Timestamp(context, target, message) {
   var request = {
     Workflow: context.Workflow,
@@ -26,6 +31,10 @@ function Timestamp(context, target, message) {
   }
 }
 
+// purpose: send a error to logger (if enabled) notifying that a replica reports an error of err. this is to prevent critical errors for developers/debuggers from being lost due to replica deletion or restart.
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  err: error message to be stored on the logger if logging is enabled
 function Error(context, err) {
   var request = {
     Workflow: context.Workflow,
@@ -38,6 +47,10 @@ function Error(context, err) {
   }
 }
 
+// purpose: send a message to logger (if enabled) to allow persistent printouts for developers/debuggers.
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  message: message to be stored on the logger if logging is enabled
 function Print(context, message) {
   var request = {
     Workflow: context.Workflow,
@@ -50,8 +63,8 @@ function Print(context, message) {
   }
 }
 
-function invoke(dest, request) {
-  if (process.env.COMM_TYPE == "direct") {
+function invoke(dest, request) { // general purpose RPC handler used by the other async functions to provide the specific RPC behavior desired
+  if (process.env.COMM_TYPE == "direct") {  // invocation sent directly to target bypassing gateway (direct RPC or IPC)
     return new Promise((resolve, reject) => {
       var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
       stub.Invoke(request, async function(err, response) {
@@ -59,7 +72,7 @@ function invoke(dest, request) {
         resolve(response);
       });
     });
-  } else if (process.env.COMM_TYPE == "gateway") {
+  } else if (process.env.COMM_TYPE == "gateway") { // invocation sent to relay off of gateway (standard serverless behavior)
     return new Promise((resolve, reject) => {
       var stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
       stub.FunctionInvoke(request, async function(err, response) {
@@ -77,6 +90,14 @@ function invoke(dest, request) {
   });
 }
 
+// purpose: invoke a downstream function with a text/string payload and return its string output
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPC; this is the name of function 
+//  payload: string payload to be sent to destination function
+// output: 
+//  string: RPC return output
+//  int: RPC error code
 async function Invoke(context, dest, payload) {
   await Timestamp(context, dest, "Invoke");
   var request = {
@@ -93,6 +114,14 @@ async function Invoke(context, dest, payload) {
   return [response.Reply, response.Code];
 }
 
+// purpose: invoke a downstream function with a JSON list (dictionary) payload and return its string output
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPC; this is the name of function 
+//  payload: dictionary payload to be sent to destination function
+// output: 
+//  string: RPC return output
+//  int: RPC error code
 async function Invoke_JSON(context, dest, payload) {
   await Timestamp(context, dest, "Invoke_JSON");
   payload_s = {fields: {}};
@@ -122,6 +151,14 @@ async function Invoke_JSON(context, dest, payload) {
   return [response.Reply, response.Code];
 }
 
+// purpose: invoke a downstream function with a bytes payload and return its string output
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPC; this is the name of function 
+//  payload: bytes payload to be sent to destination function
+// output: 
+//  string: RPC return output
+//  int: RPC error code
 async function Invoke_Data(context, dest, payload) {
   await Timestamp(context, dest, "Invoke_Data");
   var request = {
@@ -138,6 +175,14 @@ async function Invoke_Data(context, dest, payload) {
   return [response.Reply, response.Code];
 }
 
+// purpose: invoke a downstream function multiple times concurrently with a list of text/string payloads and return all string outputs
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPCs; this is the name of function 
+//  payloads: list of string payloads to be sent to destination function
+// output: 
+//  string array: array of RPC return outputs
+//  int array: array of RPC error code
 async function Invoke_Multi(context, dest, payloads) {
   await Timestamp(context, dest, "Invoke_Mutli");
   var tl = new Array();
@@ -166,6 +211,14 @@ async function Invoke_Multi(context, dest, payloads) {
   return [reply, code];
 }
 
+// purpose: invoke a downstream function multiple times concurrently with a list of JSON list (dictionary) payloads and return all string outputs
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPCs; this is the name of function 
+//  payloads: list of dictionary payloads to be sent to destination function
+// output: 
+//  string array: array of RPC return outputs
+//  int array: array of RPC error code
 async function Invoke_Multi_JSON(context, dest, payloads) {
   await Timestamp(context, dest, "Invoke_Multi_JSON");
   var tl = new Array();
@@ -207,6 +260,14 @@ async function Invoke_Multi_JSON(context, dest, payloads) {
   return [reply, code];
 }
 
+// purpose: invoke a downstream function multiple times concurrently with a list of bytes payloads and return all string outputs
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPCs; this is the name of function 
+//  payloads: list of bytes payloads to be sent to destination function
+// output: 
+//  string array: array of RPC return outputs
+//  int array: array of RPC error code
 async function Invoke_Multi_Data(context, dest, payloads) {
   await Timestamp(context, dest, "Invoke_Multi_Data");
   var tl = new Array();

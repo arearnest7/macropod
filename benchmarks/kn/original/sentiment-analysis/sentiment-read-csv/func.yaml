@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: sentiment-read-csv
 runtime: python
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/sentiment-read-csv:kn
-imageDigest: sha256:0a6f2754725963b661c32f986d2424e137d769b8caed3c4295db6e61893ef88b
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/sentiment-read-csv:kn
+imageDigest: sha256:3cfa4c85cc13ebfc3eb6f7f278539929491ce4ec40c96583522316c9261cbc20
 created: 2023-12-03T21:00:37.907039642-06:00
 build:
   builder: pack

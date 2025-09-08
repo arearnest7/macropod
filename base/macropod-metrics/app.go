@@ -29,6 +29,7 @@ var (
     metrics pb.MetricsStruct
 )
 
+// purpose: Indefinitely collects all system metrics every second and stores the results in metrics structure
 func Collect_Metrics() {
     prev_set := false
     metrics = pb.MetricsStruct{}
@@ -171,15 +172,29 @@ func Collect_Metrics() {
     }
 }
 
+// purpose: returns metrics structure for handlers to return
+// output:
+//  metrics: metrics structure defined by protobuf
 func Serve_GetMetrics() (pb.MetricsStruct) {
     return metrics
 }
 
+// purpose: gRPC handler for GetMetrics
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: empty but required MacroPodRequest object
+// output:
+//  MetricsStruct: metrics protobuf struct that contains all metrics stats for 1 second
+//  error: always will be nil
 func (s *MetricsService) GetMetrics(ctx context.Context, req *pb.MacroPodRequest) (*pb.MetricsStruct, error) {
     results := Serve_GetMetrics()
     return &results, nil
 }
 
+// purpose: http handler for GetMetrics
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object; for purposes nothing is used in it for this function
 func HTTP_GetMetrics(res http.ResponseWriter, req *http.Request) {
     fmt.Print("request processing")
     results := Serve_GetMetrics()
@@ -238,11 +253,14 @@ func HTTP_GetMetrics(res http.ResponseWriter, req *http.Request) {
     res_txt += strconv.FormatFloat(results.GetNetworkDropin(), 'f', -1, 64) + ","
     res_txt += strconv.FormatFloat(results.GetNetworkDropout(), 'f', -1, 64) + ","
     res_txt += strconv.FormatFloat(results.GetNetworkFifoin(), 'f', -1, 64) + ","
-    res_txt += strconv.FormatFloat(results.GetNetworkFifoout(), 'f', -1, 64) + "\n"
+    res_txt += strconv.FormatFloat(results.GetNetworkFifoout(), 'f', -1, 64)
     fmt.Printf("%s\n",res_txt)
     fmt.Fprint(res, res_txt)
 }
-
+ 
+// input:
+//  SERVICE_PORT: string defining gRPC service binding; default 8000
+//  HTTP_PORT: string defining HTTP service binding; default 9000
 func main() {
     service_port := os.Getenv("SERVICE_PORT")
     if service_port == "" {

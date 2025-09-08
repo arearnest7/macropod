@@ -13,17 +13,22 @@ import (
 )
 
 type Context struct {
-    Text       string
-    JSON       map[string]interface{}
-    Data       []byte
-    Workflow   string
-    Function   string
-    WorkflowID string
-    Depth      int32
-    Width      int32
-    Target     string
+    Text       string                   // string payload (if it exists)
+    JSON       map[string]interface{}   // dictionary payload (if it exists)
+    Data       []byte                   // bytes payload (if it exists)
+    Workflow   string                   // workflow name
+    Function   string                   // function name
+    WorkflowID string                   // invocation id for entire workflow invocation
+    Depth      int32                    // invocation depth of current function
+    Width      int32                    // invocation entry if multiple invocations occur in parallel (multi RPC); starts at 0 and defaults to 0 if singular invocation
+    Target     string                   // internal IP and port of current function
 }
 
+// purpose: send a message to logger (if enabled) to dictate a timestamp of function operation across multiple replicas.
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  target: invocation target for the RPC (if it exists); otherwise null
+//  message: message to be stored on the logger if logging is enabled
 func Timestamp(ctx_in Context, target string, message string) {
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &ctx_in.Function, WorkflowID: &ctx_in.WorkflowID, Depth: &ctx_in.Depth, Width: &ctx_in.Width, Target: &target, Text: &message}
@@ -37,6 +42,10 @@ func Timestamp(ctx_in Context, target string, message string) {
     }
 }
 
+// purpose: send a error to logger (if enabled) notifying that a replica reports an error of err. this is to prevent critical errors for developers/debuggers from being lost due to replica deletion or restart.
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  err: error message to be stored on the logger if logging is enabled
 func Error(ctx_in Context, err error) {
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
     text := err.Error()
@@ -51,6 +60,10 @@ func Error(ctx_in Context, err error) {
     }
 }
 
+// purpose: send a message to logger (if enabled) to allow persistent printouts for developers/debuggers.
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  message: message to be stored on the logger if logging is enabled
 func Print(ctx_in Context, message string) {
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &ctx_in.Function, Text: &message}
@@ -64,6 +77,14 @@ func Print(ctx_in Context, message string) {
     }
 }
 
+// purpose: invoke a downstream function with a text/string payload and return its string output
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPC; this is the name of function 
+//  payload: string payload to be sent to destination function
+// output: 
+//  string: RPC return output
+//  int: RPC error code
 func Invoke(ctx_in Context, dest string, payload string) (string, int32) {
     Timestamp(ctx_in, dest, "Invoke")
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -74,12 +95,12 @@ func Invoke(ctx_in Context, dest string, payload string) (string, int32) {
     var res *pb.MacroPodReply
     var err error
     switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
-        case "direct":
+        case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
             channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
             stub := pb.NewMacroPodFunctionClient(channel)
             res, err = stub.Invoke(ctx, &req)
             channel.Close()
-        case "gateway":
+        case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
             channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
             stub := pb.NewMacroPodIngressClient(channel)
             res, err = stub.FunctionInvoke(ctx, &req)
@@ -98,6 +119,14 @@ func Invoke(ctx_in Context, dest string, payload string) (string, int32) {
     return res.GetReply(), res.GetCode()
 }
 
+// purpose: invoke a downstream function with a JSON list (dictionary) payload and return its string output
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPC; this is the name of function 
+//  payload: dictionary payload to be sent to destination function
+// output: 
+//  string: RPC return output
+//  int: RPC error code
 func Invoke_JSON(ctx_in Context, dest string, payload map[string]interface{}) (string, int32) {
     Timestamp(ctx_in, dest, "Invoke_JSON")
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -109,12 +138,12 @@ func Invoke_JSON(ctx_in Context, dest string, payload map[string]interface{}) (s
     var res *pb.MacroPodReply
     var err error
     switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
-        case "direct":
+        case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
             channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
             stub := pb.NewMacroPodFunctionClient(channel)
             res, err = stub.Invoke(ctx, &req)
             channel.Close()
-        case "gateway":
+        case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
             channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
             stub := pb.NewMacroPodIngressClient(channel)
             res, err = stub.FunctionInvoke(ctx, &req)
@@ -133,6 +162,14 @@ func Invoke_JSON(ctx_in Context, dest string, payload map[string]interface{}) (s
     return res.GetReply(), res.GetCode()
 }
 
+// purpose: invoke a downstream function with a bytes payload and return its string output
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPC; this is the name of function 
+//  payload: bytes payload to be sent to destination function
+// output: 
+//  string: RPC return output
+//  int: RPC error code
 func Invoke_Data(ctx_in Context, dest string, payload []byte) (string, int32) {
     Timestamp(ctx_in, dest, "Invoke_Data")
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -143,12 +180,12 @@ func Invoke_Data(ctx_in Context, dest string, payload []byte) (string, int32) {
     var res *pb.MacroPodReply
     var err error
     switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
-        case "direct":
+        case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
             channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
             stub := pb.NewMacroPodFunctionClient(channel)
             res, err = stub.Invoke(ctx, &req)
             channel.Close()
-        case "gateway":
+        case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
             channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
             stub := pb.NewMacroPodIngressClient(channel)
             res, err = stub.FunctionInvoke(ctx, &req)
@@ -167,6 +204,14 @@ func Invoke_Data(ctx_in Context, dest string, payload []byte) (string, int32) {
     return res.GetReply(), res.GetCode()
 }
 
+// purpose: invoke a downstream function multiple times concurrently with a list of text/string payloads and return all string outputs
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPCs; this is the name of function 
+//  payloads: list of string payloads to be sent to destination function
+// output: 
+//  string array: array of RPC return outputs
+//  int array: array of RPC error code
 func Invoke_Multi(ctx_in Context, dest string, payloads []string) ([]string, []int32) {
     Timestamp(ctx_in, dest, "Invoke_Multi")
     tl := make(chan *pb.MacroPodReply)
@@ -180,12 +225,12 @@ func Invoke_Multi(ctx_in Context, dest string, payloads []string) ([]string, []i
             var res *pb.MacroPodReply
             var err error
             switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
-                case "direct":
+                case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
                     channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)
                     channel.Close()
-                case "gateway":
+                case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
                     channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodIngressClient(channel)
                     res, err = stub.FunctionInvoke(ctx, &req)
@@ -214,6 +259,14 @@ func Invoke_Multi(ctx_in Context, dest string, payloads []string) ([]string, []i
     return reply, code
 }
 
+// purpose: invoke a downstream function multiple times concurrently with a list of JSON list (dictionary) payloads and return all string outputs
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPCs; this is the name of function 
+//  payloads: list of dictionary payloads to be sent to destination function
+// output: 
+//  string array: array of RPC return outputs
+//  int array: array of RPC error code
 func Invoke_Multi_JSON(ctx_in Context, dest string, payloads []map[string]interface{}) ([]string, []int32) {
     Timestamp(ctx_in, dest, "Invoke_Multi_JSON")
     tl := make(chan *pb.MacroPodReply)
@@ -228,12 +281,12 @@ func Invoke_Multi_JSON(ctx_in Context, dest string, payloads []map[string]interf
             var res *pb.MacroPodReply
             var err error
             switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
-                case "direct":
+                case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
                     channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)
                     channel.Close()
-                case "gateway":
+                case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
                     channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodIngressClient(channel)
                     res, err = stub.FunctionInvoke(ctx, &req)
@@ -262,6 +315,14 @@ func Invoke_Multi_JSON(ctx_in Context, dest string, payloads []map[string]interf
     return reply, code
 }
 
+// purpose: invoke a downstream function multiple times concurrently with a list of bytes payloads and return all string outputs
+// input:
+//  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
+//  dest: invocation target for the RPCs; this is the name of function 
+//  payloads: list of bytes payloads to be sent to destination function
+// output: 
+//  string array: array of RPC return outputs
+//  int array: array of RPC error code
 func Invoke_Multi_Data(ctx_in Context, dest string, payloads [][]byte) ([]string, []int32) {
     Timestamp(ctx_in, dest, "Invoke_Multi_Data")
     tl := make(chan *pb.MacroPodReply)
@@ -275,12 +336,12 @@ func Invoke_Multi_Data(ctx_in Context, dest string, payloads [][]byte) ([]string
             var res *pb.MacroPodReply
             var err error
             switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
-                case "direct":
+                case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
                     channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)
                     channel.Close()
-                case "gateway":
+                case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
                     channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodIngressClient(channel)
                     res, err = stub.FunctionInvoke(ctx, &req)

@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: video-unified
 runtime: python
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/video-unified:kn
-imageDigest: sha256:6adfed02a04addd65b2a61d71adb149d21cfe8cfe7eba445502788d0b94911c7
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/video-unified:kn
+imageDigest: sha256:55087f4e700b6b6e1c8268c0c343e8085d304198035c6db5c37ee1ad97a2e8be
 created: 2023-11-05T16:38:01.912085473-06:00
 build:
   builder: pack

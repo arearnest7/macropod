@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: election-gateway
 runtime: node
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/election-gateway:kn
-imageDigest: sha256:8eca630dd18ace1239cd0614af75b7292643a66bf98880e99d76cc77f44a1acd
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/election-gateway:kn
+imageDigest: sha256:2267191396c70c9034dbf4c7e292a7340acfc2e284730d7bfa1ecbf5a4abdc50
 created: 2023-10-10T14:56:35.552619558-05:00
 build:
   builder: pack

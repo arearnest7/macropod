@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: pipelined-zip
 runtime: python
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/pipelined-zip:kn
-imageDigest: sha256:6b28285bd464d772dacd6f3e6273905bf57bee78ecf813be8afd5352cf6ffec1
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/pipelined-zip:kn
+imageDigest: sha256:f2528b58fbeb60c4b425787685b3765444d253ec7ca5f3c77ab916a218235a1c
 created: 2023-12-03T20:55:20.453042627-06:00
 build:
   builder: pack

@@ -23,15 +23,18 @@ type LoggerService struct {
 }
 
 var (
-    timestamp_dir  string
-    timestamp_lock = make(map[string]map[string]*sync.Mutex)
-    error_dir      string
-    error_lock     = make(map[string]map[string]*sync.Mutex)
-    print_dir      string
-    print_lock     = make(map[string]map[string]*sync.Mutex)
-    dataLock     sync.Mutex
+    timestamp_dir  string                                       // string name of the timestamp directory
+    timestamp_lock = make(map[string]map[string]*sync.Mutex)    // mutex list for every timestamp file to prevent parallel read/writes
+    error_dir      string                                       // string name of the error directory
+    error_lock     = make(map[string]map[string]*sync.Mutex)    // mutex list for every error file to prevent parallel read/writes
+    print_dir      string                                       // string name of the print directory
+    print_lock     = make(map[string]map[string]*sync.Mutex)    // mutex list for every print file to prevent parallel read/writes
+    dataLock       sync.Mutex                                   // general purpose mutex lock for all operations modifying global variables (preventing system panics and divergent data commits)
 )
 
+// purpose: append to timestamp file for the workflow:function combination the sent message and invocation data
+// input:
+//  request: MacroPodRequest that contains all message data and invocation data from function
 func Serve_Timestamp(request *pb.MacroPodRequest) {
     dataLock.Lock()
     _, exists := timestamp_lock[request.GetWorkflow()]
@@ -58,6 +61,9 @@ func Serve_Timestamp(request *pb.MacroPodRequest) {
     timestamp_lock[request.GetWorkflow()][request.GetFunction()].Unlock()
 }
 
+// purpose: append to error file for the workflow:function combination the sent message
+// input:
+//  request: MacroPodRequest that contains all message data and invocation data from function
 func Serve_Error(request *pb.MacroPodRequest) {
     dataLock.Lock()
     _, exists := error_lock[request.GetWorkflow()]
@@ -84,6 +90,9 @@ func Serve_Error(request *pb.MacroPodRequest) {
     error_lock[request.GetWorkflow()][request.GetFunction()].Unlock()
 }
 
+// purpose: append to print file for the workflow:function combination the sent message
+// input:
+//  request: MacroPodRequest that contains all message data and invocation data from function
 func Serve_Print(request *pb.MacroPodRequest) {
     dataLock.Lock()
     _, exists := print_lock[request.GetWorkflow()]
@@ -110,6 +119,11 @@ func Serve_Print(request *pb.MacroPodRequest) {
     print_lock[request.GetWorkflow()][request.GetFunction()].Unlock()
 }
 
+// purpose: retrieve all timestamp logs from the function and workflow specified
+// input:
+//  request: MacroPodRequest that contains the workflow and function information for retrieval
+// output:
+//  string: CSV file in string form
 func Serve_GetTimestamp(request *pb.MacroPodRequest) (string) {
     dataLock.Lock()
     _, exists := timestamp_lock[request.GetWorkflow()]
@@ -135,6 +149,11 @@ func Serve_GetTimestamp(request *pb.MacroPodRequest) (string) {
     return string(b)
 }
 
+// purpose: retrieve all error logs from the function and workflow specified
+// input:
+//  request: MacroPodRequest that contains the workflow and function information for retrieval
+// output:
+//  string: CSV file in string form
 func Serve_GetError(request *pb.MacroPodRequest) (string) {
     dataLock.Lock()
     _, exists := error_lock[request.GetWorkflow()]
@@ -160,6 +179,11 @@ func Serve_GetError(request *pb.MacroPodRequest) (string) {
     return string(b)
 }
 
+// purpose: retrieve all print logs from the function and workflow specified
+// input:
+//  request: MacroPodRequest that contains the workflow and function information for retrieval
+// output:
+//  string: CSV file in string form
 func Serve_GetPrint(request *pb.MacroPodRequest) (string) {
     dataLock.Lock()
     _, exists := print_lock[request.GetWorkflow()]
@@ -185,47 +209,115 @@ func Serve_GetPrint(request *pb.MacroPodRequest) (string) {
     return string(b)
 }
 
+// purpose: gRPC handler for Timestamp
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *LoggerService) Timestamp(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     Serve_Timestamp(req)
     results := pb.MacroPodReply{}
     return &results, nil
 }
 
+// purpose: gRPC handler for Error
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *LoggerService) Error(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     Serve_Error(req)
     results := pb.MacroPodReply{}
     return &results, nil
 }
 
+// purpose: gRPC handler for Print
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *LoggerService) Print(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     Serve_Print(req)
     results := pb.MacroPodReply{}
     return &results, nil
 }
 
+// purpose: gRPC handler for GetTimestamp
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *LoggerService) GetTimestamp(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     t := Serve_GetTimestamp(req)
     results := pb.MacroPodReply{Reply: &t}
     return &results, nil
 }
 
+// purpose: gRPC handler for GetError
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *LoggerService) GetError(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     e := Serve_GetError(req)
     results := pb.MacroPodReply{Reply: &e}
     return &results, nil
 }
 
+// purpose: gRPC handler for GetPrint
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *LoggerService) GetPrint(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     p := Serve_GetPrint(req)
     results := pb.MacroPodReply{Reply: &p}
     return &results, nil
 }
 
+// purpose: prints out a help message for quick reference on how to operate service
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_Help(res http.ResponseWriter, req *http.Request) {
-    help_print := "TODO\n"
+    help_print := "usage:\n"
+    help_print += "\t/timestamp/set/{workflow}/{function}\n"
+    help_print += "\t\tpurpose: append a timestamp message to the log for specified function of specified workflow\n"
+    help_print += "\t\tinput: JSON object of MacroPodRequest\n"
+    help_print += "\t/error/set/{workflow}/{function}\n"
+    help_print += "\t\tpurpose: append a error message to the log for specified function of specified workflow\n"
+    help_print += "\t\tinput: JSON object of MacroPodRequest\n"
+    help_print += "\t/print/set/{workflow}/{function}\n"
+    help_print += "\t\tpurpose: append a print message to the log for specified function of specified workflow\n"
+    help_print += "\t\tinput: JSON object of MacroPodRequest\n"
+    help_print += "\t/timestamp/get/{workflow}/{function}\n"
+    help_print += "\t\tpurpose: retrieve all timestamp logs for specified function of specified workflow\n"
+    help_print += "\t\toutput: CSV file\n"
+    help_print += "\t/error/get/{workflow}/{function}\n"
+    help_print += "\t\tpurpose: retrieve all error logs for specified function of specified workflow\n"
+    help_print += "\t\toutput: CSV file\n"
+    help_print += "\t/print/get/{workflow}/{function}\n"
+    help_print += "\t\tpurpose: retrieve all print logs for specified function of specified workflow\n"
+    help_print += "\t\toutput: CSV file\n"
     fmt.Fprint(res, help_print)
 }
 
+// purpose: http handler for Timestamp
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_Timestamp(res http.ResponseWriter, req *http.Request) {
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.MacroPodRequest{}
@@ -233,6 +325,10 @@ func HTTP_Timestamp(res http.ResponseWriter, req *http.Request) {
     Serve_Timestamp(&request)
 }
 
+// purpose: http handler for Error
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_Error(res http.ResponseWriter, req *http.Request) {
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.MacroPodRequest{}
@@ -240,6 +336,10 @@ func HTTP_Error(res http.ResponseWriter, req *http.Request) {
     Serve_Error(&request)
 }
 
+// purpose: http handler for Print
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_Print(res http.ResponseWriter, req *http.Request) {
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.MacroPodRequest{}
@@ -247,6 +347,10 @@ func HTTP_Print(res http.ResponseWriter, req *http.Request) {
     Serve_Print(&request)
 }
 
+// purpose: http handler for GetTimestamp
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_GetTimestamp(res http.ResponseWriter, req *http.Request) {
     workflow := req.PathValue("workflow")
     function := req.PathValue("function")
@@ -255,6 +359,10 @@ func HTTP_GetTimestamp(res http.ResponseWriter, req *http.Request) {
     fmt.Fprint(res, results)
 }
 
+// purpose: http handler for GetError
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_GetError(res http.ResponseWriter, req *http.Request) {
     workflow := req.PathValue("workflow")
     function := req.PathValue("function")
@@ -263,6 +371,10 @@ func HTTP_GetError(res http.ResponseWriter, req *http.Request) {
     fmt.Fprint(res, results)
 }
 
+// purpose: http handler for GetPrint
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_GetPrint(res http.ResponseWriter, req *http.Request) {
     workflow := req.PathValue("workflow")
     function := req.PathValue("function")
@@ -271,6 +383,12 @@ func HTTP_GetPrint(res http.ResponseWriter, req *http.Request) {
     fmt.Fprint(res, results)
 }
 
+// input:
+//  SERVICE_PORT: string defining gRPC service binding; default 8000
+//  HTTP_PORT: string defining HTTP service binding; default 9000
+//  TIMESTAMP_DIR: directory for storing all timestamp data; default /app/timestamp/
+//  ERROR_DIR: directory for storing all error data; default /app/error/
+//  PRINT_DIR: directory for storing all print data; default /app/print/
 func main() {
     service_port := os.Getenv("SERVICE_PORT")
     if service_port == "" {

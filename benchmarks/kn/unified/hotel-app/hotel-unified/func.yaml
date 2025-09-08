@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: hotel-unified
 runtime: go
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/hotel-unified:kn
-imageDigest: sha256:e706f0e46a993de67b93410a996101e2153063927a9fa0ba1ddc0fbd63ca1e07
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/hotel-unified:kn
+imageDigest: sha256:e6b4cebc3c031d71d51fae59616cc45a8ef4fa56e03694fd8dc088a60e6e5a72
 created: 2023-10-26T19:42:55.573322776-05:00
 build:
   builder: pack

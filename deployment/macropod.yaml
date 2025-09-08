@@ -92,7 +92,7 @@ spec:
         effect: "NoSchedule"
      containers:
       - name: macropod-eval
-        image: sysdevtamu/macropod-eval:latest
+        image: arearnest7/macropod-eval:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
@@ -117,7 +117,7 @@ spec:
         - name: DEBUG
           value: "5"
       - name: macropod-ingress
-        image: sysdevtamu/macropod-ingress:latest
+        image: arearnest7/macropod-ingress:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8001
@@ -144,7 +144,7 @@ spec:
         - name: DEBUG
           value: "5"
       - name: macropod-deployer
-        image: sysdevtamu/macropod-deployer:latest
+        image: arearnest7/macropod-deployer:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8002
@@ -171,7 +171,7 @@ spec:
         - name: DEBUG
           value: "5"
       - name: macropod-logger
-        image: sysdevtamu/macropod-logger:latest
+        image: arearnest7/macropod-logger:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8003
@@ -203,7 +203,7 @@ spec:
     spec:
       containers:
         - name:  macropod-metric-server
-          image: sysdevtamu/macropod-metrics:latest
+          image: arearnest7/macropod-metrics:latest
           env:
           - name: SERVICE_PORT
             value: "10000"

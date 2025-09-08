@@ -1,5 +1,5 @@
 FROM node:24
 WORKDIR /app
-COPY . .
 RUN npm install express @grpc/grpc-js @grpc/proto-loader
+COPY . .
 CMD [ "node", "app.js" ]

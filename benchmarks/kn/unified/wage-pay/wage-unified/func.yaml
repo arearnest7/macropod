@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: wage-unified
 runtime: python
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/wage-unified:kn
-imageDigest: sha256:066ffe7fa2422144c434ea93c0336c1a275b5137cb8218b24464793840a30ef5
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/wage-unified:kn
+imageDigest: sha256:10c3a395b29e18ff2c1798b9d25e8bee8df32d6a5de795103c0c9675208e2dc1
 created: 2023-12-03T21:08:48.450495924-06:00
 build:
   builder: pack

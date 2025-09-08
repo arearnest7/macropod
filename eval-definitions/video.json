@@ -20,14 +20,14 @@
             "Name": "video",
             "Functions": {
                 "VIDEO_DECODER": {
-                    "Registry": "sysdevtamu/video-decoder:latest",
+                    "Registry": "arearnest7/video-decoder:latest",
                     "Endpoints": ["VIDEO_RECOG"]
                 },
                 "VIDEO_RECOG": {
-                    "Registry": "sysdevtamu/video-recog:latest"
+                    "Registry": "arearnest7/video-recog:latest"
                 },
                 "VIDEO_STREAMING": {
-                    "Registry": "sysdevtamu/video-streaming:latest",
+                    "Registry": "arearnest7/video-streaming:latest",
                     "Endpoints": ["VIDEO_DECODER"]
                 }
             },
@@ -45,14 +45,14 @@
             "Name": "video",
             "Functions": {
                 "VIDEO_DECODER": {
-                    "Registry": "sysdevtamu/video-decoder:latest",
+                    "Registry": "arearnest7/video-decoder:latest",
                     "Endpoints": ["VIDEO_RECOG"]
                 },
                 "VIDEO_RECOG": {
-                    "Registry": "sysdevtamu/video-recog:latest"
+                    "Registry": "arearnest7/video-recog:latest"
                 },
                 "VIDEO_STREAMING": {
-                    "Registry": "sysdevtamu/video-streaming:latest",
+                    "Registry": "arearnest7/video-streaming:latest",
                     "Endpoints": ["VIDEO_DECODER"]
                 }
             },
@@ -70,14 +70,14 @@
             "Name": "video",
             "Functions": {
                 "VIDEO_DECODER": {
-                    "Registry": "sysdevtamu/video-decoder:latest",
+                    "Registry": "arearnest7/video-decoder:latest",
                     "Endpoints": ["VIDEO_RECOG"]
                 },
                 "VIDEO_RECOG": {
-                    "Registry": "sysdevtamu/video-recog:latest"
+                    "Registry": "arearnest7/video-recog:latest"
                 },
                 "VIDEO_STREAMING": {
-                    "Registry": "sysdevtamu/video-streaming:latest",
+                    "Registry": "arearnest7/video-streaming:latest",
                     "Endpoints": ["VIDEO_DECODER"]
                 }
             },
@@ -95,7 +95,7 @@
             "Name": "video",
             "Functions": {
                 "VIDEO_UNIFIED": {
-                    "Registry": "sysdevtamu/video-unified:latest"
+                    "Registry": "arearnest7/video-unified:latest"
                 }
             },
             "Config": {

@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: hotel-profile
 runtime: go
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/hotel-profile:kn
-imageDigest: sha256:ebc8e6de3cd4df66305925b8fef83f3aa6e5695febabc05d1afbca724d5a1a97
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/hotel-profile:kn
+imageDigest: sha256:bc1d3062a03d0cc3a2f6bc5267a4b1e5a067307d29298e229b10e8b9918d82e7
 created: 2023-10-26T19:30:48.125063479-05:00
 build:
   builder: pack

@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: hotel-search
 runtime: go
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/hotel-search:kn
-imageDigest: sha256:a1ddb549d2ce747e3846af6cbc8f3c0a97058c0e65fe5d6b59f3fb7ccb1f6826
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/hotel-search:kn
+imageDigest: sha256:1be1f56f89867ba4c66d5cbd376aab81dd5382b2dc485b5f72765cf08fd48cb5
 created: 2023-10-26T19:30:27.307416579-05:00
 build:
   builder: pack

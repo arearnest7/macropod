@@ -14,6 +14,11 @@ var packageDefinition = protoLoader.loadSync(
   });
 var macropod_pb = grpc.loadPackageDefinition(packageDefinition).macropod;
 
+// purpose: serve the function invoke and return the results to the appropriate request handler
+// input:
+//  request: MacroPodRequest object containing the payload and all invocation related data
+// output:
+//  MacroPodReply: reply string and code
 async function Serve_Invoke(request) {
   var reply = "";
   var code = 500;
@@ -24,6 +29,12 @@ async function Serve_Invoke(request) {
   return res;
 }
 
+// purpose: gRPC handler for Invoke
+// input:
+//  call: context object for request with payload
+//  callback: return handler for gRPC nodejs
+// output:
+//  MacroPodReply: reply protobuf struct
 async function Invoke(call, callback) {
   var j = {};
   if (call.request.JSON && call.request.JSON.fields) {
@@ -54,6 +65,10 @@ async function Invoke(call, callback) {
   await callback(null, res);
 }
 
+// purpose: http handler for Invoke
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 async function HTTP_Invoke(req) {
   var workflow_id = Math.floor(Math.random() * 100000).toString();
   var request = {
@@ -89,16 +104,24 @@ async function HTTP_Invoke(req) {
   return results;
 }
 
-app.get('/', async (req, res) => {
+app.get('/', async (req, res) => { // bind GET requests to use HTTP_Invoke
   var reply = await HTTP_Invoke(req);
   res.send(reply["Reply"]);
 })
 
-app.post('/', async (req, res) => {
+app.post('/', async (req, res) => { // bind POST requests to use HTTP_Invoke
   var reply = await HTTP_Invoke(req);
   res.send(reply["Reply"]);
 })
 
+// input:
+//  SERVICE_PORT: string defining gRPC service binding; default 5000
+//  HTTP_PORT: string defining HTTP service binding; default 6000
+//  WORKFLOW: string name of workflow the function belongs to
+//  FUNCTION: string name of the function
+//  INGRESS: string representing the IP:port of the ingress such that gateway communication can be used if enabled
+//  LOGGER: string IP:port of the logger if logging is enabled; empty if logging is disabled
+//  COMM_TYPE: string name of the communication type (refer to the deployer documentation)
 function main() {
   var service_port = process.env.SERVICE_PORT;
   if (service_port === "") {

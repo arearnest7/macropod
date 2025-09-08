@@ -2,7 +2,7 @@
     "Name": "election",
     "Functions": {
         "ELECTION_UNIFIED": {
-            "Registry": "sysdevtamu/election-unified:latest",
+            "Registry": "arearnest7/election-unified:latest",
             "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
         }
     },

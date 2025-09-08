@@ -18,6 +18,12 @@ api = Api(app)
 MAX_MESSAGE_LENGTH = 1024 * 1024 * 200
 opts = [("grpc.max_receive_message_length", MAX_MESSAGE_LENGTH),("grpc.max_send_message_length", MAX_MESSAGE_LENGTH)]
 
+# purpose: serve the function invoke and return the results to the appropriate request handler
+# input:
+#  request: MacroPodRequest object containing the payload and all invocation related data
+# output:
+#  string: reply string
+#  int: response code
 def Serve_Invoke(request):
     ctx_in = {"Workflow": request.Workflow, "Function": request.Function, "Target": request.Target, "Text": request.Text, "JSON": json_format.MessageToDict(request.JSON), "Data": request.Data, "WorkflowID": request.WorkflowID, "Depth": request.Depth, "Width": request.Width}
     Timestamp(ctx_in, "", "request")
@@ -25,12 +31,22 @@ def Serve_Invoke(request):
     Timestamp(ctx_in, "", "request_end")
     return reply, code
 
+# purpose: gRPC handler for Invoke
+# input:
+#  context: context object utilized in every gRPC request handler
+#  request: MacroPodRequest object defined by protobuf
+# output:
+#  MacroPodReply: reply protobuf struct
 class MacroPodFunctionServicer(pb_grpc.MacroPodFunctionServicer):
     def Invoke(self, request, context):
         reply, code = Serve_Invoke(request)
         res = pb.MacroPodReply(Reply=reply, Code=code)
         return res
 
+# purpose: http handler for Invoke
+# input:
+#  res: writer to provide HTTP reply data
+#  req: GET/POST object
 class HTTP_Invoke(Resource):
     def get(self):
         workflow = ""
@@ -87,6 +103,9 @@ class HTTP_Invoke(Resource):
 
 api.add_resource(HTTP_Invoke, '/')
 
+# purpose: deploys the HTTP and gRPC services for function as individual threads
+# input:
+#  id: int for which service to deploy; both are deployed via main function (got to love weird python jank)
 def server_start(id):
     if id == 0:
         service_port = os.environ["SERVICE_PORT"]
@@ -103,6 +122,14 @@ def server_start(id):
             http_port = "6000"
         app.run(host='0.0.0.0', port=int(http_port))
 
+# input:
+#  SERVICE_PORT: string defining gRPC service binding; default 5000
+#  HTTP_PORT: string defining HTTP service binding; default 6000
+#  WORKFLOW: string name of workflow the function belongs to
+#  FUNCTION: string name of the function
+#  INGRESS: string representing the IP:port of the ingress such that gateway communication can be used if enabled
+#  LOGGER: string IP:port of the logger if logging is enabled; empty if logging is disabled
+#  COMM_TYPE: string name of the communication type (refer to the deployer documentation)
 if __name__ == '__main__':
     servers = []
     with futures.ThreadPoolExecutor(max_workers=2) as executor:

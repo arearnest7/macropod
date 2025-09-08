@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: election-get-results
 runtime: node
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/election-get-results:kn
-imageDigest: sha256:326099a39547d62d01bee83333289f7e8c48fd975473e0ec28f32b4aaaaa6058
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/election-get-results:kn
+imageDigest: sha256:bb81051288bec39b40a134d4e7d00b790debc0857e60013330ece08247858a17
 created: 2023-10-10T14:56:42.988177953-05:00
 build:
   builder: pack

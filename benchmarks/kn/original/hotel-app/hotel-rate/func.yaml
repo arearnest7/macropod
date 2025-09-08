@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: hotel-rate
 runtime: go
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/hotel-rate:kn
-imageDigest: sha256:8cdd4d44fab94b81568d594b40c45ccbd7fa1345d478a92af896d4527fc01d09
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/hotel-rate:kn
+imageDigest: sha256:4f5d1af43a4dd472aae919775ff920a2ab278627dde342aebeafe4c6f47bdc2c
 created: 2023-10-26T19:30:55.730644786-05:00
 build:
   builder: pack

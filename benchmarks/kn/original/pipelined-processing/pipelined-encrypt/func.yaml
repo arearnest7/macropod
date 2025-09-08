@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: pipelined-encrypt
 runtime: python
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/pipelined-encrypt:kn
-imageDigest: sha256:e22ed5cc44b7bc1b56875ad9b79739f6d91188c376a3205df37f8cef7215958c
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/pipelined-encrypt:kn
+imageDigest: sha256:612c48710795780117df2fbe9ae968a316dcb48c70ce08b7c91a16f67b574882
 created: 2023-12-03T20:55:12.172495531-06:00
 build:
   builder: pack

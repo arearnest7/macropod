@@ -2,7 +2,7 @@
     "Name": "sentiment",
     "Functions": {
         "SENTIMENT_UNIFIED": {
-            "Registry": "sysdevtamu/sentiment-unified:latest",
+            "Registry": "arearnest7/sentiment-unified:latest",
             "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
         }
     },

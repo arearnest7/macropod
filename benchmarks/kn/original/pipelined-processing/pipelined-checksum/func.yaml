@@ -1,9 +1,9 @@
 specVersion: 0.35.0
 name: pipelined-checksum
 runtime: python
-registry: docker.io/sysdevtamu
-image: docker.io/sysdevtamu/pipelined-checksum:kn
-imageDigest: sha256:4555e1d95e606af882e1c80b36faa920f376d2732a0f467e7cea8a10c6682cb2
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/pipelined-checksum:kn
+imageDigest: sha256:7dbd896ab22fd1558c0f0e64a10fa2cc1588556cf950bfc5f7517bf70b6f50fc
 created: 2023-12-03T20:55:04.99480755-06:00
 build:
   builder: pack

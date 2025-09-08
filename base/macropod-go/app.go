@@ -27,6 +27,13 @@ var (
 
 )
 
+// purpose: serve the function invoke and return the results to the appropriate request handler
+// input:
+//  function_request: MacroPodRequest object containing the payload and all invocation related data
+// output:
+//  string: reply string
+//  int: response code
+//  error: any error result from the execution of the function; for now is nil
 func Serve_Invoke(function_request *pb.MacroPodRequest) (string, int, error) {
     var reply string
     var code int
@@ -38,6 +45,13 @@ func Serve_Invoke(function_request *pb.MacroPodRequest) (string, int, error) {
     return reply, code, err
 }
 
+// purpose: gRPC handler for Invoke
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: any error printout from invocation
 func (s *FunctionService) Invoke(ctx context.Context, in *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     results, code, err := Serve_Invoke(in)
     c := int32(code)
@@ -45,6 +59,10 @@ func (s *FunctionService) Invoke(ctx context.Context, in *pb.MacroPodRequest) (*
     return &res, err
 }
 
+// purpose: http handler for Invoke
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_Invoke(res http.ResponseWriter, req *http.Request) {
     workflow := os.Getenv("WORKFLOW")
     function := os.Getenv("FUNCTION")
@@ -72,6 +90,14 @@ func HTTP_Invoke(res http.ResponseWriter, req *http.Request) {
     fmt.Fprintf(res, results)
 }
 
+// input:
+//  SERVICE_PORT: string defining gRPC service binding; default 5000
+//  HTTP_PORT: string defining HTTP service binding; default 6000
+//  WORKFLOW: string name of workflow the function belongs to
+//  FUNCTION: string name of the function
+//  INGRESS: string representing the IP:port of the ingress such that gateway communication can be used if enabled
+//  LOGGER: string IP:port of the logger if logging is enabled; empty if logging is disabled
+//  COMM_TYPE: string name of the communication type (refer to the deployer documentation)
 func main() {
     service_port := os.Getenv("SERVICE_PORT")
     if service_port == "" {

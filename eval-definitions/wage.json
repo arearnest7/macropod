@@ -20,36 +20,36 @@
             "Name": "wage",
             "Functions": {
                 "WAGE_AVG": {
-                    "Registry": "sysdevtamu/wage-avg:latest",
+                    "Registry": "arearnest7/wage-avg:latest",
                     "Endpoints": ["WAGE_MERIT"]
                 },
                 "WAGE_FORMAT": {
-                    "Registry": "sysdevtamu/wage-format:latest",
+                    "Registry": "arearnest7/wage-format:latest",
                     "Endpoints": ["WAGE_WRITE_RAW"]
                 },
                 "WAGE_MERIT": {
-                    "Registry": "sysdevtamu/wage-merit:latest",
+                    "Registry": "arearnest7/wage-merit:latest",
                     "Endpoints": ["WAGE_WRITE_MERIT"]
                 },
                 "WAGE_STATS": {
-                    "Registry": "sysdevtamu/wage-stats:latest",
+                    "Registry": "arearnest7/wage-stats:latest",
                     "Endpoints": ["WAGE_SUM"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
                 "WAGE_SUM": {
-                    "Registry": "sysdevtamu/wage-sum:latest",
+                    "Registry": "arearnest7/wage-sum:latest",
                     "Endpoints": ["WAGE_AVG"]
                 },
                 "WAGE_VALIDATOR": {
-                    "Registry": "sysdevtamu/wage-validator:latest",
+                    "Registry": "arearnest7/wage-validator:latest",
                     "Endpoints": ["WAGE_FORMAT"]
                 },
                 "WAGE_WRITE_MERIT": {
-                    "Registry": "sysdevtamu/wage-write-merit:latest",
+                    "Registry": "arearnest7/wage-write-merit:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
                 "WAGE_WRITE_RAW": {
-                    "Registry": "sysdevtamu/wage-write-raw:latest",
+                    "Registry": "arearnest7/wage-write-raw:latest",
                     "Endpoints": ["WAGE_STATS"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
@@ -68,36 +68,36 @@
             "Name": "wage",
             "Functions": {
                 "WAGE_AVG": {
-                    "Registry": "sysdevtamu/wage-avg:latest",
+                    "Registry": "arearnest7/wage-avg:latest",
                     "Endpoints": ["WAGE_MERIT"]
                 },
                 "WAGE_FORMAT": {
-                    "Registry": "sysdevtamu/wage-format:latest",
+                    "Registry": "arearnest7/wage-format:latest",
                     "Endpoints": ["WAGE_WRITE_RAW"]
                 },
                 "WAGE_MERIT": {
-                    "Registry": "sysdevtamu/wage-merit:latest",
+                    "Registry": "arearnest7/wage-merit:latest",
                     "Endpoints": ["WAGE_WRITE_MERIT"]
                 },
                 "WAGE_STATS": {
-                    "Registry": "sysdevtamu/wage-stats:latest",
+                    "Registry": "arearnest7/wage-stats:latest",
                     "Endpoints": ["WAGE_SUM"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
                 "WAGE_SUM": {
-                    "Registry": "sysdevtamu/wage-sum:latest",
+                    "Registry": "arearnest7/wage-sum:latest",
                     "Endpoints": ["WAGE_AVG"]
                 },
                 "WAGE_VALIDATOR": {
-                    "Registry": "sysdevtamu/wage-validator:latest",
+                    "Registry": "arearnest7/wage-validator:latest",
                     "Endpoints": ["WAGE_FORMAT"]
                 },
                 "WAGE_WRITE_MERIT": {
-                    "Registry": "sysdevtamu/wage-write-merit:latest",
+                    "Registry": "arearnest7/wage-write-merit:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
                 "WAGE_WRITE_RAW": {
-                    "Registry": "sysdevtamu/wage-write-raw:latest",
+                    "Registry": "arearnest7/wage-write-raw:latest",
                     "Endpoints": ["WAGE_STATS"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
@@ -116,36 +116,36 @@
             "Name": "wage",
             "Functions": {
                 "WAGE_AVG": {
-                    "Registry": "sysdevtamu/wage-avg:latest",
+                    "Registry": "arearnest7/wage-avg:latest",
                     "Endpoints": ["WAGE_MERIT"]
                 },
                 "WAGE_FORMAT": {
-                    "Registry": "sysdevtamu/wage-format:latest",
+                    "Registry": "arearnest7/wage-format:latest",
                     "Endpoints": ["WAGE_WRITE_RAW"]
                 },
                 "WAGE_MERIT": {
-                    "Registry": "sysdevtamu/wage-merit:latest",
+                    "Registry": "arearnest7/wage-merit:latest",
                     "Endpoints": ["WAGE_WRITE_MERIT"]
                 },
                 "WAGE_STATS": {
-                    "Registry": "sysdevtamu/wage-stats:latest",
+                    "Registry": "arearnest7/wage-stats:latest",
                     "Endpoints": ["WAGE_SUM"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
                 "WAGE_SUM": {
-                    "Registry": "sysdevtamu/wage-sum:latest",
+                    "Registry": "arearnest7/wage-sum:latest",
                     "Endpoints": ["WAGE_AVG"]
                 },
                 "WAGE_VALIDATOR": {
-                    "Registry": "sysdevtamu/wage-validator:latest",
+                    "Registry": "arearnest7/wage-validator:latest",
                     "Endpoints": ["WAGE_FORMAT"]
                 },
                 "WAGE_WRITE_MERIT": {
-                    "Registry": "sysdevtamu/wage-write-merit:latest",
+                    "Registry": "arearnest7/wage-write-merit:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
                 "WAGE_WRITE_RAW": {
-                    "Registry": "sysdevtamu/wage-write-raw:latest",
+                    "Registry": "arearnest7/wage-write-raw:latest",
                     "Endpoints": ["WAGE_STATS"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
@@ -164,7 +164,7 @@
             "Name": "wage",
             "Functions": {
                 "WAGE_UNIFIED": {
-                    "Registry": "sysdevtamu/wage-unified:latest",
+                    "Registry": "arearnest7/wage-unified:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"},
                     "Endpoints": ["WAGE_UNIFIED"]
                 }

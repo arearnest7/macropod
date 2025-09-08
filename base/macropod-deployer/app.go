@@ -61,36 +61,46 @@ type Usage struct {
 }
 
 var (
-    kclient *kubernetes.Clientset
+    kclient *kubernetes.Clientset                                                   // kubernetes API client used for deployment of pods
 
-    nodeCapacityCPU    = make(map[string]float64)
-    nodeCapacityMemory = make(map[string]float64)
+    nodeCapacityCPU    = make(map[string]float64)                                   // map of current node CPU usage across all worker nodes
+    nodeCapacityMemory = make(map[string]float64)                                   // map of current node memory usage across all worker nodes
 
-    workflows                    = make(map[string]*pb.WorkflowStruct)
-    workflow_pods                = make(map[string][][]string)
-    workflow_deployments         = make(map[string]map[string]map[string]string)
-    workflow_latest_version      = make(map[string]int)
-    workflow_last_updated        = make(map[string]time.Time)
-    workflow_replica_count       = make(map[string]int)
-    workflow_updating            = make(map[string]bool)
-    workflow_initial_pods        = make(map[string][]string)
-    workflow_fully_disaggregated = make(map[string]bool)
-    isDeleteInvoked              bool
-    deletecontext                context.Context
-    cancelFunc                   context.CancelFunc
-    default_config               *pb.ConfigStruct
-    ingress_address              string
-    logger_address               string
-    dataLock                     sync.Mutex
-    contextLock                  sync.Mutex
+    workflows                    = make(map[string]*pb.WorkflowStruct)              // map of all created workflow definitions
+    workflow_pods                = make(map[string][][]string)                      // map of pod deployments per workflow; contains the names of the container deployments as well
+    workflow_deployments         = make(map[string]map[string]map[string]string)    // list of all workflow deployments
+    workflow_latest_version      = make(map[string]int)                             // list of versions for all deployed workflows (in case of dynamic algorithm for deployment)
+    workflow_last_updated        = make(map[string]time.Time)                       // list of the last times each workflow definitions have been updated for the purposes of dynamic deployment algorithms
+    workflow_replica_count       = make(map[string]int)                             // list of replica counts for each workflow overall
+    workflow_updating            = make(map[string]bool)                            // list dictating if a given workflow definition or deployments are currently being updated
+    workflow_initial_pods        = make(map[string][]string)                        // list defining the initial (or final structure if static) of pod deployment structure per workflow replica
+    workflow_fully_disaggregated = make(map[string]bool)                            // list dictating if a workflow definition is fully disaggregated (only used for dynamic aggregation algorithms)
+    isDeleteInvoked              bool                                               // indicates if DeleteWorkflow has been called by ingress, preventing further straggler deployments
+    deletecontext                context.Context                                    // background context for workflow deletion (used for timers)
+    cancelFunc                   context.CancelFunc                                 // cancellation reference used for workflow deletion
+    default_config               *pb.ConfigStruct                                   // default configurations if workflow definition does not have the values assigned
+    ingress_address              string                                             // ingress address string meant to be assigned to pods for gateway communication
+    logger_address               string                                             // logger address string meant to be assigned to pods in case logging is enabled
+    dataLock                     sync.Mutex                                         // general purpose mutex lock for all operations modifying global variables (preventing system panics and divergent data commits)
+    contextLock                  sync.Mutex                                         // mutex lock exclusively used for setting the deletecontext variable (not to clog up dataLock)
 )
 
+// purpose: print out message if debug level is greater than or equal to the global debug level
+// input:
+//  message: the message to be printed
+//  debug_level: the value that must be exceeded or matched for the message to be printed
 func Debug(message string, debug_level int) {
     if default_config.GetDebug() >= int32(debug_level) {
         fmt.Println(time.Now().UTC().Format("2006-01-02 15:04:05.000000 UTC") + ": " + message + "\n")
     }
 }
 
+// purpose: sorts functions into a pod based on endpoints using BFS
+// input:
+//  pod: pod for sorting
+//  workflow_name: workflow name
+//  pod_list: function list to be sorted
+// output:
 func bfs_initial_pod(pod []string, workflow_name string, pod_list []string) []string {
     if len(pod_list) == 0 {
         return pod
@@ -110,14 +120,15 @@ func bfs_initial_pod(pod []string, workflow_name string, pod_list []string) []st
     return bfs_initial_pod(pod, workflow_name, pod_list)
 }
 
+// purpose: creates the initial pod structure for a given workflow; based on aggregation strategy the functions are broken up between multiple pods; results stored in global pod variables
+// input:
+//  workflow_name: workflow name
 func CreateInitialPod(workflow_name string) {
     var initial_pod []string
     var frontend_func string
     var endpoints []string
     func_endpoint := make(map[string][]string)
-    //fmt.Printf("Workflow Functions: %v\n", workflows[workflow_name].Functions)
     for func_name, function := range workflows[workflow_name].Functions {
-        //fmt.Printf("Workflow Endpoints for function %s : %v\n", function, function.Endpoints)
         for _, endpoint := range function.Endpoints {
             func_endpoint[func_name] = append(func_endpoint[func_name], endpoint)
             if !slices.Contains(endpoints, endpoint) {
@@ -135,12 +146,9 @@ func CreateInitialPod(workflow_name string) {
 
     }
     var pod_list []string
-    //Debug("Frontend function is: "+frontend_func+"\n", 3)
     pod_list = append(pod_list, frontend_func)
     initial_pod = bfs_initial_pod(initial_pod, workflow_name, pod_list)
-    //fmt.Printf("Initial Pod: %v\n", initial_pod)
     aggregation := default_config.GetAggregation()
-    //Debug("aggreagtion:" + aggregation + "\n",0)
     if workflows[workflow_name].GetConfig() != nil && workflows[workflow_name].GetConfig().GetAggregation() != "" {
         aggregation = workflows[workflow_name].GetConfig().GetAggregation()
     }
@@ -164,7 +172,12 @@ func CreateInitialPod(workflow_name string) {
     workflow_last_updated[workflow_name] = time.Now()
 }
 
-// return in bytes
+// purpose: convert raw K8s memory string to float64
+// input:
+//  memory_str: string form of memory from K8s to be converted
+// output:
+//  float64: converted float value
+//  error: any error during conversion
 func memory_raw_to_float(memory_str string) (float64, error) {
     if memory_str == "0" {
         return 0, nil
@@ -199,7 +212,12 @@ func memory_raw_to_float(memory_str string) (float64, error) {
 
 }
 
-// store cpu in cores
+// purpose: convert raw K8s cpu string to float64
+// input:
+//  cpu_str: string form of cpu from K8s to be converted
+// output:
+//  float64: converted float value
+//  error: any error during conversion
 func cpu_raw_to_float(cpu_str string) (float64, error) {
     if cpu_str == "0" {
         return 0, nil
@@ -234,6 +252,7 @@ func cpu_raw_to_float(cpu_str string) (float64, error) {
 
 }
 
+// purpose: continuously check status of all cluster nodes, recording their current CPU and memory stats for deployment decision process and dynamic aggregation strategy evaluation
 func CheckNodeStatus() {
     for {
         nodes, err := kclient.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
@@ -276,6 +295,9 @@ func CheckNodeStatus() {
     }
 }
 
+// purpose: iterates over all replicas for a given workflow by node and deletes them, then create a new replica in its place; this is intended for dynamic aggregation/transitioning strategies
+// input:
+//  workflow_name: workflow name
 func NodeReclaim(workflow_name string) {
     dataLock.Lock()
     Debug("lock acquired", 6)
@@ -332,6 +354,11 @@ func NodeReclaim(workflow_name string) {
     Debug("lock released", 6)
 }
 
+// purpose: sets global default configurations for all workflows
+// input:
+//  request: ConfigStruct containing all configurations for setting default
+// output:
+//  string: returning printout of all configurations
 func Serve_Config(request *pb.ConfigStruct) string {
     dataLock.Lock()
     Debug("lock acquired", 6)
@@ -349,6 +376,11 @@ func Serve_Config(request *pb.ConfigStruct) string {
     return config_txt
 }
 
+// purpose: create workflow entry based on workflow definition (WorkflowStruct)
+// input:
+//  request: the WorkflowStruct that contains the functions, their endpoints, configurations and more
+// output:
+//  string: entrypoint function name (used for logging)
 func Serve_CreateWorkflow(request *pb.WorkflowStruct) string {
     deletecontext, cancelFunc = context.WithCancel(context.Background())
     if request.GetName() == "" {
@@ -371,6 +403,11 @@ func Serve_CreateWorkflow(request *pb.WorkflowStruct) string {
     return entrypoint
 }
 
+// purpose: update workflow entry based on workflow definition (WorkflowStruct)
+// input:
+//  request: the WorkflowStruct that contains the functions, their endpoints, configurations and more
+// output:
+//  string: entrypoint function name (used for logging)
 func Serve_UpdateWorkflow(request *pb.WorkflowStruct) string {
     if request.GetName() == "" {
         return "Workflow definition is malformed\n"
@@ -382,6 +419,11 @@ func Serve_UpdateWorkflow(request *pb.WorkflowStruct) string {
     return function
 }
 
+// purpose: delete workflow from cluster
+// input:
+//  request: contains the workflow name
+// output:
+//  string: printout of success or failure to delete
 func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
     Debug("deleting workflow from grpc function", 5)
     fmt.Printf("request:  %s\n", request.GetWorkflow())
@@ -409,8 +451,6 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
     delete(workflow_fully_disaggregated, request.GetWorkflow())
     dataLock.Unlock()
     Debug("lock released", 6)
-    //Debug("data lock acquired for delete, no more creations",5)
-    // Debug("deleting workflow " + request.GetWorkflow(), 2)
     services, err := kclient.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
     if err != nil {
         Debug(err.Error(), 0)
@@ -434,7 +474,6 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
         kclient.NetworkingV1().Ingresses(namespace).Delete(context.Background(), ingress.ObjectMeta.Name, metav1.DeleteOptions{})
     }
     for {
-        //Debug("waiting for " + request.GetWorkflow() + " to delete", 5)
         Debug("waiting for "+request.GetWorkflow()+"with label"+label_workflow+" to delete", 5)
         deployments_list, err := kclient.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: label_workflow})
         if err != nil || deployments_list == nil || len(deployments_list.Items) == 0 {
@@ -447,6 +486,11 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
     return "deleted workflow " + request.GetWorkflow() + "\n"
 }
 
+// purpose: updates workflow definitions if any dynamic aggregation methods is enabled
+// input:
+//  request: contains the workflow name
+// output:
+//  string: return code for what occurred in deployer for ingress to sync with
 func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
     Debug("update request",6)
     dataLock.Lock()
@@ -466,7 +510,6 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
     if workflows[request.GetWorkflow()].GetConfig() != nil && workflows[request.GetWorkflow()].GetConfig().GetTTL() != 0 {
         ttl = workflows[request.GetWorkflow()].GetConfig().GetTTL()
     }
-    //fmt.Printf("%d seconds passed since last update",time.Duration(time.Since(workflow_last_updated[request.GetWorkflow()]).Seconds()))
     if time.Since(workflow_last_updated[request.GetWorkflow()]) < time.Second*time.Duration(ttl) {
         dataLock.Unlock()
         Debug("lock released", 6)
@@ -493,7 +536,6 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
             return "0"
         }
         workflow_updating[request.GetWorkflow()] = true
-        // get the percentage of the node utilisation
         var nodes NodeMetricList
         data, err := kclient.RESTClient().Get().AbsPath("apis/metrics.k8s.io/v1beta1/nodes").Do(context.Background()).Raw()
         if err != nil {
@@ -520,12 +562,9 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
             percentage_mem := (usage_mem / nodeCapacityMemory[node_name]) * 100
 
             if percentage_mem > 70 || percentage_cpu > 70 {
-
-                // Debug(".....................updating..........",5)
                 workflow_latest_version[request.GetWorkflow()] += 1
                 var pods_updated [][]string
                 for _, pod := range workflow_pods[request.GetWorkflow()] {
-                    //fmt.Printf("pod :%v\n",pod)
                     if len(pod) > 1 {
                         idx := int(math.Floor(float64(len(pod)) / 2))
                         pods_updated = append(pods_updated, pod[:idx])
@@ -534,7 +573,7 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
                         pods_updated = append(pods_updated, pod)
                     }
                 }
-                fmt.Printf("updatinggggggg %v", pods_updated)
+                fmt.Printf("updating %v", pods_updated)
 
                 pod_2_or_more := false
                 for _, pod := range pods_updated {
@@ -565,6 +604,12 @@ func Serve_UpdateDeployments(request *pb.MacroPodRequest) string {
     }
 }
 
+// purpose: create a new workflow deployment based on current cluster conditions
+// input:
+//  request: contains workflow name
+//  bypass: bypass lock checks if in the middle of updating workflow (prevent throttling)
+// output:
+//  string: return code for what occurred in deployer for ingress to sync with
 func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
     contextLock.Lock()
     localctx := deletecontext
@@ -612,8 +657,6 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
         }
         switch deployment {
         case "macropod":
-            // Debug("acquired lock during create",5)
-
             if _, exists := workflows[request.GetWorkflow()]; !exists {
                 dataLock.Unlock()
                  Debug("lock released", 6)
@@ -799,13 +842,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                         Port:       container_port,
                         TargetPort: intstr.FromInt(int(container_port)),
                     })
-                    //service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
-                    //    Name:       container_name + "-http",
-                    //    Port:       container_port_http,
-                    //    TargetPort: intstr.FromInt(int(container_port_http)),
-                    //})
                 }
-                // check if deployment with name exists, if does not make a new one else update the existing lets start with creating new ones and then update the existing ones
                 Debug("Looking for "+pod[0]+"_"+replicaNumber, 0)
                 _, exists := kclient.AppsV1().Deployments(namespace).Get(context.Background(), strings.ToLower(pod[0])+"-"+replicaNumber, metav1.GetOptions{})
                 if exists != nil {
@@ -850,17 +887,11 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                 for _, container := range pod {
                     container_name := strings.ToLower(strings.ReplaceAll(container, "_", "-")) + "-" + replicaNumber
                     container_port := int32(5000 + slices.Index(workflow_initial_pods[request.GetWorkflow()], container))
-                    //container_port_http := int32(6000 + slices.Index(workflow_initial_pods[request.GetWorkflow()], container))
                     service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
                         Name:       container_name,
                         Port:       container_port,
                         TargetPort: intstr.FromInt(int(container_port)),
                     })
-                    //service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
-                    //    Name:       container_name + "http",
-                    //    Port:       container_port_http,
-                    //    TargetPort: intstr.FromInt(int(container_port_http)),
-                    //})
                 }
                 _, exists := kclient.CoreV1().Services(namespace).Get(context.Background(), pod_name+"-"+replicaNumber, metav1.GetOptions{})
                 if exists != nil {
@@ -926,12 +957,18 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
             return "0"
         default:
             dataLock.Unlock()
-             Debug("lock released", 6)
+            Debug("lock released", 6)
             return "1"
         }
     }
     }
 }
+
+// purpose: deletes replica target based on ingress signaling TTL is up
+// input:
+//  request: contains workflow name and target label
+// output:
+//  string: empty string
 func Serve_TTLDelete(request *pb.MacroPodRequest) string {
     labels := request.GetTarget()
     cancelFunc()
@@ -953,7 +990,7 @@ func Serve_TTLDelete(request *pb.MacroPodRequest) string {
         Debug(err.Error(), 0)
     }
     for _, service := range services.Items {
-	fmt.Printf("deleting............%s\n", service.ObjectMeta.Name)
+        fmt.Printf("deleting............%s\n", service.ObjectMeta.Name)
         kclient.CoreV1().Services(namespace).Delete(context.Background(), service.ObjectMeta.Name, metav1.DeleteOptions{})
     }
     deployments, err := kclient.AppsV1().Deployments(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
@@ -972,7 +1009,7 @@ func Serve_TTLDelete(request *pb.MacroPodRequest) string {
     }
 
     for {
-	Debug("TTL: waiting for resources to be deleted",5)
+        Debug("TTL: waiting for resources to be deleted",5)
         deployments_list, err := kclient.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels_replica})
         if err != nil || deployments_list == nil || len(deployments_list.Items) == 0 {
             break
@@ -983,12 +1020,26 @@ func Serve_TTLDelete(request *pb.MacroPodRequest) string {
     return ""
 }
 
+// purpose: gRPC handler for Config
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: ConfigStruct object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *DeployerService) Config(ctx context.Context, req *pb.ConfigStruct) (*pb.MacroPodReply, error) {
     reply := Serve_Config(req)
     results := pb.MacroPodReply{Reply: &reply}
     return &results, nil
 }
 
+// purpose: gRPC handler for CreateWorkflow
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: WorkflowStruct object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *DeployerService) CreateWorkflow(ctx context.Context, req *pb.WorkflowStruct) (*pb.MacroPodReply, error) {
     fmt.Printf("\n----- request : %v ------\n", req)
     reply := Serve_CreateWorkflow(req)
@@ -996,6 +1047,13 @@ func (s *DeployerService) CreateWorkflow(ctx context.Context, req *pb.WorkflowSt
     return &results, nil
 }
 
+// purpose: gRPC handler for UpdateWorkflow
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: WorkflowStruct object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *DeployerService) UpdateWorkflow(ctx context.Context, req *pb.WorkflowStruct) (*pb.MacroPodReply, error) {
     reply := Serve_UpdateWorkflow(req)
     results := pb.MacroPodReply{Reply: &reply}
@@ -1003,6 +1061,13 @@ func (s *DeployerService) UpdateWorkflow(ctx context.Context, req *pb.WorkflowSt
     return &results, nil
 }
 
+// purpose: gRPC handler for DeleteWorkflow
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *DeployerService) DeleteWorkflow(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     Debug("request to delete workflow", 6)
     reply := Serve_DeleteWorkflow(req)
@@ -1010,29 +1075,76 @@ func (s *DeployerService) DeleteWorkflow(ctx context.Context, req *pb.MacroPodRe
     return &results, nil
 }
 
+// purpose: gRPC handler for UpdateDeployments
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *DeployerService) UpdateDeployments(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     reply := Serve_UpdateDeployments(req)
     results := pb.MacroPodReply{Reply: &reply}
     return &results, nil
 }
 
+// purpose: gRPC handler for CreateDeployment
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *DeployerService) CreateDeployment(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     reply := Serve_CreateDeployment(req, false)
     results := pb.MacroPodReply{Reply: &reply}
     return &results, nil
 }
 
+// purpose: gRPC handler for TTLDelete
+// input:
+//  ctx: context object utilized in every gRPC request handler
+//  req: MacroPodRequest object defined by protobuf
+// output:
+//  MacroPodReply: reply protobuf struct
+//  error: always will be nil
 func (s *DeployerService) TTLDelete(ctx context.Context, req *pb.MacroPodRequest) (*pb.MacroPodReply, error) {
     reply := Serve_TTLDelete(req)
     results := pb.MacroPodReply{Reply: &reply}
     return &results, nil
 }
 
+// purpose: prints out a help message for quick reference on how to operate service
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_Help(res http.ResponseWriter, req *http.Request) {
-    help_print := "TODO\n"
+    help_print := "usage:\n"
+    help_print += "\t/config\n"
+    help_print += "\t\tpurpose: set global default configurations for all workflows\n"
+    help_print += "\t\tinput: configuration file in JSON form\n"
+    help_print += "\t/workflow/create\n"
+    help_print += "\t\tpurpose: create a new workflow definition\n"
+    help_print += "\t\tinput: workflow definition file in JSON form\n"
+    help_print += "\t/workflow/update\n"
+    help_print += "\t\tpurpose: update an existing workflow definition\n"
+    help_print += "\t\tinput: workflow definition file in JSON form\n"
+    help_print += "\t/workflow/delete/{workflow}\n"
+    help_print += "\t\tpurpose: delete an existing workflow definition\n"
+    help_print += "\t/deployment/update/{workflow}\n"
+    help_print += "\t\tpurpose: trigger all deployments to update for specified workflow (typically done automatically, so use at your own caution)\n"
+    help_print += "\t/deployment/create/{workflow}\n"
+    help_print += "\t\tpurpose: trigger a new workflow replica to be created for specified workflow (typically done automatically, so use at your own caution)\n"
+    help_print += "\t/ttl\n"
+    help_print += "\t\tpurpose: enact a deletion of replicas based on TTL (typically done automatically, so use at your own caution)\n"
+    help_print += "\t\tinput: MacroPodRequest in JSON form\n"
     fmt.Fprint(res, help_print)
 }
 
+// purpose: http handler for Config
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_Config(res http.ResponseWriter, req *http.Request) {
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.ConfigStruct{}
@@ -1040,6 +1152,10 @@ func HTTP_Config(res http.ResponseWriter, req *http.Request) {
     Serve_Config(&request)
 }
 
+// purpose: http handler for CreateWorkflow
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_CreateWorkflow(res http.ResponseWriter, req *http.Request) {
     Debug("creating workflow", 4)
     body, _ := ioutil.ReadAll(req.Body)
@@ -1050,6 +1166,10 @@ func HTTP_CreateWorkflow(res http.ResponseWriter, req *http.Request) {
     fmt.Fprint(res, results)
 }
 
+// purpose: http handler for UpdateWorkflow
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_UpdateWorkflow(res http.ResponseWriter, req *http.Request) {
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.WorkflowStruct{}
@@ -1058,6 +1178,10 @@ func HTTP_UpdateWorkflow(res http.ResponseWriter, req *http.Request) {
     fmt.Fprint(res, results)
 }
 
+// purpose: http handler for DeleteWorkflow
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_DeleteWorkflow(res http.ResponseWriter, req *http.Request) {
     workflow := req.PathValue("workflow")
     request := pb.MacroPodRequest{Workflow: &workflow}
@@ -1065,6 +1189,10 @@ func HTTP_DeleteWorkflow(res http.ResponseWriter, req *http.Request) {
     fmt.Fprint(res, results)
 }
 
+// purpose: http handler for UpdateDeployments
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_UpdateDeployments(res http.ResponseWriter, req *http.Request) {
     workflow := req.PathValue("workflow")
     request := pb.MacroPodRequest{Workflow: &workflow}
@@ -1072,6 +1200,10 @@ func HTTP_UpdateDeployments(res http.ResponseWriter, req *http.Request) {
     fmt.Fprint(res, results)
 }
 
+// purpose: http handler for CreateDeployment
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_CreateDeployment(res http.ResponseWriter, req *http.Request) {
     workflow := req.PathValue("workflow")
     Debug("Creating deployment", 0)
@@ -1080,6 +1212,10 @@ func HTTP_CreateDeployment(res http.ResponseWriter, req *http.Request) {
     fmt.Fprint(res, results)
 }
 
+// purpose: http handler for TTLDelete
+// input:
+//  res: writer to provide HTTP reply data
+//  req: GET/POST object
 func HTTP_TTLDelete(res http.ResponseWriter, req *http.Request) {
     body, _ := ioutil.ReadAll(req.Body)
     request := pb.MacroPodRequest{}
@@ -1088,6 +1224,18 @@ func HTTP_TTLDelete(res http.ResponseWriter, req *http.Request) {
     fmt.Fprint(res, results)
 }
 
+// input:
+//  SERVICE_PORT: string defining gRPC service binding; default 8000
+//  HTTP_PORT: string defining HTTP service binding; default 9000
+//  INGRESS_ADDRESS: string IP:port for the ingress gRPC service; default 127.0.0.1:8001
+//  LOGGER_ADDRESS: string IP:port for the logger gRPC service; default is nil
+//  NAMESPACE: default namespace if workflow definition value not set; default macropod-functions
+//  TTL: default time to live if workflow definition value not set; default 180 (180s)
+//  DEPLOYMENT: default deployment method if workflow definition value not set; default macropod
+//  COMMUNICATION: default communication method if workflow definition value not set; default direct
+//  AGGREGATION: default aggregation method if workflow definition value not set; default agg
+//  TARGET_CONCURRENCY: default target concurrency if workflow definition value not set; default -1 (unbounded)
+//  DEBUG: debug level (higher is more verbose); default 0 (off)
 func main() {
     config, err := rest.InClusterConfig()
     if err != nil {
