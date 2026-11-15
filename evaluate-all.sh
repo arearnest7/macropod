@@ -16,9 +16,9 @@ mkdir $DIR/MacroPod
 echo "iRoute"
 date
 cd ~/macropod/iRoute
-sudo ./deploy.sh $user $passwd $iface $worker_nodes
-sudo ./evaluate.sh 10.43.190.1 $host $DIR/iRoute
-sudo ./remove.sh $user $passwd $worker_nodes
+sudo ./deploy.sh $user $passwd $iface "$worker_nodes" 1>/dev/null 2>/dev/null
+#sudo ./evaluate.sh 10.43.190.1 $DIR/iRoute 1>/dev/null 2>/dev/null
+sudo ./remove.sh $user $passwd "$worker_nodes" 1>/dev/null 2>/dev/null
 date
 sleep 60s
 
@@ -26,9 +26,9 @@ sleep 60s
 echo "Knative"
 date
 cd ~/macropod/knative
-sudo ./deploy.sh $user $passwd $iface $worker_nodes
-sudo ./evaluate.sh 10.43.190.1 $DIR/Knative
-sudo ./remove.sh $user $passwd $worker_nodes
+sudo ./deploy.sh $user $passwd $iface "$worker_nodes" 1>/dev/null 2>/dev/null
+#sudo ./evaluate.sh 10.43.190.1 $host $DIR/Knative 1>/dev/null 2>/dev/null
+sudo ./remove.sh $user $passwd "$worker_nodes" 1>/dev/null 2>/dev/null
 date
 sleep 60s
 
@@ -36,7 +36,7 @@ sleep 60s
 echo "MacroPod"
 date
 cd ~/macropod
-sudo ./deploy.sh $user $passwd $iface $worker_nodes
-sudo ./evaluate.sh 10.43.190.1 $DIR/MacroPod
-sudo ./remove.sh $user $passwd $worker_nodes
+sudo ./deploy.sh $user $passwd $iface "$worker_nodes" 1>/dev/null 2>/dev/null
+#sudo ./evaluate.sh 10.43.190.1 $DIR/MacroPod 1>/dev/null 2>/dev/null
+sudo ./remove.sh $user $passwd "$worker_nodes" 1>/dev/null 2>/dev/null
 date
