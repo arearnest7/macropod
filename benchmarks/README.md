@@ -1,12 +1,8 @@
 # Benchmarks
 
-kn: consists of the Knative source code for the listed benchmarks
+knative: consists of the Knative source code for the listed benchmarks
 
 macropod: consists of the MacroPod source code for the list benchmarks
-
-original: the fully disaggregated/untampered iterations of the workflows
-
-unified: fully unified 1 function containing entire workflow
 
 benchmarks:
 

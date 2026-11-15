@@ -1,0 +1,23 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sn-db-op
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/arearnest7/sn-db-op:kn
+          env:
+          - name: POST_URL
+            value: mongodb://post-storage-mongodb.socialnetwork-db.svc.cluster.local:27017/
+          - name: USER_URL
+            value: mongodb://user-mongodb.socialnetwork-db.svc.cluster.local:27017/
+          - name: SOCIAL_GRAPH_URL
+            value: mongodb://social-graph-mongodb.socialnetwork-db.svc.cluster.local:27017/
+          - name: USER_TIMELINE_MONGO_URL
+            value: mongodb://user-timeline-mongodb.socialnetwork-db.svc.cluster.local:27017/
+          - name: USER_REDIS
+            value: user-timeline-redis.socialnetwork-db.svc.cluster.local
+          - name: HOME_REDIS
+            value: home-timeline-redis.socialnetwork-db.svc.cluster.local

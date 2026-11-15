@@ -1,0 +1,10 @@
+{
+    "Name": "sn-db-op",
+    "Functions": {
+        "sn-db-op": {
+            "Registry": "arearnest7/sn-db-op:latest",
+            "Envs": {"POST_URL": "mongodb://post-storage-mongodb.socialnetwork-db.svc.cluster.local:27017/", "USER_URL": "mongodb://user-mongodb.socialnetwork-db.svc.cluster.local:27017/", "SOCIAL_GRAPH_URL": "mongodb://social-graph-mongodb.socialnetwork-db.svc.cluster.local:27017/", "USER_TIMELINE_MONGO_URL": "mongodb://user-timeline-mongodb.socialnetwork-db.svc.cluster.local:27017/", "USER_REDIS": "user-timeline-redis.socialnetwork-db.svc.cluster.local", "HOME_REDIS": "home-timeline-redis.socialnetwork-db.svc.cluster.local"},
+            "Endpoints": []
+        }
+    }
+}

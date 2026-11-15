@@ -6,6 +6,7 @@ import (
     "context"
     "time"
     "os"
+    "fmt"
 
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials/insecure"
@@ -24,6 +25,10 @@ type Context struct {
     Target     string                   // internal IP and port of current function
 }
 
+var (
+    cached_channels = make(map[string]*grpc.ClientConn) // used for cached channel variants and logging
+)
+
 // purpose: send a message to logger (if enabled) to dictate a timestamp of function operation across multiple replicas.
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
@@ -34,11 +39,21 @@ func Timestamp(ctx_in Context, target string, message string) {
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &ctx_in.Function, WorkflowID: &ctx_in.WorkflowID, Depth: &ctx_in.Depth, Width: &ctx_in.Width, Target: &target, Text: &message}
     logger := os.Getenv("LOGGER")
     if logger != "" {
-        channel, _ := grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+        channel := (*grpc.ClientConn)(nil)
+        _, cached := cached_channels[logger]
+        if !cached {
+            channel, _ := grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            cached_channels[logger] = channel
+        } else {
+            channel = cached_channels[logger]
+        }
+        channel, _ = grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
         stub := pb.NewMacroPodLoggerClient(channel)
         stub.Timestamp(ctx, &req)
         channel.Close()
         cancel()
+    } else {
+        fmt.Println(message)
     }
 }
 
@@ -52,11 +67,21 @@ func Error(ctx_in Context, err error) {
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &ctx_in.Function, Text: &text}
     logger := os.Getenv("LOGGER")
     if logger != "" {
-        channel, _ := grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+        channel := (*grpc.ClientConn)(nil)
+        _, cached := cached_channels[logger]
+        if !cached {
+            channel, _ := grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            cached_channels[logger] = channel
+        } else {
+            channel = cached_channels[logger]
+        }
+        channel, _ = grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
         stub := pb.NewMacroPodLoggerClient(channel)
         stub.Error(ctx, &req)
         channel.Close()
         cancel()
+    } else {
+        fmt.Println(text)
     }
 }
 
@@ -69,20 +94,30 @@ func Print(ctx_in Context, message string) {
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &ctx_in.Function, Text: &message}
     logger := os.Getenv("LOGGER")
     if logger != "" {
-        channel, _ := grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+        channel := (*grpc.ClientConn)(nil)
+        _, cached := cached_channels[logger]
+        if !cached {
+            channel, _ := grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            cached_channels[logger] = channel
+        } else {
+            channel = cached_channels[logger]
+        }
+        channel, _ = grpc.Dial(logger, grpc.WithDefaultCallOptions(), grpc.WithTransportCredentials(insecure.NewCredentials()))
         stub := pb.NewMacroPodLoggerClient(channel)
         stub.Print(ctx, &req)
         channel.Close()
         cancel()
+    } else {
+        fmt.Println(message)
     }
 }
 
 // purpose: invoke a downstream function with a text/string payload and return its string output
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPC; this is the name of function 
+//  dest: invocation target for the RPC; this is the name of function
 //  payload: string payload to be sent to destination function
-// output: 
+// output:
 //  string: RPC return output
 //  int: RPC error code
 func Invoke(ctx_in Context, dest string, payload string) (string, int32) {
@@ -92,21 +127,36 @@ func Invoke(ctx_in Context, dest string, payload string) (string, int32) {
     width := int32(0)
     target := os.Getenv(dest)
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &dest, Target: &target, Text: &payload, WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+    if os.Getenv("COMM_TYPE") == "gateway" {
+        target = os.Getenv("INGRESS")
+    }
     var res *pb.MacroPodReply
     var err error
+    channel := (*grpc.ClientConn)(nil)
+    if os.Getenv("CHANNEL_TYPE") == "cache" {
+        _, cached := cached_channels[target]
+        if !cached {
+            channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            cached_channels[target] = channel
+        } else {
+            channel = cached_channels[target]
+        }
+    } else {
+        channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+    }
+    if err != nil {
+        Error(ctx_in, err)
+    }
     switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
         case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
-            channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
             stub := pb.NewMacroPodFunctionClient(channel)
             res, err = stub.Invoke(ctx, &req)
             channel.Close()
         case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
-            channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
             stub := pb.NewMacroPodIngressClient(channel)
             res, err = stub.FunctionInvoke(ctx, &req)
             channel.Close()
         default:
-            channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
             stub := pb.NewMacroPodFunctionClient(channel)
             res, err = stub.Invoke(ctx, &req)
             channel.Close()
@@ -122,9 +172,9 @@ func Invoke(ctx_in Context, dest string, payload string) (string, int32) {
 // purpose: invoke a downstream function with a JSON list (dictionary) payload and return its string output
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPC; this is the name of function 
+//  dest: invocation target for the RPC; this is the name of function
 //  payload: dictionary payload to be sent to destination function
-// output: 
+// output:
 //  string: RPC return output
 //  int: RPC error code
 func Invoke_JSON(ctx_in Context, dest string, payload map[string]interface{}) (string, int32) {
@@ -135,8 +185,26 @@ func Invoke_JSON(ctx_in Context, dest string, payload map[string]interface{}) (s
     j, _ := structpb.NewStruct(payload)
     target := os.Getenv(dest)
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &dest, Target: &target, JSON: j, WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+    if os.Getenv("COMM_TYPE") == "gateway" {
+        target = os.Getenv("INGRESS")
+    }
     var res *pb.MacroPodReply
     var err error
+    channel := (*grpc.ClientConn)(nil)
+    if os.Getenv("CHANNEL_TYPE") == "cache" {
+        _, cached := cached_channels[target]
+        if !cached {
+            channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            cached_channels[target] = channel
+        } else {
+            channel = cached_channels[target]
+        }
+    } else {
+        channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+    }
+    if err != nil {
+        Error(ctx_in, err)
+    }
     switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
         case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
             channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -165,9 +233,9 @@ func Invoke_JSON(ctx_in Context, dest string, payload map[string]interface{}) (s
 // purpose: invoke a downstream function with a bytes payload and return its string output
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPC; this is the name of function 
+//  dest: invocation target for the RPC; this is the name of function
 //  payload: bytes payload to be sent to destination function
-// output: 
+// output:
 //  string: RPC return output
 //  int: RPC error code
 func Invoke_Data(ctx_in Context, dest string, payload []byte) (string, int32) {
@@ -177,8 +245,26 @@ func Invoke_Data(ctx_in Context, dest string, payload []byte) (string, int32) {
     width := int32(0)
     target := os.Getenv(dest)
     req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &dest, Target: &target, Data: payload, WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+    if os.Getenv("COMM_TYPE") == "gateway" {
+        target = os.Getenv("INGRESS")
+    }
     var res *pb.MacroPodReply
     var err error
+    channel := (*grpc.ClientConn)(nil)
+    if os.Getenv("CHANNEL_TYPE") == "cache" {
+        _, cached := cached_channels[target]
+        if !cached {
+            channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            cached_channels[target] = channel
+        } else {
+            channel = cached_channels[target]
+        }
+    } else {
+        channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+    }
+    if err != nil {
+        Error(ctx_in, err)
+    }
     switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
         case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
             channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -207,9 +293,9 @@ func Invoke_Data(ctx_in Context, dest string, payload []byte) (string, int32) {
 // purpose: invoke a downstream function multiple times concurrently with a list of text/string payloads and return all string outputs
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPCs; this is the name of function 
+//  dest: invocation target for the RPCs; this is the name of function
 //  payloads: list of string payloads to be sent to destination function
-// output: 
+// output:
 //  string array: array of RPC return outputs
 //  int array: array of RPC error code
 func Invoke_Multi(ctx_in Context, dest string, payloads []string) ([]string, []int32) {
@@ -222,21 +308,36 @@ func Invoke_Multi(ctx_in Context, dest string, payloads []string) ([]string, []i
             width := int32(n)
             target := os.Getenv(dest)
             req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &dest, Target: &target, Text: &payloads[n], WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+            if os.Getenv("COMM_TYPE") == "gateway" {
+                target = os.Getenv("INGRESS")
+            }
             var res *pb.MacroPodReply
             var err error
+            channel := (*grpc.ClientConn)(nil)
+            if os.Getenv("CHANNEL_TYPE") == "cache" {
+                _, cached := cached_channels[target]
+                if !cached {
+                    channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+                    cached_channels[target] = channel
+                } else {
+                    channel = cached_channels[target]
+                }
+            } else {
+                channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            }
+            if err != nil {
+                Error(ctx_in, err)
+            }
             switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
                 case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
-                    channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)
                     channel.Close()
                 case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
-                    channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodIngressClient(channel)
                     res, err = stub.FunctionInvoke(ctx, &req)
                     channel.Close()
                 default:
-                    channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)
                     channel.Close()
@@ -262,9 +363,9 @@ func Invoke_Multi(ctx_in Context, dest string, payloads []string) ([]string, []i
 // purpose: invoke a downstream function multiple times concurrently with a list of JSON list (dictionary) payloads and return all string outputs
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPCs; this is the name of function 
+//  dest: invocation target for the RPCs; this is the name of function
 //  payloads: list of dictionary payloads to be sent to destination function
-// output: 
+// output:
 //  string array: array of RPC return outputs
 //  int array: array of RPC error code
 func Invoke_Multi_JSON(ctx_in Context, dest string, payloads []map[string]interface{}) ([]string, []int32) {
@@ -278,21 +379,36 @@ func Invoke_Multi_JSON(ctx_in Context, dest string, payloads []map[string]interf
             j, _ := structpb.NewStruct(payloads[n])
             target := os.Getenv(dest)
             req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &dest, Target: &target, JSON: j, WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+            if os.Getenv("COMM_TYPE") == "gateway" {
+                target = os.Getenv("INGRESS")
+            }
             var res *pb.MacroPodReply
             var err error
+            channel := (*grpc.ClientConn)(nil)
+            if os.Getenv("CHANNEL_TYPE") == "cache" {
+                _, cached := cached_channels[target]
+                if !cached {
+                    channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+                    cached_channels[target] = channel
+                } else {
+                    channel = cached_channels[target]
+                }
+            } else {
+                channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            }
+            if err != nil {
+                Error(ctx_in, err)
+            }
             switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
                 case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
-                    channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)
                     channel.Close()
                 case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
-                    channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodIngressClient(channel)
                     res, err = stub.FunctionInvoke(ctx, &req)
                     channel.Close()
                 default:
-                    channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)
                     channel.Close()
@@ -318,9 +434,9 @@ func Invoke_Multi_JSON(ctx_in Context, dest string, payloads []map[string]interf
 // purpose: invoke a downstream function multiple times concurrently with a list of bytes payloads and return all string outputs
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPCs; this is the name of function 
+//  dest: invocation target for the RPCs; this is the name of function
 //  payloads: list of bytes payloads to be sent to destination function
-// output: 
+// output:
 //  string array: array of RPC return outputs
 //  int array: array of RPC error code
 func Invoke_Multi_Data(ctx_in Context, dest string, payloads [][]byte) ([]string, []int32) {
@@ -333,21 +449,36 @@ func Invoke_Multi_Data(ctx_in Context, dest string, payloads [][]byte) ([]string
             width := int32(n)
             target := os.Getenv(dest)
             req := pb.MacroPodRequest{Workflow: &ctx_in.Workflow, Function: &dest, Target: &target, Data: payloads[n], WorkflowID: &ctx_in.WorkflowID, Depth: &depth, Width: &width}
+            if os.Getenv("COMM_TYPE") == "gateway" {
+                target = os.Getenv("INGRESS")
+            }
             var res *pb.MacroPodReply
             var err error
+            channel := (*grpc.ClientConn)(nil)
+            if os.Getenv("CHANNEL_TYPE") == "cache" {
+                _, cached := cached_channels[target]
+                if !cached {
+                    channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+                    cached_channels[target] = channel
+                } else {
+                    channel = cached_channels[target]
+                }
+            } else {
+                channel, err = grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+            }
+            if err != nil {
+                Error(ctx_in, err)
+            }
             switch comm_type := os.Getenv("COMM_TYPE"); comm_type {
                 case "direct": // invocation sent directly to target bypassing gateway (direct RPC or IPC)
-                    channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)
                     channel.Close()
                 case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
-                    channel, _ := grpc.Dial(os.Getenv("INGRESS"), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodIngressClient(channel)
                     res, err = stub.FunctionInvoke(ctx, &req)
                     channel.Close()
                 default:
-                    channel, _ := grpc.Dial(target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)
                     channel.Close()

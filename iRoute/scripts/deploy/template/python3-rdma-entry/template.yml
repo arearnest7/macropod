@@ -1,0 +1,2 @@
+language: python3-rdma-entry
+fprocess: python index.py

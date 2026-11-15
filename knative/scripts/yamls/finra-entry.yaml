@@ -1,0 +1,23 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: finra-entry
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/arearnest7/finra-entry:kn
+          env:
+          - name: FINRA_MARKETDATA
+            value: http://finra-marketdata.knative-functions.127.0.0.1.sslip.io
+          - name: FINRA_LASTPX
+            value: http://finra-lastpx.knative-functions.127.0.0.1.sslip.io
+          - name: FINRA_SIDE
+            value: http://finra-side.knative-functions.127.0.0.1.sslip.io
+          - name: FINRA_TRDDATE
+            value: http://finra-trddate.knative-functions.127.0.0.1.sslip.io
+          - name: FINRA_VOLUME
+            value: http://finra-volume.knative-functions.127.0.0.1.sslip.io
+          - name: FINRA_MARGIN_BALANCE
+            value: http://finra-margin-balance.knative-functions.127.0.0.1.sslip.io

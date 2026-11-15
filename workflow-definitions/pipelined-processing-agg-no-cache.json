@@ -1,0 +1,27 @@
+{
+    "Name": "pipelined",
+    "Functions": {
+        "PIPELINED_CHECKSUM": {
+            "Registry": "arearnest7/pipelined-checksum:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        },
+        "PIPELINED_ENCRYPT": {
+            "Registry": "arearnest7/pipelined-encrypt:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        },
+        "PIPELINED_MAIN": {
+            "Registry": "arearnest7/pipelined-main:latest",
+            "Endpoints": ["PIPELINED_MAIN", "PIPELINED_CHECKSUM", "PIPELINED_ZIP", "PIPELINED_ENCRYPT"]
+        },
+        "PIPELINED_ZIP": {
+            "Registry": "arearnest7/pipelined-zip:latest",
+            "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "direct",
+        "Aggregation": "agg",
+        "Channel": "no-cache"
+    }
+}

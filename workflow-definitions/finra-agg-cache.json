@@ -1,0 +1,41 @@
+{
+    "Name": "finra",
+    "Functions": {
+        "finra-entry": {
+            "Registry": "arearnest7/finra-entry:latest",
+            "Endpoints": ["finra-marketdata", "finra-lastpx", "finra-side", "finra-trddate", "finra-volume", "finra-margin-balance"]
+        },
+        "finra-lastpx": {
+            "Registry": "arearnest7/finra-lastpx:latest",
+            "Endpoints": []
+        },
+        "finra-margin-balance": {
+            "Registry": "arearnest7/finra-margin-balance:latest",
+            "Endpoints": []
+        },
+        "finra-marketdata": {
+            "Registry": "arearnest7/finra-marketdata:latest",
+            "Endpoints": []
+        },
+        "finra-side": {
+            "Registry": "arearnest7/finra-side:latest",
+            "Endpoints": []
+        },
+        "finra-trddate": {
+            "Registry": "arearnest7/finra-trddate:latest",
+            "Endpoints": []
+        },
+        "finra-volume": {
+            "Registry": "arearnest7/finra-volume:latest",
+            "Endpoints": []
+        }
+    },
+    "Config": {
+        "Channel": "cache",
+        "Aggregation": "agg"
+    },
+    "Payload": {
+        "Type": "Text",
+        "Text": "{\"n\": 1, \"st\": 0}"
+    }
+}

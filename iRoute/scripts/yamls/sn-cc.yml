@@ -1,0 +1,15 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:31112
+functions:
+  sn-cc:
+    lang: python3-ipc-cc
+    handler: ./sn-cc
+    image: tjulym/sn-cc:ipc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+

@@ -1,0 +1,13 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 500,
+    "ExtraTargets": {
+        "knative-sn": "http://sn-entry.knative-functions.192.168.0.1.sslip.io"
+    },
+    "ExtraTargetsPayload": {
+        "knative-sn": {
+            "Type": "Text",
+            "Text": "{\"n\": 1, \"st\": 0}"
+        }
+    }
+}

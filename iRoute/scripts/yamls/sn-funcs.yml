@@ -1,0 +1,126 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:31112
+functions:
+  compose-post:
+    lang: python3-ipc-func
+    handler: ./compose-post
+    image: tjulym/compose-post:ipc
+    environment:
+      name: compose-post
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  upload-user-mentions:
+    lang: python3-ipc-func
+    handler: ./upload-user-mentions
+    image: tjulym/upload-user-mentions:ipc
+    environment:
+      name: upload-user-mentions
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  upload-creator:
+    lang: python3-ipc-func
+    handler: ./upload-creator
+    image: tjulym/upload-creator:ipc
+    environment:
+      name: upload-creator
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  upload-media:
+    lang: python3-ipc-func
+    handler: ./upload-media
+    image: tjulym/upload-media:ipc
+    environment:
+      name: upload-media
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  upload-text:
+    lang: python3-ipc-func
+    handler: ./upload-text
+    image: tjulym/upload-text:ipc
+    environment:
+      name: upload-text
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  upload-unique-id:
+    lang: python3-ipc-func
+    handler: ./upload-unique-id
+    image: tjulym/upload-unique-id:ipc
+    environment:
+      name: upload-unique-id
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  compose-and-upload:
+    lang: python3-ipc-func
+    handler: ./compose-and-upload
+    image: tjulym/compose-and-upload:ipc
+    environment:
+      name: compose-and-upload
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  upload-home-timeline:
+    lang: python3-ipc-func
+    handler: ./upload-home-timeline
+    image: tjulym/upload-home-timeline:ipc
+    environment:
+      name: upload-home-timeline
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  upload-user-timeline:
+    lang: python3-ipc-func
+    handler: ./upload-user-timeline
+    image: tjulym/upload-user-timeline:ipc
+    environment:
+      name: upload-user-timeline
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  post-storage:
+    lang: python3-ipc-func
+    handler: ./post-storage
+    image: tjulym/post-storage:ipc
+    environment:
+      name: post-storage
+      cc: sn-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/sn"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+

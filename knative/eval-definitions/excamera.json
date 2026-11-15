@@ -1,0 +1,13 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 1,
+    "ExtraTargets": {
+        "knative-excamera": "http://excamera-entry.knative-functions.192.168.0.1.sslip.io"
+    },
+    "ExtraTargetsPayload": {
+        "knative-excamera": {
+            "Type": "Text",
+            "Text": "{\"n\": 1, \"st\": 0}"
+        }
+    }
+}

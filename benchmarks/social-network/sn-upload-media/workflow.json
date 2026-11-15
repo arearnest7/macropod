@@ -1,0 +1,8 @@
+{
+  "dag": [
+    ["compose-post"],
+    ["upload-user-mentions", "upload-creator", "upload-media", "upload-text", "upload-unique-id"],
+    ["compose-and-upload"],
+    ["upload-home-timeline", "upload-user-timeline", "post-storage"]
+  ]
+}

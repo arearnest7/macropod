@@ -1,0 +1,13 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 500,
+    "ExtraTargets": {
+        "iroute-sn": "http://127.0.0.1:31112/function/sn-entry"
+    },
+    "ExtraTargetsPayload": {
+        "iroute-sn": {
+            "Type": "Text",
+            "Text": "{\"n\": 1, \"st\": 0}"
+        }
+    }
+}

@@ -63,22 +63,22 @@ var (
     dataLock         sync.Mutex																// general purpose mutex lock for all operations modifying global variables (preventing system panics and divergent data commits)
     createRun        bool																	// boolean signifying if runCreateFunction is in progress (reduce the volume of parallel create requests to deployer)
 
-    retrypolicy = `{
-        "methodConfig": [{
-        "name": [{}],
-        "waitForReady": true,
-        "retryThrottling": {
-            "maxTokens": 100,
-            "tokenRatio": 0.1
-          },
-        "retryPolicy": {
-            "MaxAttempts": 3,
-            "InitialBackoff": "1s",
-            "MaxBackoff": "10s",
-            "BackoffMultiplier": 2.0,
-            "RetryableStatusCodes": ["UNAVAILABLE", "UNKNOWN"]
-        }
-    }]}`
+//    retrypolicy = `{
+//        "methodConfig": [{
+//        "name": [{}],
+//        "waitForReady": true,
+//        "retryThrottling": {
+//            "maxTokens": 100,
+//            "tokenRatio": 0.1
+//          },
+//        "retryPolicy": {
+//            "MaxAttempts": 3,
+//            "InitialBackoff": "1s",
+//            "MaxBackoff": "10s",
+//            "BackoffMultiplier": 2.0,
+//            "RetryableStatusCodes": ["UNAVAILABLE", "UNKNOWN"]
+//        }
+//    }]}`
 )
 
 // purpose: print out message if debug level is greater than or equal to the global debug level
@@ -301,7 +301,7 @@ func UpdateHostTargets(ingress *networkingv1.Ingress) {
                 dataLock.Unlock()
                 for !IfPodsAreRunning(replica_name, namespace) {
                 }
-                channel, _ := grpc.Dial(hostname, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
+                channel, _ := grpc.Dial(hostname, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials())) //, grpc.WithDefaultServiceConfig(retrypolicy))
                 stub := pb.NewMacroPodFunctionClient(channel)
                 for channel.GetState() != connectivity.Ready {
                     time.Sleep(10 * time.Millisecond)
@@ -479,6 +479,10 @@ func Serve_Config(request *pb.ConfigStruct) string {
         aggregation := "agg"
         default_config.Aggregation = &aggregation
     }
+    if default_config.GetChannel() == "" {
+        channel := "cache"
+        default_config.Channel = &channel
+    }
     if default_config.GetTargetConcurrency() == 0 {
         target := int32(-1)
         default_config.TargetConcurrency = &target
@@ -496,6 +500,7 @@ func Serve_Config(request *pb.ConfigStruct) string {
     config_txt += "Deployment: " + default_config.GetDeployment() + "\n"
     config_txt += "Communication: " + default_config.GetCommunication() + "\n"
     config_txt += "Aggregation: " + default_config.GetAggregation() + "\n"
+    config_txt += "Channel: " + default_config.GetChannel() + "\n"
     config_txt += "TargetConcurrency: " + string(default_config.GetTargetConcurrency()) + "\n"
     config_txt += "Debug: " + string(default_config.GetDebug()) + "\n"
     dataLock.Unlock()
@@ -576,7 +581,7 @@ func Serve_FunctionInvoke(request *pb.MacroPodRequest) (string, int32) {
         dataLock.Lock()
         stub, exists := service_downstream_stub[request.GetWorkflow()][request.GetTarget()]
         if !exists {
-            channel, _ := grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(retrypolicy))
+            channel, _ := grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials())) // , grpc.WithDefaultServiceConfig(retrypolicy))
         stub = pb.NewMacroPodFunctionClient(channel)
             service_downstream_channel[request.GetWorkflow()][request.GetTarget()] = channel
             service_downstream_stub[request.GetWorkflow()][request.GetTarget()] = stub
@@ -972,6 +977,10 @@ func main() {
     if aggregation == "" {
         aggregation = "agg"
     }
+    channel := os.Getenv("CHANNEL")
+    if channel == "" {
+        channel = "cache"
+    }
     target_concurrency, err := strconv.Atoi(os.Getenv("TARGET_CONCURRENCY"))
     if err != nil {
         target_concurrency = -1
@@ -983,7 +992,7 @@ func main() {
     ttl_i := int32(ttl)
     target_concurrency_i := int32(target_concurrency)
     debug_i := int32(debug)
-    c := pb.ConfigStruct{Namespace: &namespace, TTL: &ttl_i, Deployment: &deployment, Communication: &communication, Aggregation: &aggregation, TargetConcurrency: &target_concurrency_i, Debug: &debug_i}
+    c := pb.ConfigStruct{Namespace: &namespace, TTL: &ttl_i, Deployment: &deployment, Communication: &communication, Aggregation: &aggregation, Channel: &channel, TargetConcurrency: &target_concurrency_i, Debug: &debug_i}
     default_config = &c
     l, _ := net.Listen("tcp", ":"+service_port)
     s := grpc.NewServer(grpc.MaxSendMsgSize(1024*1024*200), grpc.MaxRecvMsgSize(1024*1024*200))

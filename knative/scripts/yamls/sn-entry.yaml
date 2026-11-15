@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sn-entry
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/arearnest7/sn-entry:kn
+          env:
+          - name: SN_COMPOSE_POST
+            value: http://sn-compose-post.knative-functions.127.0.0.1.sslip.io

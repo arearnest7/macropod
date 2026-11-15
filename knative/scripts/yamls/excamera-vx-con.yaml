@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: excamera-vx-con
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/arearnest7/excamera-vx-con:kn
+          env:
+          - name: EXCAMERA_XCDEC
+            value: http://excamera-xcdec.knative-functions.127.0.0.1.sslip.io
+          - name: EXCAMERA_GROUP
+            value: http://excamera-group.knative-functions.127.0.0.1.sslip.io

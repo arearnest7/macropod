@@ -9,6 +9,7 @@ var packageDefinition = protoLoader.loadSync(
     oneofs: true
   });
 var macropod_pb = grpc.loadPackageDefinition(packageDefinition).macropod;
+let cached_stubs = {} // used for cached channel variants and logging
 
 // purpose: send a message to logger (if enabled) to dictate a timestamp of function operation across multiple replicas.
 // input:
@@ -25,9 +26,17 @@ function Timestamp(context, target, message) {
     Target: target,
     Text: message
   };
-  if (process.env.Logger && process.env.LOGGER != "") {
-    var stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
+  if (process.env.LOGGER && process.env.LOGGER != "") {
+    var stub = null;
+    if (!(process.env.LOGGER in cached_stubs)) {
+      stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
+      cached_stubs[process.env.LOGGER] = stub;
+    } else {
+      stub = cached_stubs[process.env.LOGGER];
+    }
     stub.Timestamp(request, async function(err, response) {});
+  } else {
+    console.log(message);
   }
 }
 
@@ -41,9 +50,17 @@ function Error(context, err) {
     Function: context.Function,
     Text: err
   };
-  if (process.env.Logger && process.env.LOGGER != "") {
-    var stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
+  if (process.env.LOGGER && process.env.LOGGER != "") {
+    var stub = null;
+    if (!(process.env.LOGGER in cached_stubs)) {
+      stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
+      cached_stubs[process.env.LOGGER] = stub;
+    } else {
+      stub = cached_stubs[process.env.LOGGER];
+    }
     stub.Error(request, async function(err, response) {});
+  } else {
+    console.log(err);
   }
 }
 
@@ -57,16 +74,34 @@ function Print(context, message) {
     Function: context.Function,
     Text: message
   };
-  if (process.env.Logger && process.env.LOGGER != "") {
-    var stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
+  if (process.env.LOGGER && process.env.LOGGER != "") {
+    var stub = null;
+    if (!(process.env.LOGGER in cached_stubs)) {
+      stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
+      cached_stubs[process.env.LOGGER] = stub;
+    } else {
+      stub = cached_stubs[process.env.LOGGER];
+    }
     stub.Print(request, async function(err, response) {});
+  } else {
+    console.log(message);
   }
 }
 
 function invoke(dest, request) { // general purpose RPC handler used by the other async functions to provide the specific RPC behavior desired
   if (process.env.COMM_TYPE == "direct") {  // invocation sent directly to target bypassing gateway (direct RPC or IPC)
     return new Promise((resolve, reject) => {
-      var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
+      var stub = null;
+      if (process.env.CHANNEL_TYPE == "cache") {
+        if (!(process.env[dest] in cached_stubs)) {
+          stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
+          cached_stubs[process.env[dest]] = stub;
+        } else {
+          stub = cached_stubs[process.env[dest]];
+        }
+      } else {
+        stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
+      }
       stub.Invoke(request, async function(err, response) {
         await Error(request, err);
         resolve(response);
@@ -74,7 +109,17 @@ function invoke(dest, request) { // general purpose RPC handler used by the othe
     });
   } else if (process.env.COMM_TYPE == "gateway") { // invocation sent to relay off of gateway (standard serverless behavior)
     return new Promise((resolve, reject) => {
-      var stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
+      var stub = null;
+      if (process.env.CHANNEL_TYPE == "cache") {
+        if (!(process.env.INGRESS in cached_stubs)) {
+          stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
+          cached_stubs[process.env.INGRESS] = stub;
+        } else {
+          stub = cached_stubs[process.env.INGRESS];
+        }
+      } else {
+        stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
+      }
       stub.FunctionInvoke(request, async function(err, response) {
         await Error(request, err);
         resolve(response);
@@ -82,7 +127,17 @@ function invoke(dest, request) { // general purpose RPC handler used by the othe
     });
   }
   return new Promise((resolve, reject) => {
-    var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
+    var stub = null;
+    if (process.env.CHANNEL_TYPE == "cache") {
+      if (!(process.env[dest] in cached_stubs)) {
+        stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
+        cached_stubs[process.env[dest]] = stub;
+      } else {
+        stub = cached_stubs[process.env[dest]];
+      }
+    } else {
+      stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
+    }
     stub.Invoke(request, async function(err, response) {
       await Error(request, err);
       resolve(response);
@@ -93,9 +148,9 @@ function invoke(dest, request) { // general purpose RPC handler used by the othe
 // purpose: invoke a downstream function with a text/string payload and return its string output
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPC; this is the name of function 
+//  dest: invocation target for the RPC; this is the name of function
 //  payload: string payload to be sent to destination function
-// output: 
+// output:
 //  string: RPC return output
 //  int: RPC error code
 async function Invoke(context, dest, payload) {
@@ -117,9 +172,9 @@ async function Invoke(context, dest, payload) {
 // purpose: invoke a downstream function with a JSON list (dictionary) payload and return its string output
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPC; this is the name of function 
+//  dest: invocation target for the RPC; this is the name of function
 //  payload: dictionary payload to be sent to destination function
-// output: 
+// output:
 //  string: RPC return output
 //  int: RPC error code
 async function Invoke_JSON(context, dest, payload) {
@@ -154,9 +209,9 @@ async function Invoke_JSON(context, dest, payload) {
 // purpose: invoke a downstream function with a bytes payload and return its string output
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPC; this is the name of function 
+//  dest: invocation target for the RPC; this is the name of function
 //  payload: bytes payload to be sent to destination function
-// output: 
+// output:
 //  string: RPC return output
 //  int: RPC error code
 async function Invoke_Data(context, dest, payload) {
@@ -178,9 +233,9 @@ async function Invoke_Data(context, dest, payload) {
 // purpose: invoke a downstream function multiple times concurrently with a list of text/string payloads and return all string outputs
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPCs; this is the name of function 
+//  dest: invocation target for the RPCs; this is the name of function
 //  payloads: list of string payloads to be sent to destination function
-// output: 
+// output:
 //  string array: array of RPC return outputs
 //  int array: array of RPC error code
 async function Invoke_Multi(context, dest, payloads) {
@@ -214,9 +269,9 @@ async function Invoke_Multi(context, dest, payloads) {
 // purpose: invoke a downstream function multiple times concurrently with a list of JSON list (dictionary) payloads and return all string outputs
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPCs; this is the name of function 
+//  dest: invocation target for the RPCs; this is the name of function
 //  payloads: list of dictionary payloads to be sent to destination function
-// output: 
+// output:
 //  string array: array of RPC return outputs
 //  int array: array of RPC error code
 async function Invoke_Multi_JSON(context, dest, payloads) {
@@ -263,9 +318,9 @@ async function Invoke_Multi_JSON(context, dest, payloads) {
 // purpose: invoke a downstream function multiple times concurrently with a list of bytes payloads and return all string outputs
 // input:
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
-//  dest: invocation target for the RPCs; this is the name of function 
+//  dest: invocation target for the RPCs; this is the name of function
 //  payloads: list of bytes payloads to be sent to destination function
-// output: 
+// output:
 //  string array: array of RPC return outputs
 //  int array: array of RPC error code
 async function Invoke_Multi_Data(context, dest, payloads) {

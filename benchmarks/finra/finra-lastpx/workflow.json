@@ -1,0 +1,6 @@
+{
+  "dag": [
+    ["marketdata", "lastpx", "side", "trddate", "volume"],
+    ["margin-balance"]
+  ]
+}

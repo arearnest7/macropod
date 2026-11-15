@@ -1,0 +1,226 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 500,
+    "Workflows": {
+        "macropod-sentiment-agg-cache": {
+            "Name": "sentiment",
+            "Functions": {
+                "sentiment-cfail": {
+                    "Registry": "arearnest7/sentiment-cfail:latest"
+                },
+                "sentiment-db": {
+                    "Registry": "arearnest7/sentiment-db:latest"
+                },
+                "sentiment-main": {
+                    "Registry": "arearnest7/sentiment-main:latest",
+                    "Endpoints": ["sentiment-read-csv"]
+                },
+                "sentiment-product-or-service": {
+                    "Registry": "arearnest7/sentiment-product-or-service:latest",
+                    "Endpoints": ["sentiment-cfail", "sentiment-product-sentiment", "sentiment-service-sentiment"]
+                },
+                "sentiment-product-result": {
+                    "Registry": "arearnest7/sentiment-product-result:latest",
+                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                },
+                "sentiment-product-sentiment": {
+                    "Registry": "arearnest7/sentiment-product-sentiment:latest",
+                    "Endpoints": ["sentiment-product-result"]
+                },
+                "sentiment-read-csv": {
+                    "Registry": "arearnest7/sentiment-read-csv:latest",
+                    "Endpoints": ["sentiment-product-or-service"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "sentiment-service-result": {
+                    "Registry": "arearnest7/sentiment-service-result:latest",
+                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                },
+                "sentiment-service-sentiment": {
+                    "Registry": "arearnest7/sentiment-service-sentiment:latest",
+                    "Endpoints": ["sentiment-service-result"]
+                },
+                "sentiment-sfail": {
+                    "Registry": "arearnest7/sentiment-sfail:latest"
+                },
+                "sentiment-sns": {
+                    "Registry": "arearnest7/sentiment-sns:latest",
+                    "Endpoints": ["sentiment-db"]
+                }
+            },
+            "Config": {
+                "Channel": "cache",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+            }
+        },
+        "macropod-sentiment-agg-no-cache": {
+            "Name": "sentiment",
+            "Functions": {
+                "sentiment-cfail": {
+                    "Registry": "arearnest7/sentiment-cfail:latest"
+                },
+                "sentiment-db": {
+                    "Registry": "arearnest7/sentiment-db:latest"
+                },
+                "sentiment-main": {
+                    "Registry": "arearnest7/sentiment-main:latest",
+                    "Endpoints": ["sentiment-read-csv"]
+                },
+                "sentiment-product-or-service": {
+                    "Registry": "arearnest7/sentiment-product-or-service:latest",
+                    "Endpoints": ["sentiment-cfail", "sentiment-product-sentiment", "sentiment-service-sentiment"]
+                },
+                "sentiment-product-result": {
+                    "Registry": "arearnest7/sentiment-product-result:latest",
+                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                },
+                "sentiment-product-sentiment": {
+                    "Registry": "arearnest7/sentiment-product-sentiment:latest",
+                    "Endpoints": ["sentiment-product-result"]
+                },
+                "sentiment-read-csv": {
+                    "Registry": "arearnest7/sentiment-read-csv:latest",
+                    "Endpoints": ["sentiment-product-or-service"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "sentiment-service-result": {
+                    "Registry": "arearnest7/sentiment-service-result:latest",
+                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                },
+                "sentiment-service-sentiment": {
+                    "Registry": "arearnest7/sentiment-service-sentiment:latest",
+                    "Endpoints": ["sentiment-service-result"]
+                },
+                "sentiment-sfail": {
+                    "Registry": "arearnest7/sentiment-sfail:latest"
+                },
+                "sentiment-sns": {
+                    "Registry": "arearnest7/sentiment-sns:latest",
+                    "Endpoints": ["sentiment-db"]
+                }
+            },
+            "Config": {
+                "Channel": "no-cache",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+            }
+        },
+        "macropod-sentiment-disagg-cache": {
+            "Name": "sentiment",
+            "Functions": {
+                "sentiment-cfail": {
+                    "Registry": "arearnest7/sentiment-cfail:latest"
+                },
+                "sentiment-db": {
+                    "Registry": "arearnest7/sentiment-db:latest"
+                },
+                "sentiment-main": {
+                    "Registry": "arearnest7/sentiment-main:latest",
+                    "Endpoints": ["sentiment-read-csv"]
+                },
+                "sentiment-product-or-service": {
+                    "Registry": "arearnest7/sentiment-product-or-service:latest",
+                    "Endpoints": ["sentiment-cfail", "sentiment-product-sentiment", "sentiment-service-sentiment"]
+                },
+                "sentiment-product-result": {
+                    "Registry": "arearnest7/sentiment-product-result:latest",
+                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                },
+                "sentiment-product-sentiment": {
+                    "Registry": "arearnest7/sentiment-product-sentiment:latest",
+                    "Endpoints": ["sentiment-product-result"]
+                },
+                "sentiment-read-csv": {
+                    "Registry": "arearnest7/sentiment-read-csv:latest",
+                    "Endpoints": ["sentiment-product-or-service"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "sentiment-service-result": {
+                    "Registry": "arearnest7/sentiment-service-result:latest",
+                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                },
+                "sentiment-service-sentiment": {
+                    "Registry": "arearnest7/sentiment-service-sentiment:latest",
+                    "Endpoints": ["sentiment-service-result"]
+                },
+                "sentiment-sfail": {
+                    "Registry": "arearnest7/sentiment-sfail:latest"
+                },
+                "sentiment-sns": {
+                    "Registry": "arearnest7/sentiment-sns:latest",
+                    "Endpoints": ["sentiment-db"]
+                }
+            },
+            "Config": {
+                "Channel": "cache",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+            }
+        },
+        "macropod-sentiment-disagg-no-cache": {
+            "Name": "sentiment",
+            "Functions": {
+                "sentiment-cfail": {
+                    "Registry": "arearnest7/sentiment-cfail:latest"
+                },
+                "sentiment-db": {
+                    "Registry": "arearnest7/sentiment-db:latest"
+                },
+                "sentiment-main": {
+                    "Registry": "arearnest7/sentiment-main:latest",
+                    "Endpoints": ["sentiment-read-csv"]
+                },
+                "sentiment-product-or-service": {
+                    "Registry": "arearnest7/sentiment-product-or-service:latest",
+                    "Endpoints": ["sentiment-cfail", "sentiment-product-sentiment", "sentiment-service-sentiment"]
+                },
+                "sentiment-product-result": {
+                    "Registry": "arearnest7/sentiment-product-result:latest",
+                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                },
+                "sentiment-product-sentiment": {
+                    "Registry": "arearnest7/sentiment-product-sentiment:latest",
+                    "Endpoints": ["sentiment-product-result"]
+                },
+                "sentiment-read-csv": {
+                    "Registry": "arearnest7/sentiment-read-csv:latest",
+                    "Endpoints": ["sentiment-product-or-service"],
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "sentiment-service-result": {
+                    "Registry": "arearnest7/sentiment-service-result:latest",
+                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                },
+                "sentiment-service-sentiment": {
+                    "Registry": "arearnest7/sentiment-service-sentiment:latest",
+                    "Endpoints": ["sentiment-service-result"]
+                },
+                "sentiment-sfail": {
+                    "Registry": "arearnest7/sentiment-sfail:latest"
+                },
+                "sentiment-sns": {
+                    "Registry": "arearnest7/sentiment-sns:latest",
+                    "Endpoints": ["sentiment-db"]
+                }
+            },
+            "Config": {
+                "Channel": "no-cache",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"Records": [{"s3": {"bucket": {"name": "workflow-full-bucket"}, "object":{"key": "review.csv"}}}]}
+            }
+        }
+    }
+}

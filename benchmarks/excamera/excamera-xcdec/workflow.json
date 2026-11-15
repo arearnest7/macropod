@@ -1,0 +1,10 @@
+{
+  "dag": [
+    ["vpxenc-1", "vpxenc-2", "vpxenc-3"],
+    ["vx-con"],
+    ["xcdec-1", "xcdec-2", "xcdec-3"],
+    ["group"],
+    ["reencode-1", "reencode-2"],
+    ["rebase"]
+  ]
+}

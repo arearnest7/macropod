@@ -1,0 +1,77 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:31112
+functions:
+  marketdata:
+    lang: python3-ipc-func-debian
+    handler: ./marketdata
+    image: tjulym/marketdata:ipc
+    environment:
+      name: marketdata
+      cc: finra-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/finra"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  lastpx:
+    lang: python3-ipc-func
+    handler: ./lastpx
+    image: tjulym/lastpx:ipc
+    environment:
+      name: lastpx
+      cc: finra-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/finra"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  side:
+    lang: python3-ipc-func
+    handler: ./side
+    image: tjulym/side:ipc
+    environment:
+      name: side
+      cc: finra-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/finra"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  trddate:
+    lang: python3-ipc-func
+    handler: ./trddate
+    image: tjulym/trddate:ipc
+    environment:
+      name: trddate
+      cc: finra-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/finra"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  volume:
+    lang: python3-ipc-func
+    handler: ./volume
+    image: tjulym/volume:ipc
+    environment:
+      name: volume
+      cc: finra-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/finra"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  margin-balance:
+    lang: python3-ipc-func
+    handler: ./margin-balance
+    image: tjulym/margin-balance:ipc
+    environment:
+      name: margin-balance
+      cc: finra-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/finra"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"

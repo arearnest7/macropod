@@ -369,6 +369,7 @@ func Serve_Config(request *pb.ConfigStruct) string {
     config_txt += "Deployment: " + default_config.GetDeployment() + "\n"
     config_txt += "Communication: " + default_config.GetCommunication() + "\n"
     config_txt += "Aggregation: " + default_config.GetAggregation() + "\n"
+    config_txt += "Channel: " + default_config.GetChannel() + "\n"
     config_txt += "TargetConcurrency: " + string(default_config.GetTargetConcurrency()) + "\n"
     config_txt += "Debug: " + string(default_config.GetDebug()) + "\n"
     dataLock.Unlock()
@@ -655,6 +656,10 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
         if workflows[request.GetWorkflow()].GetConfig() != nil && workflows[request.GetWorkflow()].GetConfig().GetCommunication() != "" {
             communication = workflows[request.GetWorkflow()].GetConfig().GetCommunication()
         }
+        channel_type := default_config.GetChannel()
+        if workflows[request.GetWorkflow()].GetConfig() != nil && workflows[request.GetWorkflow()].GetConfig().GetChannel() != "" {
+            channel_type = workflows[request.GetWorkflow()].GetConfig().GetChannel()
+        }
         switch deployment {
         case "macropod":
             if _, exists := workflows[request.GetWorkflow()]; !exists {
@@ -795,6 +800,7 @@ func Serve_CreateDeployment(request *pb.MacroPodRequest, bypass bool) string {
                         env = append(env, corev1.EnvVar{Name: "LOGGER", Value: logger_address})
                     }
                     env = append(env, corev1.EnvVar{Name: "COMM_TYPE", Value: communication})
+                    env = append(env, corev1.EnvVar{Name: "CHANNEL_TYPE", Value: channel_type})
                     for _, endpoint := range function.Endpoints {
                         in_pod := false
                         for _, c := range pod {
@@ -1280,6 +1286,10 @@ func main() {
     aggregation := os.Getenv("AGGREGATION")
     if aggregation == "" {
         aggregation = "agg"
+    }
+    channel := os.Getenv("CHANNEL")
+    if channel == "" {
+        channel = "cache"
     }
     target_concurrency, err := strconv.Atoi(os.Getenv("TARGET_CONCURRENCY"))
     if err != nil {

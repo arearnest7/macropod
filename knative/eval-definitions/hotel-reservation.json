@@ -1,0 +1,13 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 500,
+    "ExtraTargets": {
+        "knative-hotel": "http://hotel-frontend.knative-functions.192.168.0.1.sslip.io"
+    },
+    "ExtraTargetsPayload": {
+        "knative-hotel": {
+            "Type": "JSON",
+            "JSON": {"Request": "search", "Lat": 37.7781, "Lon": -122.4118, "InDate": "2015-04-09", "OutDate": "2015-04-10"}
+        }
+    }
+}

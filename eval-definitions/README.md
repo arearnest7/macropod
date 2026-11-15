@@ -11,15 +11,10 @@ Example:
 		"WorkflowConcurrency": [8, 16, 20, 40, 80, 100], // list of workflow concurrencies (i.e. parallel workflow invocations) to be testing every benchmark with
 		"Invocations": 1000, // total number of invocations to be executed per benchmark, workflow concurrency and phase (warm start and cold start) pairing
 		"ExtraTargets": { // list of extra target URLs to be evaluated using the same scheme as the MacroPod variants (i.e. Knative and other frameworks)
-			"kn-election-original": "http://election-gateway.knative-functions.192.168.56.20.sslip.io",
-			"kn-election-unified": "http://election-unified.knative-functions.192.168.56.20.sslip.io"
+			"kn-election": "http://election-gateway.knative-functions.192.168.56.20.sslip.io",
 		},
 		"ExtraTargetsPayload": { // extra target payloads; list of PayloadStructs used exactly like what is used in workflow definition payloads
-			"kn-election-original": {
-				"Type": "JSON",
-				"JSON": {"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}
-			},
-			"kn-election-unified": {
+			"kn-election": {
 				"Type": "JSON",
 				"JSON": {"requestType": "vote", "id": "1234", "state": "TX", "candidate": "John_Smith"}
 			}
@@ -27,7 +22,7 @@ Example:
 		"Workflows": { // workflow definitions that are to be evaluated; note all names must be unique from each other and to the Ingress Controller
 			"macropod-election-agg": {
 				"Name": "election",
-				"Functions": {
+				"Tasks": {
 					"ELECTION_GATEWAY": {
 						"Registry": "arearnest7/election-gateway:latest",
 						"Endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"]

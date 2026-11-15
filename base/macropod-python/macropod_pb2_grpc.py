@@ -5,7 +5,7 @@ import warnings
 
 import macropod_pb2 as macropod__pb2
 
-GRPC_GENERATED_VERSION = '1.71.0'
+GRPC_GENERATED_VERSION = '1.85.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in macropod_pb2_grpc.py depends on'
+        + ' but the generated code in macropod_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class MacroPodFunctionStub(object):
+class MacroPodFunctionStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -41,7 +41,7 @@ class MacroPodFunctionStub(object):
                 _registered_method=True)
 
 
-class MacroPodFunctionServicer(object):
+class MacroPodFunctionServicer:
     """Missing associated documentation comment in .proto file."""
 
     def Invoke(self, request, context):
@@ -66,7 +66,7 @@ def add_MacroPodFunctionServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class MacroPodFunction(object):
+class MacroPodFunction:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -97,7 +97,7 @@ class MacroPodFunction(object):
             _registered_method=True)
 
 
-class MacroPodEvalStub(object):
+class MacroPodEvalStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -128,7 +128,7 @@ class MacroPodEvalStub(object):
                 _registered_method=True)
 
 
-class MacroPodEvalServicer(object):
+class MacroPodEvalServicer:
     """Missing associated documentation comment in .proto file."""
 
     def Eval(self, request, context):
@@ -186,7 +186,7 @@ def add_MacroPodEvalServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class MacroPodEval(object):
+class MacroPodEval:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -298,7 +298,7 @@ class MacroPodEval(object):
             _registered_method=True)
 
 
-class MacroPodIngressStub(object):
+class MacroPodIngressStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -327,11 +327,6 @@ class MacroPodIngressStub(object):
                 request_serializer=macropod__pb2.WorkflowStruct.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
-        self.UpdateWorkflow = channel.unary_unary(
-                '/macropod.MacroPodIngress/UpdateWorkflow',
-                request_serializer=macropod__pb2.WorkflowStruct.SerializeToString,
-                response_deserializer=macropod__pb2.MacroPodReply.FromString,
-                _registered_method=True)
         self.DeleteWorkflow = channel.unary_unary(
                 '/macropod.MacroPodIngress/DeleteWorkflow',
                 request_serializer=macropod__pb2.MacroPodRequest.SerializeToString,
@@ -339,7 +334,7 @@ class MacroPodIngressStub(object):
                 _registered_method=True)
 
 
-class MacroPodIngressServicer(object):
+class MacroPodIngressServicer:
     """Missing associated documentation comment in .proto file."""
 
     def Config(self, request, context):
@@ -361,12 +356,6 @@ class MacroPodIngressServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def CreateWorkflow(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def UpdateWorkflow(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -401,11 +390,6 @@ def add_MacroPodIngressServicer_to_server(servicer, server):
                     request_deserializer=macropod__pb2.WorkflowStruct.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
-            'UpdateWorkflow': grpc.unary_unary_rpc_method_handler(
-                    servicer.UpdateWorkflow,
-                    request_deserializer=macropod__pb2.WorkflowStruct.FromString,
-                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
-            ),
             'DeleteWorkflow': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteWorkflow,
                     request_deserializer=macropod__pb2.MacroPodRequest.FromString,
@@ -419,7 +403,7 @@ def add_MacroPodIngressServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class MacroPodIngress(object):
+class MacroPodIngress:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -531,33 +515,6 @@ class MacroPodIngress(object):
             _registered_method=True)
 
     @staticmethod
-    def UpdateWorkflow(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/macropod.MacroPodIngress/UpdateWorkflow',
-            macropod__pb2.WorkflowStruct.SerializeToString,
-            macropod__pb2.MacroPodReply.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
     def DeleteWorkflow(request,
             target,
             options=(),
@@ -585,7 +542,7 @@ class MacroPodIngress(object):
             _registered_method=True)
 
 
-class MacroPodDeployerStub(object):
+class MacroPodDeployerStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -601,11 +558,6 @@ class MacroPodDeployerStub(object):
                 _registered_method=True)
         self.CreateWorkflow = channel.unary_unary(
                 '/macropod.MacroPodDeployer/CreateWorkflow',
-                request_serializer=macropod__pb2.WorkflowStruct.SerializeToString,
-                response_deserializer=macropod__pb2.MacroPodReply.FromString,
-                _registered_method=True)
-        self.UpdateWorkflow = channel.unary_unary(
-                '/macropod.MacroPodDeployer/UpdateWorkflow',
                 request_serializer=macropod__pb2.WorkflowStruct.SerializeToString,
                 response_deserializer=macropod__pb2.MacroPodReply.FromString,
                 _registered_method=True)
@@ -631,7 +583,7 @@ class MacroPodDeployerStub(object):
                 _registered_method=True)
 
 
-class MacroPodDeployerServicer(object):
+class MacroPodDeployerServicer:
     """Missing associated documentation comment in .proto file."""
 
     def Config(self, request, context):
@@ -641,12 +593,6 @@ class MacroPodDeployerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def CreateWorkflow(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def UpdateWorkflow(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -689,11 +635,6 @@ def add_MacroPodDeployerServicer_to_server(servicer, server):
                     request_deserializer=macropod__pb2.WorkflowStruct.FromString,
                     response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
             ),
-            'UpdateWorkflow': grpc.unary_unary_rpc_method_handler(
-                    servicer.UpdateWorkflow,
-                    request_deserializer=macropod__pb2.WorkflowStruct.FromString,
-                    response_serializer=macropod__pb2.MacroPodReply.SerializeToString,
-            ),
             'DeleteWorkflow': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteWorkflow,
                     request_deserializer=macropod__pb2.MacroPodRequest.FromString,
@@ -722,7 +663,7 @@ def add_MacroPodDeployerServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class MacroPodDeployer(object):
+class MacroPodDeployer:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -767,33 +708,6 @@ class MacroPodDeployer(object):
             request,
             target,
             '/macropod.MacroPodDeployer/CreateWorkflow',
-            macropod__pb2.WorkflowStruct.SerializeToString,
-            macropod__pb2.MacroPodReply.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def UpdateWorkflow(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/macropod.MacroPodDeployer/UpdateWorkflow',
             macropod__pb2.WorkflowStruct.SerializeToString,
             macropod__pb2.MacroPodReply.FromString,
             options,
@@ -915,7 +829,7 @@ class MacroPodDeployer(object):
             _registered_method=True)
 
 
-class MacroPodLoggerStub(object):
+class MacroPodLoggerStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -956,7 +870,7 @@ class MacroPodLoggerStub(object):
                 _registered_method=True)
 
 
-class MacroPodLoggerServicer(object):
+class MacroPodLoggerServicer:
     """Missing associated documentation comment in .proto file."""
 
     def Timestamp(self, request, context):
@@ -1036,7 +950,7 @@ def add_MacroPodLoggerServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class MacroPodLogger(object):
+class MacroPodLogger:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -1202,7 +1116,7 @@ class MacroPodLogger(object):
             _registered_method=True)
 
 
-class MacroPodMetricsStub(object):
+class MacroPodMetricsStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -1218,7 +1132,7 @@ class MacroPodMetricsStub(object):
                 _registered_method=True)
 
 
-class MacroPodMetricsServicer(object):
+class MacroPodMetricsServicer:
     """Missing associated documentation comment in .proto file."""
 
     def GetMetrics(self, request, context):
@@ -1243,7 +1157,7 @@ def add_MacroPodMetricsServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class MacroPodMetrics(object):
+class MacroPodMetrics:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod

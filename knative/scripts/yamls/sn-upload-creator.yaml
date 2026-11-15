@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sn-upload-creator
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/arearnest7/sn-upload-creator:kn
+          env:
+          - name: USER_URL
+            value: mongodb://user-mongodb.socialnetwork-db.svc.cluster.local:27017/
+          - name: MEMCACHE_URL
+            value: user-memcached.socialnetwork-db.svc.cluster.local:11211

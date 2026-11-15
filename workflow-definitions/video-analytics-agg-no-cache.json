@@ -1,0 +1,22 @@
+{
+    "Name": "video",
+    "Functions": {
+        "VIDEO_DECODER": {
+            "Registry": "arearnest7/video-decoder:latest",
+            "Endpoints": ["VIDEO_RECOG"]
+        },
+        "VIDEO_RECOG": {
+            "Registry": "arearnest7/video-recog:latest"
+        },
+        "VIDEO_STREAMING": {
+            "Registry": "arearnest7/video-streaming:latest",
+            "Endpoints": ["VIDEO_DECODER"]
+        }
+    },
+    "Config": {
+        "Deployment": "macropod",
+        "Communication": "direct",
+        "Aggregation": "agg",
+        "Channel": "no-cache"
+    }
+}

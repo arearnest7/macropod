@@ -1,0 +1,15 @@
+# zookeeper-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zookeeper-config
+data:
+  zoo.cfg: |
+    tickTime=2000
+    initLimit=5
+    syncLimit=2
+    dataDir=/data
+    clientPort=2181
+    server.1=zookeeper-0.zookeeper-headless.default.svc.cluster.local:2888:3888
+    server.2=zookeeper-1.zookeeper-headless.default.svc.cluster.local:2888:3888
+    server.3=zookeeper-2.zookeeper-headless.default.svc.cluster.local:2888:3888

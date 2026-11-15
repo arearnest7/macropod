@@ -1,0 +1,14 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:31112
+functions:
+  excamera-cc:
+    lang: python3-ipc-cc
+    handler: ./excamera-cc
+    image: tjulym/excamera-cc:ipc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"

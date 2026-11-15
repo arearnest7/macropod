@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: excamera-group
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/arearnest7/excamera-group:kn
+          env:
+          - name: EXCAMERA_REENCODE
+            value: http://excamera-reencode.knative-functions.127.0.0.1.sslip.io
+          - name: EXCAMERA_REBASE
+            value: http://excamera-rebase.knative-functions.127.0.0.1.sslip.io

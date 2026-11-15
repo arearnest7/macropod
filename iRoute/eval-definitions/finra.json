@@ -1,0 +1,13 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 500,
+    "ExtraTargets": {
+        "iroute-finra": "http://127.0.0.1:31112/function/finra-entry"
+    },
+    "ExtraTargetsPayload": {
+        "iroute-finra": {
+            "Type": "Text",
+            "Text": "{\"n\": 1, \"st\": 0}"
+        }
+    }
+}

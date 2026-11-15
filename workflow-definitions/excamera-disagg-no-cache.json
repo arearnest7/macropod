@@ -1,0 +1,41 @@
+{
+    "Name": "excamera",
+    "Functions": {
+        "excamera-entry": {
+            "Registry": "arearnest7/excamera-entry:latest",
+            "Endpoints": ["excamera-vpxenc", "excamera-vx-con"]
+        },
+        "excamera-group": {
+            "Registry": "arearnest7/excamera-group:latest",
+            "Endpoints": ["excamera-reencode", "excamera-rebase"]
+        },
+        "excamera-rebase": {
+            "Registry": "arearnest7/excamera-rebase:latest",
+            "Endpoints": []
+        },
+        "excamera-reencode": {
+            "Registry": "arearnest7/excamera-reencode:latest",
+            "Endpoints": []
+        },
+        "excamera-vpxenc": {
+            "Registry": "arearnest7/excamera-vpxenc:latest",
+            "Endpoints": []
+        },
+        "excamera-vx-con": {
+            "Registry": "arearnest7/excamera-vx-con:latest",
+            "Endpoints": ["excamera-xcdec", "excamera-group"]
+        },
+        "excamera-xcdec": {
+            "Registry": "arearnest7/excamera-xcdec:latest",
+            "Endpoints": []
+        }
+    },
+    "Config": {
+        "Channel": "no-cache",
+        "Aggregation": "disagg"
+    },
+    "Payload": {
+        "Type": "Text",
+        "Text": "{\"n\": 1, \"st\": 0}"
+    }
+}

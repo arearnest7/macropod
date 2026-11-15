@@ -1,0 +1,122 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 500,
+    "Workflows": {
+        "macropod-pipelined-agg-cache": {
+            "Name": "pipelined",
+            "Functions": {
+                "pipelined-checksum": {
+                    "Registry": "arearnest7/pipelined-checksum:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "pipelined-encrypt": {
+                    "Registry": "arearnest7/pipelined-encrypt:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "pipelined-main": {
+                    "Registry": "arearnest7/pipelined-main:latest",
+                    "Endpoints": ["pipelined-main", "pipelined-checksum", "pipelined-zip", "pipelined-encrypt"]
+                },
+                "pipelined-zip": {
+                    "Registry": "arearnest7/pipelined-zip:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Channel": "cache",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"manifest": [["min_0.mp4","63adca59344f5da6e02fcae8457b1a97"],["min_0909.mp4","63adca59344f5da6e02fcae8457b1a97"],["min_1.mp4","bb6231ebde3c8fc3f7414735eb9cd2bb"],["min_2.mp4","23c19ab247ed067412ada96e14beb6e0"],["min_3.mp4","a90b7b732fd4ce5ca340801f8b7e97da"],["min_4.mp4","8f94c886df717824d232e23048dcfef0"],["min_5.mp4","09e6d053e532f1f13506695cef801a1c"]], "to_zip": [], "to_encrypt": []}
+            }
+        },
+        "macropod-pipelined-agg-no-cache": {
+            "Name": "pipelined",
+            "Functions": {
+                "pipelined-checksum": {
+                    "Registry": "arearnest7/pipelined-checksum:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "pipelined-encrypt": {
+                    "Registry": "arearnest7/pipelined-encrypt:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "pipelined-main": {
+                    "Registry": "arearnest7/pipelined-main:latest",
+                    "Endpoints": ["pipelined-main", "pipelined-checksum", "pipelined-zip", "pipelined-encrypt"]
+                },
+                "pipelined-zip": {
+                    "Registry": "arearnest7/pipelined-zip:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Channel": "no-cache",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"manifest": [["min_0.mp4","63adca59344f5da6e02fcae8457b1a97"],["min_0909.mp4","63adca59344f5da6e02fcae8457b1a97"],["min_1.mp4","bb6231ebde3c8fc3f7414735eb9cd2bb"],["min_2.mp4","23c19ab247ed067412ada96e14beb6e0"],["min_3.mp4","a90b7b732fd4ce5ca340801f8b7e97da"],["min_4.mp4","8f94c886df717824d232e23048dcfef0"],["min_5.mp4","09e6d053e532f1f13506695cef801a1c"]], "to_zip": [], "to_encrypt": []}
+            }
+        },
+        "macropod-pipelined-disagg-cache": {
+            "Name": "pipelined",
+            "Functions": {
+                "pipelined-checksum": {
+                    "Registry": "arearnest7/pipelined-checksum:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "pipelined-encrypt": {
+                    "Registry": "arearnest7/pipelined-encrypt:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "pipelined-main": {
+                    "Registry": "arearnest7/pipelined-main:latest",
+                    "Endpoints": ["pipelined-main", "pipelined-checksum", "pipelined-zip", "pipelined-encrypt"]
+                },
+                "pipelined-zip": {
+                    "Registry": "arearnest7/pipelined-zip:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Channel": "cache",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"manifest": [["min_0.mp4","63adca59344f5da6e02fcae8457b1a97"],["min_0909.mp4","63adca59344f5da6e02fcae8457b1a97"],["min_1.mp4","bb6231ebde3c8fc3f7414735eb9cd2bb"],["min_2.mp4","23c19ab247ed067412ada96e14beb6e0"],["min_3.mp4","a90b7b732fd4ce5ca340801f8b7e97da"],["min_4.mp4","8f94c886df717824d232e23048dcfef0"],["min_5.mp4","09e6d053e532f1f13506695cef801a1c"]], "to_zip": [], "to_encrypt": []}
+            }
+        },
+        "macropod-pipelined-disagg-no-cache": {
+            "Name": "pipelined",
+            "Functions": {
+                "pipelined-checksum": {
+                    "Registry": "arearnest7/pipelined-checksum:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "pipelined-encrypt": {
+                    "Registry": "arearnest7/pipelined-encrypt:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                },
+                "pipelined-main": {
+                    "Registry": "arearnest7/pipelined-main:latest",
+                    "Endpoints": ["pipelined-main", "pipelined-checksum", "pipelined-zip", "pipelined-encrypt"]
+                },
+                "pipelined-zip": {
+                    "Registry": "arearnest7/pipelined-zip:latest",
+                    "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
+                }
+            },
+            "Config": {
+                "Channel": "no-cache",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"manifest": [["min_0.mp4","63adca59344f5da6e02fcae8457b1a97"],["min_0909.mp4","63adca59344f5da6e02fcae8457b1a97"],["min_1.mp4","bb6231ebde3c8fc3f7414735eb9cd2bb"],["min_2.mp4","23c19ab247ed067412ada96e14beb6e0"],["min_3.mp4","a90b7b732fd4ce5ca340801f8b7e97da"],["min_4.mp4","8f94c886df717824d232e23048dcfef0"],["min_5.mp4","09e6d053e532f1f13506695cef801a1c"]], "to_zip": [], "to_encrypt": []}
+            }
+        }
+    }
+}

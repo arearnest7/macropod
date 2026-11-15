@@ -1,4 +1,4 @@
-FROM golang:1.24
+FROM golang:latest
 WORKDIR /app
 RUN apt-get update
 RUN apt-get install curl -y

@@ -1,0 +1,17 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sn-compose-and-build
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/arearnest7/sn-compose-and-build:kn
+          env:
+          - name: SN_UPLOAD_HOME_TIMELINE
+            value: http://sn-upload-home-timeline.knative-functions.127.0.0.1.sslip.io
+          - name: SN_UPLOAD_USER_TIMELINE
+            value: http://sn-upload-user-timeline.knative-functions.127.0.0.1.sslip.io
+          - name: SN_POST_STORAGE
+            value: http://sn-post-storage.knative-functions.127.0.0.1.sslip.io

@@ -1,0 +1,2 @@
+language: python3-ipc-func-debian
+fprocess: python index.py

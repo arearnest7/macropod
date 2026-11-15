@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sn-post-storage
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/arearnest7/sn-post-storage:kn
+          env:
+          - name: POST_URL
+            value: mongodb://post-storage-mongodb.socialnetwork-db.svc.cluster.local:27017/

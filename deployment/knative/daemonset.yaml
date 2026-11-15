@@ -1,8 +1,0 @@
-spec:
-  template:
-    spec:
-      tolerations:
-        - effect: NoSchedule
-          key: master-node
-          operator: Equal
-          value: master-node

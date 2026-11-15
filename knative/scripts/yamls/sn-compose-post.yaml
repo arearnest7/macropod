@@ -1,0 +1,23 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sn-compose-post
+  namespace: knative-functions
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker.io/arearnest7/sn-compose-post:kn
+          env:
+          - name: SN_UPLOAD_USER_MENTIONS
+            value: http://sn-upload-user-mentions.knative-functions.127.0.0.1.sslip.io
+          - name: SN_UPLOAD_CREATOR
+            value: http://sn-upload-creator.knative-functions.127.0.0.1.sslip.io
+          - name: SN_UPLOAD_MEDIA
+            value: http://sn-upload-media.knative-functions.127.0.0.1.sslip.io
+          - name: SN_UPLOAD_TEXT
+            value: http://sn-upload-text.knative-functions.127.0.0.1.sslip.io
+          - name: SN_UPLOAD_UNIQUE_ID
+            value: http://sn-upload-unique-id.knative-functions.127.0.0.1.sslip.io
+          - name: SN_COMPOSE_AND_BUILD
+            value: http://sn-compose-and-build.knative-functions.127.0.0.1.sslip.io

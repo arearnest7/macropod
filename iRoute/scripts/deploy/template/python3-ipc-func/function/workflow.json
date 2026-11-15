@@ -1,0 +1,7 @@
+{
+  "dag": [
+    ["func-a"],
+    ["func-b", "func-c"],
+    ["func-d"]
+  ]
+}

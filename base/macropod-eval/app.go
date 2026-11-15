@@ -38,7 +38,7 @@ var (
     summary_dir          string                                         // string name of directory for storing all summary statistics data from the evaluations
     ingress_address      string                                         // string IP:port for the ingress gRPC service
     ingress_address_http string                                         // string IP:port for the ingress HTTP service
-    worker_nodes         []string                                       // string array of all IPs for the worker nodes
+    nodes                []string                                       // string array of all IPs for the nodes
     debug                int                                            // debug level (higher means more verbose logs)
     ttl                  string                                         // time-to-live of the invocation requests
 
@@ -92,7 +92,7 @@ func Ingress_Check() {
 // purpose: checks if the metrics servers are alive, and if not iterates attempting to recreate the channels for each until its able to connect all
 func Metrics_Check() {
     var err error
-    for _, worker_node := range worker_nodes {
+    for _, worker_node := range nodes {
         _, exists := metrics_channel[worker_node]
         if !exists {
             metrics_channel[worker_node], err = grpc.Dial(worker_node + ":10000", grpc.WithInsecure())
@@ -137,7 +137,7 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
     for _, metric := range metrics {
         labels = append(labels, metric)
     }
-    for i, _ := range worker_nodes {
+    for i, _ := range nodes {
         for _, metric := range metrics {
             labels = append(labels, metric + "_" + strconv.Itoa(i+1))
         }
@@ -151,123 +151,18 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
         for _, metric := range metrics {
             line[metric] = float64(0)
         }
-        for i, worker_node := range worker_nodes {
+        for i, worker_node := range nodes {
             res, err := metrics_stub[worker_node].GetMetrics(context.Background(), &pb.MacroPodRequest{})
             if err != nil {
                 Debug(err.Error(), 0)
             }
             cpu_percent = append(cpu_percent, res.GetCPUUsed())
             cpu_cores = append(cpu_cores, res.GetCPUCountPhysical())
-            line["cpu_count_logical"] += res.GetCPUCountLogical()
-            line["cpu_count_physical"] += res.GetCPUCountPhysical()
-            line["uptime"] += res.GetUptime()
-            line["loadavg1"] += res.GetLoadAvg1()
-            line["loadavg5"] += res.GetLoadAvg5()
-            line["loadavg15"] += res.GetLoadAvg15()
             line["memory_used"] += res.GetMemoryUsed()
-            line["memory_available"] += res.GetMemoryAvailable()
-            line["memory_total"] += res.GetMemoryTotal()
-            line["memory_buffers"] += res.GetMemoryBuffers()
-            line["memory_cached"] += res.GetMemoryCached()
-            line["memory_writeback"] += res.GetMemoryWriteBack()
-            line["memory_dirty"] += res.GetMemoryDirty()
-            line["memory_writeback_tmp"] += res.GetMemoryWriteBackTmp()
-            line["memory_shared"] += res.GetMemoryShared()
-            line["memory_slab"] += res.GetMemorySlab()
-            line["memory_sreclaimable"] += res.GetMemorySreclaimable()
-            line["memory_sunreclaim"] += res.GetMemorySunreclaim()
-            line["memory_page_tables"] += res.GetMemoryPageTables()
-            line["memory_swap_cached"] += res.GetMemorySwapCached()
-            line["memory_commit_limit"] += res.GetMemoryCommitLimit()
-            line["memory_committed_as"] += res.GetMemoryCommittedAS()
-            line["memory_high_total"] += res.GetMemoryHighTotal()
-            line["memory_high_free"] += res.GetMemoryHighFree()
-            line["memory_low_total"] += res.GetMemoryLowTotal()
-            line["memory_low_free"] += res.GetMemoryLowFree()
-            line["memory_swap_total"] += res.GetMemorySwapTotal()
-            line["memory_swap_free"] += res.GetMemorySwapFree()
-            line["memory_mapped"] += res.GetMemoryMapped()
-            line["memory_vmalloc_total"] += res.GetMemoryVmallocTotal()
-            line["memory_vmalloc_used"] += res.GetMemoryVmallocUsed()
-            line["memory_vmalloc_chunk"] += res.GetMemoryVmallocChunk()
-            line["memory_huge_pages_total"] += res.GetMemoryHugePagesTotal()
-            line["memory_huge_pages_free"] += res.GetMemoryHugePagesFree()
-            line["memory_huge_pages_rsvd"] += res.GetMemoryHugePagesRsvd()
-            line["memory_huge_pages_surp"] += res.GetMemoryHugePagesSurp()
-            line["memory_huge_page_size"] += res.GetMemoryHugePageSize()
-            line["memory_anon_huge_pages"] += res.GetMemoryAnonHugePages()
-            line["disk_used"] += res.GetDiskUsed()
-            line["disk_free"] += res.GetDiskFree()
-            line["disk_total"] += res.GetDiskTotal()
-            line["disk_inodes_used"] += res.GetDiskInodesUsed()
-            line["disk_inodes_free"] += res.GetDiskInodesFree()
-            line["disk_inodes_total"] += res.GetDiskInodesTotal()
             line["network_bytes_sent"] += res.GetNetworkBytesSent()
-            line["network_bytes_recv"] += res.GetNetworkBytesRecv()
-            line["network_packets_sent"] += res.GetNetworkPacketsSent()
-            line["network_packets_recv"] += res.GetNetworkPacketsRecv()
-            line["network_err_in"] += res.GetNetworkErrin()
-            line["network_err_out"] += res.GetNetworkErrout()
-            line["network_drop_in"] += res.GetNetworkDropin()
-            line["network_drop_out"] += res.GetNetworkDropout()
-            line["network_fifo_in"] += res.GetNetworkFifoin()
-            line["network_fifo_out"] += res.GetNetworkFifoout()
 
-            line["cpu_" + strconv.Itoa(i+1)] = res.GetCPUUsed()
-            line["cpu_count_logical_" + strconv.Itoa(i+1)] = res.GetCPUCountLogical()
-            line["cpu_count_physical_" + strconv.Itoa(i+1)] = res.GetCPUCountPhysical()
-            line["uptime_" + strconv.Itoa(i+1)] = res.GetUptime()
-            line["loadavg1_" + strconv.Itoa(i+1)] = res.GetLoadAvg1()
-            line["loadavg5_" + strconv.Itoa(i+1)] = res.GetLoadAvg5()
-            line["loadavg15_" + strconv.Itoa(i+1)] = res.GetLoadAvg15()
             line["memory_used_" + strconv.Itoa(i+1)] = res.GetMemoryUsed()
-            line["memory_available_" + strconv.Itoa(i+1)] = res.GetMemoryAvailable()
-            line["memory_total_" + strconv.Itoa(i+1)] = res.GetMemoryTotal()
-            line["memory_buffers_" + strconv.Itoa(i+1)] = res.GetMemoryBuffers()
-            line["memory_cached_" + strconv.Itoa(i+1)] = res.GetMemoryCached()
-            line["memory_writeback_" + strconv.Itoa(i+1)] = res.GetMemoryWriteBack()
-            line["memory_dirty_" + strconv.Itoa(i+1)] = res.GetMemoryDirty()
-            line["memory_writeback_tmp_" + strconv.Itoa(i+1)] = res.GetMemoryWriteBackTmp()
-            line["memory_shared_" + strconv.Itoa(i+1)] = res.GetMemoryShared()
-            line["memory_slab_" + strconv.Itoa(i+1)] = res.GetMemorySlab()
-            line["memory_sreclaimable_" + strconv.Itoa(i+1)] = res.GetMemorySreclaimable()
-            line["memory_sunreclaim_" + strconv.Itoa(i+1)] = res.GetMemorySunreclaim()
-            line["memory_page_tables_" + strconv.Itoa(i+1)] = res.GetMemoryPageTables()
-            line["memory_swap_cached_" + strconv.Itoa(i+1)] = res.GetMemorySwapCached()
-            line["memory_commit_limit_" + strconv.Itoa(i+1)] = res.GetMemoryCommitLimit()
-            line["memory_committed_as_" + strconv.Itoa(i+1)] = res.GetMemoryCommittedAS()
-            line["memory_high_total_" + strconv.Itoa(i+1)] = res.GetMemoryHighTotal()
-            line["memory_high_free_" + strconv.Itoa(i+1)] = res.GetMemoryHighFree()
-            line["memory_low_total_" + strconv.Itoa(i+1)] = res.GetMemoryLowTotal()
-            line["memory_low_free_" + strconv.Itoa(i+1)] = res.GetMemoryLowFree()
-            line["memory_swap_total_" + strconv.Itoa(i+1)] = res.GetMemorySwapTotal()
-            line["memory_swap_free_" + strconv.Itoa(i+1)] = res.GetMemorySwapFree()
-            line["memory_mapped_" + strconv.Itoa(i+1)] = res.GetMemoryMapped()
-            line["memory_vmalloc_total_" + strconv.Itoa(i+1)] = res.GetMemoryVmallocTotal()
-            line["memory_vmalloc_used_" + strconv.Itoa(i+1)] = res.GetMemoryVmallocUsed()
-            line["memory_vmalloc_chunk_" + strconv.Itoa(i+1)] = res.GetMemoryVmallocChunk()
-            line["memory_huge_pages_total_" + strconv.Itoa(i+1)] = res.GetMemoryHugePagesTotal()
-            line["memory_huge_pages_free_" + strconv.Itoa(i+1)] = res.GetMemoryHugePagesFree()
-            line["memory_huge_pages_rsvd_" + strconv.Itoa(i+1)] = res.GetMemoryHugePagesRsvd()
-            line["memory_huge_pages_surp_" + strconv.Itoa(i+1)] = res.GetMemoryHugePagesSurp()
-            line["memory_huge_page_size_" + strconv.Itoa(i+1)] = res.GetMemoryHugePageSize()
-            line["memory_anon_huge_pages_" + strconv.Itoa(i+1)] = res.GetMemoryAnonHugePages()
-            line["disk_used_" + strconv.Itoa(i+1)] = res.GetDiskUsed()
-            line["disk_free_" + strconv.Itoa(i+1)] = res.GetDiskFree()
-            line["disk_total_" + strconv.Itoa(i+1)] = res.GetDiskTotal()
-            line["disk_inodes_used_" + strconv.Itoa(i+1)] = res.GetDiskInodesUsed()
-            line["disk_inodes_free_" + strconv.Itoa(i+1)] = res.GetDiskInodesFree()
-            line["disk_inodes_total_" + strconv.Itoa(i+1)] = res.GetDiskInodesTotal()
             line["network_bytes_sent_" + strconv.Itoa(i+1)] = res.GetNetworkBytesSent()
-            line["network_bytes_recv_" + strconv.Itoa(i+1)] = res.GetNetworkBytesRecv()
-            line["network_packets_sent_" + strconv.Itoa(i+1)] = res.GetNetworkPacketsSent()
-            line["network_packets_recv_" + strconv.Itoa(i+1)] = res.GetNetworkPacketsRecv()
-            line["network_err_in_" + strconv.Itoa(i+1)] = res.GetNetworkErrin()
-            line["network_err_out_" + strconv.Itoa(i+1)] = res.GetNetworkErrout()
-            line["network_drop_in_" + strconv.Itoa(i+1)] = res.GetNetworkDropin()
-            line["network_drop_out_" + strconv.Itoa(i+1)] = res.GetNetworkDropout()
-            line["network_fifo_in_" + strconv.Itoa(i+1)] = res.GetNetworkFifoin()
-            line["network_fifo_out_" + strconv.Itoa(i+1)] = res.GetNetworkFifoout()
         }
         for i, _ := range cpu_percent {
             cpu_total += cpu_percent[i] * cpu_cores[i]
@@ -297,7 +192,7 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
                 peak[benchmark_temp][concurrency_temp][phase_temp][metric] = line[metric]
             }
         }
-        for i, _ := range worker_nodes {
+        for i, _ := range nodes {
             for _, metric := range metrics {
                 val := strconv.FormatFloat(line[metric + "_" + strconv.Itoa(i+1)], 'f', -1, 64)
                 line_s = append(line_s, val)
@@ -320,7 +215,7 @@ func Collect_Metrics(eval_id string, collect *bool, benchmark *string, concurren
 //  LatencyResults: collection of latency in seconds, start and end times
 func Collect_Latency_HTTP_Text(target string, t string) (LatencyResult) {
     s := time.Now()
-    cmd := exec.Command("curl", "-m", ttl, "-X", "POST", "-d", t, "-H", "Content-Type: plain/txt", target)
+    cmd := exec.Command("curl", "-m", ttl, "-X", "POST", "-d", t, target)
     Debug(cmd.String(), 3)
     out, err := cmd.Output()
     if err != nil {
@@ -400,7 +295,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
     benchmark := ""
     concurrency := ""
     phase := ""
-    metrics := []string{"cpu", "cpu_count_logical", "cpu_count_physical", "uptime", "loadavg1", "loadavg5", "loadavg15", "memory_used", "memory_available", "memory_total", "memory_buffers", "memory_cached", "memory_writeback", "memory_dirty", "memory_writeback_tmp", "memory_shared", "memory_slab", "memory_sreclaimable", "memory_sunreclaim", "memory_page_tables", "memory_swap_cached", "memory_commit_limit", "memory_committed_as", "memory_high_total", "memory_high_free", "memory_low_total", "memory_low_free", "memory_swap_total", "memory_swap_free", "memory_mapped", "memory_vmalloc_total", "memory_vmalloc_used", "memory_vmalloc_chunk", "memory_huge_pages_total", "memory_huge_pages_free", "memory_huge_pages_rsvd", "memory_huge_pages_surp", "memory_huge_page_size", "memory_anon_huge_pages", "disk_used", "disk_free", "disk_total", "disk_inodes_used", "disk_inodes_free", "disk_inodes_total", "network_bytes_sent", "network_bytes_recv", "network_packets_sent", "network_packets_recv", "network_err_in", "network_err_out", "network_drop_in", "network_drop_out", "network_fifo_in", "network_fifo_out"}
+    metrics := []string{"cpu", "memory_used", "network_bytes_sent"}
     peak := make(map[string]map[string]map[string]map[string]float64, 0)
     latency := make(map[string]map[string]map[string][]float64, 0)
     eval_id := time.Now().UTC().Format("2006-01-02-15-04-05-UTC")
@@ -416,7 +311,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
     for _, metric := range metrics {
         summary_labels = append(summary_labels, metric + "_" + "peak")
     }
-    for i, _ := range worker_nodes {
+    for i, _ := range nodes {
         for _, metric := range metrics {
             summary_labels = append(summary_labels, metric + "_" + strconv.Itoa(i+1) + "_peak")
         }
@@ -518,7 +413,6 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
             phase = ""
             wf_delete := workflow.GetName()
             ingress_stub.DeleteWorkflow(context.Background(), &pb.MacroPodRequest{Workflow: &wf_delete})
-            time.Sleep(300 * time.Second)
             Debug(benchmark + "-" + concurrency + " has been deleted", 1) // waits until benchmark is fully deleted from K8s before starting next collection (no noise from previous)
         }
     }
@@ -610,11 +504,11 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                 }
             }
             latency[benchmark][concurrency][phase] = concurrency_latency
-            Debug(benchmark + "-" + concurrency + " has been completed... sleeping 300 seconds", 1)
+            Debug(benchmark + "-" + concurrency + " has been completed... sleeping 60 seconds", 1)
             benchmark = ""
             concurrency = ""
             phase = ""
-            time.Sleep(300 * time.Second)
+            time.Sleep(60 * time.Second)
             Debug(benchmark + "-" + concurrency + " sleep cycle done", 1) // waits until benchmark is fully deleted from K8s before starting next collection (no noise from previous)
         }
     }
@@ -635,7 +529,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric], 'f', -1, 64)
                     line = append(line, val)
                 }
-                for i, _ := range worker_nodes {
+                for i, _ := range nodes {
                     for _, metric := range metrics {
                         val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric + "_" + strconv.Itoa(i+1)], 'f', -1, 64)
                         line = append(line, val)
@@ -658,7 +552,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
                     val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric], 'f', -1, 64)
                     line = append(line, val)
                 }
-                for i, _ := range worker_nodes {
+                for i, _ := range nodes {
                     for _, metric := range metrics {
                         val := strconv.FormatFloat(peak[workflow_name][strconv.Itoa(int(c))][p][metric + "_" + strconv.Itoa(i+1)], 'f', -1, 64)
                         line = append(line, val)
@@ -703,7 +597,7 @@ func Serve_EvalSummary(request *pb.MacroPodRequest) (string) {
     return string(summary_out)
 }
 
-// purpose: gRPC handler for Eval
+// purpose: gRPC handler for Evaluate
 // input:
 //  ctx: context object utilized in every gRPC request handler
 //  req: EvalStruct object defined by protobuf
@@ -716,7 +610,7 @@ func (s *EvalService) Eval(ctx context.Context, req *pb.EvalStruct) (*pb.MacroPo
     return &results, nil
 }
 
-// purpose: gRPC handler for EvalMetrics
+// purpose: gRPC handler for EvaluatorMetrics
 // input:
 //  ctx: context object utilized in every gRPC request handler
 //  req: MacroPodRequest object defined by protobuf
@@ -763,7 +657,7 @@ func HTTP_Help(res http.ResponseWriter, req *http.Request) {
     help_print := "usage:\n"
     help_print += "\t/eval/start\n"
     help_print += "\t\tpurpose: start an evaluation for all configurations defined in the input evaluation definition\n"
-    help_print += "\t\tinput: EvalStruct JSON file (see GitHub for more details)\n"
+    help_print += "\t\tinput: EvaluatorStruct JSON file (see GitHub for more details)\n"
     help_print += "\t\toutput: evaluation ID for retrieving metrics, latency and summary files\n"
     help_print += "\t/eval/metrics/{id}\n"
     help_print += "\t\tpurpose: retrieve metrics results of the evaluation with said ID\n"
@@ -824,13 +718,13 @@ func HTTP_EvalSummary(res http.ResponseWriter, req *http.Request) {
 
 // input:
 //  SERVICE_PORT: string defining gRPC service binding; default 8000
-//  HTTP_PORT: string defining HTTP service binding; default 9000
-//  INGRESS_ADDRESS: string IP:port for the ingress gRPC service; default 127.0.0.1:8000
-//  INGRESS_ADDRESS_HTTP: string IP:port for the ingress HTTP service; default 127.0.0.1:9000
+//  HTTP_PORT: string defining HTTP service binding; default 8000
+//  INGRESS_ADDRESS: string IP:port for the ingress gRPC service; default 127.0.0.1:8001
+//  INGRESS_ADDRESS_HTTP: string IP:port for the ingress HTTP service; default 127.0.0.1:9001
 //  METRICS_DIR: directory for storing all metrics results; default /app/metrics/
 //  LATENCY_DIR: directory for storing all latency results; default /app/latency/
 //  SUMMARY_DIR: directory for storing all summary results; default /app/summary/
-//  WORKER_NODES: array of all worker node IPs as a string (for pulling stats); default "192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24"
+//  WORKER_NODES: array of all worker node IPs as a string (for pulling stats); default "192.168.0.2 192.168.0.3 192.168.0.4 192.168.0.5"
 //  DEBUG: debug level (higher is more verbose); default 0 (off)
 //  TTL: time to live for all evaluation requests; default 360 (360s)
 func main() {
@@ -864,9 +758,10 @@ func main() {
     }
     worker_nodes_str := os.Getenv("WORKER_NODES")
     if worker_nodes_str == "" {
-        worker_nodes_str = "192.168.56.21 192.168.56.22 192.168.56.23 192.168.56.24"
+        worker_nodes_str = "192.168.0.2 192.168.0.3 192.168.0.4 192.168.0.5"
     }
-    worker_nodes = strings.Split(worker_nodes_str, " ")
+    nodes = strings.Split(worker_nodes_str, " ")
+
     var err error
     debug, err = strconv.Atoi(os.Getenv("DEBUG"))
     if err != nil {

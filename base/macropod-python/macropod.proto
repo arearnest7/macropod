@@ -34,8 +34,9 @@ message ConfigStruct {
     optional string Deployment = 3;
     optional string Communication = 4;
     optional string Aggregation = 5;
-    optional int32 TargetConcurrency = 6;
-    optional int32 Debug = 7;
+    optional string Channel = 6;
+    optional int32 TargetConcurrency = 7;
+    optional int32 Debug = 8;
 }
 
 message PayloadStruct {
@@ -61,61 +62,10 @@ message EvalStruct {
 }
 
 message MetricsStruct {
-    optional double Uptime = 1;
-    optional double LoadAvg1 = 2;
-    optional double LoadAvg5 = 3;
-    optional double LoadAvg15 = 4;
-    optional double CPUUsed = 5;
-    optional double CPUCountLogical = 6;
-    optional double CPUCountPhysical = 7;
-    optional double MemoryUsed = 8;
-    optional double MemoryAvailable = 9;
-    optional double MemoryTotal = 10;
-    optional double MemoryBuffers = 11;
-    optional double MemoryCached = 12;
-    optional double MemoryWriteBack = 13;
-    optional double MemoryDirty = 14;
-    optional double MemoryWriteBackTmp = 15;
-    optional double MemoryShared = 16;
-    optional double MemorySlab = 17;
-    optional double MemorySreclaimable = 18;
-    optional double MemorySunreclaim = 19;
-    optional double MemoryPageTables = 20;
-    optional double MemorySwapCached = 21;
-    optional double MemoryCommitLimit = 22;
-    optional double MemoryCommittedAS = 23;
-    optional double MemoryHighTotal = 24;
-    optional double MemoryHighFree = 25;
-    optional double MemoryLowTotal = 26;
-    optional double MemoryLowFree = 27;
-    optional double MemorySwapTotal = 28;
-    optional double MemorySwapFree = 29;
-    optional double MemoryMapped = 30;
-    optional double MemoryVmallocTotal = 31;
-    optional double MemoryVmallocUsed = 32;
-    optional double MemoryVmallocChunk = 33;
-    optional double MemoryHugePagesTotal = 34;
-    optional double MemoryHugePagesFree = 35;
-    optional double MemoryHugePagesRsvd = 36;
-    optional double MemoryHugePagesSurp = 37;
-    optional double MemoryHugePageSize = 38;
-    optional double MemoryAnonHugePages = 39;
-    optional double DiskUsed = 40;
-    optional double DiskFree = 41;
-    optional double DiskTotal = 42;
-    optional double DiskInodesUsed = 43;
-    optional double DiskInodesFree = 44;
-    optional double DiskInodesTotal = 45;
-    optional double NetworkBytesSent = 46;
-    optional double NetworkBytesRecv = 47;
-    optional double NetworkPacketsSent = 48;
-    optional double NetworkPacketsRecv = 49;
-    optional double NetworkErrin = 50;
-    optional double NetworkErrout = 51;
-    optional double NetworkDropin = 52;
-    optional double NetworkDropout = 53;
-    optional double NetworkFifoin = 54;
-    optional double NetworkFifoout = 55;
+    optional double CPUUsed = 1;
+    optional double CPUCountPhysical = 2;
+    optional double MemoryUsed = 3;
+    optional double NetworkBytesSent = 4;
 }
 
 service MacroPodFunction {
@@ -134,14 +84,12 @@ service MacroPodIngress {
     rpc WorkflowInvoke(MacroPodRequest) returns (MacroPodReply);
     rpc FunctionInvoke(MacroPodRequest) returns (MacroPodReply);
     rpc CreateWorkflow(WorkflowStruct) returns (MacroPodReply);
-    rpc UpdateWorkflow(WorkflowStruct) returns (MacroPodReply);
     rpc DeleteWorkflow(MacroPodRequest) returns (MacroPodReply);
 }
 
 service MacroPodDeployer {
     rpc Config(ConfigStruct) returns (MacroPodReply);
     rpc CreateWorkflow(WorkflowStruct) returns (MacroPodReply);
-    rpc UpdateWorkflow(WorkflowStruct) returns (MacroPodReply);
     rpc DeleteWorkflow(MacroPodRequest) returns (MacroPodReply);
     rpc UpdateDeployments(MacroPodRequest) returns (MacroPodReply);
     rpc CreateDeployment(MacroPodRequest) returns (MacroPodReply);

@@ -1,0 +1,137 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:31112
+functions:
+  vpxenc-1:
+    lang: python3-ipc-func
+    handler: ./vpxenc-1
+    image: tjulym/vpxenc-1:ipc
+    environment:
+      name: vpxenc-1
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  vpxenc-2:
+    lang: python3-ipc-func
+    handler: ./vpxenc-2
+    image: tjulym/vpxenc-2:ipc
+    environment:
+      name: vpxenc-2
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  vpxenc-3:
+    lang: python3-ipc-func
+    handler: ./vpxenc-3
+    image: tjulym/vpxenc-3:ipc
+    environment:
+      name: vpxenc-3
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  vx-con:
+    lang: python3-ipc-func
+    handler: ./vx-con
+    image: tjulym/vx-con:ipc
+    environment:
+      name: vx-con
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  xcdec-1:
+    lang: python3-ipc-func
+    handler: ./xcdec-1
+    image: tjulym/xcdec-1:ipc
+    environment:
+      name: xcdec-1
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  xcdec-2:
+    lang: python3-ipc-func
+    handler: ./xcdec-2
+    image: tjulym/xcdec-2:ipc
+    environment:
+      name: xcdec-2
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  xcdec-3:
+    lang: python3-ipc-func
+    handler: ./xcdec-3
+    image: tjulym/xcdec-3:ipc
+    environment:
+      name: xcdec-3
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  group:
+    lang: python3-ipc-func
+    handler: ./group
+    image: tjulym/group:ipc
+    environment:
+      name: group
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  reencode-1:
+    lang: python3-ipc-func
+    handler: ./reencode-1
+    image: tjulym/reencode-1:ipc
+    environment:
+      name: reencode-1
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  reencode-2:
+    lang: python3-ipc-func
+    handler: ./reencode-2
+    image: tjulym/reencode-2:ipc
+    environment:
+      name: reencode-2
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"
+  rebase:
+    lang: python3-ipc-func
+    handler: ./rebase
+    image: tjulym/rebase:ipc
+    environment:
+      name: rebase
+      cc: excamera-cc
+    annotations:
+      com.openfaas.volume.shared.mountPath: "/home/app/ipc"
+      com.openfaas.volume.shared.hostPath: "/mnt/excamera"
+    constraints:
+      - "kubernetes.io/hostname=${TARGET_NODE}"

@@ -1,4 +1,4 @@
-FROM golang:1.24
+FROM golang:latest
 WORKDIR /app
 COPY . .
 RUN go mod tidy 2> /dev/null

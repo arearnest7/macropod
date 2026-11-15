@@ -1,0 +1,102 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 500,
+    "Workflows": {
+        "macropod-video-agg-cache": {
+            "Name": "video",
+            "Functions": {
+                "video-decoder": {
+                    "Registry": "arearnest7/video-decoder:latest",
+                    "Endpoints": ["video-recog"]
+                },
+                "video-recog": {
+                    "Registry": "arearnest7/video-recog:latest"
+                },
+                "video-streaming": {
+                    "Registry": "arearnest7/video-streaming:latest",
+                    "Endpoints": ["video-decoder"]
+                }
+            },
+            "Config": {
+                "Channel": "cache",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"video": "video.mp4"}
+            }
+        },
+        "macropod-video-agg-no-cache": {
+            "Name": "video",
+            "Functions": {
+                "video-decoder": {
+                    "Registry": "arearnest7/video-decoder:latest",
+                    "Endpoints": ["video-recog"]
+                },
+                "video-recog": {
+                    "Registry": "arearnest7/video-recog:latest"
+                },
+                "video-streaming": {
+                    "Registry": "arearnest7/video-streaming:latest",
+                    "Endpoints": ["video-decoder"]
+                }
+            },
+            "Config": {
+                "Channel": "no-cache",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"video": "video.mp4"}
+            }
+        },
+        "macropod-video-disagg-cache": {
+            "Name": "video",
+            "Functions": {
+                "video-decoder": {
+                    "Registry": "arearnest7/video-decoder:latest",
+                    "Endpoints": ["video-recog"]
+                },
+                "video-recog": {
+                    "Registry": "arearnest7/video-recog:latest"
+                },
+                "video-streaming": {
+                    "Registry": "arearnest7/video-streaming:latest",
+                    "Endpoints": ["video-decoder"]
+                }
+            },
+            "Config": {
+                "Channel": "cache",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"video": "video.mp4"}
+            }
+        },
+        "macropod-video-disagg-no-cache": {
+            "Name": "video",
+            "Functions": {
+                "video-decoder": {
+                    "Registry": "arearnest7/video-decoder:latest",
+                    "Endpoints": ["video-recog"]
+                },
+                "video-recog": {
+                    "Registry": "arearnest7/video-recog:latest"
+                },
+                "video-streaming": {
+                    "Registry": "arearnest7/video-streaming:latest",
+                    "Endpoints": ["video-decoder"]
+                }
+            },
+            "Config": {
+                "Channel": "no-cache",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "JSON",
+                "JSON": {"video": "video.mp4"}
+            }
+        }
+    }
+}

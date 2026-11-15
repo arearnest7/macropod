@@ -1,0 +1,10 @@
+# $schema: https://raw.githubusercontent.com/knative/func/e98dae9b/schema/func_yaml-schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/knative/func/e98dae9b/schema/func_yaml-schema.json
+specVersion: 0.38.0
+name: sn-upload-creator
+runtime: python
+registry: docker.io/arearnest7
+image: docker.io/arearnest7/sn-upload-creator:kn
+created: 2026-11-07T17:21:12.987000403-06:00
+build:
+  builder: pack

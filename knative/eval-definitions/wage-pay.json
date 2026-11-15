@@ -1,0 +1,13 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 500,
+    "ExtraTargets": {
+        "knative-wage": "http://wage-validator.knative-functions.192.168.0.1.sslip.io"
+    },
+    "ExtraTargetsPayload": {
+        "knative-wage": {
+            "Type": "JSON",
+            "JSON": {"id": 0, "name": "Tara Johnson", "role": "staff", "base": 7.32, "merit": 1.61, "operator": 86694}
+        }
+    }
+}
