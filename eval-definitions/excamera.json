@@ -5,31 +5,31 @@
         "macropod-excamera-agg-cache": {
             "Name": "excamera",
             "Functions": {
-                "excamera-entry": {
+                "EXCAMERA_ENTRY": {
                     "Registry": "arearnest7/excamera-entry:latest",
-                    "Endpoints": ["excamera-vpxenc", "excamera-vx-con"]
+                    "Endpoints": ["EXCAMERA_VPXENC", "EXCAMERA_VX_CON"]
                 },
-                "excamera-group": {
+                "EXCAMERA_GROUP": {
                     "Registry": "arearnest7/excamera-group:latest",
-                    "Endpoints": ["excamera-reencode", "excamera-rebase"]
+                    "Endpoints": ["EXCAMERA_REENCODE", "excamera-rebase"]
                 },
                 "excamera-rebase": {
                     "Registry": "arearnest7/excamera-rebase:latest",
                     "Endpoints": []
                 },
-                "excamera-reencode": {
+                "EXCAMERA_REENCODE": {
                     "Registry": "arearnest7/excamera-reencode:latest",
                     "Endpoints": []
                 },
-                "excamera-vpxenc": {
+                "EXCAMERA_VPXENC": {
                     "Registry": "arearnest7/excamera-vpxenc:latest",
                     "Endpoints": []
                 },
-                "excamera-vx-con": {
+                "EXCAMERA_VX_CON": {
                     "Registry": "arearnest7/excamera-vx-con:latest",
-                    "Endpoints": ["excamera-xcdec", "excamera-group"]
+                    "Endpoints": ["EXCAMERA_XCDEC", "EXCAMERA_GROUP"]
                 },
-                "excamera-xcdec": {
+                "EXCAMERA_XCDEC": {
                     "Registry": "arearnest7/excamera-xcdec:latest",
                     "Endpoints": []
                 }
@@ -46,31 +46,31 @@
         "macropod-excamera-agg-no-cache": {
             "Name": "excamera",
             "Functions": {
-                "excamera-entry": {
+                "EXCAMERA_ENTRY": {
                     "Registry": "arearnest7/excamera-entry:latest",
-                    "Endpoints": ["excamera-vpxenc", "excamera-vx-con"]
+                    "Endpoints": ["EXCAMERA_VPXENC", "EXCAMERA_VX_CON"]
                 },
-                "excamera-group": {
+                "EXCAMERA_GROUP": {
                     "Registry": "arearnest7/excamera-group:latest",
-                    "Endpoints": ["excamera-reencode", "excamera-rebase"]
+                    "Endpoints": ["EXCAMERA_REENCODE", "excamera-rebase"]
                 },
                 "excamera-rebase": {
                     "Registry": "arearnest7/excamera-rebase:latest",
                     "Endpoints": []
                 },
-                "excamera-reencode": {
+                "EXCAMERA_REENCODE": {
                     "Registry": "arearnest7/excamera-reencode:latest",
                     "Endpoints": []
                 },
-                "excamera-vpxenc": {
+                "EXCAMERA_VPXENC": {
                     "Registry": "arearnest7/excamera-vpxenc:latest",
                     "Endpoints": []
                 },
-                "excamera-vx-con": {
+                "EXCAMERA_VX_CON": {
                     "Registry": "arearnest7/excamera-vx-con:latest",
-                    "Endpoints": ["excamera-xcdec", "excamera-group"]
+                    "Endpoints": ["EXCAMERA_XCDEC", "EXCAMERA_GROUP"]
                 },
-                "excamera-xcdec": {
+                "EXCAMERA_XCDEC": {
                     "Registry": "arearnest7/excamera-xcdec:latest",
                     "Endpoints": []
                 }
@@ -87,31 +87,31 @@
         "macropod-excamera-disagg-cache": {
             "Name": "excamera",
             "Functions": {
-                "excamera-entry": {
+                "EXCAMERA_ENTRY": {
                     "Registry": "arearnest7/excamera-entry:latest",
-                    "Endpoints": ["excamera-vpxenc", "excamera-vx-con"]
+                    "Endpoints": ["EXCAMERA_VPXENC", "EXCAMERA_VX_CON"]
                 },
-                "excamera-group": {
+                "EXCAMERA_GROUP": {
                     "Registry": "arearnest7/excamera-group:latest",
-                    "Endpoints": ["excamera-reencode", "excamera-rebase"]
+                    "Endpoints": ["EXCAMERA_REENCODE", "excamera-rebase"]
                 },
                 "excamera-rebase": {
                     "Registry": "arearnest7/excamera-rebase:latest",
                     "Endpoints": []
                 },
-                "excamera-reencode": {
+                "EXCAMERA_REENCODE": {
                     "Registry": "arearnest7/excamera-reencode:latest",
                     "Endpoints": []
                 },
-                "excamera-vpxenc": {
+                "EXCAMERA_VPXENC": {
                     "Registry": "arearnest7/excamera-vpxenc:latest",
                     "Endpoints": []
                 },
-                "excamera-vx-con": {
+                "EXCAMERA_VX_CON": {
                     "Registry": "arearnest7/excamera-vx-con:latest",
-                    "Endpoints": ["excamera-xcdec", "excamera-group"]
+                    "Endpoints": ["EXCAMERA_XCDEC", "EXCAMERA_GROUP"]
                 },
-                "excamera-xcdec": {
+                "EXCAMERA_XCDEC": {
                     "Registry": "arearnest7/excamera-xcdec:latest",
                     "Endpoints": []
                 }
@@ -128,31 +128,31 @@
         "macropod-excamera-disagg-no-cache": {
             "Name": "excamera",
             "Functions": {
-                "excamera-entry": {
+                "EXCAMERA_ENTRY": {
                     "Registry": "arearnest7/excamera-entry:latest",
-                    "Endpoints": ["excamera-vpxenc", "excamera-vx-con"]
+                    "Endpoints": ["EXCAMERA_VPXENC", "EXCAMERA_VX_CON"]
                 },
-                "excamera-group": {
+                "EXCAMERA_GROUP": {
                     "Registry": "arearnest7/excamera-group:latest",
-                    "Endpoints": ["excamera-reencode", "excamera-rebase"]
+                    "Endpoints": ["EXCAMERA_REENCODE", "excamera-rebase"]
                 },
                 "excamera-rebase": {
                     "Registry": "arearnest7/excamera-rebase:latest",
                     "Endpoints": []
                 },
-                "excamera-reencode": {
+                "EXCAMERA_REENCODE": {
                     "Registry": "arearnest7/excamera-reencode:latest",
                     "Endpoints": []
                 },
-                "excamera-vpxenc": {
+                "EXCAMERA_VPXENC": {
                     "Registry": "arearnest7/excamera-vpxenc:latest",
                     "Endpoints": []
                 },
-                "excamera-vx-con": {
+                "EXCAMERA_VX_CON": {
                     "Registry": "arearnest7/excamera-vx-con:latest",
-                    "Endpoints": ["excamera-xcdec", "excamera-group"]
+                    "Endpoints": ["EXCAMERA_XCDEC", "EXCAMERA_GROUP"]
                 },
-                "excamera-xcdec": {
+                "EXCAMERA_XCDEC": {
                     "Registry": "arearnest7/excamera-xcdec:latest",
                     "Endpoints": []
                 }

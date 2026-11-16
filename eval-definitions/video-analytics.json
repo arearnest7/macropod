@@ -5,16 +5,16 @@
         "macropod-video-agg-cache": {
             "Name": "video",
             "Functions": {
-                "video-decoder": {
+                "VIDEO_DECODER": {
                     "Registry": "arearnest7/video-decoder:latest",
-                    "Endpoints": ["video-recog"]
+                    "Endpoints": ["VIDEO_RECOG"]
                 },
-                "video-recog": {
+                "VIDEO_RECOG": {
                     "Registry": "arearnest7/video-recog:latest"
                 },
-                "video-streaming": {
+                "VIDEO_STREAMING": {
                     "Registry": "arearnest7/video-streaming:latest",
-                    "Endpoints": ["video-decoder"]
+                    "Endpoints": ["VIDEO_DECODER"]
                 }
             },
             "Config": {
@@ -29,16 +29,16 @@
         "macropod-video-agg-no-cache": {
             "Name": "video",
             "Functions": {
-                "video-decoder": {
+                "VIDEO_DECODER": {
                     "Registry": "arearnest7/video-decoder:latest",
-                    "Endpoints": ["video-recog"]
+                    "Endpoints": ["VIDEO_RECOG"]
                 },
-                "video-recog": {
+                "VIDEO_RECOG": {
                     "Registry": "arearnest7/video-recog:latest"
                 },
-                "video-streaming": {
+                "VIDEO_STREAMING": {
                     "Registry": "arearnest7/video-streaming:latest",
-                    "Endpoints": ["video-decoder"]
+                    "Endpoints": ["VIDEO_DECODER"]
                 }
             },
             "Config": {
@@ -53,16 +53,16 @@
         "macropod-video-disagg-cache": {
             "Name": "video",
             "Functions": {
-                "video-decoder": {
+                "VIDEO_DECODER": {
                     "Registry": "arearnest7/video-decoder:latest",
-                    "Endpoints": ["video-recog"]
+                    "Endpoints": ["VIDEO_RECOG"]
                 },
-                "video-recog": {
+                "VIDEO_RECOG": {
                     "Registry": "arearnest7/video-recog:latest"
                 },
-                "video-streaming": {
+                "VIDEO_STREAMING": {
                     "Registry": "arearnest7/video-streaming:latest",
-                    "Endpoints": ["video-decoder"]
+                    "Endpoints": ["VIDEO_DECODER"]
                 }
             },
             "Config": {
@@ -77,16 +77,16 @@
         "macropod-video-disagg-no-cache": {
             "Name": "video",
             "Functions": {
-                "video-decoder": {
+                "VIDEO_DECODER": {
                     "Registry": "arearnest7/video-decoder:latest",
-                    "Endpoints": ["video-recog"]
+                    "Endpoints": ["VIDEO_RECOG"]
                 },
-                "video-recog": {
+                "VIDEO_RECOG": {
                     "Registry": "arearnest7/video-recog:latest"
                 },
-                "video-streaming": {
+                "VIDEO_STREAMING": {
                     "Registry": "arearnest7/video-streaming:latest",
-                    "Endpoints": ["video-decoder"]
+                    "Endpoints": ["VIDEO_DECODER"]
                 }
             },
             "Config": {

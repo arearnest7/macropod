@@ -5,47 +5,47 @@
         "macropod-sentiment-agg-cache": {
             "Name": "sentiment",
             "Functions": {
-                "sentiment-cfail": {
+                "SENTIMENT_CFAIL": {
                     "Registry": "arearnest7/sentiment-cfail:latest"
                 },
-                "sentiment-db": {
+                "SENTIMENT_DB": {
                     "Registry": "arearnest7/sentiment-db:latest"
                 },
-                "sentiment-main": {
+                "SENTIMENT_MAIN": {
                     "Registry": "arearnest7/sentiment-main:latest",
-                    "Endpoints": ["sentiment-read-csv"]
+                    "Endpoints": ["SENTIMENT_READ_CSV"]
                 },
-                "sentiment-product-or-service": {
+                "SENTIMENT_PRODUCT_OR_SERVICE": {
                     "Registry": "arearnest7/sentiment-product-or-service:latest",
-                    "Endpoints": ["sentiment-cfail", "sentiment-product-sentiment", "sentiment-service-sentiment"]
+                    "Endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"]
                 },
-                "sentiment-product-result": {
+                "SENTIMENT_PRODUCT_RESULT": {
                     "Registry": "arearnest7/sentiment-product-result:latest",
-                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
                 },
-                "sentiment-product-sentiment": {
+                "SENTIMENT_PRODUCT_SENTIMENT": {
                     "Registry": "arearnest7/sentiment-product-sentiment:latest",
-                    "Endpoints": ["sentiment-product-result"]
+                    "Endpoints": ["SENTIMENT_PRODUCT_RESULT"]
                 },
-                "sentiment-read-csv": {
+                "SENTIMENT_READ_CSV": {
                     "Registry": "arearnest7/sentiment-read-csv:latest",
-                    "Endpoints": ["sentiment-product-or-service"],
+                    "Endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "sentiment-service-result": {
+                "SENTIMENT_SERVICE_RESULT": {
                     "Registry": "arearnest7/sentiment-service-result:latest",
-                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
                 },
-                "sentiment-service-sentiment": {
+                "SENTIMENT_SERVICE_SENTIMENT": {
                     "Registry": "arearnest7/sentiment-service-sentiment:latest",
-                    "Endpoints": ["sentiment-service-result"]
+                    "Endpoints": ["SENTIMENT_SERVICE_RESULT"]
                 },
-                "sentiment-sfail": {
+                "SENTIMENT_SFAIL": {
                     "Registry": "arearnest7/sentiment-sfail:latest"
                 },
-                "sentiment-sns": {
+                "SENTIMENT_SNS": {
                     "Registry": "arearnest7/sentiment-sns:latest",
-                    "Endpoints": ["sentiment-db"]
+                    "Endpoints": ["SENTIMENT_DB"]
                 }
             },
             "Config": {
@@ -60,47 +60,47 @@
         "macropod-sentiment-agg-no-cache": {
             "Name": "sentiment",
             "Functions": {
-                "sentiment-cfail": {
+                "SENTIMENT_CFAIL": {
                     "Registry": "arearnest7/sentiment-cfail:latest"
                 },
-                "sentiment-db": {
+                "SENTIMENT_DB": {
                     "Registry": "arearnest7/sentiment-db:latest"
                 },
-                "sentiment-main": {
+                "SENTIMENT_MAIN": {
                     "Registry": "arearnest7/sentiment-main:latest",
-                    "Endpoints": ["sentiment-read-csv"]
+                    "Endpoints": ["SENTIMENT_READ_CSV"]
                 },
-                "sentiment-product-or-service": {
+                "SENTIMENT_PRODUCT_OR_SERVICE": {
                     "Registry": "arearnest7/sentiment-product-or-service:latest",
-                    "Endpoints": ["sentiment-cfail", "sentiment-product-sentiment", "sentiment-service-sentiment"]
+                    "Endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"]
                 },
-                "sentiment-product-result": {
+                "SENTIMENT_PRODUCT_RESULT": {
                     "Registry": "arearnest7/sentiment-product-result:latest",
-                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
                 },
-                "sentiment-product-sentiment": {
+                "SENTIMENT_PRODUCT_SENTIMENT": {
                     "Registry": "arearnest7/sentiment-product-sentiment:latest",
-                    "Endpoints": ["sentiment-product-result"]
+                    "Endpoints": ["SENTIMENT_PRODUCT_RESULT"]
                 },
-                "sentiment-read-csv": {
+                "SENTIMENT_READ_CSV": {
                     "Registry": "arearnest7/sentiment-read-csv:latest",
-                    "Endpoints": ["sentiment-product-or-service"],
+                    "Endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "sentiment-service-result": {
+                "SENTIMENT_SERVICE_RESULT": {
                     "Registry": "arearnest7/sentiment-service-result:latest",
-                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
                 },
-                "sentiment-service-sentiment": {
+                "SENTIMENT_SERVICE_SENTIMENT": {
                     "Registry": "arearnest7/sentiment-service-sentiment:latest",
-                    "Endpoints": ["sentiment-service-result"]
+                    "Endpoints": ["SENTIMENT_SERVICE_RESULT"]
                 },
-                "sentiment-sfail": {
+                "SENTIMENT_SFAIL": {
                     "Registry": "arearnest7/sentiment-sfail:latest"
                 },
-                "sentiment-sns": {
+                "SENTIMENT_SNS": {
                     "Registry": "arearnest7/sentiment-sns:latest",
-                    "Endpoints": ["sentiment-db"]
+                    "Endpoints": ["SENTIMENT_DB"]
                 }
             },
             "Config": {
@@ -115,47 +115,47 @@
         "macropod-sentiment-disagg-cache": {
             "Name": "sentiment",
             "Functions": {
-                "sentiment-cfail": {
+                "SENTIMENT_CFAIL": {
                     "Registry": "arearnest7/sentiment-cfail:latest"
                 },
-                "sentiment-db": {
+                "SENTIMENT_DB": {
                     "Registry": "arearnest7/sentiment-db:latest"
                 },
-                "sentiment-main": {
+                "SENTIMENT_MAIN": {
                     "Registry": "arearnest7/sentiment-main:latest",
-                    "Endpoints": ["sentiment-read-csv"]
+                    "Endpoints": ["SENTIMENT_READ_CSV"]
                 },
-                "sentiment-product-or-service": {
+                "SENTIMENT_PRODUCT_OR_SERVICE": {
                     "Registry": "arearnest7/sentiment-product-or-service:latest",
-                    "Endpoints": ["sentiment-cfail", "sentiment-product-sentiment", "sentiment-service-sentiment"]
+                    "Endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"]
                 },
-                "sentiment-product-result": {
+                "SENTIMENT_PRODUCT_RESULT": {
                     "Registry": "arearnest7/sentiment-product-result:latest",
-                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
                 },
-                "sentiment-product-sentiment": {
+                "SENTIMENT_PRODUCT_SENTIMENT": {
                     "Registry": "arearnest7/sentiment-product-sentiment:latest",
-                    "Endpoints": ["sentiment-product-result"]
+                    "Endpoints": ["SENTIMENT_PRODUCT_RESULT"]
                 },
-                "sentiment-read-csv": {
+                "SENTIMENT_READ_CSV": {
                     "Registry": "arearnest7/sentiment-read-csv:latest",
-                    "Endpoints": ["sentiment-product-or-service"],
+                    "Endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "sentiment-service-result": {
+                "SENTIMENT_SERVICE_RESULT": {
                     "Registry": "arearnest7/sentiment-service-result:latest",
-                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
                 },
-                "sentiment-service-sentiment": {
+                "SENTIMENT_SERVICE_SENTIMENT": {
                     "Registry": "arearnest7/sentiment-service-sentiment:latest",
-                    "Endpoints": ["sentiment-service-result"]
+                    "Endpoints": ["SENTIMENT_SERVICE_RESULT"]
                 },
-                "sentiment-sfail": {
+                "SENTIMENT_SFAIL": {
                     "Registry": "arearnest7/sentiment-sfail:latest"
                 },
-                "sentiment-sns": {
+                "SENTIMENT_SNS": {
                     "Registry": "arearnest7/sentiment-sns:latest",
-                    "Endpoints": ["sentiment-db"]
+                    "Endpoints": ["SENTIMENT_DB"]
                 }
             },
             "Config": {
@@ -170,47 +170,47 @@
         "macropod-sentiment-disagg-no-cache": {
             "Name": "sentiment",
             "Functions": {
-                "sentiment-cfail": {
+                "SENTIMENT_CFAIL": {
                     "Registry": "arearnest7/sentiment-cfail:latest"
                 },
-                "sentiment-db": {
+                "SENTIMENT_DB": {
                     "Registry": "arearnest7/sentiment-db:latest"
                 },
-                "sentiment-main": {
+                "SENTIMENT_MAIN": {
                     "Registry": "arearnest7/sentiment-main:latest",
-                    "Endpoints": ["sentiment-read-csv"]
+                    "Endpoints": ["SENTIMENT_READ_CSV"]
                 },
-                "sentiment-product-or-service": {
+                "SENTIMENT_PRODUCT_OR_SERVICE": {
                     "Registry": "arearnest7/sentiment-product-or-service:latest",
-                    "Endpoints": ["sentiment-cfail", "sentiment-product-sentiment", "sentiment-service-sentiment"]
+                    "Endpoints": ["SENTIMENT_CFAIL", "SENTIMENT_PRODUCT_SENTIMENT", "SENTIMENT_SERVICE_SENTIMENT"]
                 },
-                "sentiment-product-result": {
+                "SENTIMENT_PRODUCT_RESULT": {
                     "Registry": "arearnest7/sentiment-product-result:latest",
-                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
                 },
-                "sentiment-product-sentiment": {
+                "SENTIMENT_PRODUCT_SENTIMENT": {
                     "Registry": "arearnest7/sentiment-product-sentiment:latest",
-                    "Endpoints": ["sentiment-product-result"]
+                    "Endpoints": ["SENTIMENT_PRODUCT_RESULT"]
                 },
-                "sentiment-read-csv": {
+                "SENTIMENT_READ_CSV": {
                     "Registry": "arearnest7/sentiment-read-csv:latest",
-                    "Endpoints": ["sentiment-product-or-service"],
+                    "Endpoints": ["SENTIMENT_PRODUCT_OR_SERVICE"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "sentiment-service-result": {
+                "SENTIMENT_SERVICE_RESULT": {
                     "Registry": "arearnest7/sentiment-service-result:latest",
-                    "Endpoints": ["sentiment-sfail", "sentiment-sns", "sentiment-db"]
+                    "Endpoints": ["SENTIMENT_SFAIL", "SENTIMENT_SNS", "SENTIMENT_DB"]
                 },
-                "sentiment-service-sentiment": {
+                "SENTIMENT_SERVICE_SENTIMENT": {
                     "Registry": "arearnest7/sentiment-service-sentiment:latest",
-                    "Endpoints": ["sentiment-service-result"]
+                    "Endpoints": ["SENTIMENT_SERVICE_RESULT"]
                 },
-                "sentiment-sfail": {
+                "SENTIMENT_SFAIL": {
                     "Registry": "arearnest7/sentiment-sfail:latest"
                 },
-                "sentiment-sns": {
+                "SENTIMENT_SNS": {
                     "Registry": "arearnest7/sentiment-sns:latest",
-                    "Endpoints": ["sentiment-db"]
+                    "Endpoints": ["SENTIMENT_DB"]
                 }
             },
             "Config": {

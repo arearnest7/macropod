@@ -5,31 +5,31 @@
         "macropod-finra-agg-cache": {
             "Name": "finra",
             "Functions": {
-                "finra-entry": {
+                "FINRA_ENTRY": {
                     "Registry": "arearnest7/finra-entry:latest",
-                    "Endpoints": ["finra-marketdata", "finra-lastpx", "finra-side", "finra-trddate", "finra-volume", "finra-margin-balance"]
+                    "Endpoints": ["FINRA_MARKETDATA", "FINRA_LASTPX", "FINRA_SIDE", "FINRA_TRDDATE", "FINRA_VOLUME", "FINRA_MARGIN_BALANCE"]
                 },
-                "finra-lastpx": {
+                "FINRA_LASTPX": {
                     "Registry": "arearnest7/finra-lastpx:latest",
                     "Endpoints": []
                 },
-                "finra-margin-balance": {
+                "FINRA_MARGIN_BALANCE": {
                     "Registry": "arearnest7/finra-margin-balance:latest",
                     "Endpoints": []
                 },
-                "finra-marketdata": {
+                "FINRA_MARKETDATA": {
                     "Registry": "arearnest7/finra-marketdata:latest",
                     "Endpoints": []
                 },
-                "finra-side": {
+                "FINRA_SIDE": {
                     "Registry": "arearnest7/finra-side:latest",
                     "Endpoints": []
                 },
-                "finra-trddate": {
+                "FINRA_TRDDATE": {
                     "Registry": "arearnest7/finra-trddate:latest",
                     "Endpoints": []
                 },
-                "finra-volume": {
+                "FINRA_VOLUME": {
                     "Registry": "arearnest7/finra-volume:latest",
                     "Endpoints": []
                 }
@@ -46,31 +46,31 @@
         "macropod-finra-agg-no-cache": {
             "Name": "finra",
             "Functions": {
-                "finra-entry": {
+                "FINRA_ENTRY": {
                     "Registry": "arearnest7/finra-entry:latest",
-                    "Endpoints": ["finra-marketdata", "finra-lastpx", "finra-side", "finra-trddate", "finra-volume", "finra-margin-balance"]
+                    "Endpoints": ["FINRA_MARKETDATA", "FINRA_LASTPX", "FINRA_SIDE", "FINRA_TRDDATE", "FINRA_VOLUME", "FINRA_MARGIN_BALANCE"]
                 },
-                "finra-lastpx": {
+                "FINRA_LASTPX": {
                     "Registry": "arearnest7/finra-lastpx:latest",
                     "Endpoints": []
                 },
-                "finra-margin-balance": {
+                "FINRA_MARGIN_BALANCE": {
                     "Registry": "arearnest7/finra-margin-balance:latest",
                     "Endpoints": []
                 },
-                "finra-marketdata": {
+                "FINRA_MARKETDATA": {
                     "Registry": "arearnest7/finra-marketdata:latest",
                     "Endpoints": []
                 },
-                "finra-side": {
+                "FINRA_SIDE": {
                     "Registry": "arearnest7/finra-side:latest",
                     "Endpoints": []
                 },
-                "finra-trddate": {
+                "FINRA_TRDDATE": {
                     "Registry": "arearnest7/finra-trddate:latest",
                     "Endpoints": []
                 },
-                "finra-volume": {
+                "FINRA_VOLUME": {
                     "Registry": "arearnest7/finra-volume:latest",
                     "Endpoints": []
                 }
@@ -87,31 +87,31 @@
         "macropod-finra-disagg-cache": {
             "Name": "finra",
             "Functions": {
-                "finra-entry": {
+                "FINRA_ENTRY": {
                     "Registry": "arearnest7/finra-entry:latest",
-                    "Endpoints": ["finra-marketdata", "finra-lastpx", "finra-side", "finra-trddate", "finra-volume", "finra-margin-balance"]
+                    "Endpoints": ["FINRA_MARKETDATA", "FINRA_LASTPX", "FINRA_SIDE", "FINRA_TRDDATE", "FINRA_VOLUME", "FINRA_MARGIN_BALANCE"]
                 },
-                "finra-lastpx": {
+                "FINRA_LASTPX": {
                     "Registry": "arearnest7/finra-lastpx:latest",
                     "Endpoints": []
                 },
-                "finra-margin-balance": {
+                "FINRA_MARGIN_BALANCE": {
                     "Registry": "arearnest7/finra-margin-balance:latest",
                     "Endpoints": []
                 },
-                "finra-marketdata": {
+                "FINRA_MARKETDATA": {
                     "Registry": "arearnest7/finra-marketdata:latest",
                     "Endpoints": []
                 },
-                "finra-side": {
+                "FINRA_SIDE": {
                     "Registry": "arearnest7/finra-side:latest",
                     "Endpoints": []
                 },
-                "finra-trddate": {
+                "FINRA_TRDDATE": {
                     "Registry": "arearnest7/finra-trddate:latest",
                     "Endpoints": []
                 },
-                "finra-volume": {
+                "FINRA_VOLUME": {
                     "Registry": "arearnest7/finra-volume:latest",
                     "Endpoints": []
                 }
@@ -128,31 +128,31 @@
         "macropod-finra-disagg-no-cache": {
             "Name": "finra",
             "Functions": {
-                "finra-entry": {
+                "FINRA_ENTRY": {
                     "Registry": "arearnest7/finra-entry:latest",
-                    "Endpoints": ["finra-marketdata", "finra-lastpx", "finra-side", "finra-trddate", "finra-volume", "finra-margin-balance"]
+                    "Endpoints": ["FINRA_MARKETDATA", "FINRA_LASTPX", "FINRA_SIDE", "FINRA_TRDDATE", "FINRA_VOLUME", "FINRA_MARGIN_BALANCE"]
                 },
-                "finra-lastpx": {
+                "FINRA_LASTPX": {
                     "Registry": "arearnest7/finra-lastpx:latest",
                     "Endpoints": []
                 },
-                "finra-margin-balance": {
+                "FINRA_MARGIN_BALANCE": {
                     "Registry": "arearnest7/finra-margin-balance:latest",
                     "Endpoints": []
                 },
-                "finra-marketdata": {
+                "FINRA_MARKETDATA": {
                     "Registry": "arearnest7/finra-marketdata:latest",
                     "Endpoints": []
                 },
-                "finra-side": {
+                "FINRA_SIDE": {
                     "Registry": "arearnest7/finra-side:latest",
                     "Endpoints": []
                 },
-                "finra-trddate": {
+                "FINRA_TRDDATE": {
                     "Registry": "arearnest7/finra-trddate:latest",
                     "Endpoints": []
                 },
-                "finra-volume": {
+                "FINRA_VOLUME": {
                     "Registry": "arearnest7/finra-volume:latest",
                     "Endpoints": []
                 }

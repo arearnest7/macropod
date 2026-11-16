@@ -5,20 +5,20 @@
         "macropod-election-agg-cache": {
             "Name": "election",
             "Functions": {
-                "election-gateway": {
+                "ELECTION_GATEWAY": {
                     "Registry": "arearnest7/election-gateway:latest",
-                    "Endpoints": ["election-get-results", "election-vote-enqueuer"]
+                    "Endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"]
                 },
-                "election-get-results": {
+                "ELECTION_GET_RESULTS": {
                     "Registry": "arearnest7/election-get-results:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "election-vote-enqueuer": {
+                "ELECTION_VOTE_ENQUEUER": {
                     "Registry": "arearnest7/election-vote-enqueuer:latest",
-                    "Endpoints": ["election-vote-processor"],
+                    "Endpoints": ["ELECTION_VOTE_PROCESSOR"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "election-vote-processor": {
+                "ELECTION_VOTE_PROCESSOR": {
                     "Registry": "arearnest7/election-vote-processor:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
@@ -35,20 +35,20 @@
         "macropod-election-agg-no-cache": {
             "Name": "election",
             "Functions": {
-                "election-gateway": {
+                "ELECTION_GATEWAY": {
                     "Registry": "arearnest7/election-gateway:latest",
-                    "Endpoints": ["election-get-results", "election-vote-enqueuer"]
+                    "Endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"]
                 },
-                "election-get-results": {
+                "ELECTION_GET_RESULTS": {
                     "Registry": "arearnest7/election-get-results:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "election-vote-enqueuer": {
+                "ELECTION_VOTE_ENQUEUER": {
                     "Registry": "arearnest7/election-vote-enqueuer:latest",
-                    "Endpoints": ["election-vote-processor"],
+                    "Endpoints": ["ELECTION_VOTE_PROCESSOR"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "election-vote-processor": {
+                "ELECTION_VOTE_PROCESSOR": {
                     "Registry": "arearnest7/election-vote-processor:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
@@ -65,20 +65,20 @@
         "macropod-election-disagg-cache": {
             "Name": "election",
             "Functions": {
-                "election-gateway": {
+                "ELECTION_GATEWAY": {
                     "Registry": "arearnest7/election-gateway:latest",
-                    "Endpoints": ["election-get-results", "election-vote-enqueuer"]
+                    "Endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"]
                 },
-                "election-get-results": {
+                "ELECTION_GET_RESULTS": {
                     "Registry": "arearnest7/election-get-results:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "election-vote-enqueuer": {
+                "ELECTION_VOTE_ENQUEUER": {
                     "Registry": "arearnest7/election-vote-enqueuer:latest",
-                    "Endpoints": ["election-vote-processor"],
+                    "Endpoints": ["ELECTION_VOTE_PROCESSOR"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "election-vote-processor": {
+                "ELECTION_VOTE_PROCESSOR": {
                     "Registry": "arearnest7/election-vote-processor:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
@@ -95,20 +95,20 @@
         "macropod-election-disagg-no-cache": {
             "Name": "election",
             "Functions": {
-                "election-gateway": {
+                "ELECTION_GATEWAY": {
                     "Registry": "arearnest7/election-gateway:latest",
-                    "Endpoints": ["election-get-results", "election-vote-enqueuer"]
+                    "Endpoints": ["ELECTION_GET_RESULTS", "ELECTION_VOTE_ENQUEUER"]
                 },
-                "election-get-results": {
+                "ELECTION_GET_RESULTS": {
                     "Registry": "arearnest7/election-get-results:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "election-vote-enqueuer": {
+                "ELECTION_VOTE_ENQUEUER": {
                     "Registry": "arearnest7/election-vote-enqueuer:latest",
-                    "Endpoints": ["election-vote-processor"],
+                    "Endpoints": ["ELECTION_VOTE_PROCESSOR"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "election-vote-processor": {
+                "ELECTION_VOTE_PROCESSOR": {
                     "Registry": "arearnest7/election-vote-processor:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }

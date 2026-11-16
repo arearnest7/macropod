@@ -5,38 +5,38 @@
         "macropod-wage-agg-cache": {
             "Name": "wage",
             "Functions": {
-                "wage-avg": {
+                "WAGE_AVG": {
                     "Registry": "arearnest7/wage-avg:latest",
-                    "Endpoints": ["wage-merit"]
+                    "Endpoints": ["WAGE_MERIT"]
                 },
-                "wage-format": {
+                "WAGE_FORMAT": {
                     "Registry": "arearnest7/wage-format:latest",
-                    "Endpoints": ["wage-write-raw"]
+                    "Endpoints": ["WAGE_WRITE_RAW"]
                 },
-                "wage-merit": {
+                "WAGE_MERIT": {
                     "Registry": "arearnest7/wage-merit:latest",
-                    "Endpoints": ["wage-write-merit"]
+                    "Endpoints": ["WAGE_WRITE_MERIT"]
                 },
-                "wage-stats": {
+                "WAGE_STATS": {
                     "Registry": "arearnest7/wage-stats:latest",
-                    "Endpoints": ["wage-sum"],
+                    "Endpoints": ["WAGE_SUM"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "wage-sum": {
+                "WAGE_SUM": {
                     "Registry": "arearnest7/wage-sum:latest",
-                    "Endpoints": ["wage-avg"]
+                    "Endpoints": ["WAGE_AVG"]
                 },
-                "wage-validator": {
+                "WAGE_VALIDATOR": {
                     "Registry": "arearnest7/wage-validator:latest",
-                    "Endpoints": ["wage-format"]
+                    "Endpoints": ["WAGE_FORMAT"]
                 },
-                "wage-write-merit": {
+                "WAGE_WRITE_MERIT": {
                     "Registry": "arearnest7/wage-write-merit:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "wage-write-raw": {
+                "WAGE_WRITE_RAW": {
                     "Registry": "arearnest7/wage-write-raw:latest",
-                    "Endpoints": ["wage-stats"],
+                    "Endpoints": ["WAGE_STATS"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
             },
@@ -52,38 +52,38 @@
         "macropod-wage-agg-no-cache": {
             "Name": "wage",
             "Functions": {
-                "wage-avg": {
+                "WAGE_AVG": {
                     "Registry": "arearnest7/wage-avg:latest",
-                    "Endpoints": ["wage-merit"]
+                    "Endpoints": ["WAGE_MERIT"]
                 },
-                "wage-format": {
+                "WAGE_FORMAT": {
                     "Registry": "arearnest7/wage-format:latest",
-                    "Endpoints": ["wage-write-raw"]
+                    "Endpoints": ["WAGE_WRITE_RAW"]
                 },
-                "wage-merit": {
+                "WAGE_MERIT": {
                     "Registry": "arearnest7/wage-merit:latest",
-                    "Endpoints": ["wage-write-merit"]
+                    "Endpoints": ["WAGE_WRITE_MERIT"]
                 },
-                "wage-stats": {
+                "WAGE_STATS": {
                     "Registry": "arearnest7/wage-stats:latest",
-                    "Endpoints": ["wage-sum"],
+                    "Endpoints": ["WAGE_SUM"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "wage-sum": {
+                "WAGE_SUM": {
                     "Registry": "arearnest7/wage-sum:latest",
-                    "Endpoints": ["wage-avg"]
+                    "Endpoints": ["WAGE_AVG"]
                 },
-                "wage-validator": {
+                "WAGE_VALIDATOR": {
                     "Registry": "arearnest7/wage-validator:latest",
-                    "Endpoints": ["wage-format"]
+                    "Endpoints": ["WAGE_FORMAT"]
                 },
-                "wage-write-merit": {
+                "WAGE_WRITE_MERIT": {
                     "Registry": "arearnest7/wage-write-merit:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "wage-write-raw": {
+                "WAGE_WRITE_RAW": {
                     "Registry": "arearnest7/wage-write-raw:latest",
-                    "Endpoints": ["wage-stats"],
+                    "Endpoints": ["WAGE_STATS"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
             },
@@ -99,38 +99,38 @@
         "macropod-wage-disagg-cache": {
             "Name": "wage",
             "Functions": {
-                "wage-avg": {
+                "WAGE_AVG": {
                     "Registry": "arearnest7/wage-avg:latest",
-                    "Endpoints": ["wage-merit"]
+                    "Endpoints": ["WAGE_MERIT"]
                 },
-                "wage-format": {
+                "WAGE_FORMAT": {
                     "Registry": "arearnest7/wage-format:latest",
-                    "Endpoints": ["wage-write-raw"]
+                    "Endpoints": ["WAGE_WRITE_RAW"]
                 },
-                "wage-merit": {
+                "WAGE_MERIT": {
                     "Registry": "arearnest7/wage-merit:latest",
-                    "Endpoints": ["wage-write-merit"]
+                    "Endpoints": ["WAGE_WRITE_MERIT"]
                 },
-                "wage-stats": {
+                "WAGE_STATS": {
                     "Registry": "arearnest7/wage-stats:latest",
-                    "Endpoints": ["wage-sum"],
+                    "Endpoints": ["WAGE_SUM"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "wage-sum": {
+                "WAGE_SUM": {
                     "Registry": "arearnest7/wage-sum:latest",
-                    "Endpoints": ["wage-avg"]
+                    "Endpoints": ["WAGE_AVG"]
                 },
-                "wage-validator": {
+                "WAGE_VALIDATOR": {
                     "Registry": "arearnest7/wage-validator:latest",
-                    "Endpoints": ["wage-format"]
+                    "Endpoints": ["WAGE_FORMAT"]
                 },
-                "wage-write-merit": {
+                "WAGE_WRITE_MERIT": {
                     "Registry": "arearnest7/wage-write-merit:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "wage-write-raw": {
+                "WAGE_WRITE_RAW": {
                     "Registry": "arearnest7/wage-write-raw:latest",
-                    "Endpoints": ["wage-stats"],
+                    "Endpoints": ["WAGE_STATS"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
             },
@@ -146,38 +146,38 @@
         "macropod-wage-disagg-no-cache": {
             "Name": "wage",
             "Functions": {
-                "wage-avg": {
+                "WAGE_AVG": {
                     "Registry": "arearnest7/wage-avg:latest",
-                    "Endpoints": ["wage-merit"]
+                    "Endpoints": ["WAGE_MERIT"]
                 },
-                "wage-format": {
+                "WAGE_FORMAT": {
                     "Registry": "arearnest7/wage-format:latest",
-                    "Endpoints": ["wage-write-raw"]
+                    "Endpoints": ["WAGE_WRITE_RAW"]
                 },
-                "wage-merit": {
+                "WAGE_MERIT": {
                     "Registry": "arearnest7/wage-merit:latest",
-                    "Endpoints": ["wage-write-merit"]
+                    "Endpoints": ["WAGE_WRITE_MERIT"]
                 },
-                "wage-stats": {
+                "WAGE_STATS": {
                     "Registry": "arearnest7/wage-stats:latest",
-                    "Endpoints": ["wage-sum"],
+                    "Endpoints": ["WAGE_SUM"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "wage-sum": {
+                "WAGE_SUM": {
                     "Registry": "arearnest7/wage-sum:latest",
-                    "Endpoints": ["wage-avg"]
+                    "Endpoints": ["WAGE_AVG"]
                 },
-                "wage-validator": {
+                "WAGE_VALIDATOR": {
                     "Registry": "arearnest7/wage-validator:latest",
-                    "Endpoints": ["wage-format"]
+                    "Endpoints": ["WAGE_FORMAT"]
                 },
-                "wage-write-merit": {
+                "WAGE_WRITE_MERIT": {
                     "Registry": "arearnest7/wage-write-merit:latest",
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 },
-                "wage-write-raw": {
+                "WAGE_WRITE_RAW": {
                     "Registry": "arearnest7/wage-write-raw:latest",
-                    "Endpoints": ["wage-stats"],
+                    "Endpoints": ["WAGE_STATS"],
                     "Envs": {"REDIS_URL": "127.0.0.1", "REDIS_PASSWORD": "password"}
                 }
             },
