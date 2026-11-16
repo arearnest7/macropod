@@ -7,30 +7,30 @@ DIR=${5:-~/results}
 
 host=$(/sbin/ifconfig $iface | grep -i mask | awk '{print $2}'| cut -f2 -d:)
 
-mkdir $DIR
-mkdir $DIR/iRoute
-mkdir $DIR/Knative
+#mkdir $DIR
+#mkdir $DIR/iRoute
+#mkdir $DIR/Knative
 mkdir $DIR/MacroPod
 
 # iRoute
-echo "iRoute"
-date
-cd /home/$user/macropod/iRoute
-sudo ./deploy.sh $user $passwd $iface "$worker_nodes" 1>/dev/null 2>/dev/null
-sudo ./evaluate.sh 10.43.190.1 $DIR/iRoute 1>/dev/null 2>/dev/null
-sudo ./remove.sh $user $passwd "$worker_nodes" 1>/dev/null 2>/dev/null
-date
-sleep 60s
+#echo "iRoute"
+#date
+#cd /home/$user/macropod/iRoute
+#sudo ./deploy.sh $user $passwd $iface "$worker_nodes" 1>/dev/null 2>/dev/null
+#sudo ./evaluate.sh 10.43.190.1 $DIR/iRoute 1>/dev/null 2>/dev/null
+#sudo ./remove.sh $user $passwd "$worker_nodes" 1>/dev/null 2>/dev/null
+#date
+#sleep 60s
 
 # Knative
-echo "Knative"
-date
-cd /home/$user/macropod/knative
-sudo ./deploy.sh $user $passwd $iface "$worker_nodes" 1>/dev/null 2>/dev/null
-sudo ./evaluate.sh 10.43.190.1 $host $DIR/Knative 1>/dev/null 2>/dev/null
-sudo ./remove.sh $user $passwd "$worker_nodes" 1>/dev/null 2>/dev/null
-date
-sleep 60s
+#echo "Knative"
+#date
+#cd /home/$user/macropod/knative
+#sudo ./deploy.sh $user $passwd $iface "$worker_nodes" 1>/dev/null 2>/dev/null
+#sudo ./evaluate.sh 10.43.190.1 $host $DIR/Knative 1>/dev/null 2>/dev/null
+#sudo ./remove.sh $user $passwd "$worker_nodes" 1>/dev/null 2>/dev/null
+#date
+#sleep 60s
 
 # MacroPod
 echo "MacroPod"
