@@ -2,7 +2,7 @@
     "WorkflowConcurrency": [1],
     "Invocations": 500,
     "ExtraTargets": {
-        "iroute-excamera": "http://127.0.0.1:31112/function/excamera-entry"
+        "iroute-excamera": "http://192.168.0.1:31112/function/excamera-entry"
     },
     "ExtraTargetsPayload": {
         "iroute-excamera": {

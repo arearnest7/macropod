@@ -2,7 +2,7 @@
     "WorkflowConcurrency": [1],
     "Invocations": 500,
     "ExtraTargets": {
-        "iroute-finra": "http://127.0.0.1:31112/function/finra-entry"
+        "iroute-finra": "http://192.168.0.1:31112/function/finra-entry"
     },
     "ExtraTargetsPayload": {
         "iroute-finra": {
