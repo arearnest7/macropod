@@ -16,7 +16,7 @@ mkdir $DIR/MacroPod
 echo "iRoute"
 date
 cd /home/$user/macropod/iRoute
-sudo ./deploy.sh $user $passwd $iface "$worker_nodes" 1>/dev/null 2>/dev/null
+sudo ./deploy.sh $user $passwd $iface "$worker_nodes" # 1>/dev/null 2>/dev/null
 sudo ./evaluate.sh 10.43.190.1 $host $DIR/iRoute 1>/dev/null 2>/dev/null
 sudo ./remove.sh $user $passwd "$worker_nodes" 1>/dev/null 2>/dev/null
 date
