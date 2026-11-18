@@ -414,7 +414,7 @@ func Serve_Eval(request *pb.EvalStruct) (string) {
             wf_delete := workflow.GetName()
             ingress_stub.DeleteWorkflow(context.Background(), &pb.MacroPodRequest{Workflow: &wf_delete})
             Debug(benchmark + "-" + concurrency + " has been deleted", 1) // waits until benchmark is fully deleted from K8s before starting next collection (no noise from previous)
-            time.Sleep(60 * time.Second)
+            time.Sleep(180 * time.Second)
         }
     }
     for workflow_name, target := range request.GetExtraTargets() { // iterating over all extra target benchmarks (such as Knative)
