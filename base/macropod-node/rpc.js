@@ -9,7 +9,20 @@ var packageDefinition = protoLoader.loadSync(
     oneofs: true
   });
 var macropod_pb = grpc.loadPackageDefinition(packageDefinition).macropod;
-let cached_stubs = {} // used for cached channel variants and logging
+
+function SendLogger(dest, req) {
+  var stub = null;
+  stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
+  if (dest == "timestamp") {
+    stub.Timestamp(req, async function(err, response) {});
+  } else if (dest == "error") {
+    stub.Error(req, async function(err, response) {});
+  } else if (dest == "print") {
+    stub.Print(req, async function(err, response) {});
+  } else {
+    stub.Print(req, async function(err, response) {});
+  }
+}
 
 // purpose: send a message to logger (if enabled) to dictate a timestamp of function operation across multiple replicas.
 // input:
@@ -17,24 +30,17 @@ let cached_stubs = {} // used for cached channel variants and logging
 //  target: invocation target for the RPC (if it exists); otherwise null
 //  message: message to be stored on the logger if logging is enabled
 function Timestamp(context, target, message) {
-  var request = {
-    Workflow: context.Workflow,
-    Function: context.Function,
-    WorkflowID: context.WorkflowID,
-    Depth: context.Depth,
-    Width: context.Width,
-    Target: target,
-    Text: message
-  };
   if (process.env.LOGGER && process.env.LOGGER != "") {
-    var stub = null;
-    if (!(process.env.LOGGER in cached_stubs)) {
-      stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
-      cached_stubs[process.env.LOGGER] = stub;
-    } else {
-      stub = cached_stubs[process.env.LOGGER];
-    }
-    stub.Timestamp(request, async function(err, response) {});
+    var request = {
+      Workflow: context.Workflow,
+      Function: context.Function,
+      WorkflowID: context.WorkflowID,
+      Depth: context.Depth,
+      Width: context.Width,
+      Target: target,
+      Text: message
+    };
+    SendLogger("timestamp", request);
   } else {
     console.log(message);
   }
@@ -45,20 +51,14 @@ function Timestamp(context, target, message) {
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
 //  err: error message to be stored on the logger if logging is enabled
 function Error(context, err) {
-  var request = {
-    Workflow: context.Workflow,
-    Function: context.Function,
-    Text: err
-  };
+  console.log("why?");
   if (process.env.LOGGER && process.env.LOGGER != "") {
-    var stub = null;
-    if (!(process.env.LOGGER in cached_stubs)) {
-      stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
-      cached_stubs[process.env.LOGGER] = stub;
-    } else {
-      stub = cached_stubs[process.env.LOGGER];
-    }
-    stub.Error(request, async function(err, response) {});
+    var request = {
+      Workflow: context.Workflow,
+      Function: context.Function,
+      Text: err
+    };
+    SendLogger("error", request);
   } else {
     console.log(err);
   }
@@ -69,20 +69,13 @@ function Error(context, err) {
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
 //  message: message to be stored on the logger if logging is enabled
 function Print(context, message) {
-  var request = {
-    Workflow: context.Workflow,
-    Function: context.Function,
-    Text: message
-  };
   if (process.env.LOGGER && process.env.LOGGER != "") {
-    var stub = null;
-    if (!(process.env.LOGGER in cached_stubs)) {
-      stub = new macropod_pb.MacroPodLogger(process.env.LOGGER, grpc.credentials.createInsecure());
-      cached_stubs[process.env.LOGGER] = stub;
-    } else {
-      stub = cached_stubs[process.env.LOGGER];
-    }
-    stub.Print(request, async function(err, response) {});
+    var request = {
+      Workflow: context.Workflow,
+      Function: context.Function,
+      Text: message
+    };
+    SendLogger("print", request);
   } else {
     console.log(message);
   }
@@ -91,17 +84,7 @@ function Print(context, message) {
 function invoke(dest, request) { // general purpose RPC handler used by the other async functions to provide the specific RPC behavior desired
   if (process.env.COMM_TYPE == "direct") {  // invocation sent directly to target bypassing gateway (direct RPC or IPC)
     return new Promise((resolve, reject) => {
-      var stub = null;
-      if (process.env.CHANNEL_TYPE == "cache") {
-        if (!(process.env[dest] in cached_stubs)) {
-          stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
-          cached_stubs[process.env[dest]] = stub;
-        } else {
-          stub = cached_stubs[process.env[dest]];
-        }
-      } else {
-        stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
-      }
+      var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
       stub.Invoke(request, async function(err, response) {
         await Error(request, err);
         resolve(response);
@@ -109,17 +92,7 @@ function invoke(dest, request) { // general purpose RPC handler used by the othe
     });
   } else if (process.env.COMM_TYPE == "gateway") { // invocation sent to relay off of gateway (standard serverless behavior)
     return new Promise((resolve, reject) => {
-      var stub = null;
-      if (process.env.CHANNEL_TYPE == "cache") {
-        if (!(process.env.INGRESS in cached_stubs)) {
-          stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
-          cached_stubs[process.env.INGRESS] = stub;
-        } else {
-          stub = cached_stubs[process.env.INGRESS];
-        }
-      } else {
-        stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
-      }
+      var stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
       stub.FunctionInvoke(request, async function(err, response) {
         await Error(request, err);
         resolve(response);
@@ -127,17 +100,7 @@ function invoke(dest, request) { // general purpose RPC handler used by the othe
     });
   }
   return new Promise((resolve, reject) => {
-    var stub = null;
-    if (process.env.CHANNEL_TYPE == "cache") {
-      if (!(process.env[dest] in cached_stubs)) {
-        stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
-        cached_stubs[process.env[dest]] = stub;
-      } else {
-        stub = cached_stubs[process.env[dest]];
-      }
-    } else {
-      stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
-    }
+    var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
     stub.Invoke(request, async function(err, response) {
       await Error(request, err);
       resolve(response);
