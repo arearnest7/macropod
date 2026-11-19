@@ -7,6 +7,7 @@ import (
     "time"
     "os"
     "fmt"
+    "math/rand/v2"
 
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials/insecure"
@@ -117,6 +118,37 @@ func SendRequests(ctx_in Context, target string, reqs []pb.MacroPodRequest) ([]s
     if err != nil {
         Error(ctx_in, err)
     }
+    if os.Getenv("COMM_TYPE") == "direct-gateway-fallback-sim" && rand.IntN(10) == 9 {
+        ingress_target := os.Getenv("INGRESS")
+        ingress_channel := (*grpc.ClientConn)(nil)
+        if os.Getenv("CHANNEL_TYPE") == "cache" {
+            _, cached := cached_channels[ingress_target]
+            if !cached {
+                channel, err = grpc.Dial(ingress_target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+                cached_channels[ingress_target] = channel
+            } else {
+                channel = cached_channels[ingress_target]
+            }
+        } else {
+            channel, err = grpc.Dial(ingress_target, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+        }
+        ingress_stub := pb.NewMacroPodIngressClient(ingress_channel)
+        ingress_req := pb.MacroPodRequest{Workflow: reqs[0].Workflow, Function: reqs[0].Function, Target: reqs[0].Target, WorkflowID: reqs[0].WorkflowID, Depth: reqs[0].Depth, Width: reqs[0].Width}
+        ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+        fallback_target, _ := ingress_stub.FunctionInvoke(ctx, &ingress_req)
+        cancel()
+        if os.Getenv("CHANNEL_TYPE") == "cache" {
+            _, cached := cached_channels[fallback_target.GetReply()]
+            if !cached {
+                channel, err = grpc.Dial(fallback_target.GetReply(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+                cached_channels[fallback_target.GetReply()] = channel
+            } else {
+                channel = cached_channels[fallback_target.GetReply()]
+            }
+        } else {
+            channel, err = grpc.Dial(fallback_target.GetReply(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+        }
+    }
     for i := 0; i < len(reqs); i++ {
         go func(n int) {
             ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -130,6 +162,9 @@ func SendRequests(ctx_in Context, target string, reqs []pb.MacroPodRequest) ([]s
                 case "gateway": // invocation sent to relay off of gateway (standard serverless behavior)
                     stub := pb.NewMacroPodIngressClient(channel)
                     res, err = stub.FunctionInvoke(ctx, &req)
+                case "direct-w-gateway-fallback-sim":
+                    stub := pb.NewMacroPodFunctionClient(channel)
+                    res, err = stub.Invoke(ctx, &req)
                 default:
                     stub := pb.NewMacroPodFunctionClient(channel)
                     res, err = stub.Invoke(ctx, &req)

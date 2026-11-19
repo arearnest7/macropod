@@ -51,7 +51,6 @@ function Timestamp(context, target, message) {
 //  context: context object passed from app handler to function to RPC; this consists of invocation data, including payloads, invocation/workflow id and invocation depth and width
 //  err: error message to be stored on the logger if logging is enabled
 function Error(context, err) {
-  console.log("why?");
   if (process.env.LOGGER && process.env.LOGGER != "") {
     var request = {
       Workflow: context.Workflow,
@@ -86,7 +85,9 @@ function invoke(dest, request) { // general purpose RPC handler used by the othe
     return new Promise((resolve, reject) => {
       var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
       stub.Invoke(request, async function(err, response) {
-        await Error(request, err);
+        if (err != null) {
+          await Error(request, err);
+        }
         resolve(response);
       });
     });
@@ -94,15 +95,54 @@ function invoke(dest, request) { // general purpose RPC handler used by the othe
     return new Promise((resolve, reject) => {
       var stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
       stub.FunctionInvoke(request, async function(err, response) {
-        await Error(request, err);
+        if (err != null) {
+          await Error(request, err);
+        }
         resolve(response);
       });
+    });
+  } else if (process.env.COMM_TYPE == "direct-w-gateway-fallback-sim") {
+    return new Promise((resolve, reject) => {
+      if (Math.floor(Math.random() * 10) == 9) {
+        var ingress_stub = new macropod_pb.MacroPodIngress(process.env.INGRESS, grpc.credentials.createInsecure());
+        var ingress_req = {
+          Workflow: request.Workflow,
+          Function: request.Function,
+          Target: request.Target,
+          WorkflowID: request.WorkflowID,
+          Depth: request.Depth,
+          Width: request.Width
+        };
+        ingress_stub.FunctionInvoke(ingress_req, async function(err, ingress_response) {
+          if (err != null) {
+            await Error(request, err);
+          }
+          fallback_target = ingress_response.Reply;
+          var stub = new macropod_pb.MacroPodFunction(fallback_target, grpc.credentials.createInsecure());
+          stub.Invoke(request, async function(err, response) {
+            if (err != null) {
+              await Error(request, err);
+            }
+            resolve(response);
+          });
+        });
+      } else {
+        var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
+        stub.Invoke(request, async function(err, response) {
+          if (err != null) {
+            await Error(request, err);
+          }
+          resolve(response);
+        });
+      }
     });
   }
   return new Promise((resolve, reject) => {
     var stub = new macropod_pb.MacroPodFunction(process.env[dest], grpc.credentials.createInsecure());
     stub.Invoke(request, async function(err, response) {
-      await Error(request, err);
+      if (err != null) {
+        await Error(request, err);
+      }
       resolve(response);
     });
   });

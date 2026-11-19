@@ -1,6 +1,7 @@
 from concurrent import futures
 import os
 import datetime
+import random
 import grpc
 import macropod_pb2 as pb
 import macropod_pb2_grpc as pb_grpc
@@ -80,6 +81,37 @@ def SendRequests(context, target, reqs):
     except:
         Error(context, "Invalid destination. Please check your destination for formatting and spelling errors.")
         return [""], [500]
+    try:
+        if "COMM_TYPE" in os.environ and os.environ["COMM_TYPE"] == "direct-w-gateway-fallback-sim" and random.randint(0, 9) == 9:
+            fallback_target = target
+            ingress_target = os.environ["INGRESS"]
+            ingress_channel = None
+            if "CHANNEL_TYPE" in os.environ and os.environ["CHANNEL_TYPE"] == "cache": # channels are to be cached and reused for future invocations
+                if ingress_target not in cached_channels:
+                    ingress_channel = grpc.insecure_channel(ingress_target, options=opts,)
+                    cached_channels[ingress_target] = ingress_channel
+                else:
+                    ingress_channel = cached_channels[ingress_target]
+            elif "CHANNEL_TYPE" in os.environ and os.environ["CHANNEL_TYPE"] == "no-cache": # channels are not to be cached
+                ingress_channel = grpc.insecure_channel(ingress_target, options=opts,)
+            else:
+                ingress_channel = grpc.insecure_channel(ingress_target, options=opts,)
+            ingress_stub = pb_grpc.MacroPodIngressStub(ingress_channel)
+            ingress_req = pb.MacroPodRequest(Workflow=reqs[0].Workflow, Function=reqs[0].Function, Target=reqs[0].Target, WorkflowID=reqs[0].WorkflowID, Depth=reqs[0].Depth, Width=reqs[0].Width)
+            fallback_target = ingress_stub.FunctionInvoke(ingress_req)
+            if "CHANNEL_TYPE" in os.environ and os.environ["CHANNEL_TYPE"] == "cache": # channels are to be cached and reused for future invocations
+                if fallback_target.Reply not in cached_channels:
+                    channel = grpc.insecure_channel(fallback_target.Reply, options=opts,)
+                    cached_channels[fallback_target.Reply] = channel
+                else:
+                    channel = cached_channels[fallback_target.Reply]
+            elif "CHANNEL_TYPE" in os.environ and os.environ["CHANNEL_TYPE"] == "no-cache": # channels are not to be cached
+                channel = grpc.insecure_channel(fallback_target.Reply, options=opts,)
+            else:
+                channel = grpc.insecure_channel(fallback_target.Reply, options=opts,)
+    except:
+        Error(context, "Invalid destination. Please check your destination for formatting and spelling errors.")
+        return [""], [500]
     tl = []
     with futures.ThreadPoolExecutor(max_workers=len(reqs)) as executor:
         for i in range(len(reqs)):
@@ -89,6 +121,9 @@ def SendRequests(context, target, reqs):
             elif "COMM_TYPE" in os.environ and os.environ["COMM_TYPE"] == "gateway": # invocation sent to relay off of gateway (standard serverless behavior)
                 stub = pb_grpc.MacroPodIngressStub(channel)
                 tl.append(executor.submit(stub.FunctionInvoke, reqs[i]))
+            elif "COMM_TYPE" in os.environ and os.environ["COMM_TYPE"] == "direct-w-gateway-fallback-sim":
+                stub = pb_grpc.MacroPodFunctionStub(channel)
+                tl.append(executor.submit(stub.Invoke, reqs[i]))
             else:
                 stub = pb_grpc.MacroPodFunctionStub(channel)
                 tl.append(executor.submit(stub.Invoke, reqs[i]))
@@ -115,6 +150,8 @@ def Invoke(context, dest, payload):
     except:
         Error(context, "Malformed payload. Please check your formatting. Defaulting to empty message.")
         reqs = [pb.MacroPodRequest(Workflow=context["Workflow"], Function=dest, Target=os.environ[dest], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0)]
+    if "COMM_TYPE" in os.environ and os.environ["COMM_TYPE"] == "gateway":
+        target = os.environ["INGRESS"]
     res, code = SendRequests(context, target, reqs)
     Timestamp(context, dest, "Invoke_End")
     return res[0], code[0]
@@ -137,6 +174,8 @@ def Invoke_JSON(context, dest, payload):
     except:
         Error(context, "Malformed payload. Please check your formatting. Defaulting to empty message.")
         reqs = [pb.MacroPodRequest(Workflow=context["Workflow"], Function=dest, Target=os.environ[dest], WorkflowID=context["WorkflowID"], Depth=(context["Depth"] + 1), Width=0)]
+    if "COMM_TYPE" in os.environ and os.environ["COMM_TYPE"] == "gateway":
+        target = os.environ["INGRESS"]
     res, code = SendRequests(context, target, reqs)
     Timestamp(context, dest, "Invoke_JSON_End")
     return res[0], code[0]

@@ -570,17 +570,24 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
 func Serve_FunctionInvoke(request *pb.MacroPodRequest) (string, int32) {
     Debug("got invoke request", 3)
     dataLock.Lock()
-    channel, exists := service_downstream_channel[request.GetWorkflow()][request.GetTarget()]
-    if !exists {
-        channel, _ = grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials())) // , grpc.WithDefaultServiceConfig(retrypolicy))
-        service_downstream_channel[request.GetWorkflow()][request.GetTarget()] = channel
+    comm_type := workflows[request.GetWorkflow()].GetConfig().GetCommunication()
+    if comm_type == "direct-w-gateway-fallback-sim" {
+        dataLock.Unlock()
+        Debug("setting fallback target for requestor to: " + request.GetTarget(), 6)
+        return request.GetTarget(), 200
+    } else {
+        channel, exists := service_downstream_channel[request.GetWorkflow()][request.GetTarget()]
+        if !exists {
+            channel, _ = grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials())) // , grpc.WithDefaultServiceConfig(retrypolicy))
+            service_downstream_channel[request.GetWorkflow()][request.GetTarget()] = channel
+        }
+        stub := pb.NewMacroPodFunctionClient(channel)
+        dataLock.Unlock()
+        response, _ := stub.Invoke(context.Background(), request)
+        status := response.GetCode()
+        Debug("function invoke request was served by: "+request.GetTarget(), 6)
+        return response.GetReply(), status
     }
-    stub := pb.NewMacroPodFunctionClient(channel)
-    dataLock.Unlock()
-    response, _ := stub.Invoke(context.Background(), request)
-    status := response.GetCode()
-    Debug("function invoke request was served by: "+request.GetTarget(), 6)
-    return response.GetReply(), status
 }
 
 // purpose: create workflow entry based on workflow definition (WorkflowStruct)
