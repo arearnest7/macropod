@@ -1,0 +1,63 @@
+{
+    "Name": "sn",
+    "Functions": {
+        "SN_COMPOSE_AND_BUILD": {
+            "Registry": "arearnest7/sn-compose-and-build:latest",
+            "Endpoints": ["SN_UPLOAD_HOME_TIMELINE", "SN_UPLOAD_USER_TIMELINE", "SN_POST_STORAGE"]
+        },
+        "SN_COMPOSE_POST": {
+            "Registry": "arearnest7/sn-compose-post:latest",
+            "Endpoints": ["SN_UPLOAD_USER_MENTIONS", "SN_UPLOAD_CREATOR", "SN_UPLOAD_MEDIA", "SN_UPLOAD_TEXT", "SN_UPLOAD_UNIQUE_ID", "SN_COMPOSE_AND_BUILD"]
+        },
+        "SN_POST_STORAGE": {
+            "Registry": "arearnest7/sn-post-storage:latest",
+            "Envs": {"POST_URL": "mongodb://post-storage-mongodb.socialnetwork-db.svc.cluster.local:27017/"},
+            "Endpoints": []
+        },
+        "SN_ENTRY": {
+            "Registry": "arearnest7/sn-entry:latest",
+            "Endpoints": ["SN_COMPOSE_POST"]
+        },
+        "SN_UPLOAD_CREATOR": {
+            "Registry": "arearnest7/sn-upload-creator:latest",
+            "Envs": {"USER_URL": "mongodb://user-mongodb.socialnetwork-db.svc.cluster.local:27017/", "MEMCACHE_URL": "user-memcached.socialnetwork-db.svc.cluster.local:11211"},
+            "Endpoints": []
+        },
+        "SN_UPLOAD_HOME_TIMELINE": {
+            "Registry": "arearnest7/sn-upload-home-timeline:latest",
+            "Envs": {"SOCIAL_GRAPH_URL": "mongodb://social-graph-mongodb.socialnetwork-db.svc.cluster.local:27017/", "HOME_REDIS": "home-timeline-redis.socialnetwork-db.svc.cluster.local"},
+            "Endpoints": []
+        },
+        "SN_UPLOAD_MEDIA": {
+            "Registry": "arearnest7/sn-upload-media:latest",
+            "Endpoints": []
+        },
+        "SN_UPLOAD_TEXT": {
+            "Registry": "arearnest7/sn-upload-text:latest",
+            "Endpoints": []
+        },
+        "SN_UPLOAD_UNIQUE_ID": {
+            "Registry": "arearnest7/sn-upload-unique-id:latest",
+            "Endpoints": []
+        },
+        "SN_UPLOAD_USER_MENTIONS": {
+            "Registry": "arearnest7/sn-upload-user-mentions:latest",
+            "Envs": {"USER_URL": "mongodb://user-mongodb.socialnetwork-db.svc.cluster.local:27017/", "MEMCACHE_URL": "user-memcached.socialnetwork-db.svc.cluster.local:11211"},
+            "Endpoints": []
+        },
+        "SN_UPLOAD_USER_TIMELINE": {
+            "Registry": "arearnest7/sn-upload-user-timeline:latest",
+            "Envs": {"USER_TIMELINE_URL": "mongodb://user-timeline-mongodb.socialnetwork-db.svc.cluster.local:27017/", "USER_REDIS": "user-timeline-redis.socialnetwork-db.svc.cluster.local"},
+            "Endpoints": []
+        }
+    },
+    "Config": {
+        "Communication": "direct-w-gateway-fallback-sim",
+        "Channel": "cache",
+        "Aggregation": "disagg"
+    },
+    "Payload": {
+        "Type": "Text",
+        "Text": "{\"n\": 1, \"st\": 0}"
+    }
+}

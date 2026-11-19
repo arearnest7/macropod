@@ -1,0 +1,42 @@
+{
+    "Name": "finra",
+    "Functions": {
+        "FINRA_ENTRY": {
+            "Registry": "arearnest7/finra-entry:latest",
+            "Endpoints": ["FINRA_MARKETDATA", "FINRA_LASTPX", "FINRA_SIDE", "FINRA_TRDDATE", "FINRA_VOLUME", "FINRA_MARGIN_BALANCE"]
+        },
+        "FINRA_LASTPX": {
+            "Registry": "arearnest7/finra-lastpx:latest",
+            "Endpoints": []
+        },
+        "FINRA_MARGIN_BALANCE": {
+            "Registry": "arearnest7/finra-margin-balance:latest",
+            "Endpoints": []
+        },
+        "FINRA_MARKETDATA": {
+            "Registry": "arearnest7/finra-marketdata:latest",
+            "Endpoints": []
+        },
+        "FINRA_SIDE": {
+            "Registry": "arearnest7/finra-side:latest",
+            "Endpoints": []
+        },
+        "FINRA_TRDDATE": {
+            "Registry": "arearnest7/finra-trddate:latest",
+            "Endpoints": []
+        },
+        "FINRA_VOLUME": {
+            "Registry": "arearnest7/finra-volume:latest",
+            "Endpoints": []
+        }
+    },
+    "Config": {
+        "Communication": "direct-w-gateway-fallback-sim",
+        "Channel": "cache",
+        "Aggregation": "disagg"
+    },
+    "Payload": {
+        "Type": "Text",
+        "Text": "{\"n\": 1, \"st\": 0}"
+    }
+}

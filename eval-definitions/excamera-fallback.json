@@ -1,0 +1,174 @@
+{
+    "WorkflowConcurrency": [1],
+    "Invocations": 500,
+    "Workflows": {
+        "macropod-excamera-agg-cache-fallback": {
+            "Name": "excamera",
+            "Functions": {
+                "EXCAMERA_ENTRY": {
+                    "Registry": "arearnest7/excamera-entry:latest",
+                    "Endpoints": ["EXCAMERA_VPXENC", "EXCAMERA_VX_CON"]
+                },
+                "EXCAMERA_GROUP": {
+                    "Registry": "arearnest7/excamera-group:latest",
+                    "Endpoints": ["EXCAMERA_REENCODE", "excamera-rebase"]
+                },
+                "excamera-rebase": {
+                    "Registry": "arearnest7/excamera-rebase:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_REENCODE": {
+                    "Registry": "arearnest7/excamera-reencode:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_VPXENC": {
+                    "Registry": "arearnest7/excamera-vpxenc:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_VX_CON": {
+                    "Registry": "arearnest7/excamera-vx-con:latest",
+                    "Endpoints": ["EXCAMERA_XCDEC", "EXCAMERA_GROUP"]
+                },
+                "EXCAMERA_XCDEC": {
+                    "Registry": "arearnest7/excamera-xcdec:latest",
+                    "Endpoints": []
+                }
+            },
+            "Config": {
+                "Communication": "direct-w-gateway-fallback-sim",
+                "Channel": "cache",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "Text",
+                "Text": "{\"n\": 1, \"st\": 0}"
+            }
+        },
+        "macropod-excamera-agg-no-cache-fallback": {
+            "Name": "excamera",
+            "Functions": {
+                "EXCAMERA_ENTRY": {
+                    "Registry": "arearnest7/excamera-entry:latest",
+                    "Endpoints": ["EXCAMERA_VPXENC", "EXCAMERA_VX_CON"]
+                },
+                "EXCAMERA_GROUP": {
+                    "Registry": "arearnest7/excamera-group:latest",
+                    "Endpoints": ["EXCAMERA_REENCODE", "excamera-rebase"]
+                },
+                "excamera-rebase": {
+                    "Registry": "arearnest7/excamera-rebase:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_REENCODE": {
+                    "Registry": "arearnest7/excamera-reencode:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_VPXENC": {
+                    "Registry": "arearnest7/excamera-vpxenc:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_VX_CON": {
+                    "Registry": "arearnest7/excamera-vx-con:latest",
+                    "Endpoints": ["EXCAMERA_XCDEC", "EXCAMERA_GROUP"]
+                },
+                "EXCAMERA_XCDEC": {
+                    "Registry": "arearnest7/excamera-xcdec:latest",
+                    "Endpoints": []
+                }
+            },
+            "Config": {
+                "Communication": "direct-w-gateway-fallback-sim",
+                "Channel": "no-cache",
+                "Aggregation": "agg"
+            },
+            "Payload": {
+                "Type": "Text",
+                "Text": "{\"n\": 1, \"st\": 0}"
+            }
+        },
+        "macropod-excamera-disagg-cache-fallback": {
+            "Name": "excamera",
+            "Functions": {
+                "EXCAMERA_ENTRY": {
+                    "Registry": "arearnest7/excamera-entry:latest",
+                    "Endpoints": ["EXCAMERA_VPXENC", "EXCAMERA_VX_CON"]
+                },
+                "EXCAMERA_GROUP": {
+                    "Registry": "arearnest7/excamera-group:latest",
+                    "Endpoints": ["EXCAMERA_REENCODE", "excamera-rebase"]
+                },
+                "excamera-rebase": {
+                    "Registry": "arearnest7/excamera-rebase:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_REENCODE": {
+                    "Registry": "arearnest7/excamera-reencode:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_VPXENC": {
+                    "Registry": "arearnest7/excamera-vpxenc:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_VX_CON": {
+                    "Registry": "arearnest7/excamera-vx-con:latest",
+                    "Endpoints": ["EXCAMERA_XCDEC", "EXCAMERA_GROUP"]
+                },
+                "EXCAMERA_XCDEC": {
+                    "Registry": "arearnest7/excamera-xcdec:latest",
+                    "Endpoints": []
+                }
+            },
+            "Config": {
+                "Communication": "direct-w-gateway-fallback-sim",
+                "Channel": "cache",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "Text",
+                "Text": "{\"n\": 1, \"st\": 0}"
+            }
+        },
+        "macropod-excamera-disagg-no-cache-fallback": {
+            "Name": "excamera",
+            "Functions": {
+                "EXCAMERA_ENTRY": {
+                    "Registry": "arearnest7/excamera-entry:latest",
+                    "Endpoints": ["EXCAMERA_VPXENC", "EXCAMERA_VX_CON"]
+                },
+                "EXCAMERA_GROUP": {
+                    "Registry": "arearnest7/excamera-group:latest",
+                    "Endpoints": ["EXCAMERA_REENCODE", "excamera-rebase"]
+                },
+                "excamera-rebase": {
+                    "Registry": "arearnest7/excamera-rebase:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_REENCODE": {
+                    "Registry": "arearnest7/excamera-reencode:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_VPXENC": {
+                    "Registry": "arearnest7/excamera-vpxenc:latest",
+                    "Endpoints": []
+                },
+                "EXCAMERA_VX_CON": {
+                    "Registry": "arearnest7/excamera-vx-con:latest",
+                    "Endpoints": ["EXCAMERA_XCDEC", "EXCAMERA_GROUP"]
+                },
+                "EXCAMERA_XCDEC": {
+                    "Registry": "arearnest7/excamera-xcdec:latest",
+                    "Endpoints": []
+                }
+            },
+            "Config": {
+                "Communication": "direct-w-gateway-fallback-sim",
+                "Channel": "no-cache",
+                "Aggregation": "disagg"
+            },
+            "Payload": {
+                "Type": "Text",
+                "Text": "{\"n\": 1, \"st\": 0}"
+            }
+        }
+    }
+}
