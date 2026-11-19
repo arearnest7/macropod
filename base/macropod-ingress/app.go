@@ -36,32 +36,28 @@ type IngressService struct {
 }
 
 var (
-    workflows                    = make(map[string]*pb.WorkflowStruct) 						// map of all created workflow definitions
-    workflow_target_concurrency  = make(map[string]int32) 									// map of all target concurrencies per workflow (-1 dictates unbounded)
-    workflow_invocations_current = make(map[string]int)										// map of current invocations in process per workflow
-    workflow_invocations_total   = make(map[string]int)										// map of all invocations over entire workflow lifespan per workflow
-    entry_function               = make(map[string]string)									// map of the names for the entry function for each workflow (used primarily for logging)
-    workflow_functions_created   = make(map[string]int)										// map of the number of current deployments for a given workflow
+    workflows                    = make(map[string]*pb.WorkflowStruct)                      // map of all created workflow definitions
+    workflow_target_concurrency  = make(map[string]int32)                                   // map of all target concurrencies per workflow (-1 dictates unbounded)
+    workflow_invocations_current = make(map[string]int)                                     // map of current invocations in process per workflow
+    workflow_invocations_total   = make(map[string]int)                                     // map of all invocations over entire workflow lifespan per workflow
+    entry_function               = make(map[string]string)                                  // map of the names for the entry function for each workflow (used primarily for logging)
+    workflow_functions_created   = make(map[string]int)                                     // map of the number of current deployments for a given workflow
 
-    service_target               = make(map[string][]string)								// IP:port string for a given workflow replica service
-    service_channel              = make(map[string]*grpc.ClientConn)						// channels for the currently in use workflow replicas
-    service_stub                 = make(map[string]pb.MacroPodFunctionClient)				// stubs for the previously mentioned replicas
-    service_count                = make(map[string]int)										// total count of current invocations running on a given workflow deployment replica
-    service_timestamp            = make(map[string]time.Time)								// last time the replica service was used (used in deleting by TTL)
-    service_ttl                  = make(map[string]int32)									// time-to-live for the specific replica (used to delete in WatchTTL)
-    service_downstream_channel   = make(map[string]map[string]*grpc.ClientConn)				// map of the channels for all downstream functions for a given workflow (used for gateway communication pattern)
-    service_downstream_stub      = make(map[string]map[string]pb.MacroPodFunctionClient) 	// stubs for the downstream functions for all given workflows
+    service_target               = make(map[string][]string)                                // IP:port string for a given workflow replica service
+    service_channel              = make(map[string]*grpc.ClientConn)                        // channels for the currently in use workflow replicas
+    service_count                = make(map[string]int)                                     // total count of current invocations running on a given workflow deployment replica
+    service_timestamp            = make(map[string]time.Time)                               // last time the replica service was used (used in deleting by TTL)
+    service_ttl                  = make(map[string]int32)                                   // time-to-live for the specific replica (used to delete in WatchTTL)
+    service_downstream_channel   = make(map[string]map[string]*grpc.ClientConn)             // map of the channels for all downstream functions for a given workflow (used for gateway communication pattern)
 
-    deployer_channel        *grpc.ClientConn												// general purpose deployer gRPC channel used primary in transmitting crea, update and delete workflow requests and creating new replicas
-    deployer_stub           pb.MacroPodDeployerClient 										// stub for the general purpose deployer gRPC channel
+    deployer_channel        *grpc.ClientConn                                                // general purpose deployer gRPC channel used primary in transmitting crea, update and delete workflow requests and creating new replicas
     deployer_update_channel *grpc.ClientConn                                                // deployer gRPC channel used for dynamic updating and for TTL deletions
-    deployer_update_stub    pb.MacroPodDeployerClient 										// stub for the deployer updating channel
 
-    default_config   *pb.ConfigStruct														// default configurations if workflow definition does not have the values assigned
-    deployer_address string 																// IP:port string for the deployer to set up deployer channels and stubs
-    updateRun        bool 																	// boolean signifying if runUpdateFunction is in progress (reduce the volume of parallel update requests to deployer)
-    dataLock         sync.Mutex																// general purpose mutex lock for all operations modifying global variables (preventing system panics and divergent data commits)
-    createRun        bool																	// boolean signifying if runCreateFunction is in progress (reduce the volume of parallel create requests to deployer)
+    default_config   *pb.ConfigStruct                                                       // default configurations if workflow definition does not have the values assigned
+    deployer_address string                                                                 // IP:port string for the deployer to set up deployer channels and stubs
+    updateRun        bool                                                                   // boolean signifying if runUpdateFunction is in progress (reduce the volume of parallel update requests to deployer)
+    dataLock         sync.Mutex                                                             // general purpose mutex lock for all operations modifying global variables (preventing system panics and divergent data commits)
+    createRun        bool                                                                   // boolean signifying if runCreateFunction is in progress (reduce the volume of parallel create requests to deployer)
 
 //    retrypolicy = `{
 //        "methodConfig": [{
@@ -96,13 +92,12 @@ func Deployer_Check() {
     var err error
     for deployer_channel == nil {
         deployer_channel, _ = grpc.Dial(deployer_address, grpc.WithInsecure())
-        deployer_stub = pb.NewMacroPodDeployerClient(deployer_channel)
-        Debug("attempting rebuild deployer stub...", 5)
+        Debug("attempting rebuild deployer channel...", 5)
         time.Sleep(10 * time.Millisecond)
     }
     for deployer_channel.GetState() != connectivity.Ready {
         if deployer_channel.GetState() == connectivity.Connecting {
-            Debug("waiting for deployer stub to be finish connecting", 5)
+            Debug("waiting for deployer channel to be finish connecting", 5)
             time.Sleep(10 * time.Millisecond)
         } else if deployer_channel.GetState() == connectivity.TransientFailure || deployer_channel.GetState() == connectivity.Shutdown {
             deployer_channel.Close()
@@ -110,8 +105,7 @@ func Deployer_Check() {
             if err != nil {
                 Debug(err.Error(), 0)
             }
-            deployer_stub = pb.NewMacroPodDeployerClient(deployer_channel)
-            Debug("attempting rebuild deployer stub due to transient failure or shutdown...", 5)
+            Debug("attempting rebuild deployer channel due to transient failure or shutdown...", 5)
             time.Sleep(10 * time.Millisecond)
         } else {
             break
@@ -124,14 +118,13 @@ func Deployer_Update_Check() {
     var err error
     for deployer_update_channel == nil {
         deployer_update_channel, _ = grpc.Dial(deployer_address, grpc.WithInsecure())
-        deployer_update_stub = pb.NewMacroPodDeployerClient(deployer_channel)
-        Debug("attempting rebuild deployer update stub...", 5)
+        Debug("attempting rebuild deployer update channel...", 5)
         time.Sleep(10 * time.Millisecond)
     }
 
     for deployer_update_channel.GetState() != connectivity.Ready {
         if deployer_update_channel.GetState() == connectivity.Connecting {
-            Debug("waiting for deployer update stub to be finish connecting", 5)
+            Debug("waiting for deployer update channel to be finish connecting", 5)
             time.Sleep(10 * time.Millisecond)
         } else if deployer_update_channel.GetState() == connectivity.TransientFailure || deployer_update_channel.GetState() == connectivity.Shutdown {
             deployer_update_channel.Close()
@@ -139,8 +132,7 @@ func Deployer_Update_Check() {
             if err != nil {
                 Debug(err.Error(), 0)
             }
-            deployer_update_stub = pb.NewMacroPodDeployerClient(deployer_update_channel)
-            Debug("attempting rebuild deployer update stub due to transient failure or shutdown...", 5)
+            Debug("attempting rebuild deployer update channel due to transient failure or shutdown...", 5)
             time.Sleep(10 * time.Millisecond)
         } else {
             break
@@ -235,7 +227,6 @@ func WatchTTL() {
                                 workflow_functions_created[workflow_name]--
                             }
                             delete(service_channel, name)
-                            delete(service_stub, name)
                             delete(service_ttl, name)
                         }
                     }
@@ -246,6 +237,7 @@ func WatchTTL() {
                         }
                         ttl_request := pb.MacroPodRequest{Workflow: &workflow_name, Target: &labels}
                         Debug("deleting resources for"+labels, 5)
+                        deployer_stub := pb.NewMacroPodDeployerClient(deployer_channel)
                         go deployer_stub.TTLDelete(context.Background(), &ttl_request)
                         time.Sleep(100 * time.Millisecond)
                         deployments_list, err := k.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labels})
@@ -266,7 +258,6 @@ func WatchTTL() {
                                     service_channel[name].Close()
                                 }
                                 delete(service_channel, name)
-                                delete(service_stub, name)
                                 delete(service_ttl, name)
                             }
                         }
@@ -302,7 +293,6 @@ func UpdateHostTargets(ingress *networkingv1.Ingress) {
                 for !IfPodsAreRunning(replica_name, namespace) {
                 }
                 channel, _ := grpc.Dial(hostname, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials())) //, grpc.WithDefaultServiceConfig(retrypolicy))
-                stub := pb.NewMacroPodFunctionClient(channel)
                 for channel.GetState() != connectivity.Ready {
                     time.Sleep(10 * time.Millisecond)
                 }
@@ -315,7 +305,6 @@ func UpdateHostTargets(ingress *networkingv1.Ingress) {
                     service_timestamp[hostname] = time.Now()
                     service_target[workflow_name] = append(service_target[workflow_name], hostname)
                     service_channel[hostname] = channel
-                    service_stub[hostname] = stub
                     service_ttl[hostname] = default_config.GetTTL()
                     if workflows[workflow_name].GetConfig() != nil && workflows[workflow_name].GetConfig().GetTTL() != 0 {
                         service_ttl[hostname] = workflows[workflow_name].GetConfig().GetTTL()
@@ -356,7 +345,6 @@ func DeleteHostTargets(ingress *networkingv1.Ingress) {
                                 workflow_functions_created[workflow_name]--
                             }
                             delete(service_channel, hostname_deleted)
-                            delete(service_stub, hostname_deleted)
                             delete(service_ttl, hostname_deleted)
                         }
                         break
@@ -408,6 +396,7 @@ func runCreateFunction(workflow_name_for_create string) {
     dataLock.Unlock()
     fmt.Printf("number of invocations: %d, number of deployments: %d\n", inv_cnt, dep_cnt)
     create_deployment_request := pb.MacroPodRequest{Workflow: &workflow_name_for_create}
+    deployer_stub := pb.NewMacroPodDeployerClient(deployer_channel)
     response, _ := deployer_stub.CreateDeployment(context.Background(), &create_deployment_request)
     Debug("response from create deployment: "+response.GetReply(), 5)
     if response.GetReply() == "0" {
@@ -428,7 +417,7 @@ func runCreateFunction(workflow_name_for_create string) {
 //  MacroPodFunctionClient: stub for the workflow replica
 //  string: target
 //  bool: triggered
-func GetTarget(triggered bool, workflow_name string, target string) (pb.MacroPodFunctionClient, string, bool) {
+func GetTarget(triggered bool, workflow_name string, target string) (string, bool) {
     if len(service_target[workflow_name]) > 0 {
         idx := workflow_invocations_total[workflow_name] % len(service_target[workflow_name])
         service := service_target[workflow_name][idx]
@@ -446,9 +435,8 @@ func GetTarget(triggered bool, workflow_name string, target string) (pb.MacroPod
         triggered = true
         go runCreateFunction(workflow_name)
     }
-    stub_to_return := service_stub[target]
 
-    return stub_to_return, target, triggered
+    return target, triggered
 }
 
 // purpose: sets global default configurations for all workflows
@@ -488,6 +476,7 @@ func Serve_Config(request *pb.ConfigStruct) string {
         default_config.TargetConcurrency = &target
     }
     dataLock.Unlock()
+    deployer_stub := pb.NewMacroPodDeployerClient(deployer_channel)
     _, err := deployer_stub.Config(context.Background(), request)
     if err != nil {
         Debug(err.Error(), 0)
@@ -513,6 +502,7 @@ func Serve_Config(request *pb.ConfigStruct) string {
 func runUpdateFunction(update_request pb.MacroPodRequest) {
     Debug("update request to deployer", 6)
     updateRun = true
+    deployer_update_stub := pb.NewMacroPodDeployerClient(deployer_channel)
     deployer_update_stub.UpdateDeployments(context.Background(), &update_request)
     updateRun = false
     Debug("set updateRun to false", 6)
@@ -542,7 +532,8 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
             workflow_invocations_total[workflow_name]++
             invoked = true
         }
-        stub, target, triggered = GetTarget(triggered, workflow_name, target)
+        target, triggered = GetTarget(triggered, workflow_name, target)
+        stub = pb.NewMacroPodFunctionClient(service_channel[target])
         dataLock.Unlock()
     }
     Debug("target set to  "+target, 6)
@@ -578,15 +569,14 @@ func Serve_WorkflowInvoke(request *pb.MacroPodRequest) (string, int32) {
 //  int32: response code
 func Serve_FunctionInvoke(request *pb.MacroPodRequest) (string, int32) {
     Debug("got invoke request", 3)
-        dataLock.Lock()
-        stub, exists := service_downstream_stub[request.GetWorkflow()][request.GetTarget()]
-        if !exists {
-            channel, _ := grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials())) // , grpc.WithDefaultServiceConfig(retrypolicy))
-        stub = pb.NewMacroPodFunctionClient(channel)
-            service_downstream_channel[request.GetWorkflow()][request.GetTarget()] = channel
-            service_downstream_stub[request.GetWorkflow()][request.GetTarget()] = stub
-        }
-        dataLock.Unlock()
+    dataLock.Lock()
+    channel, exists := service_downstream_channel[request.GetWorkflow()][request.GetTarget()]
+    if !exists {
+        channel, _ = grpc.Dial(request.GetTarget(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(1024*1024*200), grpc.MaxCallSendMsgSize(1024*1024*200)), grpc.WithTransportCredentials(insecure.NewCredentials())) // , grpc.WithDefaultServiceConfig(retrypolicy))
+        service_downstream_channel[request.GetWorkflow()][request.GetTarget()] = channel
+    }
+    stub := pb.NewMacroPodFunctionClient(channel)
+    dataLock.Unlock()
     response, _ := stub.Invoke(context.Background(), request)
     status := response.GetCode()
     Debug("function invoke request was served by: "+request.GetTarget(), 6)
@@ -615,14 +605,14 @@ func Serve_CreateWorkflow(request *pb.WorkflowStruct) string {
     if request.GetConfig() != nil && request.GetConfig().GetTargetConcurrency() != 0 {
         workflow_target_concurrency[request.GetName()] = request.GetConfig().GetTargetConcurrency()
     }
-        service_downstream_channel[request.GetName()] = make(map[string]*grpc.ClientConn)
-        service_downstream_stub[request.GetName()] = make(map[string]pb.MacroPodFunctionClient)
+    service_downstream_channel[request.GetName()] = make(map[string]*grpc.ClientConn)
     workflow_invocations_current[request.GetName()] = 0
     workflow_functions_created[request.GetName()] = 0
     workflow_invocations_total[request.GetName()] = 0
     Deployer_Check()
     Deployer_Update_Check()
     dataLock.Unlock()
+    deployer_stub := pb.NewMacroPodDeployerClient(deployer_channel)
     results, _ := deployer_stub.CreateWorkflow(context.Background(), request)
     entrypoint := results.GetReply()
     dataLock.Lock()
@@ -697,7 +687,6 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
                         service_channel[hostname_deleted].Close()
                     }
                     delete(service_channel, hostname_deleted)
-                    delete(service_stub, hostname_deleted)
                     delete(service_ttl, hostname_deleted)
                     dataLock.Unlock()
                 }
@@ -706,6 +695,7 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
         }
 
     }
+    deployer_stub := pb.NewMacroPodDeployerClient(deployer_channel)
     response, err := deployer_stub.DeleteWorkflow(context.Background(), request)
     if err != nil {
         Debug("error in response of delete "+err.Error(), 5)
@@ -719,13 +709,12 @@ func Serve_DeleteWorkflow(request *pb.MacroPodRequest) string {
     delete(workflow_functions_created, request.GetWorkflow())
     delete(workflow_invocations_total, request.GetWorkflow())
     delete(entry_function, request.GetWorkflow())
-        for _, channel := range service_downstream_channel[request.GetWorkflow()] {
-            if channel != nil {
-                channel.Close()
-            }
+    for _, channel := range service_downstream_channel[request.GetWorkflow()] {
+        if channel != nil {
+            channel.Close()
         }
-        delete(service_downstream_channel, request.GetWorkflow())
-        delete(service_downstream_stub, request.GetWorkflow())
+    }
+    delete(service_downstream_channel, request.GetWorkflow())
     Debug("deleting and recreating the deployer channel", 5)
     deployer_channel.Close()
     deployer_update_channel.Close()
